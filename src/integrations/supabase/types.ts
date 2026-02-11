@@ -117,6 +117,73 @@ export type Database = {
           },
         ]
       }
+      devices: {
+        Row: {
+          app_version: string | null
+          business_id: string
+          created_at: string
+          device_code: string
+          id: string
+          last_seen_at: string | null
+          location_id: string | null
+          paired_at: string | null
+          screen_id: string | null
+          screen_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          app_version?: string | null
+          business_id: string
+          created_at?: string
+          device_code: string
+          id?: string
+          last_seen_at?: string | null
+          location_id?: string | null
+          paired_at?: string | null
+          screen_id?: string | null
+          screen_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          app_version?: string | null
+          business_id?: string
+          created_at?: string
+          device_code?: string
+          id?: string
+          last_seen_at?: string | null
+          location_id?: string | null
+          paired_at?: string | null
+          screen_id?: string | null
+          screen_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           address: string | null
