@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
+import bogaLogo from "@/assets/logo-boga.png";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
@@ -142,10 +143,11 @@ const Player = () => {
   // --- UNPAIRED: Pairing Screen ---
   if (status === "unpaired") {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #0a0812 0%, #12101A 100%)" }}>
-        {/* Logo */}
-        <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: "linear-gradient(135deg, #8A00FF, #C000FF)", boxShadow: "0 0 40px rgba(138,0,255,0.4)" }}>
-          <Monitor className="h-8 w-8" style={{ color: "#fff" }} />
+      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+        {/* Logo with glow */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
+          <img src={bogaLogo} alt="BOGA" className="relative h-20 w-20 object-contain" />
         </div>
 
         {/* Code */}
@@ -170,9 +172,7 @@ const Player = () => {
 
         {/* Branding */}
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md" style={{ background: "linear-gradient(135deg, #8A00FF, #C000FF)" }}>
-            <Monitor className="h-3 w-3" style={{ color: "#fff" }} />
-          </div>
+          <img src={bogaLogo} alt="BOGA" className="h-6 w-6 object-contain" />
           <span className="text-xs font-bold tracking-wider" style={{ color: "#fff" }}>BOGA SIGNAGE</span>
         </div>
       </div>
