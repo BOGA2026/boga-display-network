@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Monitor, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
+
 const Register = () => {
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,7 +26,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      // 1. Sign up
+      // 1. Sign up (may or may not auto-confirm)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -38,35 +41,33 @@ const Register = () => {
 
       const userId = authData.user.id;
 
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // 2. Use edge function with service role to create business + membership
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/register-business`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+        },
+        body: JSON.stringify({ user_id: userId, business_name: businessName.trim() }),
+      });
 
-      // 2. Create business
-      const { data: business, error: bizError } = await supabase
-        .from("businesses")
-        .insert({ name: businessName.trim() })
-        .select("id")
-        .single();
-
-      if (bizError) throw bizError;
-
-      // 3. Create membership (admin)
-      const { error: memError } = await supabase
-        .from("business_memberships")
-        .insert({ business_id: business.id, user_id: userId, role: "admin" });
-
-      if (memError) throw memError;
-
-      // 4. Update profile with business_id
-      const { error: profError } = await supabase
-        .from("profiles")
-        .update({ business_id: business.id, full_name: businessName.trim() })
-        .eq("id", userId);
-
-      if (profError) console.warn("Profile update warning:", profError.message);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Error al crear negocio");
+      }
 
       toast({ title: "Cuenta creada exitosamente" });
-      navigate("/dashboard");
+
+      // If session exists (email confirmation disabled), go to dashboard
+      if (authData.session) {
+        navigate("/dashboard");
+      } else {
+        toast({
+          title: "Revisa tu correo",
+          description: "Te enviamos un enlace de confirmación para activar tu cuenta.",
+        });
+        navigate("/login");
+      }
     } catch (err: any) {
       console.error("Register error:", err);
       toast({
