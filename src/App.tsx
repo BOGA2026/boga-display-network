@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/recuperar" element={<ForgotPassword />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="ubicaciones" element={<Locations />} />
+            
             <Route path="pantallas" element={<Screens />} />
             <Route path="contenido" element={<Content />} />
             <Route path="playlists" element={<Playlists />} />
