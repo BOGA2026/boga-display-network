@@ -16,6 +16,7 @@ import Playlists from "./pages/Playlists";
 import Schedule from "./pages/Schedule";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
+import Player from "./pages/Player";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
+          <Route path="/player/:deviceId" element={<Player />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             
