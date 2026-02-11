@@ -48,7 +48,6 @@ const Login = () => {
             <img src={bogaLogo} alt="BOGA" className="relative h-20 w-20 object-contain" />
           </div>
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">BOGA</h1>
             <p className="text-sm text-muted-foreground">Signage Network</p>
             <p className="mt-1 text-xs text-muted-foreground/60">Infraestructura visual inteligente</p>
           </div>
