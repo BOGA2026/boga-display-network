@@ -1,12 +1,13 @@
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Monitor, MonitorOff, MapPin, Image } from "lucide-react";
+import { Monitor, MonitorOff, MapPin, Image, Zap } from "lucide-react";
 
 const stats = [
-  { label: "Pantallas totales", value: "0", icon: Monitor, color: "text-primary" },
-  { label: "En línea", value: "0", icon: Monitor, color: "text-green-400" },
-  { label: "Fuera de línea", value: "0", icon: MonitorOff, color: "text-destructive" },
-  { label: "Ubicaciones", value: "0", icon: MapPin, color: "text-accent" },
-  { label: "Contenido activo", value: "0", icon: Image, color: "text-muted-foreground" },
+  { label: "Pantallas totales", value: "0", icon: Monitor, accent: true },
+  { label: "En línea", value: "0", icon: Zap, accent: false },
+  { label: "Fuera de línea", value: "0", icon: MonitorOff, accent: false },
+  { label: "Ubicaciones", value: "0", icon: MapPin, accent: false },
+  { label: "Contenido activo", value: "0", icon: Image, accent: false },
 ];
 
 const Dashboard = () => {
@@ -19,12 +20,23 @@ const Dashboard = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {stats.map((stat) => (
-          <Card key={stat.label} className="border-border/50">
+          <Card
+            key={stat.label}
+            className={cn(
+              "surface-elevated border-border/30 transition-all duration-300 hover:border-primary/30",
+              stat.accent && "glow-primary-sm"
+            )}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">
                 {stat.label}
               </CardTitle>
-              <stat.icon className={cn("h-4 w-4", stat.color)} />
+              <div className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-lg",
+                stat.accent ? "gradient-primary glow-primary-sm" : "bg-secondary"
+              )}>
+                <stat.icon className={cn("h-4 w-4", stat.accent ? "text-primary-foreground" : "text-muted-foreground")} />
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{stat.value}</p>
@@ -34,7 +46,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <Card className="border-border/50">
+        <Card className="surface-elevated border-border/30">
           <CardHeader>
             <CardTitle className="text-lg">Actividad reciente</CardTitle>
           </CardHeader>
@@ -44,7 +56,7 @@ const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
-        <Card className="border-border/50">
+        <Card className="surface-elevated border-border/30">
           <CardHeader>
             <CardTitle className="text-lg">Estado de pantallas</CardTitle>
           </CardHeader>
@@ -58,8 +70,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-// Need to import cn
-import { cn } from "@/lib/utils";
 
 export default Dashboard;

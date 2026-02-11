@@ -24,16 +24,16 @@ const Register = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Monitor className="h-6 w-6 text-primary-foreground" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl gradient-primary glow-primary">
+            <Monitor className="h-7 w-7 text-primary-foreground" />
           </div>
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold tracking-tight">BOGA</h1>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">BOGA</h1>
             <p className="text-sm text-muted-foreground">Signage Network</p>
           </div>
         </div>
 
-        <Card className="border-border/50 bg-card/80 backdrop-blur">
+        <Card className="surface-elevated border-border/30 backdrop-blur">
           <CardHeader className="space-y-1">
             <CardTitle className="text-xl">Registra tu negocio</CardTitle>
             <CardDescription>Crea una cuenta para gestionar tus pantallas digitales</CardDescription>
@@ -84,7 +84,7 @@ const Register = () => {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0" disabled={loading}>
                 {loading ? "Creando cuenta..." : "Crear cuenta"}
               </Button>
               <p className="text-center text-sm text-muted-foreground">
