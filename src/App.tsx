@@ -8,6 +8,12 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
+import Locations from "./pages/Locations";
+import Screens from "./pages/Screens";
+import Content from "./pages/Content";
+import Playlists from "./pages/Playlists";
+import Schedule from "./pages/Schedule";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +31,12 @@ const App = () => (
           <Route path="/recuperar" element={<ForgotPassword />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="ubicaciones" element={<Locations />} />
+            <Route path="pantallas" element={<Screens />} />
+            <Route path="contenido" element={<Content />} />
+            <Route path="playlists" element={<Playlists />} />
+            <Route path="programacion" element={<Schedule />} />
+            <Route path="analiticas" element={<Analytics />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
