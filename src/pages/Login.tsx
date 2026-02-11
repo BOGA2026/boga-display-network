@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Monitor, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import bogaLogo from "@/assets/logo-boga.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,15 +39,18 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center p-4" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
       <div className="w-full max-w-md animate-fade-in">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl gradient-primary glow-primary">
-            <Monitor className="h-7 w-7 text-primary-foreground" />
+        {/* Logo + branding */}
+        <div className="mb-8 flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
+            <img src={bogaLogo} alt="BOGA" className="relative h-20 w-20 object-contain" />
           </div>
           <div className="text-center">
             <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">BOGA</h1>
             <p className="text-sm text-muted-foreground">Signage Network</p>
+            <p className="mt-1 text-xs text-muted-foreground/60">Infraestructura visual inteligente</p>
           </div>
         </div>
 
