@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  MapPin,
   Monitor,
   Image,
   ListVideo,
@@ -15,7 +14,7 @@ import { useState } from "react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
-  { icon: MapPin, label: "Ubicaciones", path: "/dashboard/ubicaciones" },
+  { icon: Monitor, label: "Pantallas", path: "/dashboard/pantallas" },
   { icon: Monitor, label: "Pantallas", path: "/dashboard/pantallas" },
   { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
   { icon: ListVideo, label: "Playlists", path: "/dashboard/playlists" },
