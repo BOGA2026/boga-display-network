@@ -38,6 +38,9 @@ const Register = () => {
 
       const userId = authData.user.id;
 
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // 2. Create business
       const { data: business, error: bizError } = await supabase
         .from("businesses")
