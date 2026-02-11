@@ -45,7 +45,7 @@ const Login = () => {
         <div className="mb-8 flex flex-col items-center gap-4">
           <div className="relative">
             <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-            <img src={bogaLogo} alt="BOGA" className="relative h-20 w-20 object-contain" />
+            <img src={bogaLogo} alt="BOGA" className="relative h-32 w-32 object-contain" />
           </div>
           <div className="text-center">
             <p className="text-sm text-muted-foreground">Signage Network</p>
