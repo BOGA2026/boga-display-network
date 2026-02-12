@@ -130,19 +130,21 @@ const Pricing = () => {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensual</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{formatCOP(calc.total)}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{formatCOP(calc.total)}</p>
+                <p className="text-sm text-muted-foreground">por mes</p>
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Por pantalla</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{formatCOP(calc.perScreen)}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{formatCOP(calc.perScreen)}</p>
+                <p className="text-sm text-muted-foreground">por mes</p>
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Almacenamiento</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{calc.storage}</p>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{calc.storage}</p>
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Ahorro anual</p>
-                <p className="mt-2 font-display text-3xl font-bold text-gradient-primary">{annual ? formatCOP(calc.savings) : "—"}</p>
+                <p className="mt-2 font-display text-2xl font-bold text-gradient-primary">{annual ? formatCOP(calc.savings) : "—"}</p>
               </div>
             </div>
 
