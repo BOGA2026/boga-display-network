@@ -88,8 +88,8 @@ const Register = () => {
             <Monitor className="h-7 w-7 text-primary-foreground" />
           </div>
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">BOGA</h1>
-            <p className="text-sm text-muted-foreground">Signage Network</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">Visualia</h1>
+            <p className="text-sm text-muted-foreground">Pantallas que venden</p>
           </div>
         </div>
 

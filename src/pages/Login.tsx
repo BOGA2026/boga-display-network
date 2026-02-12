@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import bogaLogo from "@/assets/logo-boga.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -41,16 +40,13 @@ const Login = () => {
   return (
     <div className="flex min-h-screen items-center justify-center p-4" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
       <div className="w-full max-w-md animate-fade-in">
-        {/* Logo + branding */}
-        <div className="mb-8 flex flex-col items-center gap-4">
+        {/* Branding */}
+        <div className="mb-8 flex flex-col items-center gap-2">
           <div className="relative">
             <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-            <img src={bogaLogo} alt="BOGA" className="relative h-32 w-32 object-contain" />
+            <h1 className="relative font-display text-5xl font-bold text-gradient-primary">Visualia</h1>
           </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">Signage Network</p>
-            <p className="mt-1 text-xs text-muted-foreground/60">Infraestructura visual inteligente</p>
-          </div>
+          <p className="text-sm text-muted-foreground">Pantallas que venden</p>
         </div>
 
         <Card className="surface-elevated border-border/30 backdrop-blur">

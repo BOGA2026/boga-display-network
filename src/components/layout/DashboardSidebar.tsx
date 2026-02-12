@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import bogaLogo from "@/assets/logo-boga.png";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
@@ -35,15 +34,13 @@ const DashboardSidebar = () => {
     >
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
-        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
-          <div className="absolute inset-0 rounded-lg opacity-40 blur-md" style={{ background: "linear-gradient(135deg, #8A00FF, #C000FF)" }} />
-          <img src={bogaLogo} alt="BOGA" className="relative h-9 w-9 object-contain" />
-        </div>
-        {!collapsed && (
+        {!collapsed ? (
           <div className="overflow-hidden">
-            <p className="font-display text-sm font-bold leading-tight text-gradient-primary">BOGA</p>
-            <p className="text-[10px] text-muted-foreground">Signage Network</p>
+            <p className="font-display text-sm font-bold leading-tight text-gradient-primary">Visualia</p>
+            <p className="text-[10px] text-muted-foreground">Pantallas que venden</p>
           </div>
+        ) : (
+          <p className="font-display text-lg font-bold text-gradient-primary">V</p>
         )}
       </div>
 

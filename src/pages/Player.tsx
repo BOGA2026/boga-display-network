@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
-import bogaLogo from "@/assets/logo-boga.png";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
@@ -70,7 +69,6 @@ const Player = () => {
       return data;
     } catch (err: any) {
       console.error("Checkin error:", err);
-      // Keep current status on transient errors if already paired
       if (status !== "paired") {
         setStatus("unpaired");
       }
@@ -78,7 +76,6 @@ const Player = () => {
     }
   }, [deviceCode, status]);
 
-  // Initial check + heartbeat
   useEffect(() => {
     if (!deviceCode) {
       setStatus("error");
@@ -91,7 +88,6 @@ const Player = () => {
     return () => clearInterval(interval);
   }, [deviceCode, doCheckin]);
 
-  // Playlist advancement
   const items = config?.playlists?.playlist_items
     ?.sort((a, b) => a.sort_order - b.sort_order) ?? [];
 
@@ -110,7 +106,6 @@ const Player = () => {
     };
   }, [status, currentIndex, items]);
 
-  // Fullscreen body
   useEffect(() => {
     document.body.style.overflow = "hidden";
     document.body.style.margin = "0";
@@ -122,7 +117,6 @@ const Player = () => {
     };
   }, []);
 
-  // --- LOADING ---
   if (status === "loading") {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812" }}>
@@ -131,7 +125,6 @@ const Player = () => {
     );
   }
 
-  // --- ERROR ---
   if (status === "error") {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812", color: "#fff" }}>
@@ -140,15 +133,15 @@ const Player = () => {
     );
   }
 
-  // --- UNPAIRED: Pairing Screen ---
   if (status === "unpaired") {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
-        {/* Logo with glow */}
+        {/* Brand */}
         <div className="relative mb-8">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={bogaLogo} alt="BOGA" className="relative h-20 w-20 object-contain" />
+          <h1 className="relative font-display text-4xl font-bold text-gradient-primary">Visualia</h1>
         </div>
+        <p className="mb-6 text-sm text-muted-foreground">Pantallas que venden</p>
 
         {/* Code */}
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -167,25 +160,23 @@ const Player = () => {
         </div>
 
         <p className="max-w-md text-center text-sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
-          Ingresa este código en el panel <strong style={{ color: "rgba(255,255,255,0.7)" }}>BOGA Signage</strong> para conectar esta pantalla.
+          Ingresa este código en el panel <strong style={{ color: "rgba(255,255,255,0.7)" }}>Visualia</strong> para conectar esta pantalla.
         </p>
 
-        {/* Branding */}
+        {/* Bottom branding */}
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
-          <img src={bogaLogo} alt="BOGA" className="h-6 w-6 object-contain" />
-          <span className="text-xs font-bold tracking-wider" style={{ color: "#fff" }}>BOGA SIGNAGE</span>
+          <span className="text-xs font-bold tracking-wider" style={{ color: "#fff" }}>VISUALIA</span>
         </div>
       </div>
     );
   }
 
-  // --- PAIRED: Content Playback ---
   if (items.length === 0) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#0a0812", color: "rgba(255,255,255,0.5)" }}>
         <Monitor className="mb-4 h-12 w-12 opacity-30" />
         <p className="text-lg">Sin contenido asignado</p>
-        <p className="text-sm opacity-50">Agrega contenido a la playlist desde el panel BOGA.</p>
+        <p className="text-sm opacity-50">Agrega contenido a la playlist desde el panel Visualia.</p>
       </div>
     );
   }
@@ -230,7 +221,6 @@ const Player = () => {
       );
     }
 
-    // Default: image
     return (
       <img
         key={url}

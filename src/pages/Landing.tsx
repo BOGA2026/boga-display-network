@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import bogaLogo from "@/assets/logo-boga.png";
 import {
   Monitor,
   LayoutGrid,
@@ -38,11 +37,11 @@ const features = [
 const steps = [
   { num: "01", title: "Empieza con tu CMS", desc: "Regístrate y accede al panel de control. Sube tu contenido multimedia y organízalo." },
   { num: "02", title: "Vincula la pantalla con código", desc: "Ingresa el código único de tu dispositivo para conectarlo a tu red de señalización." },
-  { num: "03", title: "Automatiza contenido y programación", desc: "Crea playlists, programa horarios y deja que BOGA haga el resto." },
+  { num: "03", title: "Automatiza contenido y programación", desc: "Crea playlists, programa horarios y deja que Visualia haga el resto." },
 ];
 
 const testimonials = [
-  { name: "María López", role: "Gerente, Café Urbano", quote: "BOGA transformó la manera en que comunicamos nuestras promociones. Las ventas de productos destacados aumentaron un 25%." },
+  { name: "María López", role: "Gerente, Café Urbano", quote: "Visualia transformó la manera en que comunicamos nuestras promociones. Las ventas de productos destacados aumentaron un 25%." },
   { name: "Carlos Méndez", role: "Director, Cadena FreshBite", quote: "Gestionar 12 sucursales desde un solo panel nos ahorra horas cada semana. La sincronización es instantánea." },
   { name: "Ana Rodríguez", role: "Marketing, Hotel Pacífico", quote: "La programación por horarios es increíble. Nuestros lobbies muestran contenido relevante las 24 horas sin intervención manual." },
 ];
@@ -53,7 +52,9 @@ const Landing = () => {
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-border/20 backdrop-blur-xl" style={{ background: "rgba(14,11,22,0.85)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <img src={bogaLogo} alt="BOGA" className="h-9 w-9 object-contain" />
+          <div className="flex items-center gap-2">
+            <span className="font-display text-lg font-bold text-gradient-primary">Visualia</span>
+          </div>
           <div className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm text-muted-foreground transition hover:text-foreground">Funciones</a>
             <a href="#how" className="text-sm text-muted-foreground transition hover:text-foreground">Cómo funciona</a>
@@ -79,17 +80,12 @@ const Landing = () => {
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
-          <div className="mb-8 flex justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 scale-[2] rounded-full opacity-25 blur-3xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-              <img src={bogaLogo} alt="BOGA" className="relative h-24 w-24 object-contain md:h-32 md:w-32" />
-            </div>
-          </div>
           <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl">
             Potencia tus pantallas con{" "}
-            <span className="text-gradient-primary">BOGA Signage Network</span>
+            <span className="text-gradient-primary">Visualia</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+          <p className="mx-auto mt-4 text-lg text-muted-foreground/70">Pantallas que venden</p>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground md:text-xl">
             La infraestructura visual inteligente para restaurantes y negocios físicos.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -135,7 +131,7 @@ const Landing = () => {
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-              Funciones clave de <span className="text-gradient-primary">BOGA Signage</span>
+              Funciones clave de <span className="text-gradient-primary">Visualia</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
               Todo lo que necesitas para gestionar tu red de señalización digital desde un solo lugar.
@@ -170,10 +166,9 @@ const Landing = () => {
             </p>
           </div>
           <div className="relative">
-            {/* Connecting line */}
             <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, #8A00FF 0%, #C000FF 50%, transparent 100%)" }} />
             <div className="space-y-12 md:space-y-16">
-              {steps.map((s, i) => (
+              {steps.map((s) => (
                 <div key={s.num} className="flex gap-6 md:gap-10">
                   <div className="relative flex-shrink-0">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary font-display text-2xl font-bold text-primary-foreground glow-primary-sm">
@@ -225,10 +220,10 @@ const Landing = () => {
             <div className="pointer-events-none absolute inset-0 opacity-20" style={{ background: "radial-gradient(ellipse at center, #8A00FF 0%, transparent 70%)" }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                Empieza con BOGA hoy
+                Empieza con <span className="text-gradient-primary">Visualia</span> hoy
               </h2>
               <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-                Únete a los negocios que ya están transformando su comunicación visual con BOGA Signage Network.
+                Únete a los negocios que ya están transformando su comunicación visual con Visualia.
               </p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
@@ -249,9 +244,9 @@ const Landing = () => {
       <footer className="border-t border-border/20 px-6 py-12">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="flex items-center gap-3">
-              <img src={bogaLogo} alt="BOGA" className="h-8 w-8 object-contain" />
-              <span className="font-display text-sm font-bold text-foreground">Signage Network</span>
+            <div>
+              <span className="font-display text-sm font-bold text-gradient-primary">Visualia</span>
+              <p className="text-[10px] text-muted-foreground">Pantallas que venden</p>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
@@ -265,7 +260,7 @@ const Landing = () => {
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-8 text-center text-xs text-muted-foreground/50">© 2026 BOGA Signage Network. Todos los derechos reservados.</p>
+          <p className="mt-8 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
