@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import LandingHeader from "@/components/landing/LandingHeader";
 import {
   Monitor,
-  LayoutGrid,
   ListMusic,
   CalendarClock,
   BarChart3,
@@ -49,30 +49,10 @@ const testimonials = [
 const Landing = () => {
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 50%, #0E0B16 100%)" }}>
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-border/20 backdrop-blur-xl" style={{ background: "rgba(14,11,22,0.85)" }}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span className="font-display text-lg font-bold text-gradient-primary">Visualia</span>
-          </div>
-          <div className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm text-muted-foreground transition hover:text-foreground">Funciones</a>
-            <a href="#how" className="text-sm text-muted-foreground transition hover:text-foreground">Cómo funciona</a>
-            <a href="#testimonials" className="text-sm text-muted-foreground transition hover:text-foreground">Testimonios</a>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">Iniciar sesión</Link>
-            </Button>
-            <Button size="sm" className="gradient-primary glow-primary-sm border-0 text-primary-foreground" asChild>
-              <Link to="/registro">Crear cuenta</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <LandingHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-24 md:pt-32">
+      <section className="relative overflow-hidden px-6 pb-20 pt-32 md:pt-40">
         {/* Glow orbs */}
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 800, height: 600 }}>
           <div className="absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full opacity-20 blur-[100px]" style={{ background: "#8A00FF" }} />
