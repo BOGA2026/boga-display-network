@@ -363,7 +363,7 @@ const Screens = () => {
               <Label htmlFor="device-code">Código del dispositivo *</Label>
               <Input
                 id="device-code"
-                placeholder="Ej: BOGA-A1B2C3"
+                placeholder="Ej: VIS-A1B2C3"
                 value={deviceCode}
                 onChange={(e) => setDeviceCode(e.target.value.toUpperCase())}
                 className="font-mono text-lg tracking-widest text-center"
