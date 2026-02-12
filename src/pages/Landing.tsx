@@ -81,7 +81,6 @@ const Landing = () => {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl">
-            Potencia tus pantallas con{" "}
             <span className="text-gradient-primary">Visualia</span>
           </h1>
           <p className="mx-auto mt-4 text-lg text-muted-foreground/70">Pantallas que venden</p>
