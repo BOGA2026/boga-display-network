@@ -17,6 +17,7 @@ import Schedule from "./pages/Schedule";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import Player from "./pages/Player";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
