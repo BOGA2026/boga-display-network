@@ -328,6 +328,165 @@ export type Database = {
           },
         ]
       }
+      schedule_blocks: {
+        Row: {
+          business_id: string
+          created_at: string
+          days_of_week: number[]
+          end_date: string | null
+          end_time: string
+          id: string
+          is_enabled: boolean
+          layer_id: string
+          name: string
+          playlist_id: string
+          recurrence: string | null
+          screen_id: string
+          start_date: string | null
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          days_of_week?: number[]
+          end_date?: string | null
+          end_time: string
+          id?: string
+          is_enabled?: boolean
+          layer_id: string
+          name?: string
+          playlist_id: string
+          recurrence?: string | null
+          screen_id: string
+          start_date?: string | null
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          days_of_week?: number[]
+          end_date?: string | null
+          end_time?: string
+          id?: string
+          is_enabled?: boolean
+          layer_id?: string
+          name?: string
+          playlist_id?: string
+          recurrence?: string | null
+          screen_id?: string
+          start_date?: string | null
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_blocks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_blocks_layer_id_fkey"
+            columns: ["layer_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_layers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_blocks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_blocks_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_layers: {
+        Row: {
+          business_id: string
+          color: string
+          created_at: string
+          id: string
+          name: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_layers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_templates: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          id: string
+          json_definition: Json
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          json_definition?: Json
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          json_definition?: Json
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_templates_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedules: {
         Row: {
           created_at: string
@@ -384,6 +543,7 @@ export type Database = {
           last_seen_at: string | null
           location_id: string
           name: string
+          schedule_version: number
           status: string
           updated_at: string
         }
@@ -394,6 +554,7 @@ export type Database = {
           last_seen_at?: string | null
           location_id: string
           name: string
+          schedule_version?: number
           status?: string
           updated_at?: string
         }
@@ -404,6 +565,7 @@ export type Database = {
           last_seen_at?: string | null
           location_id?: string
           name?: string
+          schedule_version?: number
           status?: string
           updated_at?: string
         }
