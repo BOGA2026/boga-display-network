@@ -18,6 +18,7 @@ import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import Player from "./pages/Player";
 import Landing from "./pages/Landing";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/precios" element={<Pricing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
