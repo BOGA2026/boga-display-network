@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ const menuItems = [
   },
   {
     label: "Precios",
-    href: "#pricing",
+    href: "/precios",
     children: null,
   },
 ];
@@ -150,12 +150,12 @@ const LandingHeader = () => {
                   />
                 </button>
               ) : (
-                <a
-                  href={item.href}
+                <Link
+                  to={item.href!}
                   className="relative flex items-center rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
-                </a>
+                </Link>
               )}
 
               {/* Dropdown */}
