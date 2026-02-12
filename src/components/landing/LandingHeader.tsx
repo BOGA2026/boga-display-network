@@ -10,9 +10,9 @@ const menuItems = [
     children: [
       { label: "Cómo funciona", href: "#how" },
       { label: "Características", href: "#features" },
-      { label: "Apps", href: "#" },
+      { label: "Apps compatibles", href: "#" },
       { label: "Plantillas", href: "#" },
-      { label: "Hardware compatible", href: "#" },
+      { label: "Hardware recomendado", href: "#" },
     ],
   },
   {
@@ -20,10 +20,10 @@ const menuItems = [
     children: [
       { label: "Restaurantes", href: "#" },
       { label: "Retail", href: "#" },
-      { label: "Centros comerciales", href: "#" },
       { label: "Clínicas", href: "#" },
       { label: "Hoteles", href: "#" },
       { label: "Eventos", href: "#" },
+      { label: "Corporativo", href: "#" },
     ],
   },
   {
@@ -33,6 +33,7 @@ const menuItems = [
       { label: "Blog", href: "#" },
       { label: "Preguntas frecuentes", href: "#" },
       { label: "Descargas", href: "#" },
+      { label: "Guías", href: "#" },
     ],
   },
   {
@@ -278,13 +279,13 @@ const LandingHeader = () => {
                   </div>
                 </>
               ) : (
-                <a
-                  href={item.href}
+                <Link
+                  to={item.href!}
                   className="block rounded-lg px-3 py-3 text-sm font-medium text-foreground"
                   onClick={() => setMobileOpen(false)}
                 >
                   {item.label}
-                </a>
+                </Link>
               )}
             </div>
           ))}
