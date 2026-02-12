@@ -83,7 +83,7 @@ const Landing = () => {
           <h1 className="font-display text-6xl font-bold leading-none tracking-tight md:text-8xl lg:text-9xl">
             <span className="text-gradient-primary">Visualia</span>
           </h1>
-          <p className="mt-4 font-display text-xl font-medium tracking-wide text-foreground/60 md:text-2xl">Pantallas que venden</p>
+          <p className="mt-5 font-display text-2xl font-semibold tracking-wide text-foreground/80 md:text-3xl lg:text-4xl">Pantallas que venden</p>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground md:text-xl">
             La infraestructura visual inteligente para restaurantes y negocios físicos.
           </p>
