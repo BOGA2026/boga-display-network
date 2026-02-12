@@ -80,10 +80,10 @@ const Landing = () => {
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
-          <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground md:text-6xl lg:text-7xl">
+          <h1 className="font-display text-6xl font-bold leading-none tracking-tight md:text-8xl lg:text-9xl">
             <span className="text-gradient-primary">Visualia</span>
           </h1>
-          <p className="mx-auto mt-4 text-lg text-muted-foreground/70">Pantallas que venden</p>
+          <p className="mt-4 font-display text-xl font-medium tracking-wide text-foreground/60 md:text-2xl">Pantallas que venden</p>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground md:text-xl">
             La infraestructura visual inteligente para restaurantes y negocios físicos.
           </p>
