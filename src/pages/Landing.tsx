@@ -53,10 +53,7 @@ const Landing = () => {
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-border/20 backdrop-blur-xl" style={{ background: "rgba(14,11,22,0.85)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img src={bogaLogo} alt="BOGA" className="h-9 w-9 object-contain" />
-            <span className="font-display text-lg font-bold text-foreground">BOGA</span>
-          </div>
+          <img src={bogaLogo} alt="BOGA" className="h-9 w-9 object-contain" />
           <div className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm text-muted-foreground transition hover:text-foreground">Funciones</a>
             <a href="#how" className="text-sm text-muted-foreground transition hover:text-foreground">Cómo funciona</a>
@@ -254,10 +251,7 @@ const Landing = () => {
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="flex items-center gap-3">
               <img src={bogaLogo} alt="BOGA" className="h-8 w-8 object-contain" />
-              <div>
-                <span className="font-display text-sm font-bold text-foreground">BOGA</span>
-                <span className="ml-1 text-xs text-muted-foreground">Signage Network</span>
-              </div>
+              <span className="font-display text-sm font-bold text-foreground">Signage Network</span>
             </div>
             <div className="flex flex-wrap justify-center gap-6">
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
