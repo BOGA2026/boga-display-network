@@ -84,8 +84,8 @@ const Landing = () => {
             <span className="text-gradient-primary">Visualia</span>
           </h1>
           <p className="mt-5 font-display text-2xl font-semibold tracking-wide text-foreground/80 md:text-3xl lg:text-4xl">Pantallas que venden</p>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            La infraestructura visual inteligente para restaurantes y negocios físicos.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+            Convierte tus pantallas en ventas.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
