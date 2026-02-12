@@ -19,12 +19,16 @@ import {
 } from "lucide-react";
 
 const tiers = [
-  { max: 5, price: 29 },
-  { max: 20, price: 24 },
-  { max: 50, price: 19 },
-  { max: 100, price: 15 },
-  { max: 300, price: 12 },
+  { max: 5, price: 50000 },
+  { max: 20, price: 42000 },
+  { max: 50, price: 35000 },
+  { max: 100, price: 28000 },
+  { max: 300, price: 22000 },
 ];
+
+function formatCOP(value: number) {
+  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+}
 
 function getPrice(screens: number) {
   for (const t of tiers) {
@@ -126,11 +130,11 @@ const Pricing = () => {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensual</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">${calc.total}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
+                <p className="mt-2 font-display text-3xl font-bold text-foreground">{formatCOP(calc.total)}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Por pantalla</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">${calc.perScreen}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
+                <p className="mt-2 font-display text-3xl font-bold text-foreground">{formatCOP(calc.perScreen)}<span className="text-base font-normal text-muted-foreground">/mes</span></p>
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Almacenamiento</p>
@@ -138,7 +142,7 @@ const Pricing = () => {
               </div>
               <div className="rounded-xl border border-border/20 bg-background/50 p-5 text-center">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Ahorro anual</p>
-                <p className="mt-2 font-display text-3xl font-bold text-gradient-primary">{annual ? `$${calc.savings}` : "—"}</p>
+                <p className="mt-2 font-display text-3xl font-bold text-gradient-primary">{annual ? formatCOP(calc.savings) : "—"}</p>
               </div>
             </div>
 
