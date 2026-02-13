@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoVisualia from "@/assets/logo-visualia.png";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -44,9 +45,8 @@ const Login = () => {
         <div className="mb-8 flex flex-col items-center gap-2">
           <div className="relative">
             <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-            <h1 className="relative font-display text-5xl font-bold text-gradient-primary">Visualia</h1>
+            <img src={logoVisualia} alt="Visualia" className="relative h-20 w-auto" />
           </div>
-          <p className="text-sm text-muted-foreground">Pantallas que venden</p>
         </div>
 
         <Card className="surface-elevated border-border/30 backdrop-blur">

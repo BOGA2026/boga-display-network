@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import logoBoga from "@/assets/logo-boga.png";
+import logoVisualia from "@/assets/logo-visualia.png";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
@@ -35,14 +35,11 @@ const DashboardSidebar = () => {
       )}
     >
       {/* Logo */}
-      <div className="flex h-14 items-center gap-3 px-4">
+      <div className="flex h-14 items-center px-4">
         {!collapsed ? (
-          <div className="overflow-hidden">
-            <p className="font-display text-sm font-bold leading-tight text-gradient-primary">Visualia</p>
-            <p className="text-[10px] text-muted-foreground">Pantallas que venden</p>
-          </div>
+          <img src={logoVisualia} alt="Visualia" className="h-8 w-auto" />
         ) : (
-          <p className="font-display text-lg font-bold text-gradient-primary mx-auto">V</p>
+          <img src={logoVisualia} alt="Visualia" className="h-6 w-auto mx-auto" />
         )}
       </div>
 

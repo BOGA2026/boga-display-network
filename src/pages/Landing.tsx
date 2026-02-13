@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import {
@@ -60,9 +61,9 @@ const Landing = () => {
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
-          <h1 className="font-display text-6xl font-bold leading-none tracking-tight md:text-8xl lg:text-9xl">
-            <span className="text-gradient-primary">Visualia</span>
-          </h1>
+          <div className="flex justify-center">
+            <img src={logoVisualia} alt="Visualia" className="h-28 w-auto md:h-40 lg:h-48" />
+          </div>
           <p className="mt-5 font-display text-2xl font-semibold tracking-wide text-foreground/80 md:text-3xl lg:text-4xl">Pantallas que venden</p>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
             Convierte tus pantallas en ventas.
@@ -224,8 +225,7 @@ const Landing = () => {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div>
-              <span className="font-display text-sm font-bold text-gradient-primary">Visualia</span>
-              <p className="text-[10px] text-muted-foreground">Pantallas que venden</p>
+              <img src={logoVisualia} alt="Visualia" className="h-8 w-auto" />
             </div>
             <div className="flex flex-wrap justify-center gap-6">
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>

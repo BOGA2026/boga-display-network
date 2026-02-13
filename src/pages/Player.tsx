@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
+import logoVisualia from "@/assets/logo-visualia.png";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
@@ -139,9 +140,8 @@ const Player = () => {
         {/* Brand */}
         <div className="relative mb-8">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <h1 className="relative font-display text-4xl font-bold text-gradient-primary">Visualia</h1>
+          <img src={logoVisualia} alt="Visualia" className="relative h-16 w-auto" />
         </div>
-        <p className="mb-6 text-sm text-muted-foreground">Pantallas que venden</p>
 
         {/* Code */}
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -165,7 +165,7 @@ const Player = () => {
 
         {/* Bottom branding */}
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
-          <span className="text-xs font-bold tracking-wider" style={{ color: "#fff" }}>VISUALIA</span>
+          <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
         </div>
       </div>
     );
