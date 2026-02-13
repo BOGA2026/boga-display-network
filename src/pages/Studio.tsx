@@ -9,14 +9,19 @@ import {
   ArrowRight,
   Crown,
   Zap,
-  BarChart3,
   Layers,
   CalendarClock,
   Wifi,
+  Check,
+  Star,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import LandingHeader from "@/components/landing/LandingHeader";
 import VisualiaStudioForm from "@/components/landing/VisualiaStudioForm";
+
+type StudioTier = "studio_start" | "studio_pro" | "studio_elite";
 
 const services = [
   { icon: Camera, title: "Fotografía gastronómica profesional", desc: "Sesiones de foto con estilismo culinario, iluminación de estudio y edición premium para que cada plato luzca irresistible en pantalla." },
@@ -33,8 +38,70 @@ const integrationPoints = [
   { icon: Wifi, title: "Distribución automática", desc: "Una vez publicado, el contenido se sincroniza en todas tus pantallas sin intervención manual." },
 ];
 
+const plans = [
+  {
+    id: "studio_start" as StudioTier,
+    name: "Studio Start",
+    audience: "Para restaurantes pequeños (1–2 pantallas)",
+    setup: "$1.500.000",
+    monthly: "$350.000",
+    prefix: "",
+    features: [
+      "Diseño inicial de menú digital (hasta 15 productos)",
+      "1 sesión fotográfica básica (8–12 productos)",
+      "Adaptación a formato pantalla",
+      "1 actualización mensual",
+    ],
+    highlighted: false,
+    cta: "Solicitar Studio Start",
+  },
+  {
+    id: "studio_pro" as StudioTier,
+    name: "Studio Pro",
+    audience: "Para restaurantes consolidados",
+    setup: "$3.500.000",
+    monthly: "$890.000",
+    prefix: "",
+    features: [
+      "Diseño completo menú (hasta 40 productos)",
+      "Fotografía profesional completa",
+      "Adaptación vertical + horizontal",
+      "Animaciones simples para promociones",
+      "Estrategia visual por franja horaria",
+      "2 actualizaciones mensuales",
+    ],
+    highlighted: true,
+    cta: "Solicitar Studio Pro",
+    badge: "Más elegido",
+  },
+  {
+    id: "studio_elite" as StudioTier,
+    name: "Studio Elite",
+    audience: "Para marcas multi-sede",
+    setup: "Desde $6.500.000",
+    monthly: "Desde $1.900.000",
+    prefix: "",
+    features: [
+      "Producción visual integral",
+      "Sesión avanzada (hasta 60 productos)",
+      "Videos cortos promocionales",
+      "Rediseño trimestral",
+      "Campañas estacionales",
+      "Actualizaciones ilimitadas",
+    ],
+    highlighted: false,
+    cta: "Solicitar Studio Elite",
+  },
+];
+
 const Studio = () => {
   const [showForm, setShowForm] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<StudioTier>("studio_pro");
+
+  const openFormWithTier = (tier: StudioTier) => {
+    setSelectedTier(tier);
+    setShowForm(true);
+  };
 
   return (
     <div
@@ -75,33 +142,218 @@ const Studio = () => {
           </span>
 
           <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
-            El contenido que convierte{" "}
-            <span className="text-gradient-primary">pantallas en ventas.</span>
+            Producción visual premium para{" "}
+            <span className="text-gradient-primary">pantallas que venden.</span>
           </h1>
 
-           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-             Nuestro equipo creativo desarrolla menús digitales, fotografía profesional y piezas visuales estratégicas diseñadas para aumentar ventas en tus pantallas.
-           </p>
-           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground/80">
-             Un servicio especializado para marcas que quieren verse impecables.
-           </p>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            El contenido correcto puede aumentar tu ticket promedio. Nosotros lo diseñamos estratégicamente.
+          </p>
+        </div>
+      </section>
 
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button
-              size="lg"
-              className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground"
-              onClick={() => setShowForm(true)}
-            >
-              Solicitar Visualia Studio
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-border/40 px-8 text-lg"
-            >
-              Ver ejemplos
-            </Button>
+      {/* ─── Pricing Plans ─── */}
+      <section className="px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-16 text-center">
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              Planes <span className="text-gradient-primary">Visualia Studio</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+              Inversión estratégica en contenido que genera retorno medible.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`group relative overflow-hidden rounded-2xl border p-8 transition-all duration-300 hover:shadow-[0_0_40px_-8px_hsl(270_100%_50%/0.25)] ${
+                  plan.highlighted
+                    ? "lg:-mt-4 lg:mb-0 lg:pb-10 lg:pt-10"
+                    : ""
+                }`}
+                style={{
+                  borderColor: plan.highlighted
+                    ? "hsl(270 100% 50% / 0.5)"
+                    : "hsl(260 15% 18%)",
+                  background: plan.highlighted
+                    ? "linear-gradient(180deg, hsl(260 35% 14%) 0%, hsl(260 30% 9%) 100%)"
+                    : "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 25% 8%) 100%)",
+                }}
+              >
+                {/* Glow overlay for highlighted */}
+                {plan.highlighted && (
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-10"
+                    style={{
+                      background:
+                        "radial-gradient(ellipse at top center, hsl(270 100% 50%) 0%, transparent 60%)",
+                    }}
+                  />
+                )}
+
+                <div className="relative">
+                  {/* Badge */}
+                  {plan.badge && (
+                    <div className="mb-4 flex items-center gap-2">
+                      <Badge className="gradient-primary border-0 px-3 py-1 text-xs text-primary-foreground">
+                        <Star className="mr-1 h-3 w-3" />
+                        {plan.badge}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Plan name */}
+                  <h3
+                    className={`font-display text-2xl font-bold text-foreground ${
+                      plan.highlighted ? "text-gradient-primary" : ""
+                    }`}
+                  >
+                    {plan.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {plan.audience}
+                  </p>
+
+                  {/* Pricing */}
+                  <div className="mt-6 space-y-2">
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Setup
+                      </span>
+                      <p className="font-display text-2xl font-bold text-foreground">
+                        {plan.setup}{" "}
+                        <span className="text-sm font-normal text-muted-foreground">
+                          COP
+                        </span>
+                      </p>
+                    </div>
+                    <div
+                      className="rounded-lg px-4 py-3"
+                      style={{
+                        background: plan.highlighted
+                          ? "hsl(270 100% 50% / 0.08)"
+                          : "hsl(260 20% 12%)",
+                        border: plan.highlighted
+                          ? "1px solid hsl(270 100% 50% / 0.2)"
+                          : "1px solid hsl(260 15% 16%)",
+                      }}
+                    >
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Mensual
+                      </span>
+                      <p className="font-display text-xl font-bold text-foreground">
+                        {plan.monthly}{" "}
+                        <span className="text-sm font-normal text-muted-foreground">
+                          COP/mes
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <ul className="mt-6 space-y-3">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm">
+                        <Check
+                          className="mt-0.5 h-4 w-4 shrink-0"
+                          style={{ color: "hsl(270 100% 65%)" }}
+                        />
+                        <span className="text-muted-foreground">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <Button
+                    size="lg"
+                    className={`mt-8 w-full text-base ${
+                      plan.highlighted
+                        ? "gradient-primary glow-primary border-0 text-primary-foreground"
+                        : "border-primary/30 bg-transparent text-foreground hover:bg-primary/10"
+                    }`}
+                    variant={plan.highlighted ? "default" : "outline"}
+                    onClick={() => openFormWithTier(plan.id)}
+                  >
+                    {plan.cta}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── ROI Section ─── */}
+      <section className="px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-4xl">
+          <div
+            className="relative overflow-hidden rounded-2xl border px-8 py-16 md:px-16"
+            style={{
+              borderColor: "hsl(270 100% 50% / 0.25)",
+              background:
+                "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 7%) 100%)",
+            }}
+          >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-15"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, hsl(270 100% 50%) 0%, transparent 70%)",
+              }}
+            />
+            <div className="relative text-center">
+              <TrendingUp className="mx-auto mb-6 h-10 w-10 text-primary" />
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+                ¿Por qué invertir en{" "}
+                <span className="text-gradient-primary">contenido profesional</span>?
+              </h2>
+              <div
+                className="mx-auto mt-10 max-w-2xl rounded-xl border p-8"
+                style={{
+                  borderColor: "hsl(270 100% 50% / 0.15)",
+                  background: "hsl(260 25% 9%)",
+                }}
+              >
+                <p className="text-lg leading-relaxed text-foreground">
+                  Si aumentas tu ticket promedio{" "}
+                  <span className="font-bold text-gradient-primary">$2.000 pesos</span>{" "}
+                  y vendes{" "}
+                  <span className="font-bold text-gradient-primary">50 platos diarios</span>,
+                  eso representa más de{" "}
+                  <span className="font-display text-2xl font-bold text-gradient-primary">
+                    $3 millones adicionales al mes.
+                  </span>
+                </p>
+              </div>
+
+              <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-2 md:grid-cols-4">
+                {[
+                  { label: "Mejor diseño", sub: "Claridad visual" },
+                  { label: "Más claridad", sub: "Decisión rápida" },
+                  { label: "Decisión ágil", sub: "Menos fricción" },
+                  { label: "Ticket más alto", sub: "+30% promedio" },
+                ].map((step, i) => (
+                  <div key={step.label} className="text-center">
+                    <p className="font-display text-lg font-semibold text-foreground">
+                      {step.label}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{step.sub}</p>
+                    {i < 3 && (
+                      <ArrowRight className="mx-auto mt-3 hidden h-4 w-4 text-primary/40 md:block" />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
+                El contenido profesional mejora la percepción de marca, acelera las decisiones
+                de compra y aumenta el valor promedio de cada ticket. No es decoración: es
+                estrategia comercial.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -147,58 +399,6 @@ const Studio = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Why It Matters ─── */}
-      <section className="px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-4xl">
-          <div
-            className="relative overflow-hidden rounded-2xl border px-8 py-16 text-center md:px-16"
-            style={{
-              borderColor: "hsl(270 100% 50% / 0.2)",
-              background:
-                "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 7%) 100%)",
-            }}
-          >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-15"
-              style={{
-                background:
-                  "radial-gradient(ellipse at center, hsl(270 100% 50%) 0%, transparent 70%)",
-              }}
-            />
-            <div className="relative">
-              <Zap className="mx-auto mb-6 h-10 w-10 text-primary" />
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                No es solo mostrar.{" "}
-                <span className="text-gradient-primary">Es vender.</span>
-              </h2>
-              <div className="mx-auto mt-8 grid max-w-3xl gap-6 sm:grid-cols-2 md:grid-cols-4">
-                {[
-                  { label: "Mejor diseño", sub: "Claridad visual" },
-                  { label: "Más claridad", sub: "Decisión rápida" },
-                  { label: "Decisión ágil", sub: "Menos fricción" },
-                  { label: "Ticket más alto", sub: "+30% promedio" },
-                ].map((step, i) => (
-                  <div key={step.label} className="text-center">
-                    <p className="font-display text-lg font-semibold text-foreground">
-                      {step.label}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">{step.sub}</p>
-                    {i < 3 && (
-                      <ArrowRight className="mx-auto mt-3 hidden h-4 w-4 text-primary/40 md:block" />
-                    )}
-                  </div>
-                ))}
-              </div>
-              <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
-                El contenido profesional mejora la percepción de marca, acelera las decisiones
-                de compra y aumenta el valor promedio de cada ticket. No es decoración: es
-                estrategia comercial.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -270,7 +470,7 @@ const Studio = () => {
                 <Button
                   size="lg"
                   className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground"
-                  onClick={() => setShowForm(true)}
+                  onClick={() => openFormWithTier("studio_pro")}
                 >
                   Solicitar asesoría premium
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -288,7 +488,12 @@ const Studio = () => {
         </p>
       </footer>
 
-      <VisualiaStudioForm open={showForm} onOpenChange={setShowForm} />
+      <VisualiaStudioForm
+        open={showForm}
+        onOpenChange={setShowForm}
+        defaultTier="studio"
+        selectedStudioPlan={selectedTier}
+      />
     </div>
   );
 };
