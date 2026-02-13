@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
-import logoVisualia from "@/assets/logo-visualia.png";
+import simboloVisualia from "@/assets/simbolo-visualia.png";
 import PlayerSplash from "@/components/player/PlayerSplash";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
@@ -152,7 +152,7 @@ const Player = () => {
         {/* Brand */}
         <div className="relative mb-8">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={logoVisualia} alt="Visualia" className="relative h-16 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" className="relative h-48 w-auto" />
         </div>
 
         {/* Code */}
@@ -177,7 +177,7 @@ const Player = () => {
 
         {/* Bottom branding */}
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
-          <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" className="h-5 w-auto" />
         </div>
       </div>
     );
