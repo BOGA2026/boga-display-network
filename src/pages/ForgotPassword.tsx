@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoVisualia from "@/assets/logo-visualia.png";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,13 +26,7 @@ const ForgotPassword = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Monitor className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <div className="text-center">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-gradient-primary">Visualia</h1>
-            <p className="text-sm text-muted-foreground">Pantallas que venden</p>
-          </div>
+          <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
         </div>
 
         <Card className="border-border/50 bg-card/80 backdrop-blur">
