@@ -96,4 +96,23 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  @keyframes dot-glow {
+    0%, 85%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    90%, 95% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .logo-i-glow::after {
+    content: '';
+    position: absolute;
+    top: 28%;
+    left: 64.5%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: hsl(270 100% 70%);
+    box-shadow: 0 0 14px 6px hsl(270 100% 50% / 0.7), 0 0 30px 10px hsl(270 100% 50% / 0.3);
+    animation: dot-glow 6s ease-in-out infinite;
+    pointer-events: none;
+  }
 }
