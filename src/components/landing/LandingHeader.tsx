@@ -47,6 +47,12 @@ const menuItems = [
     ],
   },
   {
+    label: "Visualia Studio",
+    href: "/studio",
+    children: null,
+    premium: true,
+  },
+  {
     label: "Precios",
     href: "/precios",
     children: null,
@@ -147,8 +153,25 @@ const LandingHeader = () => {
               ) : (
                 <Link
                   to={item.href!}
-                  className="relative flex items-center rounded-lg px-6 py-3 text-lg font-semibold text-[hsl(275,100%,65%)] transition-colors hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+                  className={cn(
+                    "relative flex items-center rounded-lg px-6 py-3 text-lg font-semibold transition-colors",
+                    (item as any).premium
+                      ? "gap-2 text-[hsl(280,100%,70%)] hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+                      : "text-[hsl(275,100%,65%)] hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+                  )}
                 >
+                  {(item as any).premium && (
+                    <span
+                      className="mr-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      style={{
+                        borderColor: "hsl(270 100% 50% / 0.4)",
+                        background: "hsl(270 100% 50% / 0.12)",
+                        color: "hsl(280 100% 70%)",
+                      }}
+                    >
+                      Pro
+                    </span>
+                  )}
                   {item.label}
                 </Link>
               )}

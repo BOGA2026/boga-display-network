@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Player from "./pages/Player";
 import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
+import Studio from "./pages/Studio";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/precios" element={<Pricing />} />
+          <Route path="/studio" element={<Studio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
