@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
 import logoVisualia from "@/assets/logo-visualia.png";
+import PlayerSplash from "@/components/player/PlayerSplash";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
@@ -31,6 +32,8 @@ interface PlaylistConfig {
 
 const Player = () => {
   const { deviceId } = useParams<{ deviceId: string }>();
+  const [showSplash, setShowSplash] = useState(true);
+  const [checkinDone, setCheckinDone] = useState(false);
   const [status, setStatus] = useState<"loading" | "unpaired" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -77,17 +80,24 @@ const Player = () => {
     }
   }, [deviceCode, status]);
 
+  // Initial checkin (runs during splash)
   useEffect(() => {
     if (!deviceCode) {
       setStatus("error");
       setErrorMsg("No device ID provided");
+      setCheckinDone(true);
       return;
     }
 
-    doCheckin();
+    doCheckin().then(() => setCheckinDone(true));
+  }, [deviceCode]); // intentionally omit doCheckin to run only once
+
+  // Heartbeat interval (starts after splash)
+  useEffect(() => {
+    if (showSplash || !deviceCode) return;
     const interval = setInterval(doCheckin, HEARTBEAT_INTERVAL);
     return () => clearInterval(interval);
-  }, [deviceCode, doCheckin]);
+  }, [showSplash, deviceCode, doCheckin]);
 
   const items = config?.playlists?.playlist_items
     ?.sort((a, b) => a.sort_order - b.sort_order) ?? [];
@@ -118,11 +128,13 @@ const Player = () => {
     };
   }, []);
 
-  if (status === "loading") {
+  // Splash screen — shown on every load/restart
+  if (showSplash) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812" }}>
-        <div className="h-12 w-12 animate-spin rounded-full border-3 border-t-transparent" style={{ borderColor: "#8A00FF", borderTopColor: "transparent" }} />
-      </div>
+      <PlayerSplash
+        ready={checkinDone}
+        onComplete={() => setShowSplash(false)}
+      />
     );
   }
 
