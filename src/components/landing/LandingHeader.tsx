@@ -109,7 +109,7 @@ const LandingHeader = () => {
         </Link>
 
         {/* Center — Nav */}
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-2 lg:flex">
           {menuItems.map((item) => (
             <div
               key={item.label}
@@ -120,7 +120,7 @@ const LandingHeader = () => {
               {item.children ? (
                 <button
                   className={cn(
-                    "relative flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                    "relative flex items-center gap-2 rounded-lg px-6 py-3 text-lg font-medium transition-colors",
                     activeMenu === item.label
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -147,7 +147,7 @@ const LandingHeader = () => {
               ) : (
                 <Link
                   to={item.href!}
-                  className="relative flex items-center rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="relative flex items-center rounded-lg px-6 py-3 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </Link>
