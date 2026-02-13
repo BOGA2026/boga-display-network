@@ -7,16 +7,6 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   {
-    label: "Producto",
-    children: [
-      { label: "Cómo funciona", href: "#how" },
-      { label: "Características", href: "#features" },
-      { label: "Apps compatibles", href: "#" },
-      { label: "Plantillas", href: "#" },
-      { label: "Hardware recomendado", href: "#" },
-    ],
-  },
-  {
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "#" },
