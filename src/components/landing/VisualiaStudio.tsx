@@ -57,12 +57,9 @@ const VisualiaStudio = () => {
             El contenido que convierte{" "}
             <span className="text-gradient-primary">pantallas en ventas.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Para marcas que quieren verse impecables. En alianza con{" "}
-            <strong className="text-foreground">BOGA Casa de Contenidos</strong>, creamos
-            menús digitales, fotografía profesional y piezas visuales diseñadas para vender
-            más en tus pantallas.
-          </p>
+           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+             Nuestro equipo creativo desarrolla menús digitales, fotografía profesional y piezas visuales estratégicas diseñadas para aumentar ventas en tus pantallas.
+           </p>
         </div>
 
         {/* Benefit cards */}
