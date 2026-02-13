@@ -79,12 +79,12 @@ const Studio = () => {
             <span className="text-gradient-primary">pantallas en ventas.</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Más que software. En alianza con{" "}
-            <strong className="text-foreground">BOGA Casa de Contenidos</strong>, diseñamos
-            menús digitales, fotografía profesional y piezas visuales estratégicas
-            optimizadas para aumentar ventas en tus pantallas.
-          </p>
+           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+             Nuestro equipo creativo desarrolla menús digitales, fotografía profesional y piezas visuales estratégicas diseñadas para aumentar ventas en tus pantallas.
+           </p>
+           <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground/80">
+             Un servicio especializado para marcas que quieren verse impecables.
+           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button
