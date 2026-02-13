@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -50,7 +50,9 @@ const testimonials = [
 ];
 
 const Landing = () => {
-  const [showIntro, setShowIntro] = useState(() => !hasSeenIntro());
+  const [searchParams] = useSearchParams();
+  const shouldShowIntro = searchParams.get("intro") === "reset" || !hasSeenIntro();
+  const [showIntro, setShowIntro] = useState(shouldShowIntro);
   const handleIntroComplete = useCallback(() => setShowIntro(false), []);
 
   return (
