@@ -9,10 +9,24 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
+    // Play intro sound
+    const audio = new Audio("/audio/intro-sound.wav");
+    audio.volume = 0.6;
+    audio.play().catch(() => {});
+
     // Start cinematic transition: scale up + fade out
     const timer = setTimeout(() => {
       setScaleUp(true);
       setFadeOut(true);
+      // Fade out audio
+      const fadeAudio = setInterval(() => {
+        if (audio.volume > 0.05) {
+          audio.volume = Math.max(0, audio.volume - 0.05);
+        } else {
+          audio.pause();
+          clearInterval(fadeAudio);
+        }
+      }, 100);
     }, 4000);
 
     const removeTimer = setTimeout(() => {
@@ -24,6 +38,7 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
     return () => {
       clearTimeout(timer);
       clearTimeout(removeTimer);
+      audio.pause();
     };
   }, [onComplete]);
 
