@@ -28,16 +28,6 @@ const menuItems = [
     ],
   },
   {
-    label: "Recursos",
-    children: [
-      { label: "Casos de uso", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Preguntas frecuentes", href: "#" },
-      { label: "Descargas", href: "#" },
-      { label: "Guías", href: "#" },
-    ],
-  },
-  {
     label: "Empresa",
     children: [
       { label: "Sobre Visualia", href: "#" },
