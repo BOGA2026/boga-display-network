@@ -288,72 +288,111 @@ const Studio = () => {
 
       {/* ─── ROI Section ─── */}
       <section className="px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-5xl">
+          {/* Section title */}
+          <div className="mb-16 text-center">
+            <TrendingUp className="mx-auto mb-5 h-10 w-10 text-primary" />
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              ¿Por qué invertir en{" "}
+              <span className="text-gradient-primary">contenido profesional</span>?
+            </h2>
+          </div>
+
+          {/* Main highlight box */}
           <div
-            className="relative overflow-hidden rounded-2xl border px-8 py-16 md:px-16"
+            className="relative mx-auto max-w-3xl overflow-hidden rounded-2xl border px-8 py-14 md:px-14 animate-fade-in"
             style={{
-              borderColor: "hsl(270 100% 50% / 0.25)",
+              borderColor: "hsl(270 100% 50% / 0.3)",
               background:
                 "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 7%) 100%)",
+              boxShadow: "0 0 60px -12px hsl(270 100% 50% / 0.2), 0 0 24px -6px hsl(270 100% 50% / 0.15)",
             }}
           >
             <div
-              className="pointer-events-none absolute inset-0 opacity-15"
+              className="pointer-events-none absolute inset-0 opacity-10"
               style={{
                 background:
                   "radial-gradient(ellipse at center, hsl(270 100% 50%) 0%, transparent 70%)",
               }}
             />
-            <div className="relative text-center">
-              <TrendingUp className="mx-auto mb-6 h-10 w-10 text-primary" />
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                ¿Por qué invertir en{" "}
-                <span className="text-gradient-primary">contenido profesional</span>?
-              </h2>
-              <div
-                className="mx-auto mt-10 max-w-2xl rounded-xl border p-8"
-                style={{
-                  borderColor: "hsl(270 100% 50% / 0.15)",
-                  background: "hsl(260 25% 9%)",
-                }}
-              >
-                <p className="text-lg leading-relaxed text-foreground">
-                  Si aumentas tu ticket promedio{" "}
-                  <span className="font-bold text-gradient-primary">$2.000 pesos</span>{" "}
+            <div className="relative space-y-6 text-center">
+              <p className="font-display text-2xl font-bold leading-snug text-foreground md:text-3xl">
+                Porque las pantallas no venden solas.
+                <br />
+                <span className="text-gradient-primary">El diseño correcto sí.</span>
+              </p>
+
+              <div className="mx-auto max-w-xl space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg">
+                <p>
+                  Si aumentas tu ticket promedio apenas{" "}
+                  <span className="font-bold text-foreground">$2.000 pesos</span>
+                </p>
+                <p>
                   y vendes{" "}
-                  <span className="font-bold text-gradient-primary">50 platos diarios</span>,
-                  eso representa más de{" "}
-                  <span className="font-display text-2xl font-bold text-gradient-primary">
-                    $3 millones adicionales al mes.
-                  </span>
+                  <span className="font-bold text-foreground">50 platos al día</span>,
+                </p>
+                <p>
+                  eso puede significar más de
+                </p>
+                <p className="font-display text-3xl font-bold text-gradient-primary md:text-4xl">
+                  $3 millones adicionales al mes.
                 </p>
               </div>
 
-              <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-2 md:grid-cols-4">
-                {[
-                  { label: "Mejor diseño", sub: "Claridad visual" },
-                  { label: "Más claridad", sub: "Decisión rápida" },
-                  { label: "Decisión ágil", sub: "Menos fricción" },
-                  { label: "Ticket más alto", sub: "+30% promedio" },
-                ].map((step, i) => (
-                  <div key={step.label} className="text-center">
-                    <p className="font-display text-lg font-semibold text-foreground">
-                      {step.label}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">{step.sub}</p>
-                    {i < 3 && (
-                      <ArrowRight className="mx-auto mt-3 hidden h-4 w-4 text-primary/40 md:block" />
-                    )}
-                  </div>
-                ))}
+              <div
+                className="mx-auto mt-4 w-fit rounded-lg border px-6 py-3"
+                style={{
+                  borderColor: "hsl(270 100% 50% / 0.2)",
+                  background: "hsl(270 100% 50% / 0.06)",
+                }}
+              >
+                <p className="text-sm font-semibold text-foreground/80">
+                  No es teoría.{" "}
+                  <span className="text-gradient-primary">Es comportamiento de compra.</span>
+                </p>
               </div>
-
-              <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
-                El contenido profesional mejora la percepción de marca, acelera las decisiones
-                de compra y aumenta el valor promedio de cada ticket. No es decoración: es
-                estrategia comercial.
-              </p>
             </div>
+          </div>
+
+          {/* Benefits grid */}
+          <div className="mx-auto mt-16 grid max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: Sparkles, title: "Más impacto visual", desc: "Tu producto se ve más apetitoso y más deseable." },
+              { icon: Zap, title: "Menos fricción", desc: "El cliente decide más rápido y pregunta menos." },
+              { icon: Layers, title: "Más visibilidad estratégica", desc: "Promociones y productos clave reciben atención real." },
+              { icon: TrendingUp, title: "Más ticket promedio", desc: "Pequeños ajustes visuales generan ingresos sostenidos." },
+            ].map((b) => (
+              <div
+                key={b.title}
+                className="group rounded-xl border p-6 text-center transition-all hover:border-primary/40 hover:shadow-[0_0_30px_-8px_hsl(270_100%_50%/0.15)]"
+                style={{
+                  borderColor: "hsl(260 15% 18%)",
+                  background: "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 25% 8%) 100%)",
+                }}
+              >
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                  <b.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-display text-base font-semibold text-foreground">
+                  {b.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {b.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Closing statement */}
+          <div className="mx-auto mt-16 max-w-2xl text-center">
+            <p className="font-display text-xl font-bold leading-snug text-foreground md:text-2xl">
+              No es diseño.
+              <br />
+              <span className="text-gradient-primary">Es estrategia comercial aplicada a tus pantallas.</span>
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Cada segundo frente al cliente es una oportunidad para vender más.
+            </p>
           </div>
         </div>
       </section>
