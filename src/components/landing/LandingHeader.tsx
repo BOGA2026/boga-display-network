@@ -120,10 +120,10 @@ const LandingHeader = () => {
               {item.children ? (
                 <button
                   className={cn(
-                    "relative flex items-center gap-2 rounded-lg px-6 py-3 text-lg font-medium transition-colors",
+                    "relative flex items-center gap-2 rounded-lg px-6 py-3 text-lg font-semibold transition-colors",
                     activeMenu === item.label
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-[hsl(275,100%,50%)] drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+                      : "text-[hsl(275,100%,65%)] hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
                   )}
                 >
                   {item.label}
@@ -147,7 +147,7 @@ const LandingHeader = () => {
               ) : (
                 <Link
                   to={item.href!}
-                  className="relative flex items-center rounded-lg px-6 py-3 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="relative flex items-center rounded-lg px-6 py-3 text-lg font-semibold text-[hsl(275,100%,65%)] transition-colors hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
                 >
                   {item.label}
                 </Link>
