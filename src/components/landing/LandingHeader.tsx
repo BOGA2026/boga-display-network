@@ -33,7 +33,7 @@ const menuItems = [
     premium: true,
   },
   {
-    label: "Precios",
+    label: "Planes y Precios",
     href: "/precios",
     children: null,
   },
