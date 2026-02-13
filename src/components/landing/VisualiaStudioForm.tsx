@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,25 +20,42 @@ import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 type ServiceTier = "core" | "pro" | "studio" | "";
+type StudioPlan = "studio_start" | "studio_pro" | "studio_elite" | "";
 
 interface VisualiaStudioFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultTier?: ServiceTier;
+  selectedStudioPlan?: string;
 }
+
+const studioPlanLabels: Record<string, string> = {
+  studio_start: "Studio Start",
+  studio_pro: "Studio Pro",
+  studio_elite: "Studio Elite",
+};
 
 const VisualiaStudioForm = ({
   open,
   onOpenChange,
   defaultTier = "studio",
+  selectedStudioPlan = "",
 }: VisualiaStudioFormProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [business, setBusiness] = useState("");
   const [tier, setTier] = useState<ServiceTier>(defaultTier);
+  const [studioPlan, setStudioPlan] = useState<StudioPlan>(selectedStudioPlan as StudioPlan);
   const [hasPhotos, setHasPhotos] = useState("");
   const [needsMenu, setNeedsMenu] = useState("");
   const [itemCount, setItemCount] = useState("");
+
+  useEffect(() => {
+    if (selectedStudioPlan) {
+      setStudioPlan(selectedStudioPlan as StudioPlan);
+      setTier("studio");
+    }
+  }, [selectedStudioPlan, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +65,7 @@ const VisualiaStudioForm = ({
     setEmail("");
     setBusiness("");
     setTier(defaultTier);
+    setStudioPlan("");
     setHasPhotos("");
     setNeedsMenu("");
     setItemCount("");
@@ -65,6 +83,11 @@ const VisualiaStudioForm = ({
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
             Solicitar presupuesto
+            {studioPlan && studioPlanLabels[studioPlan] && (
+              <span className="ml-2 text-gradient-primary">
+                — {studioPlanLabels[studioPlan]}
+              </span>
+            )}
           </DialogTitle>
           <DialogDescription>
             Cuéntanos sobre tu proyecto y te contactaremos en menos de 24h.
@@ -110,7 +133,10 @@ const VisualiaStudioForm = ({
             <Label>¿Qué necesitas? *</Label>
             <Select
               value={tier}
-              onValueChange={(v) => setTier(v as ServiceTier)}
+              onValueChange={(v) => {
+                setTier(v as ServiceTier);
+                if (v !== "studio") setStudioPlan("");
+              }}
               required
             >
               <SelectTrigger>
@@ -128,12 +154,26 @@ const VisualiaStudioForm = ({
             </Select>
           </div>
 
-          {/* Conditional Studio fields */}
+          {/* Studio plan selector */}
           {tier === "studio" && (
             <div className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Detalles Studio
               </p>
+
+              <div className="space-y-1.5">
+                <Label>Plan Studio</Label>
+                <Select value={studioPlan} onValueChange={(v) => setStudioPlan(v as StudioPlan)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un plan Studio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="studio_start">Studio Start</SelectItem>
+                    <SelectItem value="studio_pro">Studio Pro</SelectItem>
+                    <SelectItem value="studio_elite">Studio Elite</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="space-y-1.5">
                 <Label>¿Tienes fotos profesionales?</Label>
