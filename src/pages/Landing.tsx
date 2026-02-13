@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -50,8 +50,16 @@ const testimonials = [
 ];
 
 const Landing = () => {
-  const [showIntro, setShowIntro] = useState(() => !hasSeenIntro());
-  const handleIntroComplete = useCallback(() => setShowIntro(false), []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const forceIntro = searchParams.get("intro") === "reset";
+  const [showIntro, setShowIntro] = useState(() => forceIntro || !hasSeenIntro());
+  const handleIntroComplete = useCallback(() => {
+    setShowIntro(false);
+    if (forceIntro) {
+      searchParams.delete("intro");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [forceIntro, searchParams, setSearchParams]);
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 50%, #0E0B16 100%)" }}>
