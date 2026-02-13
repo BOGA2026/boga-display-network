@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import VisualiaStudio from "@/components/landing/VisualiaStudio";
+import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import {
   Monitor,
   ListMusic,
@@ -52,6 +53,7 @@ const testimonials = [
 
 const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [demoOpen, setDemoOpen] = useState(false);
   const forceIntro = searchParams.get("intro") === "reset";
   const [showIntro, setShowIntro] = useState(() => forceIntro || !hasSeenIntro());
   const handleIntroComplete = useCallback(() => {
@@ -80,10 +82,8 @@ const Landing = () => {
             <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem]" />
           </div>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
-              <Link to="/registro">
+            <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
                 Solicitar demo <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg" asChild>
               <a href="#features">Ver beneficios</a>
@@ -220,12 +220,10 @@ const Landing = () => {
                 Únete a los negocios que ya están transformando su comunicación visual con Visualia.
               </p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
-                  <Link to="/registro">
+                <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
                     Crear cuenta <ChevronRight className="ml-1 h-5 w-5" />
-                  </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg">
+                <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg" onClick={() => setDemoOpen(true)}>
                   Solicitar demo
                 </Button>
               </div>
@@ -256,6 +254,7 @@ const Landing = () => {
           <p className="mt-8 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
         </div>
       </footer>
+      <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   );
 };

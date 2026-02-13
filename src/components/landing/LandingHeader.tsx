@@ -4,6 +4,7 @@ import simboloVisualia from "@/assets/simbolo-visualia.png";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DemoRequestDialog from "./DemoRequestDialog";
 
 const menuItems = [
   {
@@ -44,6 +45,7 @@ const LandingHeader = () => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [demoOpen, setDemoOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -205,9 +207,9 @@ const LandingHeader = () => {
           <Button
             size="sm"
             className="gradient-primary glow-primary-sm border-0 text-primary-foreground"
-            asChild
+            onClick={() => setDemoOpen(true)}
           >
-            <Link to="/registro">Solicitar demo</Link>
+            Solicitar demo
           </Button>
         </div>
 
@@ -292,13 +294,14 @@ const LandingHeader = () => {
             </Button>
             <Button
               className="w-full gradient-primary glow-primary-sm border-0 text-primary-foreground"
-              asChild
+              onClick={() => { setMobileOpen(false); setDemoOpen(true); }}
             >
-              <Link to="/registro" onClick={() => setMobileOpen(false)}>Solicitar demo</Link>
+              Solicitar demo
             </Button>
           </div>
         </div>
       </div>
+      <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
     </header>
   );
 };
