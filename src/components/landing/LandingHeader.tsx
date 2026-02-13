@@ -192,9 +192,6 @@ const LandingHeader = () => {
 
         {/* Right — Actions */}
         <div className="hidden items-center gap-3 lg:flex">
-          <button className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-            <Globe className="h-4 w-4" />
-          </button>
           <Button
             variant="outline"
             size="sm"
