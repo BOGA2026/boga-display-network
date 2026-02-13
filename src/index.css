@@ -105,10 +105,10 @@
   .logo-i-glow::after {
     content: '';
     position: absolute;
-    top: 28%;
-    left: 64.5%;
-    width: 12px;
-    height: 12px;
+    top: 64%;
+    left: 62.5%;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: hsl(270 100% 70%);
     box-shadow: 0 0 14px 6px hsl(270 100% 50% / 0.7), 0 0 30px 10px hsl(270 100% 50% / 0.3);
