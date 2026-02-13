@@ -62,7 +62,7 @@ const Landing = () => {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-40 w-auto md:h-56 lg:h-64" />
+            <img src={logoVisualia} alt="Visualia" className="h-56 w-auto md:h-72 lg:h-80" />
           </div>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
