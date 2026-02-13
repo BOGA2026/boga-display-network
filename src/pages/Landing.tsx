@@ -62,12 +62,9 @@ const Landing = () => {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-28 w-auto md:h-40 lg:h-48" />
+            <img src={logoVisualia} alt="Visualia" className="h-40 w-auto md:h-56 lg:h-64" />
           </div>
           <p className="mt-5 font-display text-2xl font-semibold tracking-wide text-foreground/80 md:text-3xl lg:text-4xl">Pantallas que venden</p>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            Convierte tus pantallas en ventas.
-          </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" asChild>
               <Link to="/registro">
