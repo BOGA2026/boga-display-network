@@ -117,6 +117,45 @@ export type Database = {
           },
         ]
       }
+      demo_requests: {
+        Row: {
+          business_name: string
+          city: string
+          consent: boolean
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string
+          screens_range: string
+        }
+        Insert: {
+          business_name: string
+          city: string
+          consent?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone: string
+          screens_range: string
+        }
+        Update: {
+          business_name?: string
+          city?: string
+          consent?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string
+          screens_range?: string
+        }
+        Relationships: []
+      }
       devices: {
         Row: {
           app_version: string | null
