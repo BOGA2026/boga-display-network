@@ -97,24 +97,4 @@
     background-clip: text;
   }
 
-  @keyframes dot-glow {
-    0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.5); }
-    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-    82% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
-  }
-
-  .logo-i-glow::after {
-    content: '';
-    position: absolute;
-    top: 57%;
-    left: 59%;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: radial-gradient(circle, hsl(270 100% 90%) 0%, hsl(270 100% 70%) 40%, transparent 70%);
-    box-shadow: 0 0 24px 12px hsl(270 100% 60% / 0.9), 0 0 50px 20px hsl(270 100% 50% / 0.5), 0 0 80px 30px hsl(270 100% 50% / 0.2);
-    animation: dot-glow 5s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 10;
-  }
 }
