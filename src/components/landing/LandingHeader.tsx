@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -104,14 +105,7 @@ const LandingHeader = () => {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         {/* Left — Logo */}
         <Link to="/" className="group flex items-center gap-2">
-          <span className="font-display text-xl font-bold text-gradient-primary">
-            Visualia
-          </span>
-          <span className="hidden text-[10px] leading-tight text-muted-foreground lg:block">
-            Pantallas
-            <br />
-            que venden
-          </span>
+          <img src={logoVisualia} alt="Visualia" className="h-8 w-auto" />
         </Link>
 
         {/* Center — Nav */}
