@@ -168,7 +168,7 @@ const Studio = () => {
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`group relative overflow-hidden rounded-2xl border p-8 transition-all duration-300 hover:shadow-[0_0_40px_-8px_hsl(270_100%_50%/0.25)] ${
+                className={`group relative overflow-hidden rounded-2xl border p-8 transition-all duration-300 hover:scale-105 ${
                   plan.highlighted
                     ? "lg:-mt-4 lg:mb-0 lg:pb-10 lg:pt-10"
                     : ""
@@ -180,6 +180,15 @@ const Studio = () => {
                   background: plan.highlighted
                     ? "linear-gradient(180deg, hsl(260 35% 14%) 0%, hsl(260 30% 9%) 100%)"
                     : "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 25% 8%) 100%)",
+                  boxShadow: "0 0 0 rgba(138, 0, 255, 0)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = "0 0 50px -8px hsl(270 100% 50% / 0.4), 0 0 20px -4px hsl(270 100% 50% / 0.2)";
+                  e.currentTarget.style.borderColor = plan.highlighted ? "hsl(270 100% 50% / 0.6)" : "hsl(270 100% 50% / 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 0 0 rgba(138, 0, 255, 0)";
+                  e.currentTarget.style.borderColor = plan.highlighted ? "hsl(270 100% 50% / 0.5)" : "hsl(260 15% 18%)";
                 }}
               >
                 {/* Glow overlay for highlighted */}
