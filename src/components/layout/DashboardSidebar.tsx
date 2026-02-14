@@ -6,6 +6,7 @@ import {
   ListVideo,
   Calendar,
   BarChart3,
+  CreditCard,
   LogOut,
   ChevronLeft,
 } from "lucide-react";
@@ -22,6 +23,7 @@ const navItems = [
   { icon: ListVideo, label: "Playlists", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Programación", path: "/dashboard/programacion" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
+  { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
 ];
 
 const DashboardSidebar = () => {

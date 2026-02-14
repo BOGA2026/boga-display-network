@@ -15,6 +15,7 @@ import Content from "./pages/Content";
 import Playlists from "./pages/Playlists";
 import Schedule from "./pages/Schedule";
 import Analytics from "./pages/Analytics";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 import Player from "./pages/Player";
 import Landing from "./pages/Landing";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="playlists" element={<Playlists />} />
             <Route path="programacion" element={<Schedule />} />
             <Route path="analiticas" element={<Analytics />} />
+            <Route path="suscripcion" element={<Subscription />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
