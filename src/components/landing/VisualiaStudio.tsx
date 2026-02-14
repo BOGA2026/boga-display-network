@@ -1,8 +1,8 @@
 import { useState } from "react";
 import {
-  Camera,
-  LayoutGrid,
-  Sparkles,
+  UtensilsCrossed,
+  ClipboardList,
+  Tag,
   MonitorSmartphone,
   Clock,
   RefreshCw,
@@ -13,12 +13,36 @@ import { Button } from "@/components/ui/button";
 import VisualiaStudioForm from "./VisualiaStudioForm";
 
 const benefits = [
-  { icon: Camera, title: "Fotografía gastronómica profesional" },
-  { icon: LayoutGrid, title: "Diseño de menú digital optimizado para lectura rápida" },
-  { icon: Sparkles, title: "Piezas visuales para promociones y temporadas" },
-  { icon: MonitorSmartphone, title: "Adaptaciones para pantallas verticales y horizontales" },
-  { icon: Clock, title: "Estrategia visual por franjas horarias (desayuno/almuerzo/cena)" },
-  { icon: RefreshCw, title: "Actualizaciones mensuales opcionales" },
+  {
+    icon: UtensilsCrossed,
+    title: "Fotos que antojan",
+    description: "Productos que se ven irresistibles.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Menú claro y ordenado",
+    description: "El cliente entiende qué pedir en segundos.",
+  },
+  {
+    icon: Tag,
+    title: "Promociones que destacan",
+    description: "Tus ofertas reciben atención real.",
+  },
+  {
+    icon: MonitorSmartphone,
+    title: "Funciona en cualquier pantalla",
+    description: "Vertical, horizontal, TV o tablet.",
+  },
+  {
+    icon: Clock,
+    title: "Contenido por horario",
+    description: "Desayuno, almuerzo y cena automáticos.",
+  },
+  {
+    icon: RefreshCw,
+    title: "Siempre actualizado",
+    description: "Renovamos tu contenido cada mes.",
+  },
 ];
 
 const VisualiaStudio = () => {
@@ -63,11 +87,11 @@ const VisualiaStudio = () => {
         </div>
 
         {/* Benefit cards */}
-        <div className="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {benefits.map((b) => (
             <div
               key={b.title}
-              className="group relative overflow-hidden rounded-xl border p-6 transition-all hover:border-primary/40"
+              className="group relative overflow-hidden rounded-xl border p-7 transition-all duration-300 hover:border-primary/50 hover:-translate-y-1"
               style={{
                 borderColor: "hsl(260 15% 18%)",
                 background:
@@ -75,18 +99,21 @@ const VisualiaStudio = () => {
               }}
             >
               <div
-                className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{
                   background:
-                    "radial-gradient(ellipse at top right, hsl(270 100% 50% / 0.06) 0%, transparent 60%)",
+                    "radial-gradient(ellipse at top right, hsl(270 100% 50% / 0.08) 0%, transparent 60%)",
                 }}
               />
-              <div className="relative flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-                  <b.icon className="h-5 w-5 text-primary" />
+              <div className="relative flex flex-col items-start gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 transition-shadow duration-300 group-hover:shadow-[0_0_16px_-4px_hsl(270_100%_50%/0.4)]">
+                  <b.icon className="h-6 w-6 text-primary" strokeWidth={2.5} />
                 </div>
-                <p className="pt-1 text-sm font-medium leading-relaxed text-foreground/90">
+                <h3 className="text-base font-semibold text-foreground">
                   {b.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {b.description}
                 </p>
               </div>
             </div>
