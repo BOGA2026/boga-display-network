@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Monitor,
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import logoVisualia from "@/assets/logo-visualia.png";
+import { signOut } from "@/hooks/useAuth";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
@@ -25,7 +26,13 @@ const navItems = [
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <aside
@@ -86,7 +93,10 @@ const DashboardSidebar = () => {
           />
           {!collapsed && <span>Colapsar</span>}
         </button>
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+        >
           <LogOut className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Cerrar sesión</span>}
         </button>
