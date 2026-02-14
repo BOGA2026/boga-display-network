@@ -258,6 +258,63 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          billing_email: string | null
+          billing_name: string | null
+          business_id: string
+          created_at: string
+          id: string
+          invoice_number: string
+          payment_method: string | null
+          status: string
+          subscription_id: string
+          tax_id: string | null
+        }
+        Insert: {
+          amount: number
+          billing_email?: string | null
+          billing_name?: string | null
+          business_id: string
+          created_at?: string
+          id?: string
+          invoice_number: string
+          payment_method?: string | null
+          status?: string
+          subscription_id: string
+          tax_id?: string | null
+        }
+        Update: {
+          amount?: number
+          billing_email?: string | null
+          billing_name?: string | null
+          business_id?: string
+          created_at?: string
+          id?: string
+          invoice_number?: string
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string
+          tax_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       playlist_items: {
         Row: {
           content_id: string
@@ -614,6 +671,56 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          billing_cycle: string
+          business_id: string
+          created_at: string
+          id: string
+          next_billing_date: string
+          plan: string
+          price_per_screen: number
+          screens_count: number
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle?: string
+          business_id: string
+          created_at?: string
+          id?: string
+          next_billing_date?: string
+          plan?: string
+          price_per_screen?: number
+          screens_count?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          next_billing_date?: string
+          plan?: string
+          price_per_screen?: number
+          screens_count?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
