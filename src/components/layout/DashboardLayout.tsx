@@ -2,8 +2,19 @@ import { Outlet } from "react-router-dom";
 import DashboardSidebar from "./DashboardSidebar";
 import { Separator } from "@/components/ui/separator";
 import logoVisualia from "@/assets/logo-visualia.png";
+import { useAuth } from "@/hooks/useAuth";
 
 const DashboardLayout = () => {
+  const { loading } = useAuth("/login");
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <DashboardSidebar />
