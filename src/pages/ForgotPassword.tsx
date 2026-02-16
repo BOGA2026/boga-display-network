@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -36,7 +37,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center gap-3">
           <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
@@ -91,7 +92,7 @@ const ForgotPassword = () => {
           )}
         </Card>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
 

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -39,7 +40,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+    <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         {/* Branding */}
         <div className="mb-8 flex flex-col items-center gap-2">
@@ -85,7 +86,7 @@ const Login = () => {
           </form>
         </Card>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
 

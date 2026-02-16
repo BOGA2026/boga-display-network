@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import LandingHeader from "@/components/landing/LandingHeader";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
   Monitor,
   RefreshCw,
@@ -70,10 +71,7 @@ const Pricing = () => {
   }, [screens, annual]);
 
   return (
-    <div
-      className="min-h-screen bg-animated-gradient"
-      style={{ background: "linear-gradient(180deg, hsl(260 30% 5%) 0%, hsl(265 25% 8%) 25%, hsl(260 20% 6%) 50%, hsl(270 25% 8%) 75%, hsl(260 30% 5%) 100%)", backgroundSize: "200% 200%" }}
-    >
+    <PremiumBackground>
       <LandingHeader />
 
       {/* Hero */}
@@ -86,9 +84,7 @@ const Pricing = () => {
           <h1 className="font-display text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
             Planes simples para <span className="text-gradient-primary">pantallas que venden</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground md:text-xl">
-            Paga solo por las pantallas que uses. Sin contratos complicados.
-          </p>
+          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground md:text-xl">Paga solo por las pantallas que uses. Sin contratos complicados.</p>
           <Button size="lg" className="mt-8 gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
             <Link to="/registro">Comenzar ahora <ArrowRight className="ml-2 h-5 w-5" /></Link>
           </Button>
@@ -99,38 +95,20 @@ const Pricing = () => {
       <section className="px-6 pb-20">
         <div className="mx-auto max-w-3xl">
           <div className="glass-card rounded-2xl p-8 md:p-12 glow-primary-sm">
-            {/* Toggle */}
             <div className="mb-10 flex items-center justify-center gap-3">
               <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>Mensual</span>
               <Switch checked={annual} onCheckedChange={setAnnual} />
               <span className={annual ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>Anual</span>
-              {annual && (
-                <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
-                  Ahorra 20%
-                </span>
-              )}
+              {annual && <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">Ahorra 20%</span>}
             </div>
-
-            {/* Slider */}
             <div className="mb-10">
               <div className="mb-3 flex items-end justify-between">
                 <p className="text-sm text-muted-foreground">Número de pantallas</p>
                 <span className="font-display text-3xl font-bold stat-glow">{screens}</span>
               </div>
-              <Slider
-                value={[screens]}
-                onValueChange={([v]) => setScreens(v)}
-                min={1}
-                max={300}
-                step={1}
-                className="py-2"
-              />
-              <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                <span>1</span><span>50</span><span>100</span><span>200</span><span>300</span>
-              </div>
+              <Slider value={[screens]} onValueChange={([v]) => setScreens(v)} min={1} max={300} step={1} className="py-2" />
+              <div className="mt-1 flex justify-between text-xs text-muted-foreground"><span>1</span><span>50</span><span>100</span><span>200</span><span>300</span></div>
             </div>
-
-            {/* Result */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl surface-neon p-5 text-center transition-all duration-300 hover-lift">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensual</p>
@@ -151,7 +129,6 @@ const Pricing = () => {
                 <p className="mt-2 font-display text-2xl font-bold text-gradient-primary text-neon-bright">{annual ? formatCOP(calc.savings) : "—"}</p>
               </div>
             </div>
-
             <div className="mt-8 text-center">
               <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-10 text-primary-foreground" asChild>
                 <Link to="/registro">Comenzar ahora</Link>
@@ -164,9 +141,7 @@ const Pricing = () => {
       {/* Included */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-4xl">
-          <h2 className="mb-12 text-center font-display text-3xl font-bold text-foreground md:text-4xl">
-            Todo incluido en cada plan
-          </h2>
+          <h2 className="mb-12 text-center font-display text-3xl font-bold text-foreground md:text-4xl">Todo incluido en cada plan</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {included.map((item) => (
               <div key={item.label} className="flex items-center gap-4 glass-card hover:glass-card-hover rounded-xl px-5 py-4 transition-all duration-300 hover-lift">
@@ -184,12 +159,8 @@ const Pricing = () => {
       <section className="relative px-6 py-20">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center font-display text-3xl font-bold text-foreground md:text-4xl">
-            ¿Qué incluye <span className="text-gradient-primary">Visualia</span>?
-          </h2>
-          <p className="mx-auto mb-12 max-w-xl text-center text-muted-foreground">
-            Herramientas profesionales para gestionar tu red de señalización digital.
-          </p>
+          <h2 className="mb-4 text-center font-display text-3xl font-bold text-foreground md:text-4xl">¿Qué incluye <span className="text-gradient-primary">Visualia</span>?</h2>
+          <p className="mx-auto mb-12 max-w-xl text-center text-muted-foreground">Herramientas profesionales para gestionar tu red de señalización digital.</p>
           <div className="grid gap-6 sm:grid-cols-2">
             {valueCards.map((c) => (
               <div key={c.title} className="group glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
@@ -211,9 +182,7 @@ const Pricing = () => {
             <Zap className="h-6 w-6 text-primary icon-neon" />
             <p className="text-lg font-medium text-foreground">Sin instalación complicada</p>
           </div>
-          <p className="text-muted-foreground">
-            Funciona con cualquier pantalla y Android Box. Conecta, configura desde el panel y listo.
-          </p>
+          <p className="text-muted-foreground">Funciona con cualquier pantalla y Android Box. Conecta, configura desde el panel y listo.</p>
         </div>
       </section>
 
@@ -223,12 +192,8 @@ const Pricing = () => {
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
             <div className="relative">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                Empieza hoy y convierte tus pantallas en ventas
-              </h2>
-              <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-                Únete a los negocios que ya confían en Visualia para su comunicación visual.
-              </p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza hoy y convierte tus pantallas en ventas</h2>
+              <p className="mx-auto mt-4 max-w-lg text-muted-foreground">Únete a los negocios que ya confían en Visualia para su comunicación visual.</p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
                   <Link to="/registro">Solicitar demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
@@ -246,7 +211,7 @@ const Pricing = () => {
           <p className="mt-1 text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
         </div>
       </footer>
-    </div>
+    </PremiumBackground>
   );
 };
 

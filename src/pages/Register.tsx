@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Monitor, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
@@ -82,7 +83,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-8 flex flex-col items-center gap-3">
           <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
@@ -125,7 +126,7 @@ const Register = () => {
           </form>
         </Card>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
 
