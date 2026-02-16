@@ -102,7 +102,7 @@ const VisualiaStudio = () => {
               <div className="relative flex flex-col items-start gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:glow-primary-sm group-hover:bg-primary/15">
                   {b.img ? (
-                    <img src={b.img} alt={b.title} className="h-6 w-6" />
+                    <img src={b.img} alt={b.title} className="h-6 w-6 icon-custom-neon" />
                   ) : b.icon ? (
                     <b.icon className="h-6 w-6 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2.5} />
                   ) : null}

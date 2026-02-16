@@ -437,7 +437,7 @@ const Studio = () => {
                 <div className="relative">
                   <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
                     {s.img ? (
-                      <img src={s.img} alt={s.title} className="h-7 w-7" />
+                      <img src={s.img} alt={s.title} className="h-7 w-7 icon-custom-neon" />
                     ) : (
                       <RefreshCw className="h-7 w-7 text-primary" />
                     )}
@@ -478,7 +478,7 @@ const Studio = () => {
               >
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary">
                   {ip.img ? (
-                    <img src={ip.img} alt={ip.title} className="h-7 w-7 brightness-0 invert" />
+                    <img src={ip.img} alt={ip.title} className="h-7 w-7 icon-custom-white-glow" />
                   ) : (
                     <CalendarClock className="h-7 w-7 text-primary-foreground" />
                   )}

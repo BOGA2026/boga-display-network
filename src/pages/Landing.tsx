@@ -111,7 +111,7 @@ const Landing = () => {
               <div key={p.title} className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
                   {p.img ? (
-                    <img src={p.img} alt={p.title} className="h-6 w-6 brightness-0 invert" />
+                    <img src={p.img} alt={p.title} className="h-6 w-6 icon-custom-white-glow" />
                   ) : p.icon ? (
                     <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
                   ) : null}
@@ -143,7 +143,7 @@ const Landing = () => {
                 <div className="relative">
                   <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
                     {f.img ? (
-                      <img src={f.img} alt={f.title} className="h-7 w-7" />
+                      <img src={f.img} alt={f.title} className="h-7 w-7 icon-custom-neon" />
                     ) : f.icon ? (
                       <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
                     ) : null}
