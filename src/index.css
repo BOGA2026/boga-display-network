@@ -167,6 +167,19 @@
     transform: scale(1.04);
   }
 
+  /* ── Custom icon vivid purple tint ── */
+  .icon-custom-neon {
+    filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(6000%) hue-rotate(270deg) brightness(130%) drop-shadow(0 0 8px hsl(270 100% 50% / 0.6));
+  }
+
+  .icon-custom-neon-bright {
+    filter: brightness(0) saturate(100%) invert(30%) sepia(100%) saturate(5000%) hue-rotate(268deg) brightness(150%) drop-shadow(0 0 12px hsl(270 100% 50% / 0.7));
+  }
+
+  .icon-custom-white-glow {
+    filter: drop-shadow(0 0 8px hsl(270 100% 60% / 0.7)) drop-shadow(0 0 3px hsl(0 0% 100% / 0.4));
+  }
+
   /* ── Button effects ── */
   .btn-glow {
     position: relative;
