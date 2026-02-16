@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
   Camera,
   LayoutGrid,
@@ -104,12 +105,7 @@ const Studio = () => {
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: "linear-gradient(180deg, #0E0B16 0%, #12101A 50%, #0E0B16 100%)",
-      }}
-    >
+    <PremiumBackground>
       <LandingHeader />
 
       {/* ─── Hero ─── */}
@@ -542,7 +538,7 @@ const Studio = () => {
         defaultTier="studio"
         selectedStudioPlan={selectedTier}
       />
-    </div>
+    </PremiumBackground>
   );
 };
 

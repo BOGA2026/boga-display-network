@@ -6,6 +6,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import VisualiaStudio from "@/components/landing/VisualiaStudio";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
+import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
   Monitor,
   ListMusic,
@@ -65,236 +66,181 @@ const Landing = () => {
   }, [forceIntro, searchParams, setSearchParams]);
 
   return (
-    <div className="relative min-h-screen grain-overlay" style={{ background: "linear-gradient(180deg, hsl(260 35% 4%) 0%, hsl(265 30% 9%) 20%, hsl(260 25% 6%) 40%, hsl(270 30% 10%) 60%, hsl(260 28% 7%) 80%, hsl(260 35% 4%) 100%)" }}>
-      {/* ── Ambient light orbs ── */}
-      <div className="ambient-orb" style={{ width: 500, height: 500, top: '-5%', left: '-8%', background: 'hsl(270 100% 40%)' }} />
-      <div className="ambient-orb" style={{ width: 400, height: 400, top: '15%', right: '-10%', background: 'hsl(290 100% 35%)', animationName: 'orb-drift-alt', animationDuration: '22s' }} />
-      <div className="ambient-orb" style={{ width: 600, height: 600, top: '45%', left: '10%', background: 'hsl(265 100% 30%)', animationDelay: '4s', animationDuration: '24s' }} />
-      <div className="ambient-orb" style={{ width: 350, height: 350, top: '70%', right: '5%', background: 'hsl(280 100% 35%)', animationName: 'orb-drift-alt', animationDelay: '8s' }} />
-      <div className="ambient-orb" style={{ width: 450, height: 450, bottom: '5%', left: '30%', background: 'hsl(270 100% 28%)', animationDelay: '12s', animationDuration: '20s' }} />
+    <PremiumBackground>
+      {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
+      <LandingHeader />
 
-      {/* ── Subtle floating particles ── */}
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className="particle"
-          style={{
-            width: 2 + (i % 3),
-            height: 2 + (i % 3),
-            left: `${12 + i * 15}%`,
-            bottom: '-2%',
-            animationDuration: `${20 + i * 5}s`,
-            animationDelay: `${i * 3}s`,
-          }}
-        />
-      ))}
+      {/* Hero */}
+      <section className="relative overflow-hidden px-6 pb-20 pt-32 md:pt-40">
+        {/* Hero-specific glow */}
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
+          <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
+          <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
+          <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.1, animationDelay: "3s" }} />
+        </div>
 
-      {/* ── Content (z-10 above background effects) ── */}
-      <div className="relative z-10">
-        {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
-        <LandingHeader />
-
-        {/* Hero */}
-        <section className="relative overflow-hidden px-6 pb-20 pt-32 md:pt-40">
-          {/* Hero-specific glow */}
-          <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
-            <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
-            <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
-            <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.1, animationDelay: "3s" }} />
+        <div className="relative mx-auto max-w-4xl text-center">
+          <div className="flex justify-center">
+            <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
-
-          <div className="relative mx-auto max-w-4xl text-center">
-            <div className="flex justify-center">
-              <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
-            </div>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
-                  Solicitar demo <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" asChild>
-                <a href="#features">Ver beneficios</a>
-              </Button>
-            </div>
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
+                Solicitar demo <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" asChild>
+              <a href="#features">Ver beneficios</a>
+            </Button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Problem + Solution */}
-        <section className="relative px-6 py-20 md:py-28">
-          {/* Section radial glow */}
-          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(270 100% 40% / 0.07) 0%, transparent 70%)" }} />
-          <div className="relative mx-auto max-w-6xl">
-            <div className="mb-16 text-center animate-fade-in">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                ¿Por qué las señales visuales importan en tu negocio?
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-                Las pantallas digitales son la herramienta más efectiva para comunicar, vender más y diferenciarte.
-              </p>
-            </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {problems.map((p, i) => (
-                <div
-                  key={p.title}
-                  className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
-                    <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
-                  </div>
-                  <h3 className="mb-2 font-display text-lg font-semibold text-foreground">{p.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+      {/* Problem + Solution */}
+      <section className="relative px-6 py-20 md:py-28">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(270 100% 40% / 0.07) 0%, transparent 70%)" }} />
+        <div className="relative mx-auto max-w-6xl">
+          <div className="mb-16 text-center animate-fade-in">
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              ¿Por qué las señales visuales importan en tu negocio?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+              Las pantallas digitales son la herramienta más efectiva para comunicar, vender más y diferenciarte.
+            </p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {problems.map((p, i) => (
+              <div key={p.title} className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
+                  <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
                 </div>
-              ))}
-            </div>
+                <h3 className="mb-2 font-display text-lg font-semibold text-foreground">{p.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Features */}
-        <section id="features" className="relative px-6 py-20 md:py-28">
-          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }} />
-          <div className="relative mx-auto max-w-6xl">
-            <div className="mb-16 text-center">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                Funciones clave de <span className="text-gradient-primary">Visualia</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-                Todo lo que necesitas para gestionar tu red de señalización digital desde un solo lugar.
-              </p>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((f, i) => (
-                <div
-                  key={f.title}
-                  className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift"
-                  style={{ animationDelay: `${i * 80}ms` }}
-                >
-                  <div className="absolute right-0 top-0 h-36 w-36 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity duration-500 group-hover:opacity-25" style={{ background: "hsl(270 100% 50%)" }} />
-                  <div className="relative">
-                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
-                      <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
-                    </div>
-                    <h3 className="mb-2 font-display text-xl font-semibold text-foreground">{f.title}</h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+      {/* Features */}
+      <section id="features" className="relative px-6 py-20 md:py-28">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }} />
+        <div className="relative mx-auto max-w-6xl">
+          <div className="mb-16 text-center">
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              Funciones clave de <span className="text-gradient-primary">Visualia</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+              Todo lo que necesitas para gestionar tu red de señalización digital desde un solo lugar.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f, i) => (
+              <div key={f.title} className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 80}ms` }}>
+                <div className="absolute right-0 top-0 h-36 w-36 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity duration-500 group-hover:opacity-25" style={{ background: "hsl(270 100% 50%)" }} />
+                <div className="relative">
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
+                    <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
+                  </div>
+                  <h3 className="mb-2 font-display text-xl font-semibold text-foreground">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Visualia Studio — Premium Upsell */}
+      <VisualiaStudio />
+
+      {/* How It Works */}
+      <section id="how" className="px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-16 text-center">
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
+          </div>
+          <div className="relative">
+            <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
+            <div className="space-y-12 md:space-y-16">
+              {steps.map((s) => (
+                <div key={s.num} className="flex gap-6 md:gap-10 group">
+                  <div className="relative flex-shrink-0">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">{s.num}</div>
+                  </div>
+                  <div className="pt-2">
+                    <h3 className="mb-2 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
+                    <p className="max-w-lg text-muted-foreground">{s.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Visualia Studio — Premium Upsell */}
-        <VisualiaStudio />
+      {/* Testimonials */}
+      <section id="testimonials" className="relative px-6 py-20 md:py-28">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
+        <div className="relative mx-auto max-w-6xl">
+          <div className="mb-16 text-center">
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
+                <div className="mb-4 flex gap-1">
+                  {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />))}
+                </div>
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
+                <div>
+                  <p className="font-display font-semibold text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* How It Works */}
-        <section id="how" className="px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-5xl">
-            <div className="mb-16 text-center">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                Cómo funciona
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-                Tres pasos para transformar la comunicación visual de tu negocio.
-              </p>
-            </div>
+      {/* CTA */}
+      <section className="px-6 py-20 md:py-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
+            <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
             <div className="relative">
-              <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-              <div className="space-y-12 md:space-y-16">
-                {steps.map((s) => (
-                  <div key={s.num} className="flex gap-6 md:gap-10 group">
-                    <div className="relative flex-shrink-0">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">
-                        {s.num}
-                      </div>
-                    </div>
-                    <div className="pt-2">
-                      <h3 className="mb-2 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
-                      <p className="max-w-lg text-muted-foreground">{s.desc}</p>
-                    </div>
-                  </div>
-                ))}
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza con <span className="text-gradient-primary">Visualia</span> hoy</h2>
+              <p className="mx-auto mt-4 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
+              <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
+                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>Solicitar demo</Button>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Testimonials */}
-        <section id="testimonials" className="relative px-6 py-20 md:py-28">
-          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
-          <div className="relative mx-auto max-w-6xl">
-            <div className="mb-16 text-center">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                Lo que dicen nuestros clientes
-              </h2>
+      {/* Footer */}
+      <footer className="border-t border-border/20 px-6 py-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+            <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
+              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</a>
+              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
+              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
             </div>
-            <div className="grid gap-8 md:grid-cols-3">
-              {testimonials.map((t) => (
-                <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
-                  <div className="mb-4 flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />
-                    ))}
-                  </div>
-                  <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
-                  <div>
-                    <p className="font-display font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="flex gap-4">
+              <a href="#" className="text-muted-foreground transition hover:text-primary"><Twitter className="h-5 w-5" /></a>
+              <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
+              <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-        </section>
-
-        {/* CTA */}
-        <section className="px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
-              <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
-              <div className="relative">
-                <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-                  Empieza con <span className="text-gradient-primary">Visualia</span> hoy
-                </h2>
-                <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-                  Únete a los negocios que ya están transformando su comunicación visual con Visualia.
-                </p>
-                <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                  <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
-                      Crear cuenta <ChevronRight className="ml-1 h-5 w-5" />
-                  </Button>
-                  <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>
-                    Solicitar demo
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-border/20 px-6 py-12">
-          <div className="mx-auto max-w-6xl">
-            <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-              <div>
-                <img src={logoVisualia} alt="Visualia" className="h-8 w-auto" />
-              </div>
-              <div className="flex flex-wrap justify-center gap-6">
-                <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
-                <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</a>
-                <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
-                <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
-              </div>
-              <div className="flex gap-4">
-                <a href="#" className="text-muted-foreground transition hover:text-primary"><Twitter className="h-5 w-5" /></a>
-                <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
-                <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
-              </div>
-            </div>
-            <p className="mt-8 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
-          </div>
-        </footer>
-        <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
-      </div>
-    </div>
+          <p className="mt-8 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
+        </div>
+      </footer>
+      <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
+    </PremiumBackground>
   );
 };
 
