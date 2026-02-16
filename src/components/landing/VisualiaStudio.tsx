@@ -1,44 +1,50 @@
 import { useState } from "react";
 import {
-  UtensilsCrossed,
-  ClipboardList,
   Tag,
-  MonitorSmartphone,
-  Clock,
   RefreshCw,
   ArrowRight,
   Crown,
 } from "lucide-react";
+import iconFotografia from "@/assets/icons/fotografia.png";
+import iconMenu from "@/assets/icons/menu.png";
+import iconAdaptaciones from "@/assets/icons/adaptaciones-multiformatos.png";
+import iconEstrategia from "@/assets/icons/estrategia-franjas.png";
 import { Button } from "@/components/ui/button";
 import VisualiaStudioForm from "./VisualiaStudioForm";
 
 const benefits = [
   {
-    icon: UtensilsCrossed,
+    img: iconFotografia,
+    icon: null,
     title: "Fotos que antojan",
     description: "Productos que se ven irresistibles.",
   },
   {
-    icon: ClipboardList,
+    img: iconMenu,
+    icon: null,
     title: "Menú claro y ordenado",
     description: "El cliente entiende qué pedir en segundos.",
   },
   {
+    img: null,
     icon: Tag,
     title: "Promociones que destacan",
     description: "Tus ofertas reciben atención real.",
   },
   {
-    icon: MonitorSmartphone,
+    img: iconAdaptaciones,
+    icon: null,
     title: "Funciona en cualquier pantalla",
     description: "Vertical, horizontal, TV o tablet.",
   },
   {
-    icon: Clock,
+    img: iconEstrategia,
+    icon: null,
     title: "Contenido por horario",
     description: "Desayuno, almuerzo y cena automáticos.",
   },
   {
+    img: null,
     icon: RefreshCw,
     title: "Siempre actualizado",
     description: "Renovamos tu contenido cada mes.",
@@ -95,7 +101,11 @@ const VisualiaStudio = () => {
               />
               <div className="relative flex flex-col items-start gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:glow-primary-sm group-hover:bg-primary/15">
-                  <b.icon className="h-6 w-6 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2.5} />
+                  {b.img ? (
+                    <img src={b.img} alt={b.title} className="h-6 w-6" />
+                  ) : b.icon ? (
+                    <b.icon className="h-6 w-6 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2.5} />
+                  ) : null}
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
                   {b.title}

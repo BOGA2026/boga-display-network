@@ -1,22 +1,24 @@
 import { useState } from "react";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
-  Camera,
-  LayoutGrid,
-  Sparkles,
-  MonitorSmartphone,
-  Clock,
   RefreshCw,
   ArrowRight,
   Crown,
   Zap,
-  Layers,
   CalendarClock,
-  Wifi,
   Check,
   Star,
   TrendingUp,
+  Sparkles,
+  Layers,
 } from "lucide-react";
+import iconFotografia from "@/assets/icons/fotografia.png";
+import iconMenu from "@/assets/icons/menu.png";
+import iconPiezasVisuales from "@/assets/icons/piezas-visuales.png";
+import iconAdaptaciones from "@/assets/icons/adaptaciones-multiformatos.png";
+import iconEstrategia from "@/assets/icons/estrategia-franjas.png";
+import iconOptimizado from "@/assets/icons/optimizado-visualia.png";
+import iconDistribucion from "@/assets/icons/distribucion-automatica.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -25,18 +27,18 @@ import VisualiaStudioForm from "@/components/landing/VisualiaStudioForm";
 type StudioTier = "studio_start" | "studio_pro" | "studio_elite";
 
 const services = [
-  { icon: Camera, title: "Fotografía gastronómica profesional", desc: "Sesiones de foto con estilismo culinario, iluminación de estudio y edición premium para que cada plato luzca irresistible en pantalla." },
-  { icon: LayoutGrid, title: "Diseño de menú digital optimizado", desc: "Jerarquía visual clara, tipografía legible a distancia y diseño pensado para decisiones rápidas del cliente." },
-  { icon: Sparkles, title: "Piezas visuales para promociones", desc: "Creatividades de temporada, lanzamientos y ofertas especiales con animaciones sutiles que captan la atención." },
-  { icon: MonitorSmartphone, title: "Adaptaciones multi-formato", desc: "Cada pieza se produce en vertical y horizontal, optimizada para cualquier tipo de pantalla o ubicación." },
-  { icon: Clock, title: "Estrategia visual por franjas horarias", desc: "Contenido diferenciado para desayuno, almuerzo y cena que maximiza la relevancia y el ticket promedio." },
-  { icon: RefreshCw, title: "Producción mensual opcional", desc: "Actualizaciones periódicas de contenido para mantener la frescura visual y la rotación de productos destacados." },
+  { img: iconFotografia, title: "Fotografía gastronómica profesional", desc: "Sesiones de foto con estilismo culinario, iluminación de estudio y edición premium para que cada plato luzca irresistible en pantalla." },
+  { img: iconMenu, title: "Diseño de menú digital optimizado", desc: "Jerarquía visual clara, tipografía legible a distancia y diseño pensado para decisiones rápidas del cliente." },
+  { img: iconPiezasVisuales, title: "Piezas visuales para promociones", desc: "Creatividades de temporada, lanzamientos y ofertas especiales con animaciones sutiles que captan la atención." },
+  { img: iconAdaptaciones, title: "Adaptaciones multi-formato", desc: "Cada pieza se produce en vertical y horizontal, optimizada para cualquier tipo de pantalla o ubicación." },
+  { img: iconEstrategia, title: "Estrategia visual por franjas horarias", desc: "Contenido diferenciado para desayuno, almuerzo y cena que maximiza la relevancia y el ticket promedio." },
+  { img: null, title: "Producción mensual opcional", desc: "Actualizaciones periódicas de contenido para mantener la frescura visual y la rotación de productos destacados." },
 ];
 
 const integrationPoints = [
-  { icon: Layers, title: "Optimizado para Visualia", desc: "Todo el contenido se produce en formatos y resoluciones perfectas para el reproductor Visualia." },
-  { icon: CalendarClock, title: "Programable por horario", desc: "Cada pieza se entrega lista para asignar a franjas horarias en el programador de Visualia." },
-  { icon: Wifi, title: "Distribución automática", desc: "Una vez publicado, el contenido se sincroniza en todas tus pantallas sin intervención manual." },
+  { img: iconOptimizado, title: "Optimizado para Visualia", desc: "Todo el contenido se produce en formatos y resoluciones perfectas para el reproductor Visualia." },
+  { img: null, title: "Programable por horario", desc: "Cada pieza se entrega lista para asignar a franjas horarias en el programador de Visualia." },
+  { img: iconDistribucion, title: "Distribución automática", desc: "Una vez publicado, el contenido se sincroniza en todas tus pantallas sin intervención manual." },
 ];
 
 const plans = [
@@ -434,7 +436,11 @@ const Studio = () => {
                 />
                 <div className="relative">
                   <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-                    <s.icon className="h-7 w-7 text-primary" />
+                    {s.img ? (
+                      <img src={s.img} alt={s.title} className="h-7 w-7" />
+                    ) : (
+                      <RefreshCw className="h-7 w-7 text-primary" />
+                    )}
                   </div>
                   <h3 className="mb-2 font-display text-lg font-semibold text-foreground">
                     {s.title}
@@ -471,7 +477,11 @@ const Studio = () => {
                 }}
               >
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary">
-                  <ip.icon className="h-7 w-7 text-primary-foreground" />
+                  {ip.img ? (
+                    <img src={ip.img} alt={ip.title} className="h-7 w-7 brightness-0 invert" />
+                  ) : (
+                    <CalendarClock className="h-7 w-7 text-primary-foreground" />
+                  )}
                 </div>
                 <h3 className="mb-2 font-display text-lg font-semibold text-foreground">
                   {ip.title}

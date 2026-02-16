@@ -11,12 +11,9 @@ import {
   Monitor,
   ListMusic,
   CalendarClock,
-  BarChart3,
   QrCode,
   Eye,
   TrendingUp,
-  RefreshCw,
-  Settings2,
   ArrowRight,
   Star,
   Twitter,
@@ -24,20 +21,23 @@ import {
   Linkedin,
   ChevronRight,
 } from "lucide-react";
+import iconControlTotal from "@/assets/icons/control-total.png";
+import iconPantallasSincronizadas from "@/assets/icons/pantallas-sincronizadas.png";
+import iconEstadisticas from "@/assets/icons/estadisticas-reproduccion.png";
 
 const problems = [
-  { icon: Eye, title: "Visibilidad de promociones", desc: "Muestra ofertas y productos destacados en tiempo real para captar la atención de tus clientes." },
-  { icon: TrendingUp, title: "Incremento de ticket promedio", desc: "Las pantallas digitales aumentan hasta un 30% el gasto promedio por cliente en tu negocio." },
-  { icon: RefreshCw, title: "Sincronización remota", desc: "Actualiza el contenido de todas tus pantallas desde cualquier lugar, sin visitar cada sucursal." },
-  { icon: Settings2, title: "Control total desde una plataforma", desc: "Un solo dashboard para gestionar ubicaciones, pantallas, contenido y programación." },
+  { icon: Eye, img: null, title: "Visibilidad de promociones", desc: "Muestra ofertas y productos destacados en tiempo real para captar la atención de tus clientes." },
+  { icon: TrendingUp, img: null, title: "Incremento de ticket promedio", desc: "Las pantallas digitales aumentan hasta un 30% el gasto promedio por cliente en tu negocio." },
+  { icon: null, img: iconPantallasSincronizadas, title: "Sincronización remota", desc: "Actualiza el contenido de todas tus pantallas desde cualquier lugar, sin visitar cada sucursal." },
+  { icon: null, img: iconControlTotal, title: "Control total desde una plataforma", desc: "Un solo dashboard para gestionar ubicaciones, pantallas, contenido y programación." },
 ];
 
 const features = [
-  { icon: Monitor, title: "Gestión de contenido", desc: "Sube imágenes, videos y diseños. Organiza tu biblioteca de medios con facilidad." },
-  { icon: ListMusic, title: "Playlists inteligentes", desc: "Crea listas de reproducción dinámicas que se adaptan a tus necesidades." },
-  { icon: CalendarClock, title: "Programación por horarios", desc: "Define qué contenido se muestra en cada momento del día automáticamente." },
-  { icon: BarChart3, title: "Analíticas de pantalla", desc: "Mide el rendimiento de tu señalización con métricas detalladas en tiempo real." },
-  { icon: QrCode, title: "Vinculación con código", desc: "Conecta dispositivos a tu red con un simple código. Sin configuración compleja." },
+  { icon: Monitor, img: null, title: "Gestión de contenido", desc: "Sube imágenes, videos y diseños. Organiza tu biblioteca de medios con facilidad." },
+  { icon: ListMusic, img: null, title: "Playlists inteligentes", desc: "Crea listas de reproducción dinámicas que se adaptan a tus necesidades." },
+  { icon: CalendarClock, img: null, title: "Programación por horarios", desc: "Define qué contenido se muestra en cada momento del día automáticamente." },
+  { icon: null, img: iconEstadisticas, title: "Analíticas de pantalla", desc: "Mide el rendimiento de tu señalización con métricas detalladas en tiempo real." },
+  { icon: QrCode, img: null, title: "Vinculación con código", desc: "Conecta dispositivos a tu red con un simple código. Sin configuración compleja." },
 ];
 
 const steps = [
@@ -110,7 +110,11 @@ const Landing = () => {
             {problems.map((p, i) => (
               <div key={p.title} className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
-                  <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
+                  {p.img ? (
+                    <img src={p.img} alt={p.title} className="h-6 w-6 brightness-0 invert" />
+                  ) : p.icon ? (
+                    <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
+                  ) : null}
                 </div>
                 <h3 className="mb-2 font-display text-lg font-semibold text-foreground">{p.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
@@ -138,7 +142,11 @@ const Landing = () => {
                 <div className="absolute right-0 top-0 h-36 w-36 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity duration-500 group-hover:opacity-25" style={{ background: "hsl(270 100% 50%)" }} />
                 <div className="relative">
                   <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
-                    <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
+                    {f.img ? (
+                      <img src={f.img} alt={f.title} className="h-7 w-7" />
+                    ) : f.icon ? (
+                      <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
+                    ) : null}
                   </div>
                   <h3 className="mb-2 font-display text-xl font-semibold text-foreground">{f.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
