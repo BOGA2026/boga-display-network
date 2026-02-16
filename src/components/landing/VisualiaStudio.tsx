@@ -52,25 +52,18 @@ const VisualiaStudio = () => {
     <section id="studio" className="relative px-6 py-20 md:py-28">
       {/* Background glow */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-15"
+        className="pointer-events-none absolute inset-0 animate-neon-breathe"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 50% 40%, hsl(270 100% 50% / 0.3) 0%, transparent 70%)",
+            "radial-gradient(ellipse 70% 50% at 50% 40%, hsl(270 100% 50% / 0.12) 0%, transparent 70%)",
         }}
       />
 
       <div className="relative mx-auto max-w-6xl">
         {/* Badge */}
         <div className="mb-8 flex justify-center">
-          <span
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
-            style={{
-              borderColor: "hsl(270 100% 50% / 0.4)",
-              background: "hsl(270 100% 50% / 0.08)",
-              color: "hsl(280 100% 70%)",
-            }}
-          >
-            <Crown className="h-3.5 w-3.5" />
+          <span className="inline-flex items-center gap-2 rounded-full neon-border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-neon">
+            <Crown className="h-3.5 w-3.5 icon-neon" />
             Servicio Premium
           </span>
         </div>
@@ -88,26 +81,21 @@ const VisualiaStudio = () => {
 
         {/* Benefit cards */}
         <div className="mb-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {benefits.map((b) => (
+          {benefits.map((b, i) => (
             <div
               key={b.title}
-              className="group relative overflow-hidden rounded-xl border p-7 transition-all duration-300 hover:border-primary/50 hover:-translate-y-1"
-              style={{
-                borderColor: "hsl(260 15% 18%)",
-                background:
-                  "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 25% 8%) 100%)",
-              }}
+              className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-xl p-7 transition-all duration-300 hover-lift"
             >
               <div
                 className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{
                   background:
-                    "radial-gradient(ellipse at top right, hsl(270 100% 50% / 0.08) 0%, transparent 60%)",
+                    "radial-gradient(ellipse at top right, hsl(270 100% 50% / 0.1) 0%, transparent 60%)",
                 }}
               />
               <div className="relative flex flex-col items-start gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 transition-shadow duration-300 group-hover:shadow-[0_0_16px_-4px_hsl(270_100%_50%/0.4)]">
-                  <b.icon className="h-6 w-6 text-primary" strokeWidth={2.5} />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:glow-primary-sm group-hover:bg-primary/15">
+                  <b.icon className="h-6 w-6 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2.5} />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
                   {b.title}
@@ -123,13 +111,7 @@ const VisualiaStudio = () => {
         {/* Comparison cards */}
         <div className="mb-16 grid gap-6 md:grid-cols-2">
           {/* Basic */}
-          <div
-            className="rounded-xl border p-8"
-            style={{
-              borderColor: "hsl(260 15% 18%)",
-              background: "linear-gradient(180deg, hsl(260 25% 10%) 0%, hsl(260 20% 8%) 100%)",
-            }}
-          >
+          <div className="glass-card rounded-xl p-8">
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Contenido básico
             </p>
@@ -154,44 +136,41 @@ const VisualiaStudio = () => {
           </div>
 
           {/* Studio */}
-          <div
-            className="relative overflow-hidden rounded-xl border p-8"
+          <div className="relative overflow-hidden rounded-xl neon-border p-8 glow-primary-sm"
             style={{
-              borderColor: "hsl(270 100% 50% / 0.3)",
               background:
                 "linear-gradient(180deg, hsl(270 40% 12%) 0%, hsl(260 30% 8%) 100%)",
-              boxShadow: "0 0 40px -12px hsl(270 100% 50% / 0.2)",
             }}
           >
             <div
-              className="pointer-events-none absolute inset-0 opacity-10"
+              className="pointer-events-none absolute inset-0 animate-neon-breathe"
               style={{
                 background:
-                  "radial-gradient(ellipse at top left, hsl(270 100% 50%) 0%, transparent 60%)",
+                  "radial-gradient(ellipse at top left, hsl(270 100% 50% / 0.12) 0%, transparent 60%)",
               }}
             />
             <div className="relative">
               <div className="mb-4 flex items-center gap-2">
-                <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                <p className="text-xs font-semibold uppercase tracking-widest text-neon">
                   Visualia Studio
                 </p>
-                <Crown className="h-3.5 w-3.5 text-primary" />
+                <Crown className="h-3.5 w-3.5 text-primary icon-neon" />
               </div>
               <ul className="space-y-3 text-sm text-foreground/90">
                 <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary glow-primary-sm" />
                   Fotografía profesional de tus productos
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary glow-primary-sm" />
                   Menú diseñado para máxima legibilidad
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary glow-primary-sm" />
                   Contenido por franja horaria
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary glow-primary-sm" />
                   +30% conversión promedio en ventas
                 </li>
               </ul>
@@ -200,13 +179,7 @@ const VisualiaStudio = () => {
         </div>
 
         {/* Differentiator strip */}
-        <div
-          className="mb-12 rounded-xl border px-6 py-5 text-center"
-          style={{
-            borderColor: "hsl(270 100% 50% / 0.15)",
-            background: "hsl(270 100% 50% / 0.04)",
-          }}
-        >
+        <div className="mb-12 rounded-xl neon-border px-6 py-5 text-center">
           <p className="text-sm font-medium text-foreground/80 md:text-base">
             No es solo software:{" "}
             <span className="text-gradient-primary font-semibold">
@@ -220,13 +193,13 @@ const VisualiaStudio = () => {
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Button
             size="lg"
-            className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground"
+            className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground"
             onClick={() => setShowForm(true)}
           >
             Solicitar Visualia Studio
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg">
+          <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift">
             Ver ejemplos
           </Button>
         </div>

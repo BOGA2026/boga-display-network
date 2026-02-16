@@ -65,27 +65,31 @@ const Landing = () => {
   }, [forceIntro, searchParams, setSearchParams]);
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 50%, #0E0B16 100%)" }}>
+    <div
+      className="min-h-screen bg-animated-gradient"
+      style={{ background: "linear-gradient(180deg, hsl(260 30% 5%) 0%, hsl(265 25% 8%) 25%, hsl(260 20% 6%) 50%, hsl(270 25% 8%) 75%, hsl(260 30% 5%) 100%)", backgroundSize: "200% 200%" }}
+    >
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-20 pt-32 md:pt-40">
         {/* Glow orbs */}
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 800, height: 600 }}>
-          <div className="absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full opacity-20 blur-[100px]" style={{ background: "#8A00FF" }} />
-          <div className="absolute left-1/3 top-40 h-48 w-48 rounded-full opacity-15 blur-[80px]" style={{ background: "#C000FF" }} />
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
+          <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.25 }} />
+          <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.18, animationDelay: "1.5s" }} />
+          <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.12, animationDelay: "3s" }} />
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem]" />
+            <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
+            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
                 Solicitar demo <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg" asChild>
+            <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" asChild>
               <a href="#features">Ver beneficios</a>
             </Button>
           </div>
@@ -95,7 +99,7 @@ const Landing = () => {
       {/* Problem + Solution */}
       <section className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-16 text-center">
+          <div className="mb-16 text-center animate-fade-in">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
               ¿Por qué las señales visuales importan en tu negocio?
             </h2>
@@ -104,10 +108,14 @@ const Landing = () => {
             </p>
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {problems.map((p) => (
-              <div key={p.title} className="group rounded-xl border border-border/20 p-6 transition-all hover:border-primary/40 hover:shadow-[0_0_30px_-8px_hsl(270_100%_50%/0.2)]" style={{ background: "linear-gradient(180deg, hsl(260 25% 12%) 0%, hsl(260 25% 10%) 100%)" }}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary">
-                  <p.icon className="h-6 w-6 text-primary-foreground" />
+            {problems.map((p, i) => (
+              <div
+                key={p.title}
+                className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
+                  <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
                 </div>
                 <h3 className="mb-2 font-display text-lg font-semibold text-foreground">{p.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
@@ -118,8 +126,10 @@ const Landing = () => {
       </section>
 
       {/* Features */}
-      <section id="features" className="px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-6xl">
+      <section id="features" className="relative px-6 py-20 md:py-28">
+        {/* Section glow */}
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 40% at 50% 50%, hsl(270 100% 50% / 0.06) 0%, transparent 70%)" }} />
+        <div className="relative mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
               Funciones clave de <span className="text-gradient-primary">Visualia</span>
@@ -129,12 +139,16 @@ const Landing = () => {
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
-              <div key={f.title} className="group relative overflow-hidden rounded-xl border border-border/20 p-8 transition-all hover:border-primary/40" style={{ background: "linear-gradient(180deg, hsl(260 25% 12%) 0%, hsl(260 25% 10%) 100%)" }}>
-                <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity group-hover:opacity-20" style={{ background: "#8A00FF" }} />
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div className="absolute right-0 top-0 h-36 w-36 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity duration-500 group-hover:opacity-25" style={{ background: "hsl(270 100% 50%)" }} />
                 <div className="relative">
-                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-                    <f.icon className="h-7 w-7 text-primary" />
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
+                    <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
                   </div>
                   <h3 className="mb-2 font-display text-xl font-semibold text-foreground">{f.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
@@ -160,12 +174,12 @@ const Landing = () => {
             </p>
           </div>
           <div className="relative">
-            <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, #8A00FF 0%, #C000FF 50%, transparent 100%)" }} />
+            <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
             <div className="space-y-12 md:space-y-16">
               {steps.map((s) => (
-                <div key={s.num} className="flex gap-6 md:gap-10">
+                <div key={s.num} className="flex gap-6 md:gap-10 group">
                   <div className="relative flex-shrink-0">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary font-display text-2xl font-bold text-primary-foreground glow-primary-sm">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">
                       {s.num}
                     </div>
                   </div>
@@ -181,8 +195,9 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-6xl">
+      <section id="testimonials" className="relative px-6 py-20 md:py-28">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
+        <div className="relative mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
               Lo que dicen nuestros clientes
@@ -190,10 +205,10 @@ const Landing = () => {
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {testimonials.map((t) => (
-              <div key={t.name} className="rounded-xl border border-border/20 p-8" style={{ background: "linear-gradient(180deg, hsl(260 25% 12%) 0%, hsl(260 25% 10%) 100%)" }}>
+              <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
                 <div className="mb-4 flex gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    <Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />
                   ))}
                 </div>
                 <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
@@ -210,8 +225,8 @@ const Landing = () => {
       {/* CTA */}
       <section className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="relative overflow-hidden rounded-2xl border border-primary/20 px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
-            <div className="pointer-events-none absolute inset-0 opacity-20" style={{ background: "radial-gradient(ellipse at center, #8A00FF 0%, transparent 70%)" }} />
+          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
+            <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
                 Empieza con <span className="text-gradient-primary">Visualia</span> hoy
@@ -220,10 +235,10 @@ const Landing = () => {
                 Únete a los negocios que ya están transformando su comunicación visual con Visualia.
               </p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="gradient-primary glow-primary border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
+                <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
                     Crear cuenta <ChevronRight className="ml-1 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-border/40 px-8 text-lg" onClick={() => setDemoOpen(true)}>
+                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>
                   Solicitar demo
                 </Button>
               </div>
