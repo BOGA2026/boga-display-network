@@ -14,8 +14,6 @@ const menuItems = [
       { label: "Retail", href: "#" },
       { label: "Clínicas", href: "#" },
       { label: "Hoteles", href: "#" },
-      { label: "Eventos", href: "#" },
-      { label: "Corporativo", href: "#" },
     ],
   },
   {
