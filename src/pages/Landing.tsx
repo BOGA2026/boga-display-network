@@ -73,15 +73,11 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Showcase Carousel */}
-      <ShowcaseCarousel />
-
       {/* Growth Benefits */}
       <GrowthBenefits />
 
       {/* Features */}
       <FeaturesSection onDemo={() => setDemoOpen(true)} />
-
 
       {/* How It Works */}
       <section id="how" className="px-6 py-20 md:py-28">
@@ -108,6 +104,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Showcase Carousel */}
+      <ShowcaseCarousel />
 
       {/* Testimonials */}
       <section id="testimonials" className="relative px-6 py-20 md:py-28">
