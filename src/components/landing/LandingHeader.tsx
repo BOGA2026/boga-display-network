@@ -188,7 +188,7 @@ const LandingHeader = () => {
         <div className="hidden items-center gap-3 lg:flex">
           <Button
             size="sm"
-            className="border border-[hsl(275,100%,50%)] bg-transparent text-[hsl(275,100%,65%)] shadow-[0_0_12px_hsl(275,100%,50%/0.4)] hover:bg-[hsl(275,100%,50%/0.15)] hover:text-[hsl(275,100%,50%)] hover:shadow-[0_0_20px_hsl(275,100%,50%/0.6)]"
+            className="gradient-primary glow-primary-sm border-0 px-6 text-sm font-bold uppercase tracking-wider text-primary-foreground"
             asChild
           >
             <Link to="/login">Entrar</Link>
