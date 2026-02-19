@@ -17,15 +17,6 @@ const menuItems = [
     ],
   },
   {
-    label: "Empresa",
-    children: [
-      { label: "Sobre Visualia", href: "#" },
-      { label: "Contacto", href: "#" },
-      { label: "Socios", href: "#" },
-      { label: "Marca blanca", href: "#" },
-    ],
-  },
-  {
     label: "Visualia Studio",
     href: "/studio",
     children: null,
