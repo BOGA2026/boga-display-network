@@ -337,38 +337,38 @@ const Subscription = () => {
       </div>
 
       {/* ─── TOP PRODUCT TOGGLE ─── */}
-      <div className="space-y-5">
+      <div className="flex flex-col items-center text-center space-y-6">
         {/* Pill toggle */}
-        <div className="inline-flex rounded-full border border-border/40 bg-secondary/30 p-1.5 gap-1.5">
+        <div className="inline-flex rounded-full border border-border/40 bg-secondary/30 p-2 gap-2">
           <button
             onClick={() => setActiveTab("software")}
-            className={`relative px-8 py-3.5 rounded-full text-base font-semibold transition-all duration-250 ${
+            className={`relative px-10 py-4 rounded-full text-lg font-semibold transition-all duration-250 ${
               activeTab === "software"
-                ? "gradient-primary text-primary-foreground shadow-[0_0_20px_hsl(270_100%_50%/0.4)]"
+                ? "gradient-primary text-primary-foreground shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Monitor className="inline h-4.5 w-4.5 mr-2 -mt-0.5" />
+            <Monitor className="inline h-5 w-5 mr-2.5 -mt-0.5" />
             Software Visualia
           </button>
           <button
             onClick={() => setActiveTab("studio")}
-            className={`relative px-8 py-3.5 rounded-full text-base font-semibold transition-all duration-250 ${
+            className={`relative px-10 py-4 rounded-full text-lg font-semibold transition-all duration-250 ${
               activeTab === "studio"
-                ? "gradient-primary text-primary-foreground shadow-[0_0_20px_hsl(270_100%_50%/0.4)]"
+                ? "gradient-primary text-primary-foreground shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Palette className="inline h-4.5 w-4.5 mr-2 -mt-0.5" />
+            <Palette className="inline h-5 w-5 mr-2.5 -mt-0.5" />
             Visualia Studio
           </button>
         </div>
 
         {/* Info text below toggle */}
-        <p className="text-sm text-muted-foreground max-w-xl">
+        <p className="text-base text-muted-foreground max-w-2xl">
           Visualia incluye dos soluciones:{" "}
-          <span className="text-foreground font-medium">Software Visualia</span> controla tus pantallas —{" "}
-          <span className="text-foreground font-medium">Visualia Studio</span> diseña el contenido que se muestra en ellas.
+          <span className="text-foreground font-semibold">Software Visualia</span> controla tus pantallas —{" "}
+          <span className="text-foreground font-semibold">Visualia Studio</span> diseña el contenido que se muestra en ellas.
         </p>
       </div>
 
