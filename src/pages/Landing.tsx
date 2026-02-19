@@ -43,7 +43,7 @@ const Landing = () => {
       <LandingHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-24 pt-32 md:px-10 md:pt-40 lg:px-16">
+      <section className="relative overflow-hidden px-4 pb-24 pt-32 md:px-6 md:pt-40">
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
           <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
@@ -83,7 +83,7 @@ const Landing = () => {
       <FeaturesSection onDemo={() => setDemoOpen(true)} />
 
       {/* How It Works */}
-      <section id="how" className="px-6 py-24 md:px-10 md:py-32 lg:px-16">
+      <section id="how" className="px-4 py-24 md:px-6 md:py-32">
         <div className="mx-auto max-w-4xl">
           <div className="mb-20 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
@@ -112,7 +112,7 @@ const Landing = () => {
       <ShowcaseCarousel />
 
       {/* Testimonials */}
-      <section id="testimonials" className="relative px-6 py-24 md:px-10 md:py-32 lg:px-16">
+      <section id="testimonials" className="relative px-4 py-24 md:px-6 md:py-32">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-16 text-center">
@@ -136,7 +136,7 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="px-6 py-24 md:px-10 md:py-32 lg:px-16">
+      <section className="px-4 py-24 md:px-6 md:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
@@ -153,7 +153,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/20 px-6 py-14 md:px-10 lg:px-16">
+      <footer className="border-t border-border/20 px-4 py-14 md:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
