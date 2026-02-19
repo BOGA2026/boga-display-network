@@ -52,11 +52,11 @@ const Landing = () => {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
+            <img src={logoVisualia} alt="Visualia" className="h-[18rem] w-auto md:h-[24rem] lg:h-[28rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
 
           {/* Hero Video */}
-          <div className="mt-0 mx-auto w-full overflow-hidden rounded-2xl"
+          <div className="-mt-6 mx-auto w-full overflow-hidden rounded-2xl"
             style={{
               boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
