@@ -52,7 +52,7 @@ const Landing = () => {
 
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-[18rem] w-auto md:h-[24rem] lg:h-[28rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
+            <img src={logoVisualia} alt="Visualia" className="h-[24rem] w-auto md:h-[30rem] lg:h-[36rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
 
           {/* Hero Video */}
