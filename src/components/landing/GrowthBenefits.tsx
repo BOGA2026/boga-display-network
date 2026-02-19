@@ -27,6 +27,27 @@ const cards = [
 
 const GrowthBenefits = () => (
   <section className="px-4 py-12 md:px-6 md:py-16">
+    <style>{`
+      .stat-card {
+        background: hsl(260 20% 7%);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+      }
+      .stat-card:hover {
+        background: hsl(260 25% 10%);
+        box-shadow: inset 0 0 50px hsl(270 100% 50% / 0.07),
+                    0 0 40px hsl(270 100% 50% / 0.18);
+      }
+      .stat-card:hover .stat-number {
+        color: hsl(270 100% 78%);
+        text-shadow: 0 0 20px hsl(270 100% 65% / 1),
+                     0 0 45px hsl(270 100% 55% / 0.7),
+                     0 0 80px hsl(270 100% 50% / 0.4);
+      }
+      .stat-number {
+        color: hsl(0 0% 100%);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+      }
+    `}</style>
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
       <div className="mb-10">
@@ -63,13 +84,9 @@ const GrowthBenefits = () => (
       {/* Cards */}
       <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4" style={{ background: "hsl(270 15% 15%)" }}>
         {cards.map((card) => (
-          <div
-            key={card.title}
-            className="flex flex-col gap-3 p-8"
-            style={{ background: "hsl(260 20% 7%)" }}
-          >
+          <div key={card.title} className="stat-card flex flex-col gap-3 p-8 cursor-default">
             <div>
-              <p className="text-4xl font-black text-white tabular-nums">{card.stat}</p>
+              <p className="stat-number text-4xl font-black tabular-nums">{card.stat}</p>
               <p className="mt-0.5 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
                 {card.statLabel}
               </p>
