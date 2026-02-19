@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
+import GrowthBenefits from "@/components/landing/GrowthBenefits";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -98,35 +99,8 @@ const Landing = () => {
       {/* Showcase Carousel */}
       <ShowcaseCarousel />
 
-      {/* Problem + Solution */}
-      <section className="relative px-6 py-20 md:py-28">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(270 100% 40% / 0.07) 0%, transparent 70%)" }} />
-        <div className="relative mx-auto max-w-6xl">
-          <div className="mb-16 text-center animate-fade-in">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-              ¿Por qué las señales visuales importan en tu negocio?
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              Las pantallas digitales son la herramienta más efectiva para comunicar, vender más y diferenciarte.
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {problems.map((p, i) => (
-              <div key={p.title} className="group glass-card hover:glass-card-hover rounded-xl p-6 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg gradient-primary-vibrant glow-primary-sm transition-shadow duration-300 group-hover:glow-primary">
-                  {p.img ? (
-                    <img src={p.img} alt={p.title} className="h-6 w-6 icon-custom-white-glow" />
-                  ) : p.icon ? (
-                    <p.icon className="h-6 w-6 text-primary-foreground icon-neon" />
-                  ) : null}
-                </div>
-                <h3 className="mb-2 font-display text-lg font-semibold text-foreground">{p.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Growth Benefits */}
+      <GrowthBenefits />
 
       {/* Features */}
       <section id="features" className="relative px-6 py-20 md:py-28">
