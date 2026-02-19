@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,29 +19,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Monitor, Plus, MonitorSmartphone, Link2, Wifi, WifiOff, MapPin, ListMusic } from "lucide-react";
+import {
+  Monitor,
+  Plus,
+  MonitorSmartphone,
+  Wifi,
+  WifiOff,
+  Clock,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
-interface Location {
-  id: string;
-  name: string;
-}
-
-interface Device {
-  id: string;
-  device_code: string;
-  status: string;
-  screen_name: string | null;
-  location_id: string | null;
-  screen_id: string | null;
-  last_seen_at: string | null;
-  paired_at: string | null;
-  app_version: string | null;
-  locations?: { name: string } | null;
-  screens?: { name: string; status: string } | null;
-}
+const TIMEZONES = [
+  { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
+  { value: "America/Lima", label: "America/Lima (GMT-05:00)" },
+  { value: "America/Mexico_City", label: "America/Mexico_City (GMT-06:00)" },
+  { value: "America/Santiago", label: "America/Santiago (GMT-03:00)" },
+  { value: "America/Buenos_Aires", label: "America/Buenos_Aires (GMT-03:00)" },
+  { value: "America/Caracas", label: "America/Caracas (GMT-04:00)" },
+  { value: "America/Guayaquil", label: "America/Guayaquil (GMT-05:00)" },
+  { value: "America/Asuncion", label: "America/Asuncion (GMT-04:00)" },
+  { value: "America/Montevideo", label: "America/Montevideo (GMT-03:00)" },
+  { value: "America/La_Paz", label: "America/La_Paz (GMT-04:00)" },
+  { value: "America/New_York", label: "America/New_York (GMT-05:00)" },
+  { value: "America/Los_Angeles", label: "America/Los_Angeles (GMT-08:00)" },
+  { value: "Europe/Madrid", label: "Europe/Madrid (GMT+01:00)" },
+];
 
 interface Screen {
   id: string;
@@ -54,25 +61,42 @@ interface Screen {
   created_at: string;
 }
 
+interface Location {
+  id: string;
+  name: string;
+}
+
+interface Subscription {
+  screens_count: number;
+  plan: string;
+}
+
+// Validation helpers
+const isValidCode = (code: string) => /^[A-Za-z0-9]{4,12}$/.test(code);
+
 const Screens = () => {
-  const [devices, setDevices] = useState<Device[]>([]);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pairDialogOpen, setPairDialogOpen] = useState(false);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [successScreen, setSuccessScreen] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Pair form state
+  // Form state
   const [deviceCode, setDeviceCode] = useState("");
-  const [pairLocationId, setPairLocationId] = useState("");
-  const [pairScreenName, setPairScreenName] = useState("");
-
-  // Add screen form state
   const [screenName, setScreenName] = useState("");
-  const [locationId, setLocationId] = useState("");
-  const [deviceId, setDeviceId] = useState("");
+  const [timezone, setTimezone] = useState("America/Bogota");
+  const [codeError, setCodeError] = useState("");
+  const [nameError, setNameError] = useState("");
+
+  // Edit state
+  const [editingScreen, setEditingScreen] = useState<Screen | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -80,36 +104,87 @@ const Screens = () => {
 
   const fetchData = async () => {
     setLoading(true);
-
-    const profileRes = await supabase.from("profiles").select("business_id").eq("id", (await supabase.auth.getUser()).data.user?.id ?? "").maybeSingle();
+    const { data: user } = await supabase.auth.getUser();
+    const profileRes = await supabase
+      .from("profiles")
+      .select("business_id")
+      .eq("id", user.user?.id ?? "")
+      .maybeSingle();
     const businessId = profileRes.data?.business_id;
+    if (!businessId) { setLoading(false); return; }
 
-    if (!businessId) {
-      setLoading(false);
-      return;
-    }
-
-    const [devicesRes, screensRes, locationsRes] = await Promise.all([
-      supabase.from("devices").select("*, locations(name), screens(name, status)").eq("business_id", businessId).order("created_at", { ascending: false }),
+    const [screensRes, locationsRes, subRes] = await Promise.all([
       supabase.from("screens").select("*").order("created_at", { ascending: false }),
-      supabase.from("locations").select("id, name"),
+      supabase.from("locations").select("id, name").eq("business_id", businessId),
+      supabase.from("subscriptions").select("screens_count, plan").eq("business_id", businessId).maybeSingle(),
     ]);
 
-    setDevices(devicesRes.data ?? []);
     setScreens(screensRes.data ?? []);
     setLocations(locationsRes.data ?? []);
+    setSubscription(subRes.data ?? null);
     setLoading(false);
   };
 
-  const handlePairDevice = async () => {
-    if (!deviceCode.trim() || !pairLocationId || !pairScreenName.trim()) {
-      toast({ title: "Completa todos los campos requeridos", variant: "destructive" });
-      return;
-    }
+  const isAtLimit = () => {
+    if (!subscription) return false;
+    return screens.length >= subscription.screens_count;
+  };
 
+  const isOnline = (lastSeen: string | null) => {
+    if (!lastSeen) return false;
+    return Date.now() - new Date(lastSeen).getTime() < 2 * 60 * 1000;
+  };
+
+  const resetForm = () => {
+    setDeviceCode("");
+    setScreenName("");
+    setTimezone("America/Bogota");
+    setCodeError("");
+    setNameError("");
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    if (!deviceCode.trim()) {
+      setCodeError("El código es requerido");
+      valid = false;
+    } else if (!isValidCode(deviceCode)) {
+      setCodeError("Solo letras y números, entre 4 y 12 caracteres");
+      valid = false;
+    } else {
+      setCodeError("");
+    }
+    if (!screenName.trim()) {
+      setNameError("El nombre es requerido");
+      valid = false;
+    } else if (screenName.trim().length > 40) {
+      setNameError("Máximo 40 caracteres");
+      valid = false;
+    } else {
+      setNameError("");
+    }
+    return valid;
+  };
+
+  const isFormValid = () => {
+    return (
+      deviceCode.trim().length >= 4 &&
+      isValidCode(deviceCode) &&
+      screenName.trim().length > 0 &&
+      screenName.trim().length <= 40
+    );
+  };
+
+  const handleAddScreen = async () => {
+    if (!validateForm()) return;
     setSaving(true);
 
-    const profileRes = await supabase.from("profiles").select("business_id").eq("id", (await supabase.auth.getUser()).data.user?.id ?? "").maybeSingle();
+    const { data: user } = await supabase.auth.getUser();
+    const profileRes = await supabase
+      .from("profiles")
+      .select("business_id")
+      .eq("id", user.user?.id ?? "")
+      .maybeSingle();
     const businessId = profileRes.data?.business_id;
 
     if (!businessId) {
@@ -118,11 +193,29 @@ const Screens = () => {
       return;
     }
 
-    // Create screen first
-    const { data: screen, error: screenError } = await supabase.from("screens").insert({
-      name: pairScreenName.trim(),
-      location_id: pairLocationId,
-    }).select("id").single();
+    // Use first location or create a default one
+    let locationId = locations[0]?.id;
+    if (!locationId) {
+      const { data: newLoc } = await supabase
+        .from("locations")
+        .insert({ name: "Principal", business_id: businessId })
+        .select("id")
+        .single();
+      locationId = newLoc?.id;
+    }
+
+    if (!locationId) {
+      toast({ title: "Error al crear ubicación", variant: "destructive" });
+      setSaving(false);
+      return;
+    }
+
+    // Create screen
+    const { data: screen, error: screenError } = await supabase
+      .from("screens")
+      .insert({ name: screenName.trim(), location_id: locationId })
+      .select("id")
+      .single();
 
     if (screenError || !screen) {
       toast({ title: "Error al crear pantalla", description: screenError?.message, variant: "destructive" });
@@ -135,98 +228,134 @@ const Screens = () => {
       device_code: deviceCode.trim().toUpperCase(),
       status: "paired",
       business_id: businessId,
-      location_id: pairLocationId,
+      location_id: locationId,
       screen_id: screen.id,
-      screen_name: pairScreenName.trim(),
+      screen_name: screenName.trim(),
       paired_at: new Date().toISOString(),
     });
 
     setSaving(false);
 
     if (deviceError) {
-      // Rollback screen
       await supabase.from("screens").delete().eq("id", screen.id);
       if (deviceError.message.includes("unique")) {
-        toast({ title: "Código ya registrado", description: "Este código de dispositivo ya fue vinculado.", variant: "destructive" });
+        setCodeError("Código inválido o no encontrado");
       } else {
         toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
       }
       return;
     }
 
-    toast({ title: "Dispositivo vinculado exitosamente" });
-    setPairDialogOpen(false);
-    resetPairForm();
+    setSuccessScreen(screenName.trim());
+    setDialogOpen(false);
+    resetForm();
     fetchData();
   };
 
-  const handleAddScreen = async () => {
-    if (!screenName.trim() || !locationId) {
-      toast({ title: "Completa los campos requeridos", variant: "destructive" });
-      return;
-    }
+  const handleAddDemoScreen = async () => {
     setSaving(true);
+    const { data: user } = await supabase.auth.getUser();
+    const profileRes = await supabase
+      .from("profiles")
+      .select("business_id")
+      .eq("id", user.user?.id ?? "")
+      .maybeSingle();
+    const businessId = profileRes.data?.business_id;
+    if (!businessId) { setSaving(false); return; }
+
+    let locationId = locations[0]?.id;
+    if (!locationId) {
+      const { data: newLoc } = await supabase
+        .from("locations")
+        .insert({ name: "Principal", business_id: businessId })
+        .select("id")
+        .single();
+      locationId = newLoc?.id;
+    }
+
+    if (!locationId) { setSaving(false); return; }
+
     const { error } = await supabase.from("screens").insert({
-      name: screenName.trim(),
+      name: "Pantalla Demo",
       location_id: locationId,
-      device_token: deviceId.trim() || null,
+      status: "online",
     });
+
     setSaving(false);
     if (error) {
-      toast({ title: "Error al agregar pantalla", description: error.message, variant: "destructive" });
+      toast({ title: "Error al crear pantalla demo", variant: "destructive" });
       return;
     }
-    toast({ title: "Pantalla agregada" });
-    setAddDialogOpen(false);
-    resetAddForm();
+
+    setSuccessScreen("Pantalla Demo");
+    setDialogOpen(false);
+    resetForm();
     fetchData();
   };
 
-  const resetPairForm = () => {
-    setDeviceCode("");
-    setPairLocationId("");
-    setPairScreenName("");
+  const handleDeleteScreen = async (id: string) => {
+    const { error } = await supabase.from("screens").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error al eliminar pantalla", variant: "destructive" });
+    } else {
+      setDeleteConfirmId(null);
+      fetchData();
+    }
   };
 
-  const resetAddForm = () => {
-    setScreenName("");
-    setLocationId("");
-    setDeviceId("");
+  const handleEditScreen = async () => {
+    if (!editingScreen || !editName.trim()) return;
+    setEditSaving(true);
+    const { error } = await supabase.from("screens").update({ name: editName.trim() }).eq("id", editingScreen.id);
+    setEditSaving(false);
+    if (error) {
+      toast({ title: "Error al actualizar pantalla", variant: "destructive" });
+    } else {
+      setEditDialogOpen(false);
+      setEditingScreen(null);
+      fetchData();
+    }
   };
-
-  const isOnline = (lastSeen: string | null) => {
-    if (!lastSeen) return false;
-    const diff = Date.now() - new Date(lastSeen).getTime();
-    return diff < 2 * 60 * 1000; // 2 minutes
-  };
-
-  const hasContent = devices.length > 0 || screens.length > 0;
 
   return (
     <div className="p-6 lg:p-8">
+      {/* Success banner */}
+      {successScreen && (
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+          <span className="font-medium">Pantalla conectada correctamente — <span className="text-primary">{successScreen}</span></span>
+          <button onClick={() => setSuccessScreen(null)} className="ml-auto text-muted-foreground hover:text-foreground transition-colors">✕</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display text-2xl font-bold">Pantallas</h1>
-          <p className="text-sm text-muted-foreground">Gestiona tus pantallas y dispositivos vinculados</p>
+          <p className="text-sm text-muted-foreground">Gestiona tus pantallas de señalización digital</p>
         </div>
-        <div className="flex gap-3">
+        {isAtLimit() ? (
+          <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-secondary/60 px-4 py-2.5 text-sm">
+            <AlertTriangle className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-muted-foreground">Has alcanzado el límite de pantallas de tu plan</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 border-primary/40 text-primary hover:bg-primary/10 text-xs"
+              onClick={() => window.location.href = "/dashboard/suscripcion"}
+            >
+              Actualizar plan
+            </Button>
+          </div>
+        ) : (
           <Button
-            onClick={() => { resetPairForm(); setPairDialogOpen(true); }}
-            className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold"
-          >
-            <Link2 className="h-4 w-4" />
-            Vincular dispositivo
-          </Button>
-          <Button
-            onClick={() => { resetAddForm(); setAddDialogOpen(true); }}
-            variant="outline"
-            className="border-primary/40 text-primary hover:bg-primary/10 gap-2 px-5 py-2.5 text-sm font-semibold"
+            onClick={() => { resetForm(); setDialogOpen(true); }}
+            className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <Plus className="h-4 w-4" />
             Agregar pantalla
           </Button>
-        </div>
+        )}
       </div>
 
       {/* Content */}
@@ -234,249 +363,267 @@ const Screens = () => {
         <div className="flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
-      ) : hasContent ? (
-        <div className="space-y-8">
-          {/* Devices section */}
-          {devices.length > 0 && (
-            <div>
-              <h2 className="font-display text-lg font-semibold mb-4">Dispositivos vinculados</h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {devices.map((device) => {
-                  const online = isOnline(device.last_seen_at);
-                  return (
-                    <Card key={device.id} className="surface-elevated border-border/30 transition-all hover:border-primary/30 hover:glow-primary-sm">
-                      <CardContent className="p-5 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-                              <Monitor className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold truncate">{device.screen_name || device.device_code}</p>
-                              <p className="text-xs text-muted-foreground font-mono">{device.device_code}</p>
-                            </div>
-                          </div>
-                          <Badge variant={device.status === "paired" ? "default" : "secondary"} className={device.status === "paired" ? "bg-primary/20 text-primary border-primary/30" : ""}>
-                            {device.status === "paired" ? "Vinculado" : "Pendiente"}
-                          </Badge>
-                        </div>
+      ) : screens.length > 0 ? (
+        <div className="overflow-hidden rounded-xl border border-border/30 bg-card/40">
+          {/* Table header */}
+          <div className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 border-b border-border/20 px-5 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span>Nombre</span>
+            <span>Estado</span>
+            <span>Última conexión</span>
+            <span></span>
+          </div>
+          {/* Rows */}
+          <div className="divide-y divide-border/10">
+            {screens.map((screen) => {
+              const online = isOnline(screen.last_seen_at);
+              return (
+                <div key={screen.id} className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 px-5 py-4 hover:bg-secondary/20 transition-colors">
+                  {/* Name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/60">
+                      <Monitor className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <span className="font-medium truncate">{screen.name}</span>
+                  </div>
 
-                        <div className="space-y-1.5 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            {online ? <Wifi className="h-3 w-3 text-primary" /> : <WifiOff className="h-3 w-3 text-destructive" />}
-                            <span>{online ? "En línea" : "Desconectado"}</span>
-                            {device.last_seen_at && (
-                              <span className="ml-auto">
-                                {formatDistanceToNow(new Date(device.last_seen_at), { addSuffix: true, locale: es })}
-                              </span>
-                            )}
-                          </div>
-                          {device.locations && (
-                            <div className="flex items-center gap-1.5">
-                              <MapPin className="h-3 w-3" />
-                              <span>{(device.locations as any).name}</span>
-                            </div>
-                          )}
-                          {device.app_version && (
-                            <div className="flex items-center gap-1.5">
-                              <span>v{device.app_version}</span>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                  {/* Status */}
+                  <div>
+                    {online || screen.status === "online" ? (
+                      <Badge className="bg-primary/15 text-primary border-primary/25 text-xs gap-1.5">
+                        <Wifi className="h-3 w-3" />
+                        Activa
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-muted-foreground text-xs gap-1.5">
+                        <WifiOff className="h-3 w-3" />
+                        Offline
+                      </Badge>
+                    )}
+                  </div>
 
-          {/* Screens without devices */}
-          {screens.length > 0 && (
-            <div>
-              <h2 className="font-display text-lg font-semibold mb-4">Pantallas registradas</h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {screens.map((screen) => (
-                  <Card key={screen.id} className="surface-elevated border-border/30 transition-all hover:border-primary/30 hover:glow-primary-sm">
-                    <CardContent className="flex items-start gap-4 p-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-                        <Monitor className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold truncate">{screen.name}</p>
-                        <p className="text-xs text-muted-foreground mt-1 capitalize">{screen.status}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+                  {/* Last seen */}
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    {screen.last_seen_at
+                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
+                      : "Sin sincronizar"}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => { setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirmId(screen.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl gradient-primary glow-primary animate-pulse-glow">
-            <MonitorSmartphone className="h-10 w-10 text-primary-foreground" />
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/60">
+            <MonitorSmartphone className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h2 className="font-display text-xl font-bold mb-2">No hay pantallas registradas</h2>
+          <h2 className="font-display text-xl font-bold mb-2">Sin pantallas registradas</h2>
           <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-            Vincula tu primer dispositivo o agrega una pantalla para comenzar a gestionar tu red de señalización digital.
+            Conecta tu primera pantalla para comenzar a gestionar tu red de señalización digital.
           </p>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => { resetPairForm(); setPairDialogOpen(true); }}
-              className="gradient-primary hover:gradient-primary-hover glow-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold"
-              size="lg"
-            >
-              <Link2 className="h-5 w-5" />
-              Vincular dispositivo
-            </Button>
-            <Button
-              onClick={() => { resetAddForm(); setAddDialogOpen(true); }}
-              variant="outline"
-              className="border-primary/40 text-primary hover:bg-primary/10 gap-2 px-8 py-3 text-base font-semibold"
-              size="lg"
-            >
-              <Plus className="h-5 w-5" />
-              Agregar pantalla
-            </Button>
-          </div>
+          <Button
+            onClick={() => { resetForm(); setDialogOpen(true); }}
+            className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
+            size="lg"
+          >
+            <Plus className="h-5 w-5" />
+            Agregar pantalla
+          </Button>
         </div>
       )}
 
-      {/* Pair Device Dialog */}
-      <Dialog open={pairDialogOpen} onOpenChange={setPairDialogOpen}>
-        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-lg flex items-center gap-2">
-              <Link2 className="h-5 w-5 text-primary" />
-              Vincular dispositivo
-            </DialogTitle>
-            <DialogDescription>
-              Ingresa el código que aparece en la pantalla del dispositivo Android para vincularlo a tu red.
+      {/* ─── ADD SCREEN DIALOG ─── */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
+          <DialogHeader className="pb-1">
+            <DialogTitle className="font-display text-lg">Agregar pantalla</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Conecta una pantalla física o prueba con una pantalla demo en tu navegador.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="device-code">Código del dispositivo *</Label>
+          <div className="space-y-5 py-2">
+            {/* Field 1 — Code */}
+            <div className="space-y-1.5">
+              <Label htmlFor="device-code" className="text-sm font-medium">
+                Código de pantalla <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="device-code"
-                placeholder="Ej: VIS-A1B2C3"
+                placeholder="Ingresa el código de vinculación"
                 value={deviceCode}
-                onChange={(e) => setDeviceCode(e.target.value.toUpperCase())}
-                className="font-mono text-lg tracking-widest text-center"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+                  setDeviceCode(val);
+                  if (codeError && isValidCode(val)) setCodeError("");
+                }}
                 maxLength={12}
+                className={`font-mono tracking-widest text-center text-base ${codeError ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pair-location">Ubicación *</Label>
-              {locations.length > 0 ? (
-                <Select value={pairLocationId} onValueChange={setPairLocationId}>
-                  <SelectTrigger id="pair-location">
-                    <SelectValue placeholder="Selecciona una ubicación" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {codeError ? (
+                <p className="text-xs text-destructive">{codeError}</p>
               ) : (
-                <p className="text-sm text-muted-foreground rounded-lg border border-border/50 p-3">
-                  No hay ubicaciones. Crea una primero en la sección Ubicaciones.
-                </p>
+                <p className="text-xs text-muted-foreground">Este código aparece en la pantalla que deseas conectar</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="pair-screen-name">Nombre de pantalla *</Label>
+            {/* Field 2 — Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="screen-name" className="text-sm font-medium">
+                Nombre de la pantalla <span className="text-destructive">*</span>
+              </Label>
               <Input
-                id="pair-screen-name"
-                placeholder="Ej: Pantalla recepción"
-                value={pairScreenName}
-                onChange={(e) => setPairScreenName(e.target.value)}
+                id="screen-name"
+                placeholder="Ejemplo: Pantalla Caja Principal"
+                value={screenName}
+                onChange={(e) => {
+                  setScreenName(e.target.value);
+                  if (nameError && e.target.value.trim()) setNameError("");
+                }}
+                maxLength={40}
+                className={nameError ? "border-destructive focus-visible:ring-destructive" : ""}
               />
+              <div className="flex items-center justify-between">
+                {nameError ? (
+                  <p className="text-xs text-destructive">{nameError}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Este nombre te ayudará a identificar la pantalla</p>
+                )}
+                <span className="text-xs text-muted-foreground ml-auto">{screenName.length}/40</span>
+              </div>
+            </div>
+
+            {/* Field 3 — Timezone */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Zona horaria</Label>
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map((tz) => (
+                    <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Asegura la programación correcta de contenido</p>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setPairDialogOpen(false)}>Cancelar</Button>
+          {/* Actions */}
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => { setDialogOpen(false); resetForm(); }}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleAddScreen}
+                disabled={saving || !isFormValid()}
+                className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
+              >
+                {saving ? (
+                  <span className="flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Conectando...</span>
+                ) : "Agregar pantalla"}
+              </Button>
+            </div>
+
+            {/* Demo divider */}
+            <div className="relative flex items-center gap-3">
+              <div className="flex-1 border-t border-border/30" />
+              <span className="text-xs text-muted-foreground">O prueba Visualia en tu navegador</span>
+              <div className="flex-1 border-t border-border/30" />
+            </div>
+
             <Button
-              onClick={handlePairDevice}
-              disabled={saving || !deviceCode.trim() || !pairLocationId || !pairScreenName.trim()}
-              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
+              variant="outline"
+              onClick={handleAddDemoScreen}
+              disabled={saving}
+              className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 font-medium"
             >
-              <Link2 className="h-4 w-4" />
-              {saving ? "Vinculando..." : "Vincular"}
+              <MonitorSmartphone className="h-4 w-4" />
+              Agregar pantalla demo
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Screen Dialog */}
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+      {/* ─── EDIT DIALOG ─── */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-display text-lg">Nueva pantalla</DialogTitle>
-            <DialogDescription>Registra una pantalla en tu red de señalización.</DialogDescription>
+            <DialogTitle className="font-display text-base">Editar pantalla</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="screen-name">Nombre de la pantalla *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name" className="text-sm font-medium">Nombre</Label>
               <Input
-                id="screen-name"
-                placeholder="Pantalla principal"
-                value={screenName}
-                onChange={(e) => setScreenName(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Ubicación *</Label>
-              {locations.length > 0 ? (
-                <Select value={locationId} onValueChange={setLocationId}>
-                  <SelectTrigger id="location">
-                    <SelectValue placeholder="Selecciona una ubicación" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <p className="text-sm text-muted-foreground rounded-lg border border-border/50 p-3">
-                  No hay ubicaciones. Crea una primero en la sección Ubicaciones.
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="device-id">Device ID (opcional)</Label>
-              <Input
-                id="device-id"
-                placeholder="Se genera automáticamente si se deja vacío"
-                value={deviceId}
-                onChange={(e) => setDeviceId(e.target.value)}
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                maxLength={40}
+                autoFocus
               />
             </div>
           </div>
-
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setAddDialogOpen(false)}>Cancelar</Button>
+          <div className="flex gap-3 pt-1">
+            <Button variant="ghost" className="flex-1" onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
             <Button
-              onClick={handleAddScreen}
-              disabled={saving || !screenName.trim() || !locationId}
-              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
+              onClick={handleEditScreen}
+              disabled={editSaving || !editName.trim()}
+              className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
             >
-              <Plus className="h-4 w-4" />
-              {saving ? "Guardando..." : "Agregar pantalla"}
+              {editSaving ? "Guardando..." : "Guardar cambios"}
             </Button>
-          </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── DELETE CONFIRM DIALOG ─── */}
+      <Dialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null); }}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-base flex items-center gap-2">
+              <Trash2 className="h-4 w-4 text-destructive" />
+              Eliminar pantalla
+            </DialogTitle>
+            <DialogDescription>
+              Esta acción no se puede deshacer. Se eliminará la pantalla y su configuración.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 pt-2">
+            <Button variant="ghost" className="flex-1" onClick={() => setDeleteConfirmId(null)}>Cancelar</Button>
+            <Button
+              variant="destructive"
+              className="flex-1 font-semibold"
+              onClick={() => deleteConfirmId && handleDeleteScreen(deleteConfirmId)}
+            >
+              Eliminar pantalla
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
