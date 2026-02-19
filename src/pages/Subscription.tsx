@@ -342,10 +342,10 @@ const Subscription = () => {
         <div className="inline-flex rounded-full border border-border/40 bg-secondary/30 p-2 gap-2">
           <button
             onClick={() => setActiveTab("software")}
-            className={`relative px-10 py-4 rounded-full text-lg font-semibold transition-all duration-250 ${
+            className={`relative px-10 py-4 rounded-full text-xl font-bold transition-all duration-250 ${
               activeTab === "software"
-                ? "gradient-primary text-primary-foreground shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
-                : "text-muted-foreground hover:text-foreground"
+                ? "gradient-primary text-white shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
+                : "text-foreground/80 hover:text-white"
             }`}
           >
             <Monitor className="inline h-5 w-5 mr-2.5 -mt-0.5" />
@@ -353,10 +353,10 @@ const Subscription = () => {
           </button>
           <button
             onClick={() => setActiveTab("studio")}
-            className={`relative px-10 py-4 rounded-full text-lg font-semibold transition-all duration-250 ${
+            className={`relative px-10 py-4 rounded-full text-xl font-bold transition-all duration-250 ${
               activeTab === "studio"
-                ? "gradient-primary text-primary-foreground shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
-                : "text-muted-foreground hover:text-foreground"
+                ? "gradient-primary text-white shadow-[0_0_24px_hsl(270_100%_50%/0.45)]"
+                : "text-foreground/80 hover:text-white"
             }`}
           >
             <Palette className="inline h-5 w-5 mr-2.5 -mt-0.5" />
@@ -365,10 +365,10 @@ const Subscription = () => {
         </div>
 
         {/* Info text below toggle */}
-        <p className="text-base text-muted-foreground max-w-2xl">
+        <p className="text-base text-foreground/70 max-w-2xl">
           Visualia incluye dos soluciones:{" "}
-          <span className="text-foreground font-semibold">Software Visualia</span> controla tus pantallas —{" "}
-          <span className="text-foreground font-semibold">Visualia Studio</span> diseña el contenido que se muestra en ellas.
+          <span className="text-white font-semibold">Software Visualia</span> controla tus pantallas —{" "}
+          <span className="text-white font-semibold">Visualia Studio</span> diseña el contenido que se muestra en ellas.
         </p>
       </div>
 
