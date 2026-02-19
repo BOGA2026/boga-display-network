@@ -26,7 +26,7 @@ const cards = [
 ];
 
 const GrowthBenefits = () => (
-  <section className="px-8 py-24 md:px-20 md:py-32 lg:px-32 xl:px-40">
+  <section className="px-6 py-24 md:px-10 md:py-32 lg:px-16">
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
       <div className="mb-16">
