@@ -34,6 +34,9 @@ import {
   ArrowRight,
   Receipt,
   Sparkles,
+  Shield,
+  Globe,
+  BarChart3,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,33 +47,53 @@ const PLANS = [
     name: "Starter",
     icon: Zap,
     pricePerScreen: 50000,
-    maxScreens: 10,
-    storage: "5 GB",
+    maxScreens: 5,
+    storage: "10 GB",
     support: "Email",
-    features: ["Programación básica", "1 capa de contenido", "Analíticas básicas", "Soporte por email"],
-    recommended: false,
+    tag: null,
+    features: [
+      "Hasta 5 pantallas",
+      "Programación básica",
+      "1 capa de contenido",
+      "Analíticas básicas",
+      "Soporte por email",
+    ],
   },
   {
     id: "pro",
     name: "Pro",
     icon: Crown,
-    pricePerScreen: 40000,
-    maxScreens: 100,
+    pricePerScreen: 42000,
+    maxScreens: 20,
     storage: "50 GB",
     support: "Prioritario",
-    features: ["Programación avanzada", "Capas ilimitadas", "Analíticas avanzadas", "Soporte prioritario", "API access", "Plantillas premium"],
-    recommended: true,
+    tag: "Más popular",
+    features: [
+      "Hasta 20 pantallas",
+      "Programación avanzada",
+      "Capas ilimitadas",
+      "Analíticas avanzadas",
+      "Soporte prioritario",
+      "Plantillas premium",
+    ],
   },
   {
     id: "enterprise",
     name: "Enterprise",
     icon: Building2,
-    pricePerScreen: 30000,
-    maxScreens: 300,
-    storage: "Ilimitado",
+    pricePerScreen: 35000,
+    maxScreens: 50,
+    storage: "150 GB",
     support: "Dedicado 24/7",
-    features: ["Todo en Pro", "SLA garantizado", "Soporte dedicado 24/7", "Integraciones custom", "Multi-ubicación avanzada", "Capacitación incluida"],
-    recommended: false,
+    tag: null,
+    features: [
+      "Hasta 50 pantallas",
+      "Todo en Pro",
+      "API access",
+      "SLA garantizado",
+      "Soporte dedicado 24/7",
+      "Capacitación incluida",
+    ],
   },
 ] as const;
 
@@ -367,6 +390,119 @@ const Subscription = () => {
         </CardContent>
       </Card>
 
+
+      {/* Section 3: Plan Cards */}
+      <div>
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold">Planes Visualia</h2>
+          <div className="flex items-center gap-2 text-sm">
+            <span className={yearly ? "text-muted-foreground" : "font-medium"}>Mensual</span>
+            <Switch checked={yearly} onCheckedChange={setYearly} />
+            <span className={yearly ? "font-medium" : "text-muted-foreground"}>
+              Anual <span className="text-primary font-semibold">−20%</span>
+            </span>
+          </div>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {PLANS.map((plan) => {
+            const isSelected = selectedPlan === plan.id;
+            const Icon = plan.icon;
+            const price = yearly ? Math.round(plan.pricePerScreen * 0.8) : plan.pricePerScreen;
+            const isCurrent = subscription?.plan === plan.id;
+            return (
+              <div
+                key={plan.id}
+                onClick={() => { setSelectedPlan(plan.id); setScreenCount(Math.min(screenCount, plan.maxScreens)); }}
+                className={`relative cursor-pointer rounded-xl border p-6 transition-all duration-200 ${
+                  isSelected
+                    ? "border-primary bg-primary/5 shadow-[0_0_20px_hsl(270_100%_50%/0.12)]"
+                    : "border-border/30 bg-card/40 hover:border-primary/40"
+                }`}
+              >
+                {/* Badge */}
+                {plan.tag && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="gradient-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                      {plan.tag}
+                    </span>
+                  </div>
+                )}
+                {isCurrent && (
+                  <div className="absolute -top-3 right-4">
+                    <span className="bg-secondary text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border border-border/40">
+                      Plan actual
+                    </span>
+                  </div>
+                )}
+
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isSelected ? "gradient-primary" : "bg-secondary/60"}`}>
+                    <Icon className={`h-5 w-5 ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-base">{plan.name}</h3>
+                    <p className="text-xs text-muted-foreground">Hasta {plan.maxScreens} pantallas</p>
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="mb-1">
+                  <span className={`text-2xl font-bold ${isSelected ? "text-primary" : ""}`}>
+                    {fmt(price)}
+                  </span>
+                  <span className="text-xs text-muted-foreground"> /pantalla/mes</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  {plan.storage} · Soporte {plan.support}
+                </p>
+
+                {/* Features */}
+                <ul className="space-y-2 border-t border-border/20 pt-4 mb-5">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm">
+                      <Check className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan(plan.id); setScreenCount(Math.min(screenCount, plan.maxScreens)); setCheckoutOpen(true); }}
+                  className={`w-full rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                    isSelected
+                      ? "gradient-primary text-primary-foreground hover:opacity-90"
+                      : "bg-secondary/60 text-secondary-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {isCurrent ? "Administrar plan" : isSelected ? "Continuar al pago →" : "Seleccionar"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* All plans include */}
+        <div className="mt-6 rounded-xl border border-border/20 bg-secondary/20 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Incluido en todos los planes</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { icon: Globe, label: "Control remoto" },
+              { icon: Monitor, label: "Pantallas ilimitadas" },
+              { icon: BarChart3, label: "Analíticas" },
+              { icon: Shield, label: "Respaldos automáticos" },
+              { icon: Sparkles, label: "Actualizaciones" },
+              { icon: CreditCard, label: "Sin permanencia" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <item.icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Section 5: Payment History */}
       {payments.length > 0 && (
