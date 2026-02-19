@@ -26,10 +26,10 @@ const cards = [
 ];
 
 const GrowthBenefits = () => (
-  <section className="px-4 py-24 md:px-6 md:py-32">
+  <section className="px-4 py-12 md:px-6 md:py-16">
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
-      <div className="mb-16">
+      <div className="mb-10">
         <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
           Tu negocio{" "}
           <span style={{ color: "hsl(270 60% 70%)" }}>vende más</span>
