@@ -91,7 +91,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
           className="flex-shrink-0 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           style={{ background: "hsl(270 70% 50%)" }}
         >
-          Solicitar demo gratuita
+          Solicitar demo
         </button>
       </div>
 
