@@ -31,16 +31,14 @@ import {
   Crown,
   Zap,
   Building2,
-  ArrowRight,
   Receipt,
   Sparkles,
-  Shield,
-  Globe,
-  BarChart3,
+  Palette,
+  ArrowRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-/* ─── Plan Definitions ─── */
+/* ─── Software Plan Definitions ─── */
 const PLANS = [
   {
     id: "starter",
@@ -98,6 +96,7 @@ const PLANS = [
 ] as const;
 
 type PlanId = (typeof PLANS)[number]["id"];
+type ProductTab = "software" | "studio";
 
 interface SubscriptionRow {
   id: string;
@@ -122,24 +121,85 @@ interface PaymentRow {
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
 
+/* ─── Studio plans data ─── */
+const STUDIO_PLANS = [
+  {
+    id: "start",
+    name: "Start",
+    icon: Zap,
+    setup: "$1.500.000",
+    monthly: "$350.000 / mes",
+    description: "Para negocios que inician su presencia visual",
+    timeline: "Entrega en 5 días hábiles",
+    highlighted: false,
+    badge: null,
+    features: [
+      "10 piezas visuales diseñadas",
+      "Adaptación a formato de pantalla",
+      "1 actualización mensual",
+      "Fotografía de producto (básica)",
+      "Soporte por email",
+    ],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    icon: Crown,
+    setup: "$3.500.000",
+    monthly: "$890.000 / mes",
+    description: "Contenido estratégico para maximizar ventas",
+    timeline: "Entrega en 3 días hábiles",
+    highlighted: true,
+    badge: "Más popular",
+    features: [
+      "30 piezas visuales diseñadas",
+      "Video y animación incluidos",
+      "Actualizaciones ilimitadas",
+      "Estrategia de contenido mensual",
+      "Fotografía profesional completa",
+      "Soporte prioritario",
+    ],
+  },
+  {
+    id: "elite",
+    name: "Elite",
+    icon: Building2,
+    setup: "Desde $6.500.000",
+    monthly: "Precio según proyecto",
+    description: "Producción audiovisual de máximo impacto",
+    timeline: "Cronograma a medida",
+    highlighted: false,
+    badge: null,
+    features: [
+      "Todo en Pro",
+      "Producción audiovisual completa",
+      "Fotografía profesional premium",
+      "Gestor de cuenta dedicado",
+      "Estrategia anual de contenido",
+      "SLA garantizado",
+    ],
+  },
+];
+
 const Subscription = () => {
   const { toast } = useToast();
 
-  // Data
+  /* Data */
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [activeScreens, setActiveScreens] = useState(0);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // UI state
+  /* UI state */
+  const [activeTab, setActiveTab] = useState<ProductTab>("software");
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("starter");
   const [screenCount, setScreenCount] = useState(1);
   const [yearly, setYearly] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Checkout form
+  /* Checkout form */
   const [billingName, setBillingName] = useState("");
   const [taxId, setTaxId] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
@@ -194,8 +254,7 @@ const Subscription = () => {
   );
 
   const monthlyTotal = selectedPlanDef.pricePerScreen * screenCount;
-  const yearlyTotal = monthlyTotal * 12 * 0.8; // 20% discount
-  const displayTotal = yearly ? yearlyTotal / 12 : monthlyTotal;
+  const yearlyTotal = monthlyTotal * 12 * 0.8;
 
   const handleCheckout = async () => {
     if (!businessId) return;
@@ -205,14 +264,12 @@ const Subscription = () => {
     }
 
     setSaving(true);
-
     const cycle = yearly ? "yearly" : "monthly";
     const total = yearly ? yearlyTotal : monthlyTotal;
     const pricePerScreen = selectedPlanDef.pricePerScreen;
 
     try {
       if (subscription) {
-        // Update existing
         const { error } = await supabase
           .from("subscriptions")
           .update({
@@ -225,10 +282,8 @@ const Subscription = () => {
             next_billing_date: new Date(Date.now() + (yearly ? 365 : 30) * 86400000).toISOString().split("T")[0],
           })
           .eq("id", subscription.id);
-
         if (error) throw error;
       } else {
-        // Create new
         const { error } = await supabase.from("subscriptions").insert({
           business_id: businessId,
           plan: selectedPlan,
@@ -239,11 +294,9 @@ const Subscription = () => {
           status: "active",
           next_billing_date: new Date(Date.now() + (yearly ? 365 : 30) * 86400000).toISOString().split("T")[0],
         });
-
         if (error) throw error;
       }
 
-      // Create payment record
       const invoiceNum = `VIS-${Date.now().toString(36).toUpperCase()}`;
       await supabase.from("payments").insert({
         subscription_id: (await supabase.from("subscriptions").select("id").eq("business_id", businessId).single()).data!.id,
@@ -276,267 +329,322 @@ const Subscription = () => {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-6xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold">Suscripción</h1>
-        <p className="text-sm text-muted-foreground">Gestiona tu plan, pantallas y facturación</p>
+        <p className="text-sm text-muted-foreground">Gestiona tu plan y servicios de Visualia</p>
       </div>
 
-      {/* Section 1: Current Plan */}
-      <Card className="surface-elevated border-border/30 overflow-hidden">
-        <div className="gradient-primary h-1" />
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-lg flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Plan actual
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {subscription ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Plan</p>
-                <p className="font-semibold text-lg text-gradient-primary">{currentPlanDef.name}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Pantallas</p>
-                <p className="font-semibold">
-                  {activeScreens} activas / {subscription.screens_count} disponibles
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Precio</p>
-                <p className="font-semibold">{fmt(subscription.price_per_screen)} /pantalla</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Próxima facturación</p>
-                <p className="font-semibold">
-                  {new Date(subscription.next_billing_date).toLocaleDateString("es-CO")}
-                </p>
-              </div>
-              <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-3">
-                <Badge className="bg-primary/20 text-primary border-primary/30">
-                  {subscription.billing_cycle === "yearly" ? "Anual" : "Mensual"}
-                </Badge>
-                <Badge className={subscription.status === "active" ? "bg-primary/20 text-primary border-primary/30" : "bg-destructive/20 text-destructive border-destructive/30"}>
-                  {subscription.status === "active" ? "Activa" : subscription.status}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Almacenamiento: {currentPlanDef.storage}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Sparkles className="h-10 w-10 text-primary mx-auto mb-3" />
-              <p className="text-muted-foreground">Aún no tienes un plan activo</p>
-              <p className="text-xs text-muted-foreground mt-1">Selecciona un plan abajo para comenzar</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Section 2: Screen Controller */}
-      <Card className="surface-elevated border-border/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-lg flex items-center gap-2">
-            <Monitor className="h-5 w-5 text-primary" />
-            ¿Cuántas pantallas deseas?
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl font-bold text-gradient-primary">{screenCount}</span>
-              <span className="text-muted-foreground text-sm">pantallas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="yearly" className="text-sm text-muted-foreground">Mensual</Label>
-              <Switch id="yearly" checked={yearly} onCheckedChange={setYearly} />
-              <Label htmlFor="yearly" className="text-sm text-muted-foreground">
-                Anual <span className="text-primary font-medium">(-20%)</span>
-              </Label>
-            </div>
-          </div>
-
-          <Slider
-            value={[screenCount]}
-            onValueChange={([v]) => setScreenCount(v)}
-            min={1}
-            max={selectedPlanDef.maxScreens}
-            step={1}
-            className="py-2"
-          />
-
-          <div className="grid gap-4 sm:grid-cols-3 pt-2">
-            <div className="rounded-lg bg-secondary/50 p-4 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Precio por pantalla</p>
-              <p className="text-lg font-bold">{fmt(selectedPlanDef.pricePerScreen)}</p>
-            </div>
-            <div className="rounded-lg bg-secondary/50 p-4 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Total mensual</p>
-              <p className="text-lg font-bold">{fmt(yearly ? yearlyTotal / 12 : monthlyTotal)}</p>
-            </div>
-            <div className="rounded-lg gradient-primary glow-primary-sm p-4 text-center">
-              <p className="text-xs text-primary-foreground/70 mb-1">
-                {yearly ? "Total anual" : "Total mensual"}
-              </p>
-              <p className="text-xl font-bold text-primary-foreground">
-                {fmt(yearly ? yearlyTotal : monthlyTotal)}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Visualia Studio Plans */}
-      <div>
-        <div className="mb-2">
-          <h2 className="font-display text-lg font-bold">Visualia Studio</h2>
-          <p className="text-sm text-muted-foreground">Producción de contenido estratégico para maximizar tus ventas</p>
+      {/* ─── TOP PRODUCT TOGGLE ─── */}
+      <div className="space-y-4">
+        {/* Pill toggle */}
+        <div className="inline-flex rounded-full border border-border/40 bg-secondary/30 p-1 gap-1">
+          <button
+            onClick={() => setActiveTab("software")}
+            className={`relative px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-250 ${
+              activeTab === "software"
+                ? "gradient-primary text-primary-foreground shadow-[0_0_16px_hsl(270_100%_50%/0.35)]"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Monitor className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
+            Software Visualia
+          </button>
+          <button
+            onClick={() => setActiveTab("studio")}
+            className={`relative px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-250 ${
+              activeTab === "studio"
+                ? "gradient-primary text-primary-foreground shadow-[0_0_16px_hsl(270_100%_50%/0.35)]"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Palette className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
+            Visualia Studio
+          </button>
         </div>
-        <div className="grid gap-5 md:grid-cols-3 mt-5">
-          {/* Start */}
-          <div className="relative rounded-xl border border-border/30 bg-card/40 p-6 flex flex-col">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/60">
-                <Zap className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-base">Start</h3>
-                <p className="text-xs text-muted-foreground">Para negocios que inician</p>
-              </div>
-            </div>
-            <div className="mb-1">
-              <span className="text-2xl font-bold">$1.500.000</span>
-              <span className="text-xs text-muted-foreground"> setup único</span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">$350.000 / mes</p>
-            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
-              {["Diseño de 10 piezas visuales", "Adaptación a formato de pantalla", "1 actualización mensual", "Entrega en 5 días hábiles", "Soporte por email"].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center bg-secondary/60 text-secondary-foreground hover:bg-secondary transition-all">
-              Ver detalles
-            </a>
-          </div>
 
-          {/* Pro */}
-          <div className="relative rounded-xl border border-primary bg-primary/5 shadow-[0_0_20px_hsl(270_100%_50%/0.12)] p-6 flex flex-col">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <span className="gradient-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                Más popular
-              </span>
-            </div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
-                <Crown className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-base">Pro</h3>
-                <p className="text-xs text-muted-foreground">Crecimiento acelerado</p>
-              </div>
-            </div>
-            <div className="mb-1">
-              <span className="text-2xl font-bold text-primary">$3.500.000</span>
-              <span className="text-xs text-muted-foreground"> setup único</span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">$890.000 / mes</p>
-            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
-              {["Diseño de 30 piezas visuales", "Video y animación incluidos", "Actualizaciones ilimitadas", "Estrategia de contenido mensual", "Entrega en 3 días hábiles", "Soporte prioritario"].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center gradient-primary text-primary-foreground hover:opacity-90 transition-all">
-              Ver detalles →
-            </a>
-          </div>
-
-          {/* Elite */}
-          <div className="relative rounded-xl border border-border/30 bg-card/40 p-6 flex flex-col">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/60">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-base">Elite</h3>
-                <p className="text-xs text-muted-foreground">Máximo impacto comercial</p>
-              </div>
-            </div>
-            <div className="mb-1">
-              <span className="text-2xl font-bold">Desde $6.500.000</span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">Precio según proyecto</p>
-            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
-              {["Todo en Pro", "Producción audiovisual completa", "Fotografía profesional", "Gestor de cuenta dedicado", "Estrategia anual de contenido", "SLA garantizado"].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center bg-secondary/60 text-secondary-foreground hover:bg-secondary transition-all">
-              Hablar con ventas
-            </a>
-          </div>
-        </div>
+        {/* Info text below toggle */}
+        <p className="text-xs text-muted-foreground max-w-lg">
+          Visualia incluye dos soluciones:{" "}
+          <span className="text-foreground font-medium">Software Visualia</span> controla tus pantallas —{" "}
+          <span className="text-foreground font-medium">Visualia Studio</span> diseña el contenido que se muestra en ellas.
+        </p>
       </div>
 
-      {/* Section 5: Payment History */}
-      {payments.length > 0 && (
+      {/* ─── SOFTWARE VISUALIA SECTION ─── */}
+      <div
+        className={`space-y-6 transition-all duration-250 ${
+          activeTab === "software" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none absolute"
+        }`}
+        style={{ display: activeTab === "software" ? "block" : "none" }}
+      >
+        {/* Section header */}
+        <div>
+          <h2 className="font-display text-xl font-bold">Controla tus pantallas con Visualia</h2>
+          <p className="text-sm text-muted-foreground mt-1">Paga solo por las pantallas que usas. Sin contratos.</p>
+        </div>
+
+        {/* Current plan status */}
+        {subscription && (
+          <Card className="surface-elevated border-border/30 overflow-hidden">
+            <div className="gradient-primary h-1" />
+            <CardHeader className="pb-2">
+              <CardTitle className="font-display text-base flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-primary" />
+                Plan actual
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Plan</p>
+                  <p className="font-semibold text-lg text-gradient-primary">{currentPlanDef.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Pantallas</p>
+                  <p className="font-semibold">
+                    {activeScreens} activas / {subscription.screens_count} disponibles
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Precio</p>
+                  <p className="font-semibold">{fmt(subscription.price_per_screen)} /pantalla</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Próxima facturación</p>
+                  <p className="font-semibold">
+                    {new Date(subscription.next_billing_date).toLocaleDateString("es-CO")}
+                  </p>
+                </div>
+                <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-3">
+                  <Badge className="bg-primary/20 text-primary border-primary/30">
+                    {subscription.billing_cycle === "yearly" ? "Anual" : "Mensual"}
+                  </Badge>
+                  <Badge className={subscription.status === "active" ? "bg-primary/20 text-primary border-primary/30" : "bg-destructive/20 text-destructive border-destructive/30"}>
+                    {subscription.status === "active" ? "Activa" : subscription.status}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    Almacenamiento: {currentPlanDef.storage}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Screen configurator */}
         <Card className="surface-elevated border-border/30">
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-primary" />
-              Historial de pagos
+            <CardTitle className="font-display text-base flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-primary" />
+              ¿Cuántas pantallas deseas?
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border/30 hover:bg-transparent">
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Factura</TableHead>
-                  <TableHead>Monto</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Descargar</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map((p) => (
-                  <TableRow key={p.id} className="border-border/30">
-                    <TableCell className="text-sm">
-                      {new Date(p.created_at).toLocaleDateString("es-CO")}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{p.invoice_number}</TableCell>
-                    <TableCell className="font-semibold">{fmt(p.amount)}</TableCell>
-                    <TableCell>
-                      <Badge className={p.status === "completed" ? "bg-primary/20 text-primary border-primary/30" : "bg-destructive/20 text-destructive border-destructive/30"}>
-                        {p.status === "completed" ? "Pagado" : p.status === "pending" ? "Pendiente" : p.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span className="text-5xl font-bold text-gradient-primary">{screenCount}</span>
+                <span className="text-muted-foreground text-sm">pantallas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="yearly" className="text-sm text-muted-foreground">Mensual</Label>
+                <Switch id="yearly" checked={yearly} onCheckedChange={setYearly} />
+                <Label htmlFor="yearly" className="text-sm">
+                  Anual <span className="text-primary font-semibold">(-20%)</span>
+                </Label>
+              </div>
+            </div>
+
+            <Slider
+              value={[screenCount]}
+              onValueChange={([v]) => setScreenCount(v)}
+              min={1}
+              max={100}
+              step={1}
+              className="py-2"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-3 pt-2">
+              <div className="rounded-xl bg-secondary/40 p-4 text-center">
+                <p className="text-xs text-muted-foreground mb-1">Precio por pantalla</p>
+                <p className="text-lg font-bold">{fmt(selectedPlanDef.pricePerScreen)}</p>
+              </div>
+              <div className="rounded-xl bg-secondary/40 p-4 text-center">
+                <p className="text-xs text-muted-foreground mb-1">
+                  {yearly ? "Ahorro anual" : "Total mensual"}
+                </p>
+                <p className="text-lg font-bold">
+                  {yearly ? fmt(monthlyTotal * 12 * 0.2) : fmt(monthlyTotal)}
+                </p>
+              </div>
+              <div className="rounded-xl gradient-primary glow-primary-sm p-4 text-center">
+                <p className="text-xs text-primary-foreground/70 mb-1">
+                  {yearly ? "Total mensual con descuento" : "Total mensual"}
+                </p>
+                <p className="text-2xl font-bold text-primary-foreground">
+                  {fmt(yearly ? yearlyTotal / 12 : monthlyTotal)}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setCheckoutOpen(true)}
+              className="w-full gradient-primary glow-primary-sm text-primary-foreground border-0 h-12 text-base font-semibold"
+            >
+              Activar suscripción
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
           </CardContent>
         </Card>
-      )}
 
-      {/* Section 4: Checkout Dialog */}
+        {/* Payment History */}
+        {payments.length > 0 && (
+          <Card className="surface-elevated border-border/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="font-display text-base flex items-center gap-2">
+                <Receipt className="h-4 w-4 text-primary" />
+                Historial de pagos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border/30 hover:bg-transparent">
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Factura</TableHead>
+                    <TableHead>Monto</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Descargar</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payments.map((p) => (
+                    <TableRow key={p.id} className="border-border/30">
+                      <TableCell className="text-sm">
+                        {new Date(p.created_at).toLocaleDateString("es-CO")}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{p.invoice_number}</TableCell>
+                      <TableCell className="font-semibold">{fmt(p.amount)}</TableCell>
+                      <TableCell>
+                        <Badge className={p.status === "completed" ? "bg-primary/20 text-primary border-primary/30" : "bg-destructive/20 text-destructive border-destructive/30"}>
+                          {p.status === "completed" ? "Pagado" : p.status === "pending" ? "Pendiente" : p.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* ─── VISUALIA STUDIO SECTION ─── */}
+      <div style={{ display: activeTab === "studio" ? "block" : "none" }} className="space-y-6">
+        {/* Section header */}
+        <div className="flex items-start gap-3">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="font-display text-xl font-bold">
+                Contenido profesional que hace que tus pantallas vendan más
+              </h2>
+              <span className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary tracking-widest uppercase">
+                Servicio opcional
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              Servicio opcional de diseño, fotografía y contenido estratégico. No necesitas saber de diseño.
+              Nuestro equipo crea el contenido y tú solo lo publicas.
+            </p>
+          </div>
+        </div>
+
+        {/* Studio plan cards */}
+        <div className="grid gap-5 md:grid-cols-3">
+          {STUDIO_PLANS.map((plan) => {
+            const Icon = plan.icon;
+            return (
+              <div
+                key={plan.id}
+                className={`relative rounded-xl p-6 flex flex-col transition-all ${
+                  plan.highlighted
+                    ? "border border-primary bg-primary/5 shadow-[0_0_24px_hsl(270_100%_50%/0.15)]"
+                    : "border border-border/30 bg-card/40"
+                }`}
+              >
+                {plan.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="gradient-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
+
+                {/* Icon + name */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${plan.highlighted ? "gradient-primary" : "bg-secondary/60"}`}>
+                    <Icon className={`h-5 w-5 ${plan.highlighted ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-base">{plan.name}</h3>
+                    <p className="text-xs text-muted-foreground">{plan.description}</p>
+                  </div>
+                </div>
+
+                {/* Pricing */}
+                <div className="mb-1">
+                  <span className={`text-2xl font-bold ${plan.highlighted ? "text-primary" : ""}`}>
+                    {plan.setup}
+                  </span>
+                  {plan.id !== "elite" && (
+                    <span className="text-xs text-muted-foreground"> setup único</span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mb-1">{plan.monthly}</p>
+                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1.5">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/60" />
+                  {plan.timeline}
+                </p>
+
+                {/* Features */}
+                <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className={`h-3.5 w-3.5 shrink-0 mt-0.5 ${plan.highlighted ? "text-primary" : "text-muted-foreground"}`} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <a
+                  href="/studio"
+                  className={`block w-full rounded-lg py-2.5 text-sm font-semibold text-center transition-all ${
+                    plan.highlighted
+                      ? "gradient-primary text-primary-foreground hover:opacity-90"
+                      : "bg-secondary/60 text-secondary-foreground hover:bg-secondary"
+                  }`}
+                >
+                  Solicitar propuesta →
+                </a>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom note */}
+        <p className="text-xs text-muted-foreground text-center pt-2">
+          Visualia Studio es un servicio independiente del software. Puedes contratarlos por separado o juntos.
+        </p>
+      </div>
+
+      {/* ─── Checkout Dialog ─── */}
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
         <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
           <DialogHeader>
@@ -550,7 +658,6 @@ const Subscription = () => {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            {/* Summary */}
             <div className="rounded-lg bg-secondary/50 p-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{screenCount} pantallas × {fmt(selectedPlanDef.pricePerScreen)}</span>
@@ -568,7 +675,6 @@ const Subscription = () => {
               </div>
             </div>
 
-            {/* Billing Info */}
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="billing-name">Nombre de facturación *</Label>
@@ -584,7 +690,6 @@ const Subscription = () => {
               </div>
             </div>
 
-            {/* Payment method placeholder */}
             <div className="rounded-lg border border-dashed border-border/50 p-4 text-center text-sm text-muted-foreground">
               <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-40" />
               <p>Integración de pasarela de pago</p>
@@ -597,7 +702,7 @@ const Subscription = () => {
             <Button
               onClick={handleCheckout}
               disabled={saving || !billingName.trim() || !billingEmail.trim()}
-              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
+              className="gradient-primary hover:opacity-90 glow-primary-sm text-primary-foreground border-0 gap-2"
             >
               <CreditCard className="h-4 w-4" />
               {saving ? "Procesando..." : `Pagar ${fmt(yearly ? yearlyTotal : monthlyTotal)}`}
