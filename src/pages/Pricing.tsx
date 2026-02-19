@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import showcaseImg from "@/assets/signage-restaurant.jpeg";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -134,6 +135,23 @@ const Pricing = () => {
                 <Link to="/registro">Comenzar ahora</Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase */}
+      <section className="px-6 py-16">
+        <div className="mx-auto max-w-5xl text-center">
+          <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">Visualia en acción</p>
+          <h2 className="mb-4 font-display text-3xl font-bold text-foreground md:text-4xl">Tus pantallas, vendiendo por ti</h2>
+          <p className="mx-auto mb-10 max-w-xl text-muted-foreground">Menús digitales, promociones y contenido dinámico que captura la atención de tus clientes.</p>
+          <div className="overflow-hidden rounded-2xl neon-border glow-primary-sm">
+            <img
+              src={showcaseImg}
+              alt="Pantallas digitales de menú en restaurante gestionadas con Visualia"
+              className="w-full object-cover"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
