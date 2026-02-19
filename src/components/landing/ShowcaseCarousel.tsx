@@ -56,8 +56,18 @@ const ShowcaseCarousel = () => {
       <div className="relative mx-auto max-w-6xl">
         {/* Carousel */}
         <div className="relative group">
+          {/* Neon frame glow layers */}
+          <div
+            className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
+            style={{
+              background: "transparent",
+              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.55), 0 0 50px 8px hsl(270 100% 50% / 0.25), inset 0 0 18px 2px hsl(270 100% 55% / 0.08)",
+              border: "1.5px solid hsl(270 100% 60% / 0.7)",
+              borderRadius: "1rem",
+            }}
+          />
           {/* Main image */}
-          <div className="relative overflow-hidden rounded-2xl neon-border"
+          <div className="relative overflow-hidden rounded-2xl"
             style={{ background: "hsl(260 30% 6%)" }}
           >
             {/* Glow overlay on hover */}
