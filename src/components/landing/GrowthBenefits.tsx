@@ -30,12 +30,32 @@ const GrowthBenefits = () => (
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
       <div className="mb-10">
-        <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+        <h2
+          className="text-4xl font-black md:text-5xl lg:text-6xl leading-tight"
+          style={{
+            color: "hsl(0 0% 100%)",
+            textShadow: "0 0 40px hsl(270 100% 60% / 0.25), 0 0 12px hsl(270 100% 60% / 0.1)",
+          }}
+        >
           Tu negocio{" "}
-          <span style={{ color: "hsl(270 60% 70%)" }}>vende más</span>
-          {" "}con pantallas digitales
+          <span
+            style={{
+              color: "hsl(270 100% 75%)",
+              textShadow:
+                "0 0 30px hsl(270 100% 60% / 0.9), 0 0 60px hsl(270 100% 50% / 0.6), 0 0 100px hsl(270 100% 50% / 0.3)",
+            }}
+          >
+            vende más
+          </span>{" "}
+          con pantallas digitales
         </h2>
-        <p className="mt-4 text-base" style={{ color: "hsl(0 0% 50%)" }}>
+        <p
+          className="mt-5 text-lg font-medium"
+          style={{
+            color: "hsl(0 0% 80%)",
+            textShadow: "0 0 20px hsl(270 100% 60% / 0.2)",
+          }}
+        >
           Resultados reales para negocios como el tuyo.
         </p>
       </div>
