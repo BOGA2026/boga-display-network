@@ -54,18 +54,7 @@ const ShowcaseCarousel = () => {
       />
 
       <div className="relative mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="mb-10 text-center">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-primary/70">
-            Visualia en acción
-          </p>
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-            Negocios que ya{" "}
-            <span className="text-gradient-primary">transformaron sus pantallas</span>
-          </h2>
-        </div>
-
-        {/* Carousel container */}
+        {/* Carousel */}
         <div className="relative group">
           {/* Main image */}
           <div className="relative overflow-hidden rounded-2xl neon-border"
