@@ -20,11 +20,11 @@ const results = [
 ];
 
 const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
-  <section id="features" className="px-4 py-24 md:px-6 md:py-32">
+  <section id="features" className="px-4 py-12 md:px-6 md:py-16">
     <div className="mx-auto max-w-5xl">
 
       {/* Header */}
-      <div className="mb-20 max-w-2xl">
+      <div className="mb-10 max-w-2xl">
         <p className="mb-3 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
           Plataforma
         </p>
@@ -79,7 +79,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
       </div>
 
       {/* CTA */}
-      <div className="mt-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-10 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
+      <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-8 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
         <div>
           <h3 className="text-xl font-bold text-white">Empieza hoy</h3>
           <p className="mt-1 text-sm" style={{ color: "hsl(0 0% 45%)" }}>
