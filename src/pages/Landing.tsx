@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -93,6 +94,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Showcase Carousel */}
+      <ShowcaseCarousel />
 
       {/* Problem + Solution */}
       <section className="relative px-6 py-20 md:py-28">
