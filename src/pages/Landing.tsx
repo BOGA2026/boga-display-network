@@ -10,12 +10,6 @@ import VisualiaStudio from "@/components/landing/VisualiaStudio";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
-  Monitor,
-  ListMusic,
-  CalendarClock,
-  QrCode,
-  Eye,
-  TrendingUp,
   ArrowRight,
   Star,
   Twitter,
@@ -23,24 +17,7 @@ import {
   Linkedin,
   ChevronRight,
 } from "lucide-react";
-import iconControlTotal from "@/assets/icons/control-total.png";
-import iconPantallasSincronizadas from "@/assets/icons/pantallas-sincronizadas.png";
-import iconEstadisticas from "@/assets/icons/estadisticas-reproduccion.png";
-
-const problems = [
-  { icon: Eye, img: null, title: "Visibilidad de promociones", desc: "Muestra ofertas y productos destacados en tiempo real para captar la atención de tus clientes." },
-  { icon: TrendingUp, img: null, title: "Incremento de ticket promedio", desc: "Las pantallas digitales aumentan hasta un 30% el gasto promedio por cliente en tu negocio." },
-  { icon: null, img: iconPantallasSincronizadas, title: "Sincronización remota", desc: "Actualiza el contenido de todas tus pantallas desde cualquier lugar, sin visitar cada sucursal." },
-  { icon: null, img: iconControlTotal, title: "Control total desde una plataforma", desc: "Un solo dashboard para gestionar ubicaciones, pantallas, contenido y programación." },
-];
-
-const features = [
-  { icon: Monitor, img: null, title: "Gestión de contenido", desc: "Sube imágenes, videos y diseños. Organiza tu biblioteca de medios con facilidad." },
-  { icon: ListMusic, img: null, title: "Playlists inteligentes", desc: "Crea listas de reproducción dinámicas que se adaptan a tus necesidades." },
-  { icon: CalendarClock, img: null, title: "Programación por horarios", desc: "Define qué contenido se muestra en cada momento del día automáticamente." },
-  { icon: null, img: iconEstadisticas, title: "Analíticas de pantalla", desc: "Mide el rendimiento de tu señalización con métricas detalladas en tiempo real." },
-  { icon: QrCode, img: null, title: "Vinculación con código", desc: "Conecta dispositivos a tu red con un simple código. Sin configuración compleja." },
-];
+import FeaturesSection from "@/components/landing/FeaturesSection";
 
 const steps = [
   { num: "01", title: "Empieza con tu CMS", desc: "Regístrate y accede al panel de control. Sube tu contenido multimedia y organízalo." },
@@ -103,37 +80,7 @@ const Landing = () => {
       <GrowthBenefits />
 
       {/* Features */}
-      <section id="features" className="relative px-6 py-20 md:py-28">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }} />
-        <div className="relative mx-auto max-w-6xl">
-          <div className="mb-16 text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-              Funciones clave de <span className="text-gradient-primary">Visualia</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              Todo lo que necesitas para gestionar tu red de señalización digital desde un solo lugar.
-            </p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f, i) => (
-              <div key={f.title} className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="absolute right-0 top-0 h-36 w-36 translate-x-8 -translate-y-8 rounded-full opacity-0 blur-[60px] transition-opacity duration-500 group-hover:opacity-25" style={{ background: "hsl(270 100% 50%)" }} />
-                <div className="relative">
-                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:neon-border-hover group-hover:bg-primary/15">
-                    {f.img ? (
-                      <img src={f.img} alt={f.title} className="h-7 w-7 icon-custom-neon" />
-                    ) : f.icon ? (
-                      <f.icon className="h-7 w-7 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" strokeWidth={2} />
-                    ) : null}
-                  </div>
-                  <h3 className="mb-2 font-display text-xl font-semibold text-foreground">{f.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturesSection onDemo={() => setDemoOpen(true)} />
 
       {/* Visualia Studio — Premium Upsell */}
       <VisualiaStudio />
