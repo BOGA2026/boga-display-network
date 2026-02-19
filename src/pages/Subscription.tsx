@@ -390,7 +390,105 @@ const Subscription = () => {
         </CardContent>
       </Card>
 
+      {/* Visualia Studio Plans */}
+      <div>
+        <div className="mb-2">
+          <h2 className="font-display text-lg font-bold">Visualia Studio</h2>
+          <p className="text-sm text-muted-foreground">Producción de contenido estratégico para maximizar tus ventas</p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3 mt-5">
+          {/* Start */}
+          <div className="relative rounded-xl border border-border/30 bg-card/40 p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/60">
+                <Zap className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base">Start</h3>
+                <p className="text-xs text-muted-foreground">Para negocios que inician</p>
+              </div>
+            </div>
+            <div className="mb-1">
+              <span className="text-2xl font-bold">$1.500.000</span>
+              <span className="text-xs text-muted-foreground"> setup único</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">$350.000 / mes</p>
+            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
+              {["Diseño de 10 piezas visuales", "Adaptación a formato de pantalla", "1 actualización mensual", "Entrega en 5 días hábiles", "Soporte por email"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center bg-secondary/60 text-secondary-foreground hover:bg-secondary transition-all">
+              Ver detalles
+            </a>
+          </div>
 
+          {/* Pro */}
+          <div className="relative rounded-xl border border-primary bg-primary/5 shadow-[0_0_20px_hsl(270_100%_50%/0.12)] p-6 flex flex-col">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="gradient-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                Más popular
+              </span>
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary">
+                <Crown className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base">Pro</h3>
+                <p className="text-xs text-muted-foreground">Crecimiento acelerado</p>
+              </div>
+            </div>
+            <div className="mb-1">
+              <span className="text-2xl font-bold text-primary">$3.500.000</span>
+              <span className="text-xs text-muted-foreground"> setup único</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">$890.000 / mes</p>
+            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
+              {["Diseño de 30 piezas visuales", "Video y animación incluidos", "Actualizaciones ilimitadas", "Estrategia de contenido mensual", "Entrega en 3 días hábiles", "Soporte prioritario"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center gradient-primary text-primary-foreground hover:opacity-90 transition-all">
+              Ver detalles →
+            </a>
+          </div>
+
+          {/* Elite */}
+          <div className="relative rounded-xl border border-border/30 bg-card/40 p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/60">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base">Elite</h3>
+                <p className="text-xs text-muted-foreground">Máximo impacto comercial</p>
+              </div>
+            </div>
+            <div className="mb-1">
+              <span className="text-2xl font-bold">Desde $6.500.000</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">Precio según proyecto</p>
+            <ul className="space-y-2 border-t border-border/20 pt-4 mb-6 flex-1">
+              {["Todo en Pro", "Producción audiovisual completa", "Fotografía profesional", "Gestor de cuenta dedicado", "Estrategia anual de contenido", "SLA garantizado"].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm">
+                  <Check className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="/studio" className="block w-full rounded-lg py-2.5 text-sm font-semibold text-center bg-secondary/60 text-secondary-foreground hover:bg-secondary transition-all">
+              Hablar con ventas
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Section 5: Payment History */}
       {payments.length > 0 && (
