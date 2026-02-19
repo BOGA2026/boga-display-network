@@ -56,7 +56,7 @@ const Landing = () => {
           </div>
 
           {/* Hero Video */}
-          <div className="mt-12 mx-auto w-full overflow-hidden rounded-2xl"
+          <div className="mt-4 mx-auto w-full overflow-hidden rounded-2xl"
             style={{
               boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
