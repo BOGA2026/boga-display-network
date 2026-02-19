@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import heroVideo from "@/assets/hero-video.mov";
 import { Link, useSearchParams } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
 import GrowthBenefits from "@/components/landing/GrowthBenefits";
@@ -61,6 +62,23 @@ const Landing = () => {
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
             <img src={logoVisualia} alt="Visualia" className="h-[28rem] w-auto md:h-[36rem] lg:h-[42rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
+          </div>
+
+          {/* Hero Video */}
+          <div className="mt-10 mx-auto w-full max-w-4xl overflow-hidden rounded-2xl"
+            style={{
+              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
+              border: "1.5px solid hsl(270 100% 60% / 0.6)",
+            }}
+          >
+            <video
+              src={heroVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-auto block"
+            />
           </div>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
