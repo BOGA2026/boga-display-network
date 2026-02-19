@@ -20,7 +20,7 @@ const results = [
 ];
 
 const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
-  <section id="features" className="px-6 py-24 md:py-32">
+  <section id="features" className="px-8 py-24 md:px-16 md:py-32 lg:px-24">
     <div className="mx-auto max-w-5xl">
 
       {/* Header */}

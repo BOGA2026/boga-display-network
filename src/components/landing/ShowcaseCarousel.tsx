@@ -46,7 +46,7 @@ const ShowcaseCarousel = () => {
   };
 
   return (
-    <section className="relative px-6 py-16 md:py-20">
+    <section className="relative px-8 py-20 md:px-16 md:py-24 lg:px-24">
       {/* Background glow */}
       <div
         className="pointer-events-none absolute inset-0"
