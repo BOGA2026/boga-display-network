@@ -6,7 +6,7 @@ import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
-import VisualiaStudio from "@/components/landing/VisualiaStudio";
+
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
@@ -82,8 +82,6 @@ const Landing = () => {
       {/* Features */}
       <FeaturesSection onDemo={() => setDemoOpen(true)} />
 
-      {/* Visualia Studio — Premium Upsell */}
-      <VisualiaStudio />
 
       {/* How It Works */}
       <section id="how" className="px-6 py-20 md:py-28">
