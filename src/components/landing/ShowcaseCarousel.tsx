@@ -133,27 +133,6 @@ const ShowcaseCarousel = () => {
           </button>
         </div>
 
-        {/* Thumbnail strip */}
-        <div className="mt-4 flex gap-3 overflow-x-auto pb-1 scrollbar-hide justify-center">
-          {slides.map((slide, i) => (
-            <button
-              key={i}
-              onClick={() => { goTo(i); resetInterval(); }}
-              className="flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300"
-              style={{
-                width: "5rem",
-                height: "3.5rem",
-                outline: i === current ? "2px solid hsl(270 100% 60%)" : "2px solid transparent",
-                outlineOffset: "2px",
-                boxShadow: i === current ? "0 0 12px hsl(270 100% 60% / 0.6)" : "none",
-                opacity: i === current ? 1 : 0.5,
-              }}
-              aria-label={slide.label}
-            >
-              <img src={slide.src} alt={slide.label} className="h-full w-full object-cover" />
-            </button>
-          ))}
-        </div>
       </div>
     </section>
   );
