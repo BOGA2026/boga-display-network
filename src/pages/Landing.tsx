@@ -30,8 +30,35 @@ const Landing = () => {
   const [demoOpen, setDemoOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
   const [muted, setMuted] = useState(true);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
   const introRef = useRef<HTMLVideoElement>(null);
   const mainRef = useRef<HTMLVideoElement>(null);
+
+  // Try to autoplay with audio; if blocked, keep muted and show prompt
+  useEffect(() => {
+    const vid = introRef.current;
+    if (!vid) return;
+    vid.muted = false;
+    vid.play().then(() => {
+      setMuted(false);
+      setShowSoundPrompt(false);
+    }).catch(() => {
+      vid.muted = true;
+      setMuted(true);
+      setShowSoundPrompt(true);
+    });
+  }, []);
+
+  const activateSound = useCallback(() => {
+    const active = activeVideo === 0 ? introRef.current : mainRef.current;
+    if (active) {
+      active.muted = false;
+      if (introRef.current) introRef.current.muted = false;
+      if (mainRef.current) mainRef.current.muted = false;
+    }
+    setMuted(false);
+    setShowSoundPrompt(false);
+  }, [activeVideo]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
@@ -118,23 +145,49 @@ const Landing = () => {
               }}
             />
 
+            {/* Sound prompt overlay */}
+            {showSoundPrompt && (
+              <button
+                onClick={activateSound}
+                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 transition-opacity duration-500"
+                style={{ background: "hsl(260 30% 5% / 0.55)", backdropFilter: "blur(2px)" }}
+                aria-label="Activar sonido"
+              >
+                <div
+                  className="flex h-16 w-16 items-center justify-center rounded-full animate-pulse"
+                  style={{
+                    background: "hsl(270 100% 50% / 0.2)",
+                    border: "2px solid hsl(270 100% 65% / 0.8)",
+                    boxShadow: "0 0 30px hsl(270 100% 55% / 0.6)",
+                  }}
+                >
+                  <Volume2 className="h-7 w-7" style={{ color: "hsl(270 100% 80%)", filter: "drop-shadow(0 0 8px hsl(270 100% 60%))" }} />
+                </div>
+                <span className="text-sm font-semibold tracking-wide" style={{ color: "hsl(270 100% 85%)", textShadow: "0 0 12px hsl(270 100% 60%)" }}>
+                  Toca para activar sonido
+                </span>
+              </button>
+            )}
+
             {/* Mute/Unmute button */}
-            <button
-              onClick={toggleMute}
-              className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
-              style={{
-                background: "hsl(260 30% 8% / 0.75)",
-                border: "1.5px solid hsl(270 100% 60% / 0.5)",
-                backdropFilter: "blur(8px)",
-                boxShadow: muted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
-              }}
-              aria-label={muted ? "Activar sonido" : "Silenciar"}
-            >
-              {muted
-                ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
-                : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
-              }
-            </button>
+            {!showSoundPrompt && (
+              <button
+                onClick={toggleMute}
+                className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
+                style={{
+                  background: "hsl(260 30% 8% / 0.75)",
+                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
+                  backdropFilter: "blur(8px)",
+                  boxShadow: muted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
+                }}
+                aria-label={muted ? "Activar sonido" : "Silenciar"}
+              >
+                {muted
+                  ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
+                  : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
+                }
+              </button>
+            )}
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
