@@ -10,7 +10,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight } from "lucide-react";
+import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 
 const steps = [
@@ -29,15 +29,22 @@ const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
-  const [transitioning, setTransitioning] = useState(false);
+  const [muted, setMuted] = useState(true);
   const introRef = useRef<HTMLVideoElement>(null);
   const mainRef = useRef<HTMLVideoElement>(null);
 
+  const toggleMute = useCallback(() => {
+    setMuted((m) => {
+      const next = !m;
+      if (introRef.current) introRef.current.muted = next;
+      if (mainRef.current) mainRef.current.muted = next;
+      return next;
+    });
+  }, []);
+
   const handleIntroEnded = useCallback(() => {
-    setTransitioning(true);
     setTimeout(() => {
       setActiveVideo(1);
-      setTransitioning(false);
     }, 700);
   }, []);
   const forceIntro = searchParams.get("intro") === "reset";
@@ -110,6 +117,24 @@ const Landing = () => {
                 zIndex: activeVideo === 1 ? 2 : 1,
               }}
             />
+
+            {/* Mute/Unmute button */}
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
+              style={{
+                background: "hsl(260 30% 8% / 0.75)",
+                border: "1.5px solid hsl(270 100% 60% / 0.5)",
+                backdropFilter: "blur(8px)",
+                boxShadow: muted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
+              }}
+              aria-label={muted ? "Activar sonido" : "Silenciar"}
+            >
+              {muted
+                ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
+                : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
+              }
+            </button>
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
