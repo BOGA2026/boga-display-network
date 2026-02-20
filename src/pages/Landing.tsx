@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import heroVideoIntro from "@/assets/hero-video-intro.mov";
 import heroVideo from "@/assets/hero-video.mov";
 import { Link, useSearchParams } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
@@ -27,6 +28,18 @@ const testimonials = [
 const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const introRef = useRef<HTMLVideoElement>(null);
+  const mainRef = useRef<HTMLVideoElement>(null);
+
+  const handleIntroEnded = useCallback(() => {
+    setTransitioning(true);
+    setTimeout(() => {
+      setActiveVideo(1);
+      setTransitioning(false);
+    }, 700);
+  }, []);
   const forceIntro = searchParams.get("intro") === "reset";
   const [showIntro, setShowIntro] = useState(() => forceIntro || !hasSeenIntro());
   const handleIntroComplete = useCallback(() => {
@@ -55,14 +68,48 @@ const Landing = () => {
             <img src={logoVisualia} alt="Visualia" className="h-[24rem] w-auto md:h-[30rem] lg:h-[36rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
 
-          {/* Hero Video */}
-          <div className="-mt-6 mx-auto w-full overflow-hidden rounded-2xl"
+          {/* Hero Video with crossfade */}
+          <div
+            className="-mt-6 mx-auto w-full overflow-hidden rounded-2xl relative"
             style={{
               boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
             }}
           >
-            <video src={heroVideo} autoPlay muted loop playsInline className="w-full h-auto block" />
+            {/* Intro video */}
+            <video
+              ref={introRef}
+              src={heroVideoIntro}
+              autoPlay
+              muted
+              playsInline
+              onEnded={handleIntroEnded}
+              className="w-full h-auto block"
+              style={{
+                position: activeVideo === 1 ? "absolute" : "relative",
+                inset: 0,
+                opacity: activeVideo === 0 ? 1 : 0,
+                transition: "opacity 0.7s ease-in-out",
+                zIndex: activeVideo === 0 ? 2 : 1,
+              }}
+            />
+            {/* Main loop video */}
+            <video
+              ref={mainRef}
+              src={heroVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-auto block"
+              style={{
+                position: activeVideo === 0 ? "absolute" : "relative",
+                inset: 0,
+                opacity: activeVideo === 1 ? 1 : 0,
+                transition: "opacity 0.7s ease-in-out",
+                zIndex: activeVideo === 1 ? 2 : 1,
+              }}
+            />
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
