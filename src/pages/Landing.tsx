@@ -72,6 +72,20 @@ const Landing = () => {
   const handleIntroEnded = useCallback(() => {
     setTimeout(() => {
       setActiveVideo(1);
+      if (mainRef.current) {
+        mainRef.current.currentTime = 0;
+        mainRef.current.play();
+      }
+    }, 700);
+  }, []);
+
+  const handleMainEnded = useCallback(() => {
+    setTimeout(() => {
+      setActiveVideo(0);
+      if (introRef.current) {
+        introRef.current.currentTime = 0;
+        introRef.current.play();
+      }
     }, 700);
   }, []);
   const forceIntro = searchParams.get("intro") === "reset";
@@ -127,14 +141,14 @@ const Landing = () => {
                 zIndex: activeVideo === 0 ? 2 : 1,
               }}
             />
-            {/* Main loop video */}
+            {/* Main video (no loop — handled manually) */}
             <video
               ref={mainRef}
               src={heroVideo}
               autoPlay
               muted
-              loop
               playsInline
+              onEnded={handleMainEnded}
               className="w-full h-auto block"
               style={{
                 position: activeVideo === 0 ? "absolute" : "relative",
