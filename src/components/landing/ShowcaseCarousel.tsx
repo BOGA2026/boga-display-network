@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import albertVideo from "@/assets/albert-visualia-dos.mov";
 import img1 from "@/assets/showcase-icecream-mall.jpeg";
 import img2 from "@/assets/showcase-sandwich.jpeg";
 import img3 from "@/assets/showcase-arroz.jpeg";
@@ -53,9 +54,9 @@ const ShowcaseCarousel = () => {
         style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }}
       />
 
-      <div className="relative mx-auto max-w-6xl">
+      <div className="relative mx-auto max-w-6xl flex flex-col lg:flex-row gap-6 items-stretch">
         {/* Carousel */}
-        <div className="relative group">
+        <div className="relative group flex-1 min-w-0">
           {/* Neon frame glow layers */}
           <div
             className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
@@ -67,7 +68,7 @@ const ShowcaseCarousel = () => {
             }}
           />
           {/* Main image */}
-          <div className="relative overflow-hidden rounded-2xl"
+          <div className="relative overflow-hidden rounded-2xl h-full"
             style={{ background: "hsl(260 30% 6%)" }}
           >
             {/* Glow overlay on hover */}
@@ -143,6 +144,28 @@ const ShowcaseCarousel = () => {
           </button>
         </div>
 
+        {/* Video alongside carousel */}
+        <div className="relative w-full lg:w-[340px] flex-shrink-0">
+          <div
+            className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
+            style={{
+              background: "transparent",
+              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.55), 0 0 50px 8px hsl(270 100% 50% / 0.25), inset 0 0 18px 2px hsl(270 100% 55% / 0.08)",
+              border: "1.5px solid hsl(270 100% 60% / 0.7)",
+              borderRadius: "1rem",
+            }}
+          />
+          <div className="relative overflow-hidden rounded-2xl h-full" style={{ background: "hsl(260 30% 6%)" }}>
+            <video
+              src={albertVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
