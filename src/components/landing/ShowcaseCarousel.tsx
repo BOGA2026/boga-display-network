@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import albertVideo from "@/assets/albert-visualia-dos.mov";
 import img1 from "@/assets/showcase-icecream-mall.jpeg";
 import img2 from "@/assets/showcase-sandwich.jpeg";
@@ -20,7 +20,9 @@ const slides = [
 const ShowcaseCarousel = () => {
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const goTo = (index: number) => {
     if (isAnimating) return;
@@ -46,6 +48,14 @@ const ShowcaseCarousel = () => {
     }, 4500);
   };
 
+  const toggleVideoMute = useCallback(() => {
+    setVideoMuted((m) => {
+      const next = !m;
+      if (videoRef.current) videoRef.current.muted = next;
+      return next;
+    });
+  }, []);
+
   return (
     <section className="relative px-4 py-10 md:px-6 md:py-12">
       {/* Background glow */}
@@ -54,9 +64,50 @@ const ShowcaseCarousel = () => {
         style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }}
       />
 
-      <div className="relative mx-auto max-w-6xl flex flex-col lg:flex-row gap-6 items-stretch">
-        {/* Carousel */}
-        <div className="relative group flex-1 min-w-0">
+      <div className="relative mx-auto max-w-7xl flex flex-col lg:flex-row gap-6 items-stretch">
+        {/* Video on the LEFT */}
+        <div className="relative w-full lg:w-[320px] flex-shrink-0 order-2 lg:order-1">
+          <div
+            className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
+            style={{
+              background: "transparent",
+              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.55), 0 0 50px 8px hsl(270 100% 50% / 0.25), inset 0 0 18px 2px hsl(270 100% 55% / 0.08)",
+              border: "1.5px solid hsl(270 100% 60% / 0.7)",
+              borderRadius: "1rem",
+            }}
+          />
+          <div className="relative overflow-hidden rounded-2xl h-full" style={{ background: "hsl(260 30% 6%)" }}>
+            <video
+              ref={videoRef}
+              src={albertVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
+            {/* Mute/Unmute button */}
+            <button
+              onClick={toggleVideoMute}
+              className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
+              style={{
+                background: "hsl(260 30% 8% / 0.75)",
+                border: "1.5px solid hsl(270 100% 60% / 0.5)",
+                backdropFilter: "blur(8px)",
+                boxShadow: videoMuted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
+              }}
+              aria-label={videoMuted ? "Activar sonido" : "Silenciar"}
+            >
+              {videoMuted
+                ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
+                : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
+              }
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel on the RIGHT — original size preserved */}
+        <div className="relative group flex-1 min-w-0 order-1 lg:order-2">
           {/* Neon frame glow layers */}
           <div
             className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
@@ -71,13 +122,11 @@ const ShowcaseCarousel = () => {
           <div className="relative overflow-hidden rounded-2xl h-full"
             style={{ background: "hsl(260 30% 6%)" }}
           >
-            {/* Glow overlay on hover */}
             <div
               className="pointer-events-none absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{ background: "linear-gradient(180deg, transparent 50%, hsl(270 100% 10% / 0.85) 100%)" }}
             />
 
-            {/* Image */}
             <div className="relative aspect-[16/7] w-full overflow-hidden">
               {slides.map((slide, i) => (
                 <img
@@ -93,7 +142,6 @@ const ShowcaseCarousel = () => {
                 />
               ))}
 
-              {/* Caption overlay */}
               <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-8"
                 style={{ background: "linear-gradient(0deg, hsl(260 40% 5% / 0.9) 0%, transparent 100%)" }}
               >
@@ -106,7 +154,6 @@ const ShowcaseCarousel = () => {
                       {slides[current].caption}
                     </p>
                   </div>
-                  {/* Dot indicators */}
                   <div className="flex gap-2">
                     {slides.map((_, i) => (
                       <button
@@ -142,29 +189,6 @@ const ShowcaseCarousel = () => {
           >
             <ChevronRight className="h-5 w-5 text-primary" />
           </button>
-        </div>
-
-        {/* Video alongside carousel */}
-        <div className="relative w-full lg:w-[340px] flex-shrink-0">
-          <div
-            className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
-            style={{
-              background: "transparent",
-              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.55), 0 0 50px 8px hsl(270 100% 50% / 0.25), inset 0 0 18px 2px hsl(270 100% 55% / 0.08)",
-              border: "1.5px solid hsl(270 100% 60% / 0.7)",
-              borderRadius: "1rem",
-            }}
-          />
-          <div className="relative overflow-hidden rounded-2xl h-full" style={{ background: "hsl(260 30% 6%)" }}>
-            <video
-              src={albertVideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="h-full w-full object-cover"
-            />
-          </div>
         </div>
       </div>
     </section>
