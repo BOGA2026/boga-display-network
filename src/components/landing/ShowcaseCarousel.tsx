@@ -106,8 +106,8 @@ const ShowcaseCarousel = () => {
           </div>
         </div>
 
-        {/* Carousel on the RIGHT — original size preserved */}
-        <div className="relative group flex-1 min-w-0 order-1 lg:order-2">
+        {/* Carousel on the RIGHT */}
+        <div className="relative flex-1 min-w-0 order-1 lg:order-2 flex flex-col">
           {/* Neon frame glow layers */}
           <div
             className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
@@ -118,16 +118,11 @@ const ShowcaseCarousel = () => {
               borderRadius: "1rem",
             }}
           />
-          {/* Main image */}
-          <div className="relative overflow-hidden rounded-2xl h-full"
+          <div className="relative overflow-hidden rounded-2xl flex flex-col h-full"
             style={{ background: "hsl(260 30% 6%)" }}
           >
-            <div
-              className="pointer-events-none absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: "linear-gradient(180deg, transparent 50%, hsl(270 100% 10% / 0.85) 100%)" }}
-            />
-
-            <div className="relative aspect-[16/7] w-full overflow-hidden">
+            {/* Image area — no text overlay */}
+            <div className="relative aspect-[16/7] w-full overflow-hidden flex-shrink-0">
               {slides.map((slide, i) => (
                 <img
                   key={i}
@@ -141,54 +136,89 @@ const ShowcaseCarousel = () => {
                   }}
                 />
               ))}
+            </div>
 
-              <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-8"
-                style={{ background: "linear-gradient(0deg, hsl(260 40% 5% / 0.9) 0%, transparent 100%)" }}
-              >
-                <div className="flex items-end justify-between">
-                  <div>
-                    <span className="inline-block mb-2 rounded-full neon-border px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-neon">
-                      {slides[current].label}
+            {/* Content & controls area below the image */}
+            <div
+              className="relative flex-1 flex items-center justify-between gap-4 px-6 py-5 md:px-8 md:py-6"
+              style={{ background: "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 30% 6%) 100%)" }}
+            >
+              {/* Left: text content with animated transitions */}
+              <div className="flex-1 min-w-0 relative overflow-hidden">
+                {slides.map((slide, i) => (
+                  <div
+                    key={i}
+                    className="transition-all duration-500"
+                    style={{
+                      opacity: i === current ? 1 : 0,
+                      transform: i === current ? "translateY(0)" : "translateY(8px)",
+                      position: i === current ? "relative" : "absolute",
+                      inset: i === current ? undefined : 0,
+                      pointerEvents: i === current ? "auto" : "none",
+                    }}
+                  >
+                    <span
+                      className="inline-block mb-1.5 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+                      style={{
+                        background: "hsl(270 100% 50% / 0.15)",
+                        border: "1px solid hsl(270 100% 60% / 0.4)",
+                        color: "hsl(270 100% 80%)",
+                        textShadow: "0 0 10px hsl(270 100% 60% / 0.5)",
+                      }}
+                    >
+                      {slide.label}
                     </span>
-                    <p className="text-sm font-medium text-foreground/80 md:text-base">
-                      {slides[current].caption}
+                    <p className="text-sm font-medium text-foreground/80 md:text-base mt-1">
+                      {slide.caption}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    {slides.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => { goTo(i); resetInterval(); }}
-                        className="h-1.5 rounded-full transition-all duration-300"
-                        style={{
-                          width: i === current ? "2rem" : "0.375rem",
-                          background: i === current ? "hsl(270 100% 60%)" : "hsl(270 100% 60% / 0.3)",
-                          boxShadow: i === current ? "0 0 8px hsl(270 100% 60% / 0.8)" : "none",
-                        }}
-                        aria-label={`Slide ${i + 1}`}
-                      />
-                    ))}
-                  </div>
+                ))}
+              </div>
+
+              {/* Right: nav arrows + dots */}
+              <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { prev(); resetInterval(); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 hover-lift"
+                    style={{
+                      background: "hsl(270 100% 50% / 0.1)",
+                      border: "1px solid hsl(270 100% 60% / 0.4)",
+                    }}
+                    aria-label="Anterior"
+                  >
+                    <ChevronLeft className="h-4 w-4 text-primary" />
+                  </button>
+                  <button
+                    onClick={() => { next(); resetInterval(); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 hover-lift"
+                    style={{
+                      background: "hsl(270 100% 50% / 0.1)",
+                      border: "1px solid hsl(270 100% 60% / 0.4)",
+                    }}
+                    aria-label="Siguiente"
+                  >
+                    <ChevronRight className="h-4 w-4 text-primary" />
+                  </button>
+                </div>
+                <div className="flex gap-1.5">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { goTo(i); resetInterval(); }}
+                      className="h-1.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: i === current ? "1.5rem" : "0.375rem",
+                        background: i === current ? "hsl(270 100% 60%)" : "hsl(270 100% 60% / 0.3)",
+                        boxShadow: i === current ? "0 0 8px hsl(270 100% 60% / 0.8)" : "none",
+                      }}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Nav buttons */}
-          <button
-            onClick={() => { prev(); resetInterval(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-30 flex h-10 w-10 items-center justify-center rounded-full glass-card neon-border opacity-0 group-hover:opacity-100 transition-all duration-300 hover:glow-primary-sm hover-lift"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="h-5 w-5 text-primary" />
-          </button>
-          <button
-            onClick={() => { next(); resetInterval(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex h-10 w-10 items-center justify-center rounded-full glass-card neon-border opacity-0 group-hover:opacity-100 transition-all duration-300 hover:glow-primary-sm hover-lift"
-            aria-label="Siguiente"
-          >
-            <ChevronRight className="h-5 w-5 text-primary" />
-          </button>
         </div>
       </div>
     </section>
