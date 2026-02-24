@@ -120,7 +120,7 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
           <>
             <DialogHeader>
               <DialogTitle className="font-display text-2xl font-bold text-foreground">
-                Solicitar demo
+                Hablar con un experto
               </DialogTitle>
               <p className="mt-1 text-sm text-muted-foreground">
                 Completa tus datos y un asesor de Visualia te contactará para agendar la demo.
@@ -248,7 +248,7 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
                 disabled={!isValid || loading}
                 className="h-12 w-full gradient-primary glow-primary border-0 text-lg text-primary-foreground disabled:opacity-40"
               >
-                {loading ? "Enviando..." : "Solicitar demo"}
+                {loading ? "Enviando..." : "Hablar con un experto"}
               </Button>
             </form>
           </>

@@ -206,7 +206,7 @@ const Landing = () => {
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
-              Solicitar demo <ArrowRight className="ml-2 h-5 w-5" />
+              Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" asChild>
               <a href="#features">Ver beneficios</a>
@@ -284,7 +284,7 @@ const Landing = () => {
               <p className="mx-auto mt-5 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
-                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>Solicitar demo</Button>
+                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>Hablar con un experto</Button>
               </div>
             </div>
           </div>
