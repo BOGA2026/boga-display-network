@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
+import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
@@ -29,6 +30,7 @@ const testimonials = [
 const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
   const [muted, setMuted] = useState(true);
   const [showSoundPrompt, setShowSoundPrompt] = useState(true);
@@ -211,7 +213,7 @@ const Landing = () => {
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
+            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button
@@ -316,7 +318,7 @@ const Landing = () => {
       </div>
 
       {/* Features */}
-      <FeaturesSection onDemo={() => setDemoOpen(true)} />
+      <FeaturesSection onDemo={() => setChatOpen(true)} />
 
       {/* How It Works */}
       <section id="how" className="px-4 py-12 md:px-6 md:py-16">
@@ -381,7 +383,7 @@ const Landing = () => {
               <p className="mx-auto mt-5 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
-                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setDemoOpen(true)}>Hablar con un experto</Button>
+                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setChatOpen(true)}>Hablar con un experto</Button>
               </div>
             </div>
           </div>
@@ -409,6 +411,7 @@ const Landing = () => {
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
+      <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
     </PremiumBackground>
   );
 };
