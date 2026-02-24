@@ -225,7 +225,7 @@ const Pricing = () => {
               <p className="mx-auto mt-4 max-w-lg text-muted-foreground">Únete a los negocios que ya confían en Visualia para su comunicación visual.</p>
               <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
-                  <Link to="/registro">Solicitar demo <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                  <Link to="/registro">Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
               </div>
             </div>
