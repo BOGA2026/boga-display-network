@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import heroVideoIntro from "@/assets/hero-video-intro.mov";
 import heroVideo from "@/assets/hero-video.mov";
+import benefitsVideo from "@/assets/benefits-video.mp4";
 import { Link, useSearchParams } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
 import GrowthBenefits from "@/components/landing/GrowthBenefits";
@@ -10,7 +11,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 
 const steps = [
@@ -31,8 +32,13 @@ const Landing = () => {
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
   const [muted, setMuted] = useState(true);
   const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+  const [showBenefitsVideo, setShowBenefitsVideo] = useState(false);
+  const [benefitsMuted, setBenefitsMuted] = useState(true);
+  const [benefitsPaused, setBenefitsPaused] = useState(false);
   const introRef = useRef<HTMLVideoElement>(null);
   const mainRef = useRef<HTMLVideoElement>(null);
+  const benefitsVideoRef = useRef<HTMLVideoElement>(null);
+  const benefitsContainerRef = useRef<HTMLDivElement>(null);
 
   // Try to autoplay with audio; if blocked, keep muted and show prompt
   useEffect(() => {
@@ -208,8 +214,23 @@ const Landing = () => {
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" asChild>
-              <a href="#features">Ver beneficios</a>
+            <Button
+              size="lg"
+              variant="outline"
+              className="neon-border neon-border-hover px-8 text-lg hover-lift"
+              onClick={() => {
+                setShowBenefitsVideo(true);
+                setTimeout(() => {
+                  benefitsContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  if (benefitsVideoRef.current) {
+                    benefitsVideoRef.current.currentTime = 0;
+                    benefitsVideoRef.current.play();
+                    setBenefitsPaused(false);
+                  }
+                }, 100);
+              }}
+            >
+              Ver beneficios
             </Button>
           </div>
         </div>
@@ -217,6 +238,82 @@ const Landing = () => {
 
       {/* Growth Benefits */}
       <GrowthBenefits />
+
+      {/* Benefits Video — revealed on click */}
+      <div
+        ref={benefitsContainerRef}
+        className="overflow-hidden transition-all duration-700 ease-out"
+        style={{
+          maxHeight: showBenefitsVideo ? 800 : 0,
+          opacity: showBenefitsVideo ? 1 : 0,
+          transform: showBenefitsVideo ? "translateY(0)" : "translateY(24px)",
+        }}
+      >
+        <div className="px-4 pb-12 md:px-6">
+          <div
+            className="mx-auto max-w-5xl overflow-hidden rounded-2xl relative"
+            style={{
+              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.35), 0 0 50px 8px hsl(270 100% 50% / 0.15)",
+              border: "1.5px solid hsl(270 100% 60% / 0.5)",
+            }}
+          >
+            <video
+              ref={benefitsVideoRef}
+              src={benefitsVideo}
+              muted
+              playsInline
+              loop
+              className="w-full h-auto block"
+            />
+
+            {/* Controls */}
+            <div className="absolute bottom-4 right-4 z-30 flex gap-2">
+              <button
+                onClick={() => {
+                  const v = benefitsVideoRef.current;
+                  if (!v) return;
+                  if (v.paused) { v.play(); setBenefitsPaused(false); }
+                  else { v.pause(); setBenefitsPaused(true); }
+                }}
+                className="flex items-center justify-center rounded-full p-2.5 transition-all duration-300"
+                style={{
+                  background: "hsl(260 30% 8% / 0.75)",
+                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
+                  backdropFilter: "blur(8px)",
+                }}
+                aria-label={benefitsPaused ? "Reproducir" : "Pausar"}
+              >
+                {benefitsPaused
+                  ? <Play className="h-5 w-5" style={{ color: "hsl(270 100% 75%)" }} />
+                  : <Pause className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
+                }
+              </button>
+              <button
+                onClick={() => {
+                  setBenefitsMuted((m) => {
+                    const next = !m;
+                    if (benefitsVideoRef.current) benefitsVideoRef.current.muted = next;
+                    return next;
+                  });
+                }}
+                className="flex items-center justify-center rounded-full p-2.5 transition-all duration-300"
+                style={{
+                  background: "hsl(260 30% 8% / 0.75)",
+                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
+                  backdropFilter: "blur(8px)",
+                  boxShadow: benefitsMuted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
+                }}
+                aria-label={benefitsMuted ? "Activar sonido" : "Silenciar"}
+              >
+                {benefitsMuted
+                  ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
+                  : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Features */}
       <FeaturesSection onDemo={() => setDemoOpen(true)} />
