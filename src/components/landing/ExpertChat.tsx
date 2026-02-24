@@ -105,6 +105,21 @@ const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
 
   return (
     <>
+      {/* Floating icon button — always visible when chat is closed */}
+      {!open && (
+        <button
+          onClick={() => onOpenChange(true)}
+          className="fixed bottom-5 right-5 z-[999] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110 sm:bottom-6 sm:right-6"
+          style={{
+            background: "linear-gradient(135deg, hsl(270 80% 55%), hsl(290 80% 50%))",
+            boxShadow: "0 0 24px 4px hsl(270 100% 50% / 0.35), 0 8px 24px -4px hsl(0 0% 0% / 0.4)",
+          }}
+          aria-label="Abrir chat con un experto"
+        >
+          <MessageCircle className="h-6 w-6 text-white" />
+        </button>
+      )}
+
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-[998] transition-opacity duration-300"
