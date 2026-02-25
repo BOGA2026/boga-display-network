@@ -95,8 +95,8 @@ const Pricing = () => {
 
       {/* Calculator */}
       <section className="px-6 pb-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="glass-card rounded-2xl p-8 md:p-12 glow-primary-sm">
+      <div className="mx-auto max-w-5xl">
+          <div className="glass-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
             <div className="mb-10 flex items-center justify-center gap-3">
               <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>Mensual</span>
               <Switch checked={annual} onCheckedChange={setAnnual} />
