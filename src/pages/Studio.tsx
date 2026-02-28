@@ -170,47 +170,47 @@ const Studio = () => {
                 <div className="relative">
                   {/* Badge */}
                   {plan.badge && (
-                    <div className="mb-4">
-                      <Badge className="gradient-primary-vibrant border-0 px-4 py-1 text-xs font-bold text-primary-foreground shadow-lg">
+                    <div className="mb-5">
+                      <Badge className="gradient-primary-vibrant border-0 px-5 py-1.5 text-sm font-bold text-primary-foreground shadow-lg">
                         {plan.badge}
                       </Badge>
                     </div>
                   )}
 
-                  <h3 className={`font-display text-2xl font-bold text-foreground ${plan.highlighted ? "text-gradient-primary" : ""}`}>
+                  <h3 className={`font-display text-3xl md:text-4xl font-bold text-foreground ${plan.highlighted ? "text-gradient-primary" : ""}`}>
                     Plan {plan.name}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p>
+                  <p className="mt-2 text-base md:text-lg text-muted-foreground">{plan.tagline}</p>
 
                   {/* Pricing */}
-                  <div className="mt-6 space-y-2">
+                  <div className="mt-8 space-y-3">
                     <div>
-                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Setup</span>
-                      <p className="font-display text-2xl font-bold text-foreground">
-                        {plan.setup} <span className="text-sm font-normal text-muted-foreground">COP</span>
+                      <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Setup</span>
+                      <p className="font-display text-3xl md:text-4xl font-bold text-foreground">
+                        {plan.setup} <span className="text-base font-normal text-muted-foreground">COP</span>
                       </p>
                     </div>
                     <div
-                      className="rounded-lg px-4 py-3"
+                      className="rounded-lg px-5 py-4"
                       style={{
                         background: plan.highlighted ? "hsl(270 100% 50% / 0.08)" : "hsl(260 20% 12%)",
                         border: plan.highlighted ? "1px solid hsl(270 100% 50% / 0.2)" : "1px solid hsl(260 15% 16%)",
                       }}
                     >
-                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Mensual</span>
-                      <p className="font-display text-xl font-bold text-foreground">
-                        {plan.monthly} <span className="text-sm font-normal text-muted-foreground">COP/mes</span>
+                      <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Mensual</span>
+                      <p className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                        {plan.monthly} <span className="text-base font-normal text-muted-foreground">COP/mes</span>
                       </p>
                     </div>
                   </div>
 
                   {/* Results first */}
-                  <div className="mt-6">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">Resultados</p>
-                    <ul className="space-y-2.5">
+                  <div className="mt-8">
+                    <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-primary">Resultados</p>
+                    <ul className="space-y-3">
                       {plan.benefits.map((b) => (
-                        <li key={b} className="flex items-start gap-2.5 text-sm text-foreground">
-                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary icon-neon" />
+                        <li key={b} className="flex items-start gap-3 text-base md:text-lg text-foreground">
+                          <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary icon-neon" />
                           {b}
                         </li>
                       ))}
@@ -218,12 +218,12 @@ const Studio = () => {
                   </div>
 
                   {/* Technical in lower hierarchy */}
-                  <div className="mt-6 border-t border-border/20 pt-5">
-                    <p className="mb-3 text-xs text-muted-foreground/70 uppercase tracking-wider">Incluye</p>
-                    <ul className="space-y-2">
+                  <div className="mt-8 border-t border-border/20 pt-6">
+                    <p className="mb-4 text-sm text-muted-foreground/70 uppercase tracking-wider">Incluye</p>
+                    <ul className="space-y-2.5">
                       {plan.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50" />
+                        <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground/50" />
                           {f}
                         </li>
                       ))}
