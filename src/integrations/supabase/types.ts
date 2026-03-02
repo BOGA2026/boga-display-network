@@ -258,6 +258,45 @@ export type Database = {
           },
         ]
       }
+      menu_templates: {
+        Row: {
+          category: string
+          created_at: string
+          css: string
+          description: string | null
+          fields_schema: Json
+          html_template: string
+          id: string
+          name: string
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          css?: string
+          description?: string | null
+          fields_schema?: Json
+          html_template: string
+          id?: string
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          css?: string
+          description?: string | null
+          fields_schema?: Json
+          html_template?: string
+          id?: string
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
