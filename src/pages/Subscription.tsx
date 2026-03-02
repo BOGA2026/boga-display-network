@@ -38,64 +38,38 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-/* ─── Software Plan Definitions ─── */
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    icon: Zap,
-    pricePerScreen: 50000,
-    maxScreens: 5,
-    storage: "10 GB",
-    support: "Email",
-    tag: null,
-    features: [
-      "Hasta 5 pantallas",
-      "Programación básica",
-      "1 capa de contenido",
-      "Analíticas básicas",
-      "Soporte por email",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    icon: Crown,
-    pricePerScreen: 42000,
-    maxScreens: 20,
-    storage: "50 GB",
-    support: "Prioritario",
-    tag: "Más popular",
-    features: [
-      "Hasta 20 pantallas",
-      "Programación avanzada",
-      "Capas ilimitadas",
-      "Analíticas avanzadas",
-      "Soporte prioritario",
-      "Plantillas premium",
-    ],
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    icon: Building2,
-    pricePerScreen: 35000,
-    maxScreens: 50,
-    storage: "150 GB",
-    support: "Dedicado 24/7",
-    tag: null,
-    features: [
-      "Hasta 50 pantallas",
-      "Todo en Pro",
-      "API access",
-      "SLA garantizado",
-      "Soporte dedicado 24/7",
-      "Capacitación incluida",
-    ],
-  },
-] as const;
+/* ─── Pricing tiers (same as /precios page) ─── */
+const tiers = [
+  { max: 5, price: 50000 },
+  { max: 20, price: 42000 },
+  { max: 50, price: 35000 },
+  { max: 100, price: 28000 },
+  { max: 300, price: 22000 },
+];
 
-type PlanId = (typeof PLANS)[number]["id"];
+function getPrice(screens: number) {
+  for (const t of tiers) {
+    if (screens <= t.max) return t.price;
+  }
+  return tiers[tiers.length - 1].price;
+}
+
+function getStorage(screens: number) {
+  if (screens <= 5) return "10 GB";
+  if (screens <= 20) return "50 GB";
+  if (screens <= 50) return "150 GB";
+  return "500 GB";
+}
+
+const included = [
+  { icon: Monitor, label: "Gestión remota de pantallas" },
+  { icon: Zap, label: "Programación de contenido" },
+  { icon: Check, label: "Playlists automáticas" },
+  { icon: Crown, label: "Soporte técnico prioritario" },
+  { icon: Check, label: "Actualizaciones continuas" },
+  { icon: Check, label: "Seguridad y respaldos" },
+];
+
 type ProductTab = "software" | "studio";
 
 interface SubscriptionRow {
@@ -209,7 +183,6 @@ const Subscription = () => {
 
   /* UI state */
   const [activeTab, setActiveTab] = useState<ProductTab>("software");
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>("starter");
   const [screenCount, setScreenCount] = useState(1);
   const [yearly, setYearly] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -250,7 +223,6 @@ const Subscription = () => {
 
     if (subRes.data) {
       setSubscription(subRes.data as SubscriptionRow);
-      setSelectedPlan(subRes.data.plan as PlanId);
       setScreenCount(subRes.data.screens_count);
       setYearly(subRes.data.billing_cycle === "yearly");
     }
@@ -259,17 +231,9 @@ const Subscription = () => {
     setLoading(false);
   };
 
-  const currentPlanDef = useMemo(
-    () => PLANS.find((p) => p.id === (subscription?.plan ?? "starter")) ?? PLANS[0],
-    [subscription]
-  );
-
-  const selectedPlanDef = useMemo(
-    () => PLANS.find((p) => p.id === selectedPlan) ?? PLANS[0],
-    [selectedPlan]
-  );
-
-  const monthlyTotal = selectedPlanDef.pricePerScreen * screenCount;
+  const pricePerScreen = useMemo(() => getPrice(screenCount), [screenCount]);
+  const storageAmount = useMemo(() => getStorage(screenCount), [screenCount]);
+  const monthlyTotal = pricePerScreen * screenCount;
   const yearlyTotal = monthlyTotal * 12 * 0.8;
 
   const handleCheckout = async () => {
@@ -282,17 +246,17 @@ const Subscription = () => {
     setSaving(true);
     const cycle = yearly ? "yearly" : "monthly";
     const total = yearly ? yearlyTotal : monthlyTotal;
-    const pricePerScreen = selectedPlanDef.pricePerScreen;
+    const pps = pricePerScreen;
 
     try {
       if (subscription) {
         const { error } = await supabase
           .from("subscriptions")
           .update({
-            plan: selectedPlan,
+            plan: "visualia",
             screens_count: screenCount,
             billing_cycle: cycle,
-            price_per_screen: pricePerScreen,
+            price_per_screen: pps,
             total_amount: total,
             status: "active",
             next_billing_date: new Date(Date.now() + (yearly ? 365 : 30) * 86400000).toISOString().split("T")[0],
@@ -302,10 +266,10 @@ const Subscription = () => {
       } else {
         const { error } = await supabase.from("subscriptions").insert({
           business_id: businessId,
-          plan: selectedPlan,
+          plan: "visualia",
           screens_count: screenCount,
           billing_cycle: cycle,
-          price_per_screen: pricePerScreen,
+          price_per_screen: pps,
           total_amount: total,
           status: "active",
           next_billing_date: new Date(Date.now() + (yearly ? 365 : 30) * 86400000).toISOString().split("T")[0],
@@ -326,7 +290,7 @@ const Subscription = () => {
         billing_email: billingEmail.trim(),
       });
 
-      toast({ title: "¡Suscripción actualizada!", description: `Plan ${selectedPlanDef.name} con ${screenCount} pantallas activado.` });
+      toast({ title: "¡Suscripción actualizada!", description: `${screenCount} pantallas activadas.` });
       setCheckoutOpen(false);
       fetchData();
     } catch (err: any) {
@@ -415,7 +379,7 @@ const Subscription = () => {
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Plan</p>
-                  <p className="font-semibold text-2xl text-gradient-primary">{currentPlanDef.name}</p>
+                  <p className="font-semibold text-2xl text-gradient-primary">Visualia</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Pantallas</p>
@@ -441,7 +405,7 @@ const Subscription = () => {
                     {subscription.status === "active" ? "Activa" : subscription.status}
                   </Badge>
                   <span className="text-base text-muted-foreground">
-                    Almacenamiento: {currentPlanDef.storage}
+                    Almacenamiento: {storageAmount}
                   </span>
                 </div>
               </div>
@@ -476,33 +440,34 @@ const Subscription = () => {
               value={[screenCount]}
               onValueChange={([v]) => setScreenCount(v)}
               min={1}
-              max={100}
+              max={300}
               step={1}
               className="py-4"
             />
+            <div className="mt-1 flex justify-between text-xs text-muted-foreground"><span>1</span><span>50</span><span>100</span><span>200</span><span>300</span></div>
 
-            <div className="grid gap-5 sm:grid-cols-3 pt-2">
-              <div className="rounded-2xl bg-secondary/40 p-6 text-center">
-                <p className="text-sm text-muted-foreground mb-2">Precio por pantalla</p>
-                <p className="text-2xl font-bold">{fmt(selectedPlanDef.pricePerScreen)}</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+              <div className="rounded-xl surface-elevated p-5 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensual</p>
+                <p className="mt-2 font-display text-2xl font-bold">{fmt(yearly ? yearlyTotal / 12 : monthlyTotal)}</p>
+                <p className="text-sm text-muted-foreground">por mes</p>
               </div>
-              <div className="rounded-2xl bg-secondary/40 p-6 text-center">
-                <p className="text-sm text-muted-foreground mb-2">
-                  {yearly ? "Ahorro anual" : "Total mensual"}
-                </p>
-                <p className="text-2xl font-bold">
-                  {yearly ? fmt(monthlyTotal * 12 * 0.2) : fmt(monthlyTotal)}
-                </p>
+              <div className="rounded-xl surface-elevated p-5 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Por pantalla</p>
+                <p className="mt-2 font-display text-2xl font-bold">{fmt(yearly ? Math.round(pricePerScreen * 0.8) : pricePerScreen)}</p>
+                <p className="text-sm text-muted-foreground">por mes</p>
               </div>
-              <div className="rounded-2xl gradient-primary glow-primary-sm p-6 text-center">
-                <p className="text-sm text-primary-foreground/70 mb-2">
-                  {yearly ? "Total mensual con descuento" : "Total mensual"}
-                </p>
-                <p className="text-3xl font-bold text-primary-foreground">
-                  {fmt(yearly ? yearlyTotal / 12 : monthlyTotal)}
-                </p>
+              <div className="rounded-xl surface-elevated p-5 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Almacenamiento</p>
+                <p className="mt-2 font-display text-2xl font-bold">{storageAmount}</p>
+              </div>
+              <div className="rounded-xl surface-elevated p-5 text-center">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Ahorro anual</p>
+                <p className="mt-2 font-display text-2xl font-bold text-gradient-primary">{yearly ? fmt(monthlyTotal * 12 * 0.2) : "—"}</p>
               </div>
             </div>
+
+
 
             <Button
               onClick={() => setCheckoutOpen(true)}
@@ -513,6 +478,21 @@ const Subscription = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Todo incluido */}
+        <div>
+          <h3 className="mb-6 text-center font-display text-xl font-bold">Todo incluido en tu suscripción</h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {included.map((item) => (
+              <div key={item.label} className="flex items-center gap-3 rounded-xl surface-elevated px-5 py-4 transition-all hover:border-primary/30">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15">
+                  <item.icon className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Payment History */}
         {payments.length > 0 && (
@@ -758,14 +738,14 @@ const Subscription = () => {
               Completar pago
             </DialogTitle>
             <DialogDescription>
-              Plan {selectedPlanDef.name} · {screenCount} pantallas · {yearly ? "Anual" : "Mensual"}
+              Visualia · {screenCount} pantallas · {yearly ? "Anual" : "Mensual"}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="rounded-lg bg-secondary/50 p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{screenCount} pantallas × {fmt(selectedPlanDef.pricePerScreen)}</span>
+                <span className="text-muted-foreground">{screenCount} pantallas × {fmt(pricePerScreen)}</span>
                 <span>{fmt(monthlyTotal)}/mes</span>
               </div>
               {yearly && (
