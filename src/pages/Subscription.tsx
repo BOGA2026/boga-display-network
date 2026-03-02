@@ -121,62 +121,78 @@ interface PaymentRow {
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
 
-/* ─── Studio plans data ─── */
+/* ─── Studio plans data (mirrored from /studio page) ─── */
 const STUDIO_PLANS = [
   {
-    id: "start",
-    name: "Start",
-    icon: Zap,
-    setup: "$1.500.000",
-    monthly: "$350.000 / mes",
-    description: "Para negocios que inician su presencia visual",
-    timeline: "Entrega en 5 días hábiles",
+    id: "impulso",
+    name: "Impulso Visual",
+    ideal: "Restaurantes y cafés que quieren empezar con un menú digital profesional.",
+    setup: "$990.000",
+    monthly: "$99.000",
+    monthlyLabel: "COP / mes por pantalla",
     highlighted: false,
     badge: null,
+    includesFrom: null,
     features: [
-      "10 piezas visuales diseñadas",
-      "Adaptación a formato de pantalla",
-      "1 actualización mensual",
-      "Fotografía de producto (básica)",
-      "Soporte por email",
+      "Diseño profesional de carta digital",
+      "Adaptación visual a tus pantallas",
+      "Configuración inicial del sistema",
+      "Programación básica de contenidos",
+      "Plataforma Visualia activa 24/7",
+      "Soporte técnico remoto",
     ],
+    monthlyDetail: {
+      title: "1 ajuste mensual de tu menú",
+      options: [
+        "Actualización de precios",
+        "Cambio o actualización de productos",
+      ],
+      note: "Las fotografías y contenidos del menú deben ser suministrados por el cliente.",
+    },
   },
   {
-    id: "pro",
-    name: "Pro",
-    icon: Crown,
-    setup: "$3.500.000",
-    monthly: "$890.000 / mes",
-    description: "Contenido estratégico para maximizar ventas",
-    timeline: "Entrega en 3 días hábiles",
+    id: "crecimiento",
+    name: "Crecimiento Comercial",
+    ideal: "Negocios que quieren vender más activamente.",
+    setup: "$2.900.000",
+    monthly: "$299.000",
+    monthlyLabel: "COP / mes",
     highlighted: true,
-    badge: "Más popular",
+    badge: "MÁS ELEGIDO POR RESTAURANTES",
+    includesFrom: "Todo lo de Impulso Visual más:",
     features: [
-      "30 piezas visuales diseñadas",
-      "Video y animación incluidos",
-      "Actualizaciones ilimitadas",
-      "Estrategia de contenido mensual",
-      "Fotografía profesional completa",
-      "Soporte prioritario",
+      "Rediseño estratégico del menú digital",
+      "Optimización visual de productos",
+      "Imágenes generadas con IA a partir de fotografías reales",
+      "Programación automática por horarios",
+      "Promociones destacadas en pantalla",
+      "1 actualización mensual de precios o productos",
+      "Optimización continua del contenido",
     ],
+    monthlyDetail: {
+      title: null,
+      options: [],
+      note: "Las imágenes se optimizan a partir de fotografías reales proporcionadas por el cliente.",
+    },
   },
   {
-    id: "elite",
-    name: "Elite",
-    icon: Building2,
-    setup: "Desde $6.500.000",
-    monthly: "Precio según proyecto",
-    description: "Producción audiovisual de máximo impacto",
-    timeline: "Cronograma a medida",
+    id: "dominio",
+    name: "Dominio de Marca",
+    ideal: "Cadenas o marcas en expansión.",
+    setup: "Desde $5.900.000",
+    monthly: "Desde $1.490.000",
+    monthlyLabel: "COP / mes",
     highlighted: false,
     badge: null,
+    includesFrom: "Todo lo de Crecimiento Comercial más:",
     features: [
-      "Todo en Pro",
-      "Producción audiovisual completa",
-      "Fotografía profesional premium",
-      "Gestor de cuenta dedicado",
-      "Estrategia anual de contenido",
-      "SLA garantizado",
+      "Gestión multi-sede",
+      "Producción audiovisual",
+      "Campañas comerciales",
+      "Videos promocionales",
+      "Actualizaciones ilimitadas",
+      "Estrategia visual continua",
+      "Prioridad en soporte",
     ],
   },
 ];
@@ -549,98 +565,189 @@ const Subscription = () => {
       <div style={{ display: activeTab === "studio" ? "block" : "none" }} className="space-y-8">
         {/* Section header */}
         <div>
-          <div className="flex items-center gap-4 mb-3">
+          <div className="flex items-center gap-4 mb-3 flex-wrap">
             <h2 className="font-display text-3xl font-bold">
-              Contenido profesional que hace que tus pantallas vendan más
+              Ahora hagamos que tus pantallas realmente vendan
             </h2>
             <span className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-bold text-primary tracking-widest uppercase">
               Servicio opcional
             </span>
           </div>
           <p className="text-base text-muted-foreground max-w-2xl">
-            Servicio de diseño, fotografía y contenido estratégico. No necesitas saber de diseño.
-            Nuestro equipo crea el contenido y tú solo lo publicas.
+            Visualia Studio es nuestro servicio especializado de creación de contenido para pantallas digitales.
+            Nos enfocamos en diseñar el contenido que verán tus clientes para mejorar su decisión de compra.
           </p>
         </div>
 
+        {/* Explanation card */}
+        <div
+          className="rounded-xl border p-6 text-center"
+          style={{
+            borderColor: "hsl(270 100% 50% / 0.15)",
+            background: "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 9%) 100%)",
+          }}
+        >
+          <p className="text-base text-muted-foreground">
+            Este es un <span className="font-semibold text-foreground">servicio adicional</span> a la plataforma Visualia.
+            Aquí no pagas por pantallas. Nos enfocamos en diseñar el contenido que verán tus clientes.
+          </p>
+          <div
+            className="mx-auto mt-5 max-w-md rounded-lg border px-5 py-4"
+            style={{
+              borderColor: "hsl(270 100% 50% / 0.3)",
+              background: "hsl(270 100% 50% / 0.06)",
+            }}
+          >
+            <p className="text-base font-bold text-foreground">
+              No importa si tienes 1 o 100 pantallas.{" "}
+              <span className="text-gradient-primary">Lo importante es qué muestran.</span>
+            </p>
+          </div>
+        </div>
+
         {/* Studio plan cards */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {STUDIO_PLANS.map((plan) => {
-            const Icon = plan.icon;
-            return (
-              <div
-                key={plan.id}
-                className={`relative rounded-2xl p-8 flex flex-col transition-all ${
-                  plan.highlighted
-                    ? "border border-primary bg-primary/5 shadow-[0_0_32px_hsl(270_100%_50%/0.18)]"
-                    : "border border-border/30 bg-card/40"
-                }`}
-              >
+        <div className="grid gap-6 lg:grid-cols-3 lg:items-start">
+          {STUDIO_PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative overflow-hidden rounded-2xl border p-8 flex flex-col transition-all ${
+                plan.highlighted
+                  ? "border-primary bg-primary/5 shadow-[0_0_32px_hsl(270_100%_50%/0.18)] lg:-mt-4 lg:pb-12 lg:pt-12"
+                  : "border-border/30 bg-card/40"
+              }`}
+            >
+              {plan.highlighted && (
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-10"
+                  style={{ background: "radial-gradient(ellipse at top center, hsl(270 100% 50%) 0%, transparent 60%)" }}
+                />
+              )}
+
+              <div className="relative flex-1 flex flex-col">
                 {plan.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="gradient-primary text-primary-foreground text-sm font-semibold px-4 py-1.5 rounded-full">
+                  <div className="mb-5">
+                    <Badge className="gradient-primary border-0 px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-lg">
+                      <Sparkles className="mr-1.5 h-3 w-3" />
                       {plan.badge}
-                    </span>
+                    </Badge>
                   </div>
                 )}
 
-                {/* Icon + name */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${plan.highlighted ? "gradient-primary" : "bg-secondary/60"}`}>
-                    <Icon className={`h-7 w-7 ${plan.highlighted ? "text-primary-foreground" : "text-muted-foreground"}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-2xl">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  </div>
-                </div>
+                <h3 className={`font-display text-2xl font-bold ${plan.highlighted ? "text-gradient-primary" : ""}`}>
+                  {plan.name}
+                </h3>
 
-                {/* Pricing */}
-                <div className="mb-1">
-                  <span className={`text-3xl font-bold ${plan.highlighted ? "text-primary" : ""}`}>
-                    {plan.setup}
-                  </span>
-                  {plan.id !== "elite" && (
-                    <span className="text-sm text-muted-foreground"> setup único</span>
-                  )}
-                </div>
-                <p className="text-base text-muted-foreground mb-2">{plan.monthly}</p>
-                <p className="text-sm text-muted-foreground mb-6 flex items-center gap-2">
-                  <span className="inline-block h-2 w-2 rounded-full bg-primary/60" />
-                  {plan.timeline}
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground/70">Ideal para:</span>{" "}
+                  {plan.ideal}
                 </p>
 
+                {/* Pricing */}
+                <div className="mt-6 space-y-3">
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Inversión inicial</span>
+                    <p className="font-display text-2xl font-bold">
+                      {plan.setup} <span className="text-sm font-normal text-muted-foreground">COP</span>
+                    </p>
+                  </div>
+                  <div
+                    className="rounded-xl px-5 py-4"
+                    style={{
+                      background: plan.highlighted ? "hsl(270 100% 50% / 0.08)" : "hsl(260 20% 12%)",
+                      border: plan.highlighted ? "1px solid hsl(270 100% 50% / 0.2)" : "1px solid hsl(260 15% 16%)",
+                    }}
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Servicio mensual</span>
+                    <p className="font-display text-xl font-bold">
+                      {plan.monthly} <span className="text-xs font-normal text-muted-foreground">{plan.monthlyLabel}</span>
+                    </p>
+                  </div>
+                </div>
+
                 {/* Features */}
-                <ul className="space-y-3 border-t border-border/20 pt-5 mb-8 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-base">
-                      <Check className={`h-5 w-5 shrink-0 mt-0.5 ${plan.highlighted ? "text-primary" : "text-muted-foreground"}`} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-6">
+                  {plan.includesFrom && (
+                    <p className="mb-3 text-xs font-semibold text-primary">{plan.includesFrom}</p>
+                  )}
+                  <ul className="space-y-2.5">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm">
+                        <Check className={`mt-0.5 h-4 w-4 flex-shrink-0 ${plan.highlighted ? "text-primary" : "text-muted-foreground"}`} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Monthly detail */}
+                {"monthlyDetail" in plan && plan.monthlyDetail && (
+                  <div className="mt-6">
+                    <div
+                      className="rounded-xl px-5 py-4"
+                      style={{
+                        background: "hsl(260 20% 12%)",
+                        border: "1px solid hsl(260 15% 20%)",
+                      }}
+                    >
+                      {plan.monthlyDetail.title && (
+                        <>
+                          <p className="text-sm font-semibold text-foreground mb-2">
+                            Tu mensualidad incluye:
+                          </p>
+                          <p className="text-sm font-medium text-foreground/90 mb-2">
+                            {plan.monthlyDetail.title}
+                          </p>
+                        </>
+                      )}
+                      {plan.monthlyDetail.options.length > 0 && (
+                        <ul className="space-y-1.5 ml-1">
+                          {plan.monthlyDetail.options.map((opt: string) => (
+                            <li key={opt} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/60" />
+                              {opt}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <p className={`text-xs text-muted-foreground/70 italic leading-relaxed ${plan.monthlyDetail.options.length > 0 ? "mt-3" : ""}`}>
+                        {plan.monthlyDetail.note}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* CTA */}
                 <a
                   href="/studio"
-                  className={`block w-full rounded-xl py-4 text-base font-bold text-center transition-all ${
+                  className={`mt-8 block w-full rounded-xl py-4 text-sm font-bold text-center transition-all ${
                     plan.highlighted
                       ? "gradient-primary text-primary-foreground hover:opacity-90"
                       : "bg-secondary/60 text-secondary-foreground hover:bg-secondary"
                   }`}
                 >
-                  Solicitar propuesta →
+                  Quiero mejorar mis pantallas →
                 </a>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Bottom note */}
-        <p className="text-sm text-muted-foreground text-center pt-2">
-          Visualia Studio es un servicio independiente del software. Puedes contratarlos por separado o juntos.
-        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pt-2">
+          {[
+            { icon: Receipt, text: "Facturación en pesos colombianos" },
+            { text: "Sin costos ocultos" },
+            { text: "Escalable según tu negocio" },
+          ].map((item) => (
+            <span key={item.text} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Check className="h-3.5 w-3.5 text-primary" />
+              {item.text}
+            </span>
+          ))}
+        </div>
       </div>
+
+
 
       {/* ─── Checkout Dialog ─── */}
       <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
