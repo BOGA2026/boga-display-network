@@ -12,6 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -22,12 +23,13 @@ function useDashboardStats() {
       const businessId = bizRes.data as string | null;
       if (!businessId) return null;
 
-      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes] = await Promise.all([
-        supabase.from("screens").select("id, name, status, last_seen_at, location_id, locations(name)").order("name"),
+      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes] = await Promise.all([
+        supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(name)").order("name"),
         supabase.from("locations").select("id, name", { count: "exact", head: true }),
         supabase.from("content").select("id", { count: "exact", head: true }),
         supabase.from("playlists").select("id", { count: "exact", head: true }),
         supabase.from("devices").select("id, status, last_seen_at, screen_name, paired_at").order("last_seen_at", { ascending: false }).limit(10),
+        supabase.from("subscriptions").select("status, expires_at, grace_period_ends_at").limit(1).maybeSingle(),
       ]);
 
       const screens = screensRes.data || [];
@@ -50,6 +52,7 @@ function useDashboardStats() {
         playlists: playlistsRes.count || 0,
         devices: devicesRes.data || [],
         lastSync,
+        subscription: subRes.data || null,
       };
     },
     refetchInterval: 30000,
@@ -230,6 +233,15 @@ const Dashboard = () => {
 
       <Separator className="bg-border/40" />
 
+      {/* Subscription Alerts */}
+      {stats?.subscription && (
+        <SubscriptionAlerts
+          expiresAt={stats.subscription.expires_at}
+          gracePeriodEndsAt={stats.subscription.grace_period_ends_at}
+          status={stats.subscription.status}
+        />
+      )}
+
       {/* KPI Grid */}
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -352,7 +364,26 @@ const Dashboard = () => {
               />
             ) : (
               <div className="grid gap-2 sm:grid-cols-2">
-                {stats.screens.map((screen: any, i: number) => (
+                {stats.screens.map((screen: any, i: number) => {
+                  const licenseStatus = screen.license_status || "active";
+                  const statusColor = licenseStatus === "active" 
+                    ? screen.status === "online" ? "bg-primary" : "bg-muted-foreground/40"
+                    : licenseStatus === "suspended" ? "bg-destructive" 
+                    : "bg-yellow-500";
+                  const badgeClass = licenseStatus === "suspended"
+                    ? "bg-destructive/15 text-destructive"
+                    : licenseStatus === "pending" 
+                    ? "bg-yellow-500/15 text-yellow-400"
+                    : screen.status === "online"
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted text-muted-foreground";
+                  const badgeLabel = licenseStatus === "suspended"
+                    ? "Suscripción vencida"
+                    : licenseStatus === "pending"
+                    ? "Pendiente"
+                    : screen.status === "online" ? "En línea" : "Offline";
+
+                  return (
                   <div
                     key={screen.id}
                     className="flex items-center gap-3 rounded-lg border border-border/30 bg-secondary/30 p-3 transition-all hover:border-primary/30 animate-fade-in"
@@ -362,7 +393,7 @@ const Dashboard = () => {
                       <Monitor className="h-5 w-5 text-muted-foreground" />
                       <span className={cn(
                         "absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full ring-2 ring-card",
-                        screen.status === "online" ? "bg-primary" : "bg-muted-foreground/40"
+                        statusColor
                       )} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -379,14 +410,13 @@ const Dashboard = () => {
                     </div>
                     <span className={cn(
                       "rounded-full px-2 py-0.5 text-[9px] font-semibold",
-                      screen.status === "online"
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
+                      badgeClass
                     )}>
-                      {screen.status === "online" ? "En línea" : "Offline"}
+                      {badgeLabel}
                     </span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
