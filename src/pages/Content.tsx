@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import MenuTemplateEditor from "@/components/content/MenuTemplateEditor";
 
 interface ContentItem {
   id: string;
@@ -51,13 +52,6 @@ const TYPE_ICONS: Record<string, typeof ImageIcon> = {
   html: Code2,
   audio: Music,
 };
-
-const TEMPLATES = [
-  { id: "promo-banner", name: "Banner Promocional", description: "Diseño para ofertas y descuentos", icon: LayoutTemplate },
-  { id: "menu-board", name: "Menú Digital", description: "Tabla de precios para restaurantes", icon: Layers },
-  { id: "info-screen", name: "Pantalla Informativa", description: "Datos y estadísticas en tiempo real", icon: LayoutTemplate },
-  { id: "welcome-display", name: "Pantalla de Bienvenida", description: "Mensaje de bienvenida con branding", icon: Layers },
-];
 
 const SAMPLE_CONTENT = [
   { name: "Promo Helado Premium", type: "image", url: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=1920&q=80" },
@@ -441,42 +435,13 @@ const Content = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ========== Template Dialog ========== */}
-      <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
-        <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-display text-lg">Plantillas</DialogTitle>
-            <DialogDescription>Selecciona una plantilla prediseñada para empezar rápido.</DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-2 gap-3 py-4">
-            {TEMPLATES.map((tpl) => (
-              <button
-                key={tpl.id}
-                className="group flex flex-col items-center gap-3 rounded-xl border border-border/50 p-5 text-center transition-all hover:border-primary/40 hover:bg-primary/5 hover:glow-primary-sm"
-                onClick={() => {
-                  toast({ title: "Plantilla seleccionada", description: `"${tpl.name}" — personalización próximamente.` });
-                  setTemplateOpen(false);
-                }}
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary group-hover:gradient-primary group-hover:text-primary-foreground transition-all">
-                  <tpl.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{tpl.name}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{tpl.description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setTemplateOpen(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* ========== Menu Template Editor ========== */}
+      <MenuTemplateEditor
+        open={templateOpen}
+        onOpenChange={setTemplateOpen}
+        onSaved={fetchContent}
+        getBusinessId={getBusinessId}
+      />
     </div>
   );
 };
