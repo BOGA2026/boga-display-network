@@ -48,20 +48,25 @@ const plans = [
     name: "Crecimiento Comercial",
     ideal: "Negocios que quieren vender más activamente.",
     setup: "$2.900.000",
-    monthly: "$690.000",
+    monthly: "$299.000",
     monthlyLabel: "COP / mes",
     highlighted: true,
     badge: "MÁS ELEGIDO POR RESTAURANTES",
     includesFrom: "Todo lo de Impulso Visual más:",
     features: [
-      "Rediseño estratégico del menú",
-      "Fotografías optimizadas",
-      "Animaciones promocionales",
+      "Rediseño estratégico del menú digital",
+      "Optimización visual de productos",
+      "Imágenes generadas con IA a partir de fotografías reales",
       "Programación automática por horarios",
-      "Promociones destacadas",
-      "2 actualizaciones mensuales",
-      "Optimización continua",
+      "Promociones destacadas en pantalla",
+      "1 actualización mensual de precios o productos",
+      "Optimización continua del contenido",
     ],
+    monthlyDetail: {
+      title: null,
+      options: [],
+      note: "Las imágenes se optimizan a partir de fotografías reales proporcionadas por el cliente.",
+    },
   },
   {
     id: "dominio",
@@ -271,7 +276,7 @@ const Studio = () => {
                     </ul>
                   </div>
 
-                  {/* Monthly detail (Impulso only) */}
+                  {/* Monthly detail */}
                   {"monthlyDetail" in plan && plan.monthlyDetail && (
                     <div className="mt-6">
                       <div
@@ -281,21 +286,27 @@ const Studio = () => {
                           border: "1px solid hsl(260 15% 20%)",
                         }}
                       >
-                        <p className="text-sm font-semibold text-foreground mb-2">
-                          Tu mensualidad incluye:
-                        </p>
-                        <p className="text-sm font-medium text-foreground/90 mb-2">
-                          {plan.monthlyDetail.title}
-                        </p>
-                        <ul className="space-y-1.5 ml-1">
-                          {plan.monthlyDetail.options.map((opt: string) => (
-                            <li key={opt} className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/60" />
-                              {opt}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mt-3 text-xs text-muted-foreground/70 italic leading-relaxed">
+                        {plan.monthlyDetail.title && (
+                          <>
+                            <p className="text-sm font-semibold text-foreground mb-2">
+                              Tu mensualidad incluye:
+                            </p>
+                            <p className="text-sm font-medium text-foreground/90 mb-2">
+                              {plan.monthlyDetail.title}
+                            </p>
+                          </>
+                        )}
+                        {plan.monthlyDetail.options.length > 0 && (
+                          <ul className="space-y-1.5 ml-1">
+                            {plan.monthlyDetail.options.map((opt: string) => (
+                              <li key={opt} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/60" />
+                                {opt}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <p className={`text-xs text-muted-foreground/70 italic leading-relaxed ${plan.monthlyDetail.options.length > 0 ? "mt-3" : ""}`}>
                           {plan.monthlyDetail.note}
                         </p>
                       </div>
