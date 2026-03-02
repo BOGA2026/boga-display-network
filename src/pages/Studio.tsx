@@ -19,21 +19,29 @@ const plans = [
   {
     id: "impulso",
     name: "Impulso Visual",
-    ideal: "Restaurantes que inician con menú digital profesional.",
+    ideal: "Restaurantes y cafés que quieren empezar con un menú digital profesional.",
     setup: "$990.000",
-    monthly: "$290.000",
-    monthlyLabel: "COP / mes",
+    monthly: "$99.000",
+    monthlyLabel: "COP / mes por pantalla",
     highlighted: false,
     badge: null,
     includesFrom: null,
     features: [
-      "Diseño de carta digital",
-      "Adaptación a pantallas",
-      "Configuración visual inicial",
-      "Programación básica",
-      "1 actualización mensual",
-      "Soporte creativo",
+      "Diseño profesional de carta digital",
+      "Adaptación visual a tus pantallas",
+      "Configuración inicial del sistema",
+      "Programación básica de contenidos",
+      "Plataforma Visualia activa 24/7",
+      "Soporte técnico remoto",
     ],
+    monthlyDetail: {
+      title: "1 ajuste mensual de tu menú",
+      options: [
+        "Actualización de precios",
+        "Cambio o actualización de productos",
+      ],
+      note: "Las fotografías y contenidos del menú deben ser suministrados por el cliente.",
+    },
   },
   {
     id: "crecimiento",
@@ -262,6 +270,37 @@ const Studio = () => {
                       ))}
                     </ul>
                   </div>
+
+                  {/* Monthly detail (Impulso only) */}
+                  {"monthlyDetail" in plan && plan.monthlyDetail && (
+                    <div className="mt-6">
+                      <div
+                        className="rounded-xl px-5 py-4"
+                        style={{
+                          background: "hsl(260 20% 12%)",
+                          border: "1px solid hsl(260 15% 20%)",
+                        }}
+                      >
+                        <p className="text-sm font-semibold text-foreground mb-2">
+                          Tu mensualidad incluye:
+                        </p>
+                        <p className="text-sm font-medium text-foreground/90 mb-2">
+                          {plan.monthlyDetail.title}
+                        </p>
+                        <ul className="space-y-1.5 ml-1">
+                          {plan.monthlyDetail.options.map((opt: string) => (
+                            <li key={opt} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/60" />
+                              {opt}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-3 text-xs text-muted-foreground/70 italic leading-relaxed">
+                          {plan.monthlyDetail.note}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* CTA */}
                   <Button
