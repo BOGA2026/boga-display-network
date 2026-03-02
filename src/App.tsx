@@ -21,6 +21,8 @@ import Player from "./pages/Player";
 import Landing from "./pages/Landing";
 import Pricing from "./pages/Pricing";
 import Studio from "./pages/Studio";
+import ScreensList from "./pages/digital-signage/ScreensList";
+import ScreenDetail from "./pages/digital-signage/ScreenDetail";
 
 const queryClient = new QueryClient();
 
@@ -38,9 +40,10 @@ const App = () => (
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
           <Route path="/player/:deviceId" element={<Player />} />
+          <Route path="/digital-signage/screens" element={<ScreensList />} />
+          <Route path="/digital-signage/screens/:screenId" element={<ScreenDetail />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
-            
             <Route path="pantallas" element={<Screens />} />
             <Route path="contenido" element={<Content />} />
             <Route path="playlists" element={<Playlists />} />
