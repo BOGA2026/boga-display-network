@@ -7,74 +7,72 @@ import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
   Check,
-  Target,
-  ShieldCheck,
-  Crown,
+  Monitor,
+  Paintbrush,
+  Star,
   Receipt,
+  ShieldCheck,
   ScaleIcon,
 } from "lucide-react";
 
 const plans = [
   {
     id: "impulso",
-    name: "Impulso",
-    tagline: "Ideal para restaurantes y cafés que quieren empezar a vender con pantallas digitales.",
+    name: "Impulso Visual",
+    ideal: "Restaurantes que inician con menú digital profesional.",
     setup: "$990.000",
     monthly: "$290.000",
-    monthlyLabel: "COP por pantalla",
+    monthlyLabel: "COP / mes",
     highlighted: false,
     badge: null,
     includesFrom: null,
     features: [
-      "Diseño profesional de carta digital",
-      "Configuración inicial del sistema",
-      "Adaptación visual de productos",
-      "Programación básica de contenidos",
+      "Diseño de carta digital",
+      "Adaptación a pantallas",
+      "Configuración visual inicial",
+      "Programación básica",
       "1 actualización mensual",
-      "Soporte técnico remoto",
-      "Plataforma Visualia activa 24/7",
+      "Soporte creativo",
     ],
   },
   {
     id: "crecimiento",
-    name: "Crecimiento",
-    tagline: "Optimiza tu menú y aumenta ventas automáticamente.",
+    name: "Crecimiento Comercial",
+    ideal: "Negocios que quieren vender más activamente.",
     setup: "$2.900.000",
     monthly: "$690.000",
-    monthlyLabel: "COP",
+    monthlyLabel: "COP / mes",
     highlighted: true,
     badge: "MÁS ELEGIDO POR RESTAURANTES",
-    includesFrom: "Incluye todo lo del Plan Impulso más:",
+    includesFrom: "Todo lo de Impulso Visual más:",
     features: [
       "Rediseño estratégico del menú",
-      "Fotografías optimizadas para venta",
+      "Fotografías optimizadas",
       "Animaciones promocionales",
-      "Estrategia de productos destacados",
       "Programación automática por horarios",
-      "Promociones inteligentes",
+      "Promociones destacadas",
       "2 actualizaciones mensuales",
-      "Optimización continua de contenido",
+      "Optimización continua",
     ],
   },
   {
     id: "dominio",
-    name: "Dominio",
-    tagline: "Para marcas con múltiples sedes que buscan control total y crecimiento constante.",
+    name: "Dominio de Marca",
+    ideal: "Cadenas o marcas en expansión.",
     setup: "Desde $5.900.000",
     monthly: "Desde $1.490.000",
-    monthlyLabel: "COP",
+    monthlyLabel: "COP / mes",
     highlighted: false,
     badge: null,
-    includesFrom: "Incluye todo lo del Plan Crecimiento más:",
+    includesFrom: "Todo lo de Crecimiento Comercial más:",
     features: [
-      "Gestión multi-sede sincronizada",
-      "Producción audiovisual promocional",
-      "Campañas estacionales",
-      "Videos comerciales para pantallas",
+      "Gestión multi-sede",
+      "Producción audiovisual",
+      "Campañas comerciales",
+      "Videos promocionales",
       "Actualizaciones ilimitadas",
       "Estrategia visual continua",
       "Prioridad en soporte",
-      "Escalabilidad nacional",
     ],
   },
 ];
@@ -86,11 +84,34 @@ const Studio = () => {
     <PremiumBackground>
       <LandingHeader />
 
-      {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-36 md:pt-44">
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
-          <div className="absolute left-1/2 top-24 h-80 w-80 -translate-x-1/2 rounded-full opacity-20 blur-[120px]" style={{ background: "hsl(270 100% 50%)" }} />
-          <div className="absolute left-1/3 top-48 h-56 w-56 rounded-full opacity-15 blur-[90px]" style={{ background: "hsl(290 100% 50%)" }} />
+      {/* ─── BLOCK 1: Visualia Software Reference ─── */}
+      <section className="relative px-6 pt-36 md:pt-44">
+        <div className="mx-auto max-w-3xl">
+          <div
+            className="flex items-start gap-4 rounded-xl border px-6 py-5"
+            style={{
+              borderColor: "hsl(260 15% 22%)",
+              background: "hsl(260 20% 10% / 0.6)",
+            }}
+          >
+            <Monitor className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Ya controlas tus pantallas con Visualia
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                La plataforma Visualia te permite administrar tus pantallas remotamente desde la nube.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BLOCK 2: Visualia Studio ─── */}
+      {/* Hero */}
+      <section className="relative overflow-hidden px-6 pb-10 pt-16 md:pt-20">
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 600 }}>
+          <div className="absolute left-1/2 top-16 h-72 w-72 -translate-x-1/2 rounded-full opacity-15 blur-[120px]" style={{ background: "hsl(270 100% 50%)" }} />
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
@@ -102,23 +123,68 @@ const Studio = () => {
               color: "hsl(280 100% 70%)",
             }}
           >
-            <Crown className="h-4 w-4" />
-            Visualia Studio
+            <Paintbrush className="h-4 w-4" />
+            Servicio de creación de contenido
           </span>
 
           <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
-            Convierte tus pantallas en{" "}
-            <span className="text-gradient-primary">vendedores automáticos.</span>
+            Ahora hagamos que tus pantallas{" "}
+            <span className="text-gradient-primary">realmente vendan.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Visualia muestra el contenido correcto en el momento correcto para aumentar tu ticket promedio dentro del local.
+            Visualia Studio es nuestro servicio especializado de creación de contenido para pantallas digitales.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── Explanation Card ─── */}
+      <section className="px-6 pb-8">
+        <div className="mx-auto max-w-3xl">
+          <div
+            className="rounded-2xl border p-8 text-center md:p-10"
+            style={{
+              borderColor: "hsl(270 100% 50% / 0.15)",
+              background: "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 9%) 100%)",
+            }}
+          >
+            <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+              Este es un <span className="font-semibold text-foreground">servicio adicional</span> a la plataforma Visualia.
+              <br />
+              Aquí no pagas por pantallas.
+              <br />
+              Nos enfocamos en diseñar el contenido que verán tus clientes para{" "}
+              <span className="font-semibold text-foreground">mejorar su decisión de compra.</span>
+            </p>
+
+            <div
+              className="mx-auto mt-8 max-w-lg rounded-xl border px-6 py-5"
+              style={{
+                borderColor: "hsl(270 100% 50% / 0.3)",
+                background: "hsl(270 100% 50% / 0.06)",
+              }}
+            >
+              <p className="text-lg font-bold leading-snug text-foreground md:text-xl">
+                No importa si tienes 1 o 100 pantallas.
+                <br />
+                <span className="text-gradient-primary">Lo importante es qué muestran.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Pre-plans context ─── */}
+      <section className="px-6 pb-6 pt-10">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+            Visualia Studio desarrolla el <span className="font-semibold text-foreground">concepto visual, diseño y estrategia de contenido</span> para tus menús digitales y promociones.
           </p>
         </div>
       </section>
 
       {/* ─── Plans ─── */}
-      <section className="px-6 py-20 md:py-28">
+      <section className="px-6 py-16 md:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
             {plans.map((plan) => (
@@ -144,23 +210,28 @@ const Studio = () => {
                 <div className="relative">
                   {plan.badge && (
                     <div className="mb-5">
-                      <Badge className="gradient-primary-vibrant border-0 px-5 py-1.5 text-sm font-bold text-primary-foreground shadow-lg">
+                      <Badge className="gradient-primary-vibrant border-0 px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-lg">
+                        <Star className="mr-1.5 h-3 w-3" />
                         {plan.badge}
                       </Badge>
                     </div>
                   )}
 
-                  <h3 className={`font-display text-3xl md:text-4xl font-bold text-foreground ${plan.highlighted ? "text-gradient-primary" : ""}`}>
-                    Plan {plan.name}
+                  <h3 className={`font-display text-2xl font-bold text-foreground md:text-3xl ${plan.highlighted ? "text-gradient-primary" : ""}`}>
+                    {plan.name}
                   </h3>
-                  <p className="mt-3 text-base md:text-lg leading-relaxed text-muted-foreground">{plan.tagline}</p>
+
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground/70">Ideal para:</span>{" "}
+                    {plan.ideal}
+                  </p>
 
                   {/* Pricing */}
-                  <div className="mt-8 space-y-3">
+                  <div className="mt-7 space-y-3">
                     <div>
-                      <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Setup</span>
-                      <p className="font-display text-3xl md:text-4xl font-bold text-foreground">
-                        {plan.setup} <span className="text-base font-normal text-muted-foreground">COP</span>
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Inversión inicial</span>
+                      <p className="font-display text-2xl font-bold text-foreground md:text-3xl">
+                        {plan.setup} <span className="text-sm font-normal text-muted-foreground">COP</span>
                       </p>
                     </div>
                     <div
@@ -170,22 +241,22 @@ const Studio = () => {
                         border: plan.highlighted ? "1px solid hsl(270 100% 50% / 0.2)" : "1px solid hsl(260 15% 16%)",
                       }}
                     >
-                      <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Mensual</span>
-                      <p className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                        {plan.monthly} <span className="text-sm font-normal text-muted-foreground">{plan.monthlyLabel}</span>
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Servicio mensual</span>
+                      <p className="font-display text-xl font-bold text-foreground md:text-2xl">
+                        {plan.monthly} <span className="text-xs font-normal text-muted-foreground">{plan.monthlyLabel}</span>
                       </p>
                     </div>
                   </div>
 
                   {/* Features */}
-                  <div className="mt-8">
+                  <div className="mt-7">
                     {plan.includesFrom && (
-                      <p className="mb-4 text-sm font-semibold text-primary">{plan.includesFrom}</p>
+                      <p className="mb-3 text-xs font-semibold text-primary">{plan.includesFrom}</p>
                     )}
-                    <ul className="space-y-3">
+                    <ul className="space-y-2.5">
                       {plan.features.map((f) => (
-                        <li key={f} className="flex items-start gap-3 text-base md:text-lg text-foreground">
-                          <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary icon-neon" />
+                        <li key={f} className="flex items-start gap-2.5 text-sm text-foreground md:text-base">
+                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
                           {f}
                         </li>
                       ))}
@@ -195,7 +266,7 @@ const Studio = () => {
                   {/* CTA */}
                   <Button
                     size="lg"
-                    className={`mt-10 w-full text-base font-bold uppercase tracking-wide ${
+                    className={`mt-8 w-full text-sm font-bold ${
                       plan.highlighted
                         ? "gradient-primary-vibrant cta-pulse btn-glow border-0 text-primary-foreground"
                         : "border-primary/30 bg-transparent text-foreground hover:bg-primary/10"
@@ -203,7 +274,7 @@ const Studio = () => {
                     variant={plan.highlighted ? "default" : "outline"}
                     onClick={() => setChatOpen(true)}
                   >
-                    Hablar con un experto
+                    Quiero mejorar mis pantallas
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -218,26 +289,12 @@ const Studio = () => {
               { icon: ShieldCheck, text: "Sin costos ocultos" },
               { icon: ScaleIcon, text: "Escalable según tu negocio" },
             ].map((item) => (
-              <span key={item.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span key={item.text} className="flex items-center gap-2 text-xs text-muted-foreground">
                 <item.icon className="h-4 w-4 text-primary" />
                 {item.text}
               </span>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ─── Confidence Block ─── */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <Target className="mx-auto mb-5 h-8 w-8 text-primary icon-neon" />
-          <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
-            Tus pantallas deberían vender,{" "}
-            <span className="text-gradient-primary">no solo mostrar.</span>
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-            Visualia transforma tus pantallas en herramientas activas de venta que influyen en la decisión del cliente mientras compra.
-          </p>
         </div>
       </section>
 
@@ -251,19 +308,32 @@ const Studio = () => {
               background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)",
             }}
           >
-            <div className="pointer-events-none absolute inset-0 opacity-20" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50%) 0%, transparent 70%)" }} />
+            <div className="pointer-events-none absolute inset-0 opacity-15" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50%) 0%, transparent 70%)" }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
                 Empieza a vender más desde tu propia pantalla.
               </h2>
-              <Button
-                size="lg"
-                className="mt-8 gradient-primary-vibrant cta-pulse btn-glow border-0 px-10 text-lg font-bold uppercase tracking-wide text-primary-foreground"
-                onClick={() => setChatOpen(true)}
-              >
-                Hablar con un experto
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <p className="mx-auto mt-4 max-w-md text-base text-muted-foreground">
+                Hablemos sobre cómo mejorar el contenido de tus pantallas.
+              </p>
+              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                <Button
+                  size="lg"
+                  className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-10 text-base font-bold text-primary-foreground"
+                  onClick={() => setChatOpen(true)}
+                >
+                  Quiero mejorar mis pantallas
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-primary/30 bg-transparent text-foreground hover:bg-primary/10"
+                  onClick={() => setChatOpen(true)}
+                >
+                  Asesoría personalizada
+                </Button>
+              </div>
             </div>
           </div>
         </div>
