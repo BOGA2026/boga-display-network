@@ -55,7 +55,7 @@ function getPrice(screens: number) {
 }
 
 function getStorage(screens: number) {
-  return `${Math.min(Math.ceil(screens / 5) * 5, 20)} GB`;
+  return `${Math.min(Math.ceil(screens / 10), 20)} GB`;
 }
 
 const included = [
