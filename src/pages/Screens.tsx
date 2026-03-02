@@ -34,6 +34,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -69,6 +70,9 @@ interface Location {
 interface Subscription {
   screens_count: number;
   plan: string;
+  status: string;
+  expires_at: string | null;
+  grace_period_ends_at: string | null;
 }
 
 // Validation helpers
@@ -83,6 +87,8 @@ const Screens = () => {
   const [saving, setSaving] = useState(false);
   const [successScreen, setSuccessScreen] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [subscriptionGateOpen, setSubscriptionGateOpen] = useState(false);
+  const [limitGateOpen, setLimitGateOpen] = useState(false);
   const { toast } = useToast();
 
   // Form state
@@ -116,7 +122,7 @@ const Screens = () => {
     const [screensRes, locationsRes, subRes] = await Promise.all([
       supabase.from("screens").select("*").order("created_at", { ascending: false }),
       supabase.from("locations").select("id, name").eq("business_id", businessId),
-      supabase.from("subscriptions").select("screens_count, plan").eq("business_id", businessId).maybeSingle(),
+      supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
     ]);
 
     setScreens(screensRes.data ?? []);
@@ -125,9 +131,28 @@ const Screens = () => {
     setLoading(false);
   };
 
-  const isAtLimit = () => {
+  const hasActiveSubscription = () => {
     if (!subscription) return false;
+    if (subscription.status === "suspended" || subscription.status === "inactive") return false;
+    return subscription.status === "active";
+  };
+
+  const isAtLimit = () => {
+    if (!subscription) return true;
     return screens.length >= subscription.screens_count;
+  };
+
+  const handleAddScreenClick = () => {
+    if (!hasActiveSubscription()) {
+      setSubscriptionGateOpen(true);
+      return;
+    }
+    if (isAtLimit()) {
+      setLimitGateOpen(true);
+      return;
+    }
+    resetForm();
+    setDialogOpen(true);
   };
 
   const isOnline = (lastSeen: string | null) => {
@@ -328,34 +353,30 @@ const Screens = () => {
         </div>
       )}
 
+      {/* Subscription status alerts */}
+      {subscription && (
+        <div className="mb-6">
+          <SubscriptionAlerts
+            expiresAt={subscription.expires_at}
+            gracePeriodEndsAt={subscription.grace_period_ends_at}
+            status={subscription.status}
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display text-2xl font-bold">Pantallas</h1>
           <p className="text-sm text-muted-foreground">Gestiona tus pantallas de señalización digital</p>
         </div>
-        {isAtLimit() ? (
-          <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-secondary/60 px-4 py-2.5 text-sm">
-            <AlertTriangle className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Has alcanzado el límite de pantallas de tu plan</span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-2 border-primary/40 text-primary hover:bg-primary/10 text-xs"
-              onClick={() => window.location.href = "/dashboard/suscripcion"}
-            >
-              Actualizar plan
-            </Button>
-          </div>
-        ) : (
-          <Button
-            onClick={() => { resetForm(); setDialogOpen(true); }}
-            className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            <Plus className="h-4 w-4" />
-            Agregar pantalla
-          </Button>
-        )}
+        <Button
+          onClick={handleAddScreenClick}
+          className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          <Plus className="h-4 w-4" />
+          Agregar pantalla
+        </Button>
       </div>
 
       {/* Content */}
@@ -442,7 +463,7 @@ const Screens = () => {
             Conecta tu primera pantalla para comenzar a gestionar tu red de señalización digital.
           </p>
           <Button
-            onClick={() => { resetForm(); setDialogOpen(true); }}
+            onClick={handleAddScreenClick}
             className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
             size="lg"
           >
@@ -622,6 +643,58 @@ const Screens = () => {
               onClick={() => deleteConfirmId && handleDeleteScreen(deleteConfirmId)}
             >
               Eliminar pantalla
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── SUBSCRIPTION GATE DIALOG ─── */}
+      <Dialog open={subscriptionGateOpen} onOpenChange={setSubscriptionGateOpen}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-accent" />
+              Primero debes activar tu suscripción
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground pt-2">
+              Para agregar pantallas primero debes comprar la cantidad de licencias que necesitas en la sección Suscripción.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 pt-3">
+            <Button variant="ghost" className="flex-1" onClick={() => setSubscriptionGateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+              onClick={() => { setSubscriptionGateOpen(false); window.location.href = "/dashboard/suscripcion"; }}
+            >
+              Ir a Suscripción
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── LIMIT REACHED DIALOG ─── */}
+      <Dialog open={limitGateOpen} onOpenChange={setLimitGateOpen}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-accent" />
+              Has alcanzado el límite de pantallas
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground pt-2">
+              Has alcanzado el límite de pantallas según tu suscripción. Para agregar más pantallas, actualiza tu plan o adquiere licencias adicionales.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 pt-3">
+            <Button variant="ghost" className="flex-1" onClick={() => setLimitGateOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+              onClick={() => { setLimitGateOpen(false); window.location.href = "/dashboard/suscripcion"; }}
+            >
+              Actualizar plan
             </Button>
           </div>
         </DialogContent>

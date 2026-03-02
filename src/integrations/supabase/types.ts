@@ -633,36 +633,48 @@ export type Database = {
       }
       screens: {
         Row: {
+          activated_at: string | null
           created_at: string
           device_token: string | null
           id: string
           last_seen_at: string | null
+          license_status: string
           location_id: string
           name: string
+          payment_expires_at: string | null
           schedule_version: number
           status: string
+          subscription_id: string | null
           updated_at: string
         }
         Insert: {
+          activated_at?: string | null
           created_at?: string
           device_token?: string | null
           id?: string
           last_seen_at?: string | null
+          license_status?: string
           location_id: string
           name: string
+          payment_expires_at?: string | null
           schedule_version?: number
           status?: string
+          subscription_id?: string | null
           updated_at?: string
         }
         Update: {
+          activated_at?: string | null
           created_at?: string
           device_token?: string | null
           id?: string
           last_seen_at?: string | null
+          license_status?: string
           location_id?: string
           name?: string
+          payment_expires_at?: string | null
           schedule_version?: number
           status?: string
+          subscription_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -673,6 +685,13 @@ export type Database = {
             referencedRelation: "locations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "screens_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subscriptions: {
@@ -680,6 +699,8 @@ export type Database = {
           billing_cycle: string
           business_id: string
           created_at: string
+          expires_at: string | null
+          grace_period_ends_at: string | null
           id: string
           next_billing_date: string
           plan: string
@@ -693,6 +714,8 @@ export type Database = {
           billing_cycle?: string
           business_id: string
           created_at?: string
+          expires_at?: string | null
+          grace_period_ends_at?: string | null
           id?: string
           next_billing_date?: string
           plan?: string
@@ -706,6 +729,8 @@ export type Database = {
           billing_cycle?: string
           business_id?: string
           created_at?: string
+          expires_at?: string | null
+          grace_period_ends_at?: string | null
           id?: string
           next_billing_date?: string
           plan?: string
