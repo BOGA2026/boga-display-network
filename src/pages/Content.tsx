@@ -59,6 +59,13 @@ const TEMPLATES = [
   { id: "welcome-display", name: "Pantalla de Bienvenida", description: "Mensaje de bienvenida con branding", icon: Layers },
 ];
 
+const SAMPLE_CONTENT = [
+  { name: "Promo Helado Premium", type: "image", url: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=1920&q=80" },
+  { name: "Menú Restaurante", type: "image", url: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1920&q=80" },
+  { name: "Oferta del Día", type: "image", url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=80" },
+  { name: "Bebidas Especiales", type: "image", url: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=1920&q=80" },
+];
+
 const Content = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,8 +76,18 @@ const Content = () => {
   const [contentName, setContentName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [loadingSamples, setLoadingSamples] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const getBusinessId = async (): Promise<string | null> => {
+    const { data, error } = await supabase.rpc("get_user_business_id");
+    if (error || !data) {
+      toast({ title: "No estás asociado a un negocio", description: "Regístrate o contacta al administrador.", variant: "destructive" });
+      return null;
+    }
+    return data;
+  };
 
   useEffect(() => {
     fetchContent();
@@ -106,25 +123,40 @@ const Content = () => {
     if (file) handleFileSelect(file);
   };
 
+  const handleAddSampleContent = async () => {
+    setLoadingSamples(true);
+    const businessId = await getBusinessId();
+    if (!businessId) { setLoadingSamples(false); return; }
+
+    const inserts = SAMPLE_CONTENT.map((s) => ({
+      name: s.name,
+      type: s.type,
+      file_url: s.url,
+      business_id: businessId,
+    }));
+
+    const { error } = await supabase.from("content").insert(inserts);
+    setLoadingSamples(false);
+
+    if (error) {
+      toast({ title: "Error al agregar contenido de prueba", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Contenido de prueba agregado", description: `${SAMPLE_CONTENT.length} archivos añadidos.` });
+    fetchContent();
+  };
+
   const handleUpload = async () => {
     if (!selectedFile || !contentName.trim() || !selectedType) return;
 
     setUploading(true);
 
-    // Get user's business_id
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("business_id")
-      .maybeSingle();
-
-    if (!profile?.business_id) {
-      toast({ title: "No estás asociado a un negocio", variant: "destructive" });
-      setUploading(false);
-      return;
-    }
+    const businessId = await getBusinessId();
+    if (!businessId) { setUploading(false); return; }
 
     const ext = selectedFile.name.split(".").pop();
-    const filePath = `${profile.business_id}/${crypto.randomUUID()}.${ext}`;
+    const filePath = `${businessId}/${crypto.randomUUID()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("media")
@@ -142,7 +174,7 @@ const Content = () => {
       name: contentName.trim(),
       type: selectedType,
       file_url: urlData.publicUrl,
-      business_id: profile.business_id,
+      business_id: businessId,
     });
 
     setUploading(false);
@@ -169,7 +201,16 @@ const Content = () => {
           <p className="text-sm text-muted-foreground">Gestiona el contenido multimedia de tus pantallas</p>
         </div>
         {hasContent && (
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            <Button
+              variant="outline"
+              onClick={handleAddSampleContent}
+              disabled={loadingSamples}
+              className="gap-2 border-accent/40 text-accent-foreground hover:bg-accent/10"
+            >
+              <Layers className="h-4 w-4" />
+              {loadingSamples ? "Agregando…" : "Contenido de prueba"}
+            </Button>
             <Button
               variant="outline"
               onClick={() => setTemplateOpen(true)}
@@ -252,6 +293,16 @@ const Content = () => {
             >
               <FileUp className="h-5 w-5" />
               Agregar contenido
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleAddSampleContent}
+              disabled={loadingSamples}
+              className="gap-2 border-accent/40 text-accent-foreground hover:bg-accent/10 px-8 py-3 text-base"
+              size="lg"
+            >
+              <Layers className="h-5 w-5" />
+              {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
             <Button
               variant="outline"
