@@ -23,6 +23,7 @@ import Pricing from "./pages/Pricing";
 import Studio from "./pages/Studio";
 import ScreensList from "./pages/digital-signage/ScreensList";
 import ScreenDetail from "./pages/digital-signage/ScreenDetail";
+import VisualiaLunchTemplate from "./templates/lunch-dual/VisualiaLunchTemplate";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/player/:deviceId" element={<Player />} />
           <Route path="/digital-signage/screens" element={<ScreensList />} />
           <Route path="/digital-signage/screens/:screenId" element={<ScreenDetail />} />
+          <Route path="/templates/lunch" element={<VisualiaLunchTemplate />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="pantallas" element={<Screens />} />

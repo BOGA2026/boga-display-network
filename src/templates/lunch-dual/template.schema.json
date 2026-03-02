@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "visualia-lunch-dual-layout-v1",
+  "title": "Visualia Lunch Dual Layout Template",
+  "type": "object",
+  "required": ["mode", "brandWord", "titleMain", "titleSecondary", "recommendationText", "recommendationPrice", "heroImage", "theme", "typography", "sections"],
+  "definitions": {
+    "item": {
+      "type": "object",
+      "required": ["name", "description", "price"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "price": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#([A-Fa-f0-9]{6})$"
+    }
+  },
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["horizontal", "vertical"]
+    },
+    "brandWord": { "type": "string", "minLength": 1 },
+    "titleMain": { "type": "string", "minLength": 1 },
+    "titleSecondary": { "type": "string" },
+    "recommendationText": { "type": "string", "minLength": 1 },
+    "recommendationPrice": { "type": "string", "minLength": 1 },
+    "heroImage": { "type": "string", "format": "uri" },
+    "badgeImage": { "type": "string", "format": "uri" },
+    "theme": {
+      "type": "object",
+      "required": ["bg", "panel", "primary", "accent", "text", "muted"],
+      "properties": {
+        "bg": { "$ref": "#/definitions/hexColor" },
+        "panel": { "$ref": "#/definitions/hexColor" },
+        "primary": { "$ref": "#/definitions/hexColor" },
+        "accent": { "$ref": "#/definitions/hexColor" },
+        "text": { "$ref": "#/definitions/hexColor" },
+        "muted": { "$ref": "#/definitions/hexColor" }
+      },
+      "additionalProperties": false
+    },
+    "typography": {
+      "type": "object",
+      "required": ["fontFamily"],
+      "properties": {
+        "fontFamily": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "sections": {
+      "type": "object",
+      "required": ["main", "drinks"],
+      "properties": {
+        "main": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/item" },
+          "minItems": 1
+        },
+        "drinks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/item" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

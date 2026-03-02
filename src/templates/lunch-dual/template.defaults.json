@@ -1,0 +1,36 @@
+{
+  "mode": "horizontal",
+  "brandWord": "FUEGO",
+  "titleMain": "Menú del Día",
+  "titleSecondary": "Cocina de autor · Ingredientes frescos",
+  "recommendationText": "Recomendación del Chef",
+  "recommendationPrice": "$38.900",
+  "heroImage": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+  "badgeImage": "",
+  "theme": {
+    "bg": "#0F0A1A",
+    "panel": "#1A1228",
+    "primary": "#C084FC",
+    "accent": "#F59E0B",
+    "text": "#F5F0FF",
+    "muted": "#8B7FA8"
+  },
+  "typography": {
+    "fontFamily": "Inter, system-ui, sans-serif"
+  },
+  "sections": {
+    "main": [
+      { "name": "Lomo en Costra de Hierbas", "description": "Reducción de vino tinto, puré de papa trufado y vegetales asados de temporada", "price": "$42.900" },
+      { "name": "Risotto de Camarones", "description": "Arroz carnaroli, camarones tigre, parmesano 24 meses, aceite de albahaca", "price": "$38.500" },
+      { "name": "Pollo Confitado al Limón", "description": "Muslo confitado 6 horas, ensalada mediterránea, pan de ajo artesanal", "price": "$29.900" },
+      { "name": "Bowl Vegano Power", "description": "Quinoa, aguacate, garbanzos crujientes, kale, aderezo tahini-miso", "price": "$26.500" },
+      { "name": "Pasta Trufa Negra", "description": "Tagliatelle fresca, crema de trufa negra, champiñones silvestres", "price": "$35.900" }
+    ],
+    "drinks": [
+      { "name": "Limonada de Maracuyá", "description": "Natural, hierbabuena fresca", "price": "$9.500" },
+      { "name": "Cold Brew Especiado", "description": "Café de origen, canela, cardamomo", "price": "$12.900" },
+      { "name": "Agua Mineral Artesanal", "description": "Con o sin gas, 500ml", "price": "$7.200" },
+      { "name": "Jugo Verde Detox", "description": "Espinaca, manzana verde, jengibre, limón", "price": "$11.500" }
+    ]
+  }
+}

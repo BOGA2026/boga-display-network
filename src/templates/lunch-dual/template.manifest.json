@@ -1,0 +1,23 @@
+{
+  "id": "visualia-lunch-dual-layout-v1",
+  "name": "Lunch Dual Layout",
+  "description": "Plantilla de menú profesional para digital signage con layouts horizontal (1920×1080) y vertical (1080×1920). Personalización completa de colores, tipografía, imágenes, textos y precios.",
+  "version": "1.0.0",
+  "category": "food-menu",
+  "tags": ["menu", "digital-signage", "restaurant", "horizontal", "vertical"],
+  "thumbnail": "src/templates/lunch-dual/thumbnail.png",
+  "componentPath": "src/templates/lunch-dual/VisualiaLunchTemplate.tsx",
+  "schemaPath": "src/templates/lunch-dual/template.schema.json",
+  "defaultsPath": "src/templates/lunch-dual/template.defaults.json",
+  "canvas": {
+    "horizontal": { "width": 1920, "height": 1080 },
+    "vertical": { "width": 1080, "height": 1920 }
+  },
+  "supports": {
+    "imageReplace": true,
+    "colorCustomize": true,
+    "fontCustomize": true,
+    "layoutVariants": ["horizontal", "vertical"]
+  },
+  "status": "active"
+}
