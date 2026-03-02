@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { mockScreens, type ScreenData } from "@/data/mockScreens";
+import { supabase } from "@/integrations/supabase/client";
 import ScreenDetailKpis from "@/components/digital-signage/ScreenDetailKpis";
 import ScreenPreview from "@/components/digital-signage/ScreenPreview";
 import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
@@ -24,18 +25,70 @@ const statusBadge = {
   warning: { icon: AlertTriangle, label: "Warning", cls: "text-amber-400 bg-amber-400/10" },
 } as const;
 
+function mapDbScreenToScreenData(dbScreen: any, locationName?: string): ScreenData {
+  return {
+    id: dbScreen.id,
+    name: dbScreen.name,
+    status: (dbScreen.status === "online" ? "online" : "offline") as ScreenData["status"],
+    lastSyncAt: dbScreen.last_seen_at || dbScreen.created_at,
+    location: {
+      lat: 4.711,
+      lng: -74.072,
+      label: locationName || "Sin ubicación",
+    },
+    storageUsedGb: 0,
+    storageTotalGb: 8,
+    volume: 50,
+    brightness: 70,
+    adaptiveBrightness: false,
+    sleepMode: false,
+    autoReboot: false,
+    timezone: "America/Bogota",
+    orientation: "landscape",
+    displayMode: "fill",
+    tags: [],
+    currentContent: {
+      assetName: "Sin contenido",
+      thumbnailUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80",
+      aspectRatio: "16:9",
+    },
+    schedule: [],
+  };
+}
+
 export default function ScreenDetail() {
   const { screenId } = useParams<{ screenId: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-
-  const initial = useMemo(() => mockScreens.find((s) => s.id === screenId), [screenId]);
-  const [screen, setScreen] = useState<ScreenData | null>(initial ?? null);
+  const [screen, setScreen] = useState<ScreenData | null>(null);
+  const [fromDashboard, setFromDashboard] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 400);
-    return () => clearTimeout(t);
-  }, []);
+    async function load() {
+      // Try mock data first
+      const mock = mockScreens.find((s) => s.id === screenId);
+      if (mock) {
+        setScreen(mock);
+        setIsLoading(false);
+        return;
+      }
+
+      // Try Supabase
+      setFromDashboard(true);
+      const { data: dbScreen } = await supabase
+        .from("screens")
+        .select("*, locations(name)")
+        .eq("id", screenId!)
+        .maybeSingle();
+
+      if (dbScreen) {
+        const locName = (dbScreen as any).locations?.name;
+        setScreen(mapDbScreenToScreenData(dbScreen, locName));
+      }
+      setIsLoading(false);
+    }
+    load();
+  }, [screenId]);
 
   if (isLoading) {
     return (
@@ -54,12 +107,12 @@ export default function ScreenDetail() {
   if (!screen) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-32 text-center">
-        <h2 className="text-xl font-bold text-foreground">Screen not found</h2>
+        <h2 className="text-xl font-bold text-foreground">Pantalla no encontrada</h2>
         <p className="text-sm text-muted-foreground">
-          The screen you're looking for doesn't exist or was deleted.
+          La pantalla que buscas no existe o fue eliminada.
         </p>
-        <Button variant="outline" onClick={() => navigate("/digital-signage/screens")}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to screens
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Volver
         </Button>
       </div>
     );
@@ -67,15 +120,15 @@ export default function ScreenDetail() {
 
   const st = statusBadge[screen.status];
   const StatusIcon = st.icon;
+  const backPath = fromDashboard ? "/dashboard/pantallas" : "/digital-signage/screens";
 
   const handleChange = (patch: Partial<ScreenData>) => {
     setScreen((prev) => (prev ? { ...prev, ...patch } : prev));
-    // Optimistic – in production this would call an API
   };
 
   const handleDelete = () => {
-    toast({ title: "Screen deleted", description: `${screen.name} has been removed.` });
-    navigate("/digital-signage/screens");
+    toast({ title: "Pantalla eliminada", description: `${screen.name} ha sido removida.` });
+    navigate(backPath);
   };
 
   return (
@@ -84,10 +137,10 @@ export default function ScreenDetail() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm">
           <Link
-            to="/digital-signage/screens"
+            to={backPath}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            Screens
+            Pantallas
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground truncate max-w-[200px]">{screen.name}</span>
@@ -99,7 +152,7 @@ export default function ScreenDetail() {
 
         <Button size="sm" className="gap-1.5 gradient-primary">
           <Replace className="h-4 w-4" />
-          Replace Content
+          Reemplazar contenido
         </Button>
       </div>
 
@@ -113,7 +166,7 @@ export default function ScreenDetail() {
           <div className="glass-card rounded-xl overflow-hidden">
             <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
               <MapPin className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Location</h3>
+              <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
             </div>
             <div className="flex h-40 items-center justify-center bg-muted/30 text-sm text-muted-foreground">
               <div className="text-center">

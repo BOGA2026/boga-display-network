@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -89,6 +90,7 @@ const Screens = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [subscriptionGateOpen, setSubscriptionGateOpen] = useState(false);
   const [limitGateOpen, setLimitGateOpen] = useState(false);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   // Form state
@@ -398,7 +400,7 @@ const Screens = () => {
             {screens.map((screen) => {
               const online = isOnline(screen.last_seen_at);
               return (
-                <div key={screen.id} className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 px-5 py-4 hover:bg-secondary/20 transition-colors">
+                <div key={screen.id} className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 px-5 py-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}>
                   {/* Name */}
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/60">
