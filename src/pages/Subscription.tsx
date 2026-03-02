@@ -55,10 +55,10 @@ function getPrice(screens: number) {
 }
 
 function getStorage(screens: number) {
-  if (screens <= 5) return "10 GB";
-  if (screens <= 20) return "50 GB";
-  if (screens <= 50) return "150 GB";
-  return "500 GB";
+  if (screens <= 5) return "5 GB";
+  if (screens <= 20) return "10 GB";
+  if (screens <= 50) return "15 GB";
+  return "20 GB";
 }
 
 const included = [

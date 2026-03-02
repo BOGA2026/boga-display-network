@@ -68,7 +68,7 @@ const Pricing = () => {
       perScreen: annual ? Math.round(perScreen * 0.8) : perScreen,
       total: annual ? Math.round(annualTotal / 12) : monthly,
       savings: annual ? Math.round(monthly * 12 - annualTotal) : 0,
-      storage: screens <= 5 ? "10 GB" : screens <= 20 ? "50 GB" : screens <= 50 ? "150 GB" : "500 GB",
+      storage: screens <= 5 ? "5 GB" : screens <= 20 ? "10 GB" : screens <= 50 ? "15 GB" : "20 GB",
     };
   }, [screens, annual]);
 
