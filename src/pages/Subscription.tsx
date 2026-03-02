@@ -341,12 +341,7 @@ const Subscription = () => {
           </button>
         </div>
 
-        {/* Info text below toggle */}
-        <p className="text-base text-foreground/70 max-w-2xl">
-          Visualia incluye dos soluciones:{" "}
-          <span className="text-white font-semibold">Software Visualia</span> controla tus pantallas —{" "}
-          <span className="text-white font-semibold">Visualia Studio</span> diseña el contenido que se muestra en ellas.
-        </p>
+
       </div>
 
       {/* ─── SOFTWARE VISUALIA SECTION ─── */}
