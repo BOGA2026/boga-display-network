@@ -20,14 +20,13 @@ import {
   Code2,
   Music,
   FileUp,
-  LayoutTemplate,
   Layers,
   X,
   Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import MenuTemplateEditor from "@/components/content/MenuTemplateEditor";
+
 
 interface ContentItem {
   id: string;
@@ -64,7 +63,7 @@ const Content = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [templateOpen, setTemplateOpen] = useState(false);
+  
   const [uploading, setUploading] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [contentName, setContentName] = useState("");
@@ -206,14 +205,6 @@ const Content = () => {
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
             <Button
-              variant="outline"
-              onClick={() => setTemplateOpen(true)}
-              className="gap-2 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
-            >
-              <LayoutTemplate className="h-4 w-4" />
-              Usar plantilla
-            </Button>
-            <Button
               onClick={() => { resetUploadForm(); setUploadOpen(true); }}
               className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2 px-5 font-semibold"
             >
@@ -297,15 +288,6 @@ const Content = () => {
             >
               <Layers className="h-5 w-5" />
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setTemplateOpen(true)}
-              className="gap-2 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary px-8 py-3 text-base"
-              size="lg"
-            >
-              <LayoutTemplate className="h-5 w-5" />
-              Usar plantilla
             </Button>
           </div>
         </div>
@@ -435,13 +417,6 @@ const Content = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ========== Menu Template Editor ========== */}
-      <MenuTemplateEditor
-        open={templateOpen}
-        onOpenChange={setTemplateOpen}
-        onSaved={fetchContent}
-        getBusinessId={getBusinessId}
-      />
     </div>
   );
 };
