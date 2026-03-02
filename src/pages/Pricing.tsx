@@ -68,7 +68,7 @@ const Pricing = () => {
       perScreen: annual ? Math.round(perScreen * 0.8) : perScreen,
       total: annual ? Math.round(annualTotal / 12) : monthly,
       savings: annual ? Math.round(monthly * 12 - annualTotal) : 0,
-      storage: `${Math.min(Math.ceil(screens / 5) * 5, 20)} GB`,
+      storage: `${Math.min(Math.ceil(screens / 10), 20)} GB`,
     };
   }, [screens, annual]);
 
