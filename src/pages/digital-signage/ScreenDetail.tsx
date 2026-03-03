@@ -174,20 +174,30 @@ export default function ScreenDetail() {
               <MapPin className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
             </div>
-            <div className="relative h-48 w-full">
-              <iframe
-                title="Ubicación de pantalla"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${screen.location.lng - 0.005}%2C${screen.location.lat - 0.003}%2C${screen.location.lng + 0.005}%2C${screen.location.lat + 0.003}&layer=mapnik&marker=${screen.location.lat}%2C${screen.location.lng}`}
-              />
-              <div className="absolute bottom-2 left-2 rounded bg-background/80 px-2 py-1 text-xs text-foreground backdrop-blur-sm">
-                {screen.location.label} · {screen.location.lat.toFixed(4)}, {screen.location.lng.toFixed(4)}
+            {screen.location.lat !== 0 && screen.location.lng !== 0 ? (
+              <div className="relative h-48 w-full">
+                <iframe
+                  title="Ubicación de pantalla"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${screen.location.lng - 0.005}%2C${screen.location.lat - 0.003}%2C${screen.location.lng + 0.005}%2C${screen.location.lat + 0.003}&layer=mapnik&marker=${screen.location.lat}%2C${screen.location.lng}`}
+                />
+                <div className="absolute bottom-2 left-2 rounded bg-background/80 px-2 py-1 text-xs text-foreground backdrop-blur-sm">
+                  {screen.location.label} · {screen.location.lat.toFixed(4)}, {screen.location.lng.toFixed(4)}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex h-40 items-center justify-center bg-muted/30 text-sm text-muted-foreground">
+                <div className="text-center">
+                  <MapPin className="mx-auto mb-1 h-6 w-6 text-primary/60" />
+                  <p>{screen.location.label}</p>
+                  <p className="text-xs text-muted-foreground/70">Coordenadas no configuradas</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Preview */}
