@@ -84,8 +84,12 @@ export default function ScreenDetail() {
         .maybeSingle();
 
       if (dbScreen) {
-        const locName = (dbScreen as any).locations?.name;
-        setScreen(mapDbScreenToScreenData(dbScreen, locName));
+        const loc = (dbScreen as any).locations;
+        setScreen(mapDbScreenToScreenData(dbScreen, {
+          name: loc?.name,
+          latitude: loc?.latitude,
+          longitude: loc?.longitude,
+        }));
       }
       setIsLoading(false);
     }
