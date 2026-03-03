@@ -145,14 +145,7 @@ const Screens = () => {
   };
 
   const handleAddScreenClick = () => {
-    if (!hasActiveSubscription()) {
-      setSubscriptionGateOpen(true);
-      return;
-    }
-    if (isAtLimit()) {
-      setLimitGateOpen(true);
-      return;
-    }
+    // Always allow opening the dialog — demo screens don't require subscription
     resetForm();
     setDialogOpen(true);
   };
