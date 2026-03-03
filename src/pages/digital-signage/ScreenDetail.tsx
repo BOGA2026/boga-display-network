@@ -26,16 +26,16 @@ const statusBadge = {
   warning: { icon: AlertTriangle, label: "Warning", cls: "text-amber-400 bg-amber-400/10" },
 } as const;
 
-function mapDbScreenToScreenData(dbScreen: any, locationName?: string): ScreenData {
+function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; latitude?: number; longitude?: number }): ScreenData {
   return {
     id: dbScreen.id,
     name: dbScreen.name,
     status: (dbScreen.status === "online" ? "online" : "offline") as ScreenData["status"],
     lastSyncAt: dbScreen.last_seen_at || dbScreen.created_at,
     location: {
-      lat: 4.711,
-      lng: -74.072,
-      label: locationName || "Sin ubicación",
+      lat: locationData?.latitude ?? 0,
+      lng: locationData?.longitude ?? 0,
+      label: locationData?.name || "Sin ubicación",
     },
     storageUsedGb: 0,
     storageTotalGb: 8,
