@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Camera, RefreshCw, RotateCcw, Trash2, Tag, X } from "lucide-react";
+import { Camera, RefreshCw, RotateCcw, Trash2, Tag, X, Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -12,13 +12,18 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { ScreenData } from "@/data/mockScreens";
 
 interface Props {
   screen: ScreenData;
   onChange: (patch: Partial<ScreenData>) => void;
   onDelete: () => void;
+  onSyncComplete?: (data: any) => void;
 }
 
 function useDebounce<T>(value: T, ms = 500): T {
@@ -30,10 +35,40 @@ function useDebounce<T>(value: T, ms = 500): T {
   return debounced;
 }
 
-export default function ScreenSettingsPanel({ screen, onChange, onDelete }: Props) {
+async function invokeScreenCommand(action: string, body: Record<string, unknown>) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("No autenticado");
+
+  const res = await fetch(
+    `https://ovuhtroiuuqsiltqgqpp.supabase.co/functions/v1/screen-commands/${action}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export default function ScreenSettingsPanel({ screen, onChange, onDelete, onSyncComplete }: Props) {
   const [name, setName] = useState(screen.name);
   const debouncedName = useDebounce(name, 800);
   const isFirst = useRef(true);
+
+  const [syncing, setSyncing] = useState(false);
+  const [sendingRecovery, setSendingRecovery] = useState(false);
+  const [takingScreenshot, setTakingScreenshot] = useState(false);
+  const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isFirst.current) { isFirst.current = false; return; }
@@ -49,6 +84,85 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete }: Prop
     if (t && !screen.tags.includes(t)) onChange({ tags: [...screen.tags, t] });
     setTagInput("");
   }, [tagInput, screen.tags, onChange]);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const result = await invokeScreenCommand("sync", { screen_id: screen.id });
+      
+      // Update local state with sync results
+      onChange({
+        status: result.status as ScreenData["status"],
+        lastSyncAt: result.last_sync_at,
+      });
+
+      onSyncComplete?.(result);
+
+      toast({
+        title: "Sincronización completada",
+        description: `Estado: ${result.status === "online" ? "En línea" : "Desconectada"}${
+          result.current_playlist ? ` · Playlist: ${result.current_playlist.name}` : ""
+        }`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error al sincronizar",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleRecovery = async () => {
+    setSendingRecovery(true);
+    setRecoveryDialogOpen(false);
+    try {
+      await invokeScreenCommand("send", {
+        screen_id: screen.id,
+        command: "RECOVERY_MODE_ON",
+        payload: { duration_minutes: 5 },
+      });
+      toast({
+        title: "Modo recuperación activado",
+        description: "La pantalla entrará en modo recuperación por 5 minutos.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error al enviar comando",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSendingRecovery(false);
+    }
+  };
+
+  const handleScreenshot = async () => {
+    setTakingScreenshot(true);
+    try {
+      await invokeScreenCommand("send", {
+        screen_id: screen.id,
+        command: "TAKE_SCREENSHOT",
+        payload: {},
+      });
+      toast({
+        title: "Captura solicitada",
+        description: "El dispositivo tomará una captura en su próximo checkin.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error al solicitar captura",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setTakingScreenshot(false);
+    }
+  };
+
+  const anyLoading = syncing || sendingRecovery || takingScreenshot;
 
   return (
     <aside className="glass-card rounded-xl space-y-5 p-4">
@@ -143,19 +257,69 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete }: Prop
       </fieldset>
 
       <div className="space-y-2 pt-2 border-t border-border">
-        <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-          <Camera className="h-4 w-4" /> Captura de pantalla
-        </Button>
-        <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-          <RefreshCw className="h-4 w-4" /> Sincronizar datos
-        </Button>
-        <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-          <RotateCcw className="h-4 w-4" /> Pantalla de recuperación
+        {/* Screenshot */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start gap-2"
+          disabled={anyLoading}
+          onClick={handleScreenshot}
+        >
+          {takingScreenshot ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          {takingScreenshot ? "Solicitando captura…" : "Captura de pantalla"}
         </Button>
 
+        {/* Sync */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start gap-2"
+          disabled={anyLoading}
+          onClick={handleSync}
+        >
+          {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          {syncing ? "Sincronizando…" : "Sincronizar datos"}
+        </Button>
+
+        {/* Recovery */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start gap-2"
+          disabled={anyLoading}
+          onClick={() => setRecoveryDialogOpen(true)}
+        >
+          {sendingRecovery ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+          {sendingRecovery ? "Enviando comando…" : "Pantalla de recuperación"}
+        </Button>
+
+        {/* Recovery confirmation dialog */}
+        <Dialog open={recoveryDialogOpen} onOpenChange={setRecoveryDialogOpen}>
+          <DialogContent className="surface-elevated border-border/30 sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="font-display text-lg">¿Activar modo recuperación?</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                La pantalla <strong className="text-foreground">{screen.name}</strong> entrará en modo recuperación durante 5 minutos. El contenido actual se pausará.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-3 pt-2">
+              <Button variant="ghost" className="flex-1" onClick={() => setRecoveryDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 bg-amber-600 text-white hover:bg-amber-700"
+                onClick={handleRecovery}
+              >
+                Activar recuperación
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" className="w-full justify-start gap-2">
+            <Button variant="destructive" size="sm" className="w-full justify-start gap-2" disabled={anyLoading}>
               <Trash2 className="h-4 w-4" /> Eliminar pantalla
             </Button>
           </AlertDialogTrigger>

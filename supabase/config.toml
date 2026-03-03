@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.chat]
 verify_jwt = false
+
+[functions.screen-commands]
+verify_jwt = false
