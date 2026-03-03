@@ -193,6 +193,13 @@ export default function ScreenDetail() {
           onDelete={handleDelete}
         />
       </div>
+      {/* Assign Playlist Dialog */}
+      <AssignPlaylistDialog
+        open={assignOpen}
+        onOpenChange={setAssignOpen}
+        screenId={screen.id}
+        screenName={screen.name}
+      />
     </div>
   );
 }
