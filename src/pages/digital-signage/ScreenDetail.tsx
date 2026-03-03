@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   ChevronRight,
@@ -18,6 +18,7 @@ import ScreenDetailKpis from "@/components/digital-signage/ScreenDetailKpis";
 import ScreenPreview from "@/components/digital-signage/ScreenPreview";
 import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
 import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPanel";
+import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 
 const statusBadge = {
   online: { icon: Wifi, label: "Online", cls: "text-emerald-400 bg-emerald-400/10" },
