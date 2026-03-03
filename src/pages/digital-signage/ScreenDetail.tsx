@@ -191,6 +191,16 @@ export default function ScreenDetail() {
           screen={screen}
           onChange={handleChange}
           onDelete={handleDelete}
+          onSyncComplete={(data) => {
+            if (data.current_playlist) {
+              handleChange({
+                currentContent: {
+                  ...screen.currentContent,
+                  assetName: data.current_playlist.name,
+                },
+              });
+            }
+          }}
         />
       </div>
       {/* Assign Playlist Dialog */}
