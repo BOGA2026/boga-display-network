@@ -63,6 +63,7 @@ export default function ScreenDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [screen, setScreen] = useState<ScreenData | null>(null);
   const [fromDashboard, setFromDashboard] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -151,7 +152,7 @@ export default function ScreenDetail() {
           </span>
         </div>
 
-        <Button size="sm" className="gap-1.5 gradient-primary">
+        <Button size="sm" className="gap-1.5 gradient-primary" onClick={() => setAssignOpen(true)}>
           <Replace className="h-4 w-4" />
           Reemplazar contenido
         </Button>
