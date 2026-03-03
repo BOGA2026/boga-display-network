@@ -670,6 +670,50 @@ export type Database = {
           },
         ]
       }
+      screen_commands: {
+        Row: {
+          command: string
+          created_at: string
+          executed_at: string | null
+          expires_at: string | null
+          id: string
+          payload: Json | null
+          result: Json | null
+          screen_id: string
+          status: string
+        }
+        Insert: {
+          command: string
+          created_at?: string
+          executed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payload?: Json | null
+          result?: Json | null
+          screen_id: string
+          status?: string
+        }
+        Update: {
+          command?: string
+          created_at?: string
+          executed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payload?: Json | null
+          result?: Json | null
+          screen_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screen_commands_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       screens: {
         Row: {
           activated_at: string | null
@@ -677,6 +721,7 @@ export type Database = {
           device_token: string | null
           id: string
           last_seen_at: string | null
+          last_sync_at: string | null
           license_status: string
           location_id: string
           name: string
@@ -692,6 +737,7 @@ export type Database = {
           device_token?: string | null
           id?: string
           last_seen_at?: string | null
+          last_sync_at?: string | null
           license_status?: string
           location_id: string
           name: string
@@ -707,6 +753,7 @@ export type Database = {
           device_token?: string | null
           id?: string
           last_seen_at?: string | null
+          last_sync_at?: string | null
           license_status?: string
           location_id?: string
           name?: string
