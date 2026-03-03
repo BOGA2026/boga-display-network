@@ -229,6 +229,8 @@ export type Database = {
           business_id: string
           created_at: string
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           updated_at: string
         }
@@ -237,6 +239,8 @@ export type Database = {
           business_id: string
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           updated_at?: string
         }
@@ -245,6 +249,8 @@ export type Database = {
           business_id?: string
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           updated_at?: string
         }
