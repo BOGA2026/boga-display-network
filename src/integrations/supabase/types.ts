@@ -223,6 +223,75 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          business_id: string
+          created_at: string
+          currency: string
+          due_date: string
+          id: string
+          invoice_number: string
+          notes: string | null
+          paid_at: string | null
+          pdf_url: string | null
+          status: string
+          subscription_id: string
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          currency?: string
+          due_date?: string
+          id?: string
+          invoice_number: string
+          notes?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: string
+          subscription_id: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          currency?: string
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          notes?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          status?: string
+          subscription_id?: string
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           address: string | null
@@ -302,6 +371,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          brand: string
+          business_id: string
+          created_at: string
+          exp_month: number
+          exp_year: number
+          id: string
+          is_default: boolean
+          last4: string
+          provider: string
+          provider_ref: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand?: string
+          business_id: string
+          created_at?: string
+          exp_month?: number
+          exp_year?: number
+          id?: string
+          is_default?: boolean
+          last4?: string
+          provider?: string
+          provider_ref?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          business_id?: string
+          created_at?: string
+          exp_month?: number
+          exp_year?: number
+          id?: string
+          is_default?: boolean
+          last4?: string
+          provider?: string
+          provider_ref?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -465,6 +584,50 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prorations: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          period_end: string
+          period_start: string
+          status: string
+          subscription_item_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          status?: string
+          subscription_item_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          status?: string
+          subscription_item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prorations_subscription_item_id_fkey"
+            columns: ["subscription_item_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_items"
             referencedColumns: ["id"]
           },
         ]
@@ -786,8 +949,60 @@ export type Database = {
           },
         ]
       }
+      subscription_items: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          screen_id: string
+          started_at: string
+          status: string
+          subscription_id: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          screen_id: string
+          started_at?: string
+          status?: string
+          subscription_id: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          screen_id?: string
+          started_at?: string
+          status?: string
+          subscription_id?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_items_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_items_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
+          billing_anchor: string
           billing_cycle: string
           business_id: string
           created_at: string
@@ -803,6 +1018,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_anchor?: string
           billing_cycle?: string
           business_id: string
           created_at?: string
@@ -818,6 +1034,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_anchor?: string
           billing_cycle?: string
           business_id?: string
           created_at?: string
