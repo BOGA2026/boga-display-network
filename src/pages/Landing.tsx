@@ -249,7 +249,9 @@ const Landing = () => {
       </section>
 
       {/* Growth Benefits */}
-      <GrowthBenefits />
+      <div ref={growthParallax.ref as any} style={growthParallax.style}>
+        <GrowthBenefits />
+      </div>
 
       {/* Benefits Video — revealed on click */}
       <div
@@ -328,7 +330,9 @@ const Landing = () => {
       </div>
 
       {/* Features */}
-      <FeaturesSection onDemo={() => setChatOpen(true)} />
+      <div ref={featuresParallax.ref as any} style={featuresParallax.style}>
+        <FeaturesSection onDemo={() => setChatOpen(true)} />
+      </div>
 
       {/* How It Works */}
       <section id="how" className="px-4 py-12 md:px-6 md:py-16">
@@ -357,7 +361,9 @@ const Landing = () => {
       </section>
 
       {/* Showcase Carousel */}
-      <ShowcaseCarousel />
+      <div ref={showcaseParallax.ref as any} style={showcaseParallax.style}>
+        <ShowcaseCarousel />
+      </div>
 
       {/* Testimonials */}
       <section id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
