@@ -123,13 +123,13 @@ const Landing = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden px-4 pb-12 pt-24 md:px-6 md:pt-32">
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
           <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
           <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.1, animationDelay: "3s" }} />
         </div>
 
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
             <img src={logoVisualia} alt="Visualia" className="h-[24rem] w-auto md:h-[30rem] lg:h-[36rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
