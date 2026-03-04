@@ -263,6 +263,7 @@ const BasicWeeklyCalendar = ({
                 const { start: startMin, end: endMin } = getLiveTimes(block);
                 const top = (startMin / ZOOM) * SLOT_HEIGHT;
                 const height = ((endMin - startMin) / ZOOM) * SLOT_HEIGHT;
+                console.log("[CalendarBlock]", block.name, "raw_start:", block.start_time, "raw_end:", block.end_time, "parsedStartMin:", startMin, "parsedEndMin:", endMin, "topPx:", top);
                 const layer = layerMap.get(block.layer_id);
                 const color = layer?.color || "#8A00FF";
                 const isSelected = selectedBlockId === block.id;
