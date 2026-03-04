@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Trash2, AlertTriangle, GripHorizontal, HelpCircle } from "lucide-react";
@@ -64,6 +64,7 @@ interface Props {
   onMoveBlock: (id: string, newStart: string, newEnd: string, dayIndex: number) => void;
   onDeleteBlock: (id: string) => void;
   conflicts: Map<string, string[]>;
+  scrollToTime?: string; // HH:MM or HH:MM:SS — scroll here after a new block is added
 }
 
 const BasicWeeklyCalendar = ({
@@ -74,10 +75,20 @@ const BasicWeeklyCalendar = ({
   onMoveBlock,
   onDeleteBlock,
   conflicts,
+  scrollToTime,
 }: Props) => {
   const totalSlots = 24;
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<DragState | null>(null);
+
+  // Auto-scroll to a specific time (e.g. after creating a block)
+  useEffect(() => {
+    if (!scrollToTime || !containerRef.current) return;
+    const mins = timeToMinutes(scrollToTime);
+    const targetY = (mins / ZOOM) * SLOT_HEIGHT;
+    // Scroll so the block is ~100px from the top (below the sticky header)
+    containerRef.current.scrollTo({ top: Math.max(0, targetY - 100), behavior: "smooth" });
+  }, [scrollToTime]);
 
   // Help tooltip state
   const [helpAnchorRect, setHelpAnchorRect] = useState<DOMRect | null>(null);
@@ -263,7 +274,6 @@ const BasicWeeklyCalendar = ({
                 const { start: startMin, end: endMin } = getLiveTimes(block);
                 const top = (startMin / ZOOM) * SLOT_HEIGHT;
                 const height = ((endMin - startMin) / ZOOM) * SLOT_HEIGHT;
-                console.log("[CalendarBlock]", block.name, "raw_start:", block.start_time, "raw_end:", block.end_time, "parsedStartMin:", startMin, "parsedEndMin:", endMin, "topPx:", top);
                 const layer = layerMap.get(block.layer_id);
                 const color = layer?.color || "#8A00FF";
                 const isSelected = selectedBlockId === block.id;

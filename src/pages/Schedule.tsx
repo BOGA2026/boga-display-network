@@ -39,6 +39,7 @@ const Schedule = () => {
   const [isPublished, setIsPublished] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showConflict, setShowConflict] = useState(false);
+  const [scrollToTime, setScrollToTime] = useState<string | undefined>();
 
   const { data: blocks = [], refetch: refetchBlocks } = useScheduleBlocks(selectedScreenId);
 
@@ -94,6 +95,10 @@ const Schedule = () => {
           onSuccess: () => {
             toast({ title: "✓ Programación guardada", description: "El contenido se agregó correctamente." });
             markDirty();
+            // Auto-scroll to the new block's start time
+            setScrollToTime(data.start_time);
+            // Reset after a short delay so re-creating at same time still triggers scroll
+            setTimeout(() => setScrollToTime(undefined), 1000);
           },
         }
       );
@@ -224,6 +229,7 @@ const Schedule = () => {
               onMoveBlock={handleMoveBlock}
               onDeleteBlock={handleDeleteBlock}
               conflicts={conflicts}
+              scrollToTime={scrollToTime}
             />
           </div>
         ) : (
