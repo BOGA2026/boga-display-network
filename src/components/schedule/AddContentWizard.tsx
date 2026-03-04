@@ -149,9 +149,9 @@ const AddContentWizard = ({ open, onOpenChange, playlists, defaultLayerId, onCre
                 ))}
               </div>
 
-              {contentType === "playlist" && playlists.length > 0 && (
+              {playlists.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Elige el contenido</Label>
+                  <Label className="text-sm font-medium">Elige playlist</Label>
                   <Select value={playlistId} onValueChange={setPlaylistId}>
                     <SelectTrigger className="h-12 text-base rounded-xl bg-secondary/40 border-border/50">
                       <SelectValue placeholder="Selecciona…" />
