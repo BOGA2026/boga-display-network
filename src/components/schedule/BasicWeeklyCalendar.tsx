@@ -83,25 +83,24 @@ const BasicWeeklyCalendar = ({
   const [helpAnchorRect, setHelpAnchorRect] = useState<DOMRect | null>(null);
   const [helpVisible, setHelpVisible] = useState(false);
   const helpTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const [sessionDismissed, setSessionDismissed] = useState(false);
 
   const handleBlockMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (dragging || sessionDismissed || getHelpDismissed()) return;
+    if (dragging || getHelpDismissed()) return;
     clearTimeout(helpTimerRef.current);
     const el = e.currentTarget;
     helpTimerRef.current = setTimeout(() => {
       setHelpAnchorRect(el.getBoundingClientRect());
       setHelpVisible(true);
     }, 300);
-  }, [dragging, sessionDismissed]);
+  }, [dragging]);
 
   const handleBlockMouseLeave = useCallback(() => {
     clearTimeout(helpTimerRef.current);
+    setHelpVisible(false);
   }, []);
 
   const handleHelpClose = useCallback(() => {
     setHelpVisible(false);
-    setSessionDismissed(true);
   }, []);
 
   const getBlocksForDay = useCallback(

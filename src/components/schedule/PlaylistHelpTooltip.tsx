@@ -1,15 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { X, RotateCcw, HelpCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import helpResizeGif from "@/assets/help-resize-tutorial.gif";
+import { X, HelpCircle, GripHorizontal, ArrowDown } from "lucide-react";
 
-const STORAGE_KEY = "visualia_resize_help_dismissed";
-const SHOW_DELAY = 300;
+const STORAGE_KEY = "visualia_resize_help_never";
 
-const SUBTITLES = [
-  "Coloca el cursor en el borde inferior",
-  "Haz click y arrastra hacia abajo para extender",
-  "Suelta para guardar",
+const STEPS = [
+  { icon: "grip", text: "Coloca el cursor en el borde inferior del bloque" },
+  { icon: "drag", text: "Haz click y arrastra hacia abajo para extender" },
+  { icon: "done", text: "Suelta para guardar automáticamente" },
 ];
 
 interface Props {
@@ -18,7 +15,7 @@ interface Props {
   onClose: () => void;
 }
 
-function getPreference(): boolean {
+function getNeverShow(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) === "true";
   } catch {
@@ -26,81 +23,45 @@ function getPreference(): boolean {
   }
 }
 
-function setPreference(dismissed: boolean) {
+function setNeverShow(val: boolean) {
   try {
-    localStorage.setItem(STORAGE_KEY, String(dismissed));
+    localStorage.setItem(STORAGE_KEY, String(val));
   } catch {}
 }
 
 const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
-  const [subtitleIdx, setSubtitleIdx] = useState(0);
-  const [dismissed, setDismissed] = useState(getPreference);
-  const [neverShow, setNeverShow] = useState(getPreference);
+  const [stepIdx, setStepIdx] = useState(0);
+  const [neverShow] = useState(getNeverShow);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
-  const tooltipRef = useRef<HTMLDivElement>(null);
 
-  // Cycle subtitles every 2.5s
+  // Cycle steps every 2.5s
   useEffect(() => {
     if (!visible) return;
-    setSubtitleIdx(0);
+    setStepIdx(0);
     intervalRef.current = setInterval(() => {
-      setSubtitleIdx((prev) => (prev + 1) % SUBTITLES.length);
+      setStepIdx((prev) => (prev + 1) % STEPS.length);
     }, 2500);
     return () => clearInterval(intervalRef.current);
   }, [visible]);
 
-  const handleReplay = useCallback(() => {
-    setSubtitleIdx(0);
-    clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setSubtitleIdx((prev) => (prev + 1) % SUBTITLES.length);
-    }, 2500);
-  }, []);
-
   const handleNeverShow = useCallback(() => {
-    setPreference(true);
     setNeverShow(true);
-    setDismissed(true);
     onClose();
   }, [onClose]);
-
-  const handleClose = useCallback(() => {
-    setDismissed(true);
-    onClose();
-  }, [onClose]);
-
-  // Keyboard: H to toggle
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "h" || e.key === "H") {
-        if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-          // Only if not typing in input
-          if ((e.target as HTMLElement)?.tagName !== "INPUT" && (e.target as HTMLElement)?.tagName !== "TEXTAREA") {
-            if (visible) handleClose();
-          }
-        }
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [visible, handleClose]);
 
   if (neverShow || !visible || !anchorRect) return null;
 
-  // Position: prefer right side, fallback left, then above
+  // Position: prefer right side, fallback left
   const gap = 12;
+  const tooltipW = 260;
+  const tooltipH = 260;
   let left = anchorRect.right + gap;
-  let top = anchorRect.top;
-  const tooltipW = 280;
-  const tooltipH = 340;
+  let top = anchorRect.top + anchorRect.height / 2 - tooltipH / 2;
 
   if (left + tooltipW > window.innerWidth - 16) {
     left = anchorRect.left - tooltipW - gap;
   }
-  if (left < 16) {
-    left = anchorRect.left + anchorRect.width / 2 - tooltipW / 2;
-    top = anchorRect.top - tooltipH - gap;
-  }
+  if (left < 16) left = 16;
   if (top < 16) top = 16;
   if (top + tooltipH > window.innerHeight - 16) {
     top = window.innerHeight - tooltipH - 16;
@@ -108,21 +69,20 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
 
   return (
     <div
-      ref={tooltipRef}
       className="fixed z-[100] animate-in fade-in slide-in-from-left-2 duration-200"
       style={{ left, top, width: tooltipW }}
       role="tooltip"
       aria-label="Ayuda para redimensionar bloques"
     >
       <div className="rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden">
-        {/* Header */}
+        {/* Encabezado */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
           <div className="flex items-center gap-1.5">
             <HelpCircle className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-foreground">Cómo extender</span>
+            <span className="text-xs font-bold text-foreground">¿Cómo extender un bloque?</span>
           </div>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
             aria-label="Cerrar ayuda"
           >
@@ -130,34 +90,83 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
           </button>
         </div>
 
-        {/* GIF / Video area */}
-        <div className="relative bg-background/60">
-          <img
-            src={helpResizeGif}
-            alt="Tutorial: arrastra el borde inferior para extender la duración"
-            className="w-full h-auto"
-            loading="lazy"
-          />
-          {/* Subtitle overlay */}
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2">
-            <p className="text-xs font-semibold text-white text-center leading-tight transition-opacity duration-300">
-              {SUBTITLES[subtitleIdx]}
-            </p>
+        {/* Animación visual instructiva */}
+        <div className="relative bg-background/60 px-4 py-4 flex flex-col items-center gap-3">
+          {/* Mini bloque animado */}
+          <div className="w-36 relative">
+            <div
+              className="rounded-lg border-2 border-primary/60 overflow-hidden transition-all duration-700 ease-in-out"
+              style={{
+                height: stepIdx >= 1 ? 80 : 48,
+                background: "linear-gradient(145deg, hsl(var(--primary) / 0.7), hsl(var(--primary) / 0.4))",
+              }}
+            >
+              <div className="px-2 py-1">
+                <div className="text-[10px] font-bold text-primary-foreground truncate">
+                  Mi playlist
+                </div>
+                <div className="text-[9px] text-primary-foreground/80 font-mono">
+                  09:00 – {stepIdx >= 1 ? "11:30" : "10:00"}
+                </div>
+              </div>
+            </div>
+
+            {/* Manija inferior animada */}
+            <div
+              className="absolute left-0 right-0 flex justify-center transition-all duration-700 ease-in-out"
+              style={{ bottom: stepIdx >= 1 ? -4 : 16 - 4 }}
+            >
+              <div className={`
+                flex items-center justify-center rounded-full w-6 h-6 border-2
+                ${stepIdx === 0
+                  ? "border-primary bg-primary/20 animate-pulse"
+                  : stepIdx === 1
+                    ? "border-primary bg-primary shadow-lg shadow-primary/30"
+                    : "border-green-500 bg-green-500/30"
+                }
+                transition-colors duration-300
+              `}>
+                {stepIdx < 2
+                  ? <GripHorizontal className="h-3 w-3 text-primary-foreground" />
+                  : <span className="text-[10px] text-green-400">✓</span>
+                }
+              </div>
+            </div>
+
+            {/* Flecha de arrastre */}
+            {stepIdx === 1 && (
+              <div className="absolute -right-6 top-8 animate-bounce">
+                <ArrowDown className="h-4 w-4 text-primary" />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="px-3 py-2.5 flex items-center justify-between gap-2">
-          <button
-            onClick={handleReplay}
-            className="flex items-center gap-1 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Ver de nuevo
-          </button>
+        {/* Pasos con indicador */}
+        <div className="px-3 py-2.5 border-t border-border/30 space-y-1.5">
+          {STEPS.map((step, i) => (
+            <div
+              key={i}
+              className={`flex items-start gap-2 transition-opacity duration-300 ${
+                i === stepIdx ? "opacity-100" : "opacity-40"
+              }`}
+            >
+              <span className={`
+                flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5
+                ${i === stepIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}
+              `}>
+                {i + 1}
+              </span>
+              <span className="text-[11px] text-foreground leading-tight">{step.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Acciones */}
+        <div className="px-3 py-2 border-t border-border/30 flex justify-end">
           <button
             onClick={handleNeverShow}
-            className="text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             No mostrar otra vez
           </button>
@@ -168,4 +177,4 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
 };
 
 export default PlaylistHelpTooltip;
-export { STORAGE_KEY, getPreference };
+export { STORAGE_KEY, getNeverShow as getPreference };
