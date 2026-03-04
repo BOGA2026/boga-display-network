@@ -75,6 +75,7 @@ const BasicWeeklyCalendar = ({
   onMoveBlock,
   onDeleteBlock,
   conflicts,
+  scrollToTime,
 }: Props) => {
   const totalSlots = 24;
   const containerRef = useRef<HTMLDivElement>(null);
