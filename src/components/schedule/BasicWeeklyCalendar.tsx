@@ -81,6 +81,15 @@ const BasicWeeklyCalendar = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<DragState | null>(null);
 
+  // Auto-scroll to a specific time (e.g. after creating a block)
+  useEffect(() => {
+    if (!scrollToTime || !containerRef.current) return;
+    const mins = timeToMinutes(scrollToTime);
+    const targetY = (mins / ZOOM) * SLOT_HEIGHT;
+    // Scroll so the block is ~100px from the top (below the sticky header)
+    containerRef.current.scrollTo({ top: Math.max(0, targetY - 100), behavior: "smooth" });
+  }, [scrollToTime]);
+
   // Help tooltip state
   const [helpAnchorRect, setHelpAnchorRect] = useState<DOMRect | null>(null);
   const [helpVisible, setHelpVisible] = useState(false);
