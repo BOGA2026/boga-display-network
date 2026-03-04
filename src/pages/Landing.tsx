@@ -22,9 +22,8 @@ const steps = [
 ];
 
 const testimonials = [
-  { name: "María López", role: "Gerente, Café Urbano", quote: "Visualia transformó la manera en que comunicamos nuestras promociones. Las ventas de productos destacados aumentaron un 25%." },
-  { name: "Carlos Méndez", role: "Director, Cadena FreshBite", quote: "Gestionar 12 sucursales desde un solo panel nos ahorra horas cada semana. La sincronización es instantánea." },
-  { name: "Ana Rodríguez", role: "Marketing, Hotel Pacífico", quote: "La programación por horarios es increíble. Nuestros lobbies muestran contenido relevante las 24 horas sin intervención manual." },
+  { name: "Alba Sabogal", role: "Gerente de Operaciones, El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
+  { name: "Diana Duarte", role: "Gerente de Mercadeo, Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
 ];
 
 const Landing = () => {
@@ -356,7 +355,7 @@ const Landing = () => {
           <div className="mb-10 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {testimonials.map((t) => (
               <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
                 <div className="mb-5 flex gap-1">
