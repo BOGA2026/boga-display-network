@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -59,7 +60,6 @@ const CopyToDaysDialog = ({ open, onOpenChange, blocks, onCopy }: Props) => {
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          {/* Source day */}
           <div className="space-y-2">
             <label className="text-sm font-medium">¿De qué día copiar?</label>
             <div className="flex gap-2 flex-wrap">
@@ -86,7 +86,6 @@ const CopyToDaysDialog = ({ open, onOpenChange, blocks, onCopy }: Props) => {
             )}
           </div>
 
-          {/* Target days */}
           {sourceDay !== null && (
             <div className="space-y-2">
               <label className="text-sm font-medium">¿A qué días copiar?</label>
@@ -129,5 +128,3 @@ const CopyToDaysDialog = ({ open, onOpenChange, blocks, onCopy }: Props) => {
 };
 
 export default CopyToDaysDialog;
-
-import { useState } from "react";
