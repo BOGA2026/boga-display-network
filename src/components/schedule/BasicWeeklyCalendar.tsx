@@ -268,14 +268,19 @@ const BasicWeeklyCalendar = ({
             </div>
 
             {/* Hour slots */}
-            <div className="relative">
-              {timeLabels.map((_, i) => (
+            <div style={{ position: 'relative' }}>
+              {timeLabels.map((label, i) => (
                 <div
                   key={i}
                   className="border-b border-border/15"
-                  style={{ height: SLOT_HEIGHT }}
+                  style={{ height: SLOT_HEIGHT, position: 'relative' }}
                   onClick={() => onSelectBlock(null)}
-                />
+                >
+                  {/* Debug hour marker inside each slot */}
+                  <span className="absolute top-0 left-1 text-[9px] text-muted-foreground/30 font-mono pointer-events-none select-none">
+                    {label}
+                  </span>
+                </div>
               ))}
 
               {/* Now indicator line */}
