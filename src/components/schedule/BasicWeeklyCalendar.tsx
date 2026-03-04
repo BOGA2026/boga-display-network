@@ -80,15 +80,24 @@ const BasicWeeklyCalendar = ({
   const totalSlots = 24;
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<DragState | null>(null);
+  const hasScrolledRef = useRef(false);
 
   // Auto-scroll to a specific time (e.g. after creating a block)
   useEffect(() => {
     if (!scrollToTime || !containerRef.current) return;
     const mins = timeToMinutes(scrollToTime);
     const targetY = (mins / ZOOM) * SLOT_HEIGHT;
-    // Scroll so the block is ~100px from the top (below the sticky header)
     containerRef.current.scrollTo({ top: Math.max(0, targetY - 100), behavior: "smooth" });
   }, [scrollToTime]);
+
+  // Initial scroll: jump to earliest block or 8 AM on first load
+  useEffect(() => {
+    if (hasScrolledRef.current || !containerRef.current || blocks.length === 0) return;
+    hasScrolledRef.current = true;
+    const earliestMin = Math.min(...blocks.map(b => timeToMinutes(b.start_time)));
+    const scrollTarget = Math.max(0, (Math.min(earliestMin, 8 * 60) / ZOOM) * SLOT_HEIGHT - 60);
+    containerRef.current.scrollTo({ top: scrollTarget, behavior: "auto" });
+  }, [blocks]);
 
   // Help tooltip state
   const [helpAnchorRect, setHelpAnchorRect] = useState<DOMRect | null>(null);
