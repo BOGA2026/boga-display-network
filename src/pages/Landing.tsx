@@ -355,7 +355,7 @@ const Landing = () => {
           <div className="mb-10 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {testimonials.map((t) => (
               <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
                 <div className="mb-5 flex gap-1">
