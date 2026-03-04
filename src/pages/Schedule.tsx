@@ -39,6 +39,7 @@ const Schedule = () => {
   const [isPublished, setIsPublished] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showConflict, setShowConflict] = useState(false);
+  const [scrollToTime, setScrollToTime] = useState<string | undefined>();
 
   const { data: blocks = [], refetch: refetchBlocks } = useScheduleBlocks(selectedScreenId);
 
