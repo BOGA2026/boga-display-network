@@ -64,6 +64,7 @@ interface Props {
   onMoveBlock: (id: string, newStart: string, newEnd: string, dayIndex: number) => void;
   onDeleteBlock: (id: string) => void;
   conflicts: Map<string, string[]>;
+  scrollToTime?: string; // HH:MM or HH:MM:SS — scroll here after a new block is added
 }
 
 const BasicWeeklyCalendar = ({
