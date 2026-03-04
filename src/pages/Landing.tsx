@@ -14,6 +14,7 @@ import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
+import { useParallax } from "@/hooks/useParallax";
 
 const steps = [
   { num: "01", title: "Empieza con tu CMS", desc: "Regístrate y accede al panel de control. Sube tu contenido multimedia y organízalo." },
@@ -40,6 +41,16 @@ const Landing = () => {
   const mainRef = useRef<HTMLVideoElement>(null);
   const benefitsVideoRef = useRef<HTMLVideoElement>(null);
   const benefitsContainerRef = useRef<HTMLDivElement>(null);
+
+  // Parallax refs for each section
+  const heroParallax = useParallax({ speed: 0.2, direction: "up" });
+  const heroGlowParallax = useParallax({ speed: 0.4, direction: "up" });
+  const growthParallax = useParallax({ speed: 0.12, direction: "up", opacity: true });
+  const featuresParallax = useParallax({ speed: 0.1, direction: "up" });
+  const howParallax = useParallax({ speed: 0.15, direction: "up", opacity: true });
+  const showcaseParallax = useParallax({ speed: 0.08, direction: "up" });
+  const testimonialsParallax = useParallax({ speed: 0.12, direction: "up", opacity: true });
+  const ctaParallax = useParallax({ speed: 0.18, direction: "up", scale: true });
 
   // Try to autoplay with audio; if blocked, keep muted and show prompt
   useEffect(() => {
@@ -112,13 +123,13 @@ const Landing = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden px-4 pb-12 pt-24 md:px-6 md:pt-32">
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700 }}>
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
           <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
           <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.1, animationDelay: "3s" }} />
         </div>
 
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
             <img src={logoVisualia} alt="Visualia" className="h-[24rem] w-auto md:h-[30rem] lg:h-[36rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
@@ -238,7 +249,9 @@ const Landing = () => {
       </section>
 
       {/* Growth Benefits */}
-      <GrowthBenefits />
+      <div ref={growthParallax.ref as any} style={growthParallax.style}>
+        <GrowthBenefits />
+      </div>
 
       {/* Benefits Video — revealed on click */}
       <div
@@ -317,10 +330,12 @@ const Landing = () => {
       </div>
 
       {/* Features */}
-      <FeaturesSection onDemo={() => setChatOpen(true)} />
+      <div ref={featuresParallax.ref as any} style={featuresParallax.style}>
+        <FeaturesSection onDemo={() => setChatOpen(true)} />
+      </div>
 
       {/* How It Works */}
-      <section id="how" className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
         <div className="mx-auto max-w-4xl">
           <div className="mb-10 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
@@ -346,10 +361,12 @@ const Landing = () => {
       </section>
 
       {/* Showcase Carousel */}
-      <ShowcaseCarousel />
+      <div ref={showcaseParallax.ref as any} style={showcaseParallax.style}>
+        <ShowcaseCarousel />
+      </div>
 
       {/* Testimonials */}
-      <section id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
+      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-10 text-center">
@@ -373,7 +390,7 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-12 md:px-6 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
