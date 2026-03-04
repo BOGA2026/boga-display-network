@@ -29,7 +29,7 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>(
     // Center-relative offset: -0.5 to 0.5
     const offset = clamped - 0.5;
 
-    const yShift = offset * speed * windowH * 0.3 * (direction === "up" ? -1 : 1);
+    const yShift = offset * speed * windowH * (direction === "up" ? -1 : 1);
 
     const newStyle: React.CSSProperties = {
       transform: `translate3d(0, ${yShift}px, 0)`,
@@ -37,7 +37,7 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>(
     };
 
     if (scale) {
-      const s = 1 + Math.abs(offset) * 0.03;
+      const s = 1 + Math.abs(offset) * 0.08;
       newStyle.transform = `translate3d(0, ${yShift}px, 0) scale(${s})`;
     }
 
