@@ -142,6 +142,11 @@ const BasicWeeklyCalendar = ({
   ) => {
     e.stopPropagation();
     e.preventDefault();
+    // Hide help tooltip on drag start
+    if (helpVisible) {
+      setHelpVisible(false);
+      clearTimeout(helpTimerRef.current);
+    }
     const block = blocks.find((b) => b.id === blockId);
     if (!block) return;
     const origStart = timeToMinutes(block.start_time);
@@ -286,6 +291,8 @@ const BasicWeeklyCalendar = ({
                       transition: isDraggingThis ? "none" : "top 0.15s ease, height 0.15s ease, box-shadow 0.2s ease",
                     }}
                     onMouseDown={(e) => handleMouseDown(e, block.id, "move", dayIndex)}
+                    onMouseEnter={handleBlockMouseEnter}
+                    onMouseLeave={handleBlockMouseLeave}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectBlock(block.id);
@@ -395,6 +402,23 @@ const BasicWeeklyCalendar = ({
           </div>
         );
       })}
+      {/* Help tooltip */}
+      <PlaylistHelpTooltip
+        anchorRect={helpAnchorRect}
+        visible={helpVisible}
+        onClose={handleHelpClose}
+      />
+
+      {/* Drag hint overlay */}
+      {dragging && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="rounded-full bg-card/95 backdrop-blur-xl border border-border/60 shadow-xl px-4 py-2">
+            <span className="text-xs font-semibold text-foreground">
+              Arrastra el borde para extender
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
