@@ -42,15 +42,15 @@ const Landing = () => {
   const benefitsVideoRef = useRef<HTMLVideoElement>(null);
   const benefitsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Parallax refs for each section
-  const heroParallax = useParallax({ speed: 0.2, direction: "up" });
-  const heroGlowParallax = useParallax({ speed: 0.4, direction: "up" });
-  const growthParallax = useParallax({ speed: 0.12, direction: "up", opacity: true });
-  const featuresParallax = useParallax({ speed: 0.1, direction: "up" });
-  const howParallax = useParallax({ speed: 0.15, direction: "up", opacity: true });
-  const showcaseParallax = useParallax({ speed: 0.08, direction: "up" });
-  const testimonialsParallax = useParallax({ speed: 0.12, direction: "up", opacity: true });
-  const ctaParallax = useParallax({ speed: 0.18, direction: "up", scale: true });
+  // Parallax refs for each section — higher speed = stronger effect
+  const heroParallax = useParallax({ speed: 0.35, direction: "up" });
+  const heroGlowParallax = useParallax({ speed: 0.6, direction: "up" });
+  const growthParallax = useParallax({ speed: 0.2, direction: "up", opacity: true });
+  const featuresParallax = useParallax({ speed: 0.15, direction: "up" });
+  const howParallax = useParallax({ speed: 0.25, direction: "up", opacity: true });
+  const showcaseParallax = useParallax({ speed: 0.12, direction: "down" });
+  const testimonialsParallax = useParallax({ speed: 0.2, direction: "up", opacity: true });
+  const ctaParallax = useParallax({ speed: 0.3, direction: "up", scale: true });
 
   // Try to autoplay with audio; if blocked, keep muted and show prompt
   useEffect(() => {
