@@ -232,7 +232,7 @@ const BasicWeeklyCalendar = ({
     >
       {/* Time column */}
       <div className="sticky left-0 z-20 flex flex-col bg-card/95 backdrop-blur-sm border-r border-border/50" style={{ minWidth: 64 }}>
-        <div className="h-12 border-b border-border/50" />
+        <div className="sticky top-0 z-10 h-12 border-b border-border/50 bg-card/95 backdrop-blur-sm" />
         {timeLabels.map((label, i) => (
           <div
             key={i}
