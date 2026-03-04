@@ -103,14 +103,26 @@ const Schedule = () => {
 
   const handleMoveBlock = useCallback(
     (id: string, newStart: string, newEnd: string, _dayIndex: number) => {
-      upsertBlock.mutate({
-        id,
-        start_time: newStart.length === 5 ? newStart + ":00" : newStart,
-        end_time: newEnd.length === 5 ? newEnd + ":00" : newEnd,
-      });
+      upsertBlock.mutate(
+        {
+          id,
+          start_time: newStart.length === 5 ? newStart + ":00" : newStart,
+          end_time: newEnd.length === 5 ? newEnd + ":00" : newEnd,
+        },
+        {
+          onError: () => {
+            toast({
+              title: "No se pudo guardar el cambio",
+              description: "Intenta de nuevo.",
+              variant: "destructive",
+            });
+            refetchBlocks();
+          },
+        }
+      );
       markDirty();
     },
-    [upsertBlock]
+    [upsertBlock, refetchBlocks]
   );
 
   const handleDeleteBlock = useCallback(
