@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Trash2, AlertTriangle, GripHorizontal, HelpCircle } from "lucide-react";
+import { Trash2, AlertTriangle, GripHorizontal } from "lucide-react";
 import PlaylistHelpTooltip, { getPreference as getHelpDismissed } from "./PlaylistHelpTooltip";
 import {
   Tooltip,
@@ -278,14 +278,29 @@ const BasicWeeklyCalendar = ({
                 />
               ))}
 
+              {/* Now indicator line */}
+              {(() => {
+                const now = new Date();
+                const nowMin = now.getHours() * 60 + now.getMinutes();
+                const nowTop = (nowMin / ZOOM) * SLOT_HEIGHT;
+                return (
+                  <div
+                    className="absolute left-0 right-0 z-30 pointer-events-none"
+                    style={{ top: nowTop }}
+                  >
+                    <div className="flex items-center">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1 shrink-0 shadow-sm" />
+                      <div className="flex-1 h-[2px] bg-red-500/70" />
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Blocks */}
               {dayBlocks.map((block) => {
                 const { start: startMin, end: endMin } = getLiveTimes(block);
                 const top = (startMin / ZOOM) * SLOT_HEIGHT;
                 const height = ((endMin - startMin) / ZOOM) * SLOT_HEIGHT;
-                if (di === 0) { // Log only once per block (first day column)
-                  console.log("[CalRender]", block.name, "raw:", block.start_time, "→", block.end_time, "min:", startMin, "top:", top);
-                }
                 const layer = layerMap.get(block.layer_id);
                 const color = layer?.color || "#8A00FF";
                 const isSelected = selectedBlockId === block.id;
