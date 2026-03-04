@@ -16,7 +16,7 @@ import type { ScheduleLayer } from "@/hooks/useScheduleData";
 const DAYS_LABELS = [
   { value: 1, label: "L" },
   { value: 2, label: "M" },
-  { value: 3, label: "X" },
+  { value: 3, label: "Mi" },
   { value: 4, label: "J" },
   { value: 5, label: "V" },
   { value: 6, label: "S" },
