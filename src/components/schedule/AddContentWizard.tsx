@@ -22,7 +22,7 @@ const CONTENT_TYPES = [
 const DAYS_LABELS = [
   { value: 1, label: "Lunes", short: "L" },
   { value: 2, label: "Martes", short: "M" },
-  { value: 3, label: "Miércoles", short: "X" },
+  { value: 3, label: "Miércoles", short: "Mi" },
   { value: 4, label: "Jueves", short: "J" },
   { value: 5, label: "Viernes", short: "V" },
   { value: 6, label: "Sábado", short: "S" },
