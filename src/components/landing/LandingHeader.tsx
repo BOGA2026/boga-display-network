@@ -10,7 +10,6 @@ const menuItems = [
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "#" },
-      { label: "Retail", href: "#" },
       { label: "Clínicas", href: "#" },
       { label: "Hoteles", href: "#" },
     ],
