@@ -63,6 +63,9 @@ const AddContentWizard = ({ open, onOpenChange, playlists, defaultLayerId, onCre
   const selectWeekend = () => setDays([6, 0]);
 
   const handleCreate = () => {
+    if (!playlistId) {
+      return;
+    }
     onCreateBlock({
       name: name || CONTENT_TYPES.find((c) => c.id === contentType)?.label || "Nuevo contenido",
       playlist_id: playlistId,
