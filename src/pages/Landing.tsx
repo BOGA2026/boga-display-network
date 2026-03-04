@@ -335,7 +335,7 @@ const Landing = () => {
       </div>
 
       {/* How It Works */}
-      <section id="how" className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
         <div className="mx-auto max-w-4xl">
           <div className="mb-10 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
@@ -366,7 +366,7 @@ const Landing = () => {
       </div>
 
       {/* Testimonials */}
-      <section id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
+      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-10 text-center">
@@ -390,7 +390,7 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-12 md:px-6 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
