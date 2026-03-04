@@ -63,6 +63,9 @@ const AddContentWizard = ({ open, onOpenChange, playlists, defaultLayerId, onCre
   const selectWeekend = () => setDays([6, 0]);
 
   const handleCreate = () => {
+    if (!playlistId) {
+      return;
+    }
     onCreateBlock({
       name: name || CONTENT_TYPES.find((c) => c.id === contentType)?.label || "Nuevo contenido",
       playlist_id: playlistId,
@@ -298,6 +301,7 @@ const AddContentWizard = ({ open, onOpenChange, playlists, defaultLayerId, onCre
                 size="lg"
                 className="gradient-primary text-primary-foreground rounded-xl gap-2 text-sm h-12 px-8 glow-primary-sm"
                 onClick={() => setStep(step + 1)}
+                disabled={step === 0 && !playlistId}
               >
                 Siguiente
                 <ChevronRight className="h-4 w-4" />
