@@ -79,6 +79,31 @@ const BasicWeeklyCalendar = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<DragState | null>(null);
 
+  // Help tooltip state
+  const [helpAnchorRect, setHelpAnchorRect] = useState<DOMRect | null>(null);
+  const [helpVisible, setHelpVisible] = useState(false);
+  const helpTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const [sessionDismissed, setSessionDismissed] = useState(false);
+
+  const handleBlockMouseEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragging || sessionDismissed || getHelpDismissed()) return;
+    clearTimeout(helpTimerRef.current);
+    const el = e.currentTarget;
+    helpTimerRef.current = setTimeout(() => {
+      setHelpAnchorRect(el.getBoundingClientRect());
+      setHelpVisible(true);
+    }, 300);
+  }, [dragging, sessionDismissed]);
+
+  const handleBlockMouseLeave = useCallback(() => {
+    clearTimeout(helpTimerRef.current);
+  }, []);
+
+  const handleHelpClose = useCallback(() => {
+    setHelpVisible(false);
+    setSessionDismissed(true);
+  }, []);
+
   const getBlocksForDay = useCallback(
     (dayIndex: number) => blocks.filter((b) => b.days_of_week.includes(dayIndex) && b.is_enabled),
     [blocks]
