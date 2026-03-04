@@ -108,10 +108,6 @@ export function useScheduleBlocks(screenId: string | undefined) {
         playlist: b.playlists,
         layer: b.schedule_layers,
       })) as ScheduleBlock[];
-      // Debug: log raw times from Supabase
-      mapped.forEach(b => {
-        console.log("[ScheduleData] Block:", b.name, "start_time:", b.start_time, "end_time:", b.end_time, "raw_supabase:", data?.find((d: any) => d.id === b.id)?.start_time);
-      });
       return mapped;
     },
   });
