@@ -29,6 +29,7 @@ import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
 import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
 import { WidgetRenderer } from "@/components/editor/WidgetRenderer";
 import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
+import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
 import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -616,6 +617,20 @@ export default function EditorPage() {
                         onChange={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
                       />
                     </>
+                  ) : selectedLayer.type === "widget" && selectedLayer.widgetType && selectedLayer.widgetData ? (
+                    <EditableWidgetPanel
+                      widgetType={selectedLayer.widgetType}
+                      content={selectedLayer.widgetData}
+                      onUpdate={(nextContent) => {
+                        setLayers((prev) =>
+                          prev.map((l) =>
+                            l.id === selectedLayer.id
+                              ? { ...l, widgetData: nextContent }
+                              : l
+                          )
+                        );
+                      }}
+                    />
                   ) : null}
                 </>
               ) : selectedIds.length > 1 ? (
