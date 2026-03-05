@@ -63,6 +63,7 @@ export default function EditorPage() {
   const stageWrapRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedLayer = selectedIds.length === 1 ? layers.find((l) => l.id === selectedIds[0]) ?? null : null;
