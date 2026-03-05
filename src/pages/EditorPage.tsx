@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
   Copy,
+  Clipboard,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -50,13 +51,18 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
   const [layers, setLayers] = useState<LayerItem[]>([]);
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [guides, setGuides] = useState({ v: false, h: false });
+  const [clipboard, setClipboard] = useState<LayerItem[] | null>(null);
+  const [marquee, setMarquee] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const marqueeStart = useRef<{ x: number; y: number } | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
 
-  const selectedLayer = layers.find((l) => l.id === selectedLayerId) ?? null;
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const selectedLayer = selectedIds.length === 1 ? layers.find((l) => l.id === selectedIds[0]) ?? null : null;
 
   const baseResolution = useMemo(() => {
     if (customResolution) return { w: customW, h: customH };
@@ -76,6 +82,8 @@ export default function EditorPage() {
     [baseResolution, zoom, background]
   );
 
+  const scale = zoom / 100;
+
   const addLayer = (name: string, type: LayerType) => {
     const id = crypto.randomUUID();
     const isText = type === "text";
@@ -94,14 +102,14 @@ export default function EditorPage() {
       },
     ]);
     if (isText) {
-      setSelectedLayerId(id);
+      setSelectedIds([id]);
       setTab("settings");
     }
   };
 
   const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
-    if (selectedLayerId === id) setSelectedLayerId(null);
+    setSelectedIds((prev) => prev.filter((sid) => sid !== id));
   };
 
   const updateLayerTextStyle = (id: string, ts: TextStyle) => {
@@ -111,7 +119,7 @@ export default function EditorPage() {
   };
 
   const SNAP = 10;
-  const moveLayer = (id: string, rawX: number, rawY: number) => {
+  const moveLayerSingle = (id: string, rawX: number, rawY: number) => {
     const layer = layers.find((l) => l.id === id);
     if (!layer) return;
     let x = rawX;
@@ -127,6 +135,35 @@ export default function EditorPage() {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, x, y } : l)));
   };
 
+  // Multi-drag: move all selected layers by delta
+  const moveLayerDelta = useCallback((id: string, dx: number, dy: number) => {
+    if (selectedIds.length <= 1) {
+      // Single layer: use absolute positioning with snap
+      setLayers((prev) => {
+        const layer = prev.find((l) => l.id === id);
+        if (!layer) return prev;
+        let x = layer.x + dx;
+        let y = layer.y + dy;
+        const cx = x + layer.w / 2;
+        const cy = y + layer.h / 2;
+        const canvasCx = baseResolution.w / 2;
+        const canvasCy = baseResolution.h / 2;
+        let showV = false, showH = false;
+        if (Math.abs(cx - canvasCx) <= SNAP) { x = Math.round(canvasCx - layer.w / 2); showV = true; }
+        if (Math.abs(cy - canvasCy) <= SNAP) { y = Math.round(canvasCy - layer.h / 2); showH = true; }
+        setGuides({ v: showV, h: showH });
+        return prev.map((l) => (l.id === id ? { ...l, x, y } : l));
+      });
+      return;
+    }
+    // Multi-select: move all selected layers by the same delta
+    setLayers((prev) =>
+      prev.map((l) =>
+        selectedSet.has(l.id) ? { ...l, x: l.x + dx, y: l.y + dy } : l
+      )
+    );
+  }, [selectedIds, selectedSet, baseResolution, SNAP]);
+
   const resizeLayer = (id: string, w: number, h: number) => {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, w, h } : l)));
   };
@@ -141,17 +178,122 @@ export default function EditorPage() {
 
   const handleCanvasClick = useCallback(() => {
     setEditingLayerId(null);
+    setSelectedIds([]);
     setGuides({ v: false, h: false });
   }, []);
 
+  // Marquee selection
+  const intersects = (a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }) =>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  const onCanvasPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    // Only start marquee on blank canvas area
+    if (target !== canvasRef.current) return;
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
+    marqueeStart.current = { x, y };
+    setMarquee({ x, y, w: 0, h: 0 });
+    setSelectedIds([]);
+    setEditingLayerId(null);
+  }, [scale]);
+
+  const onCanvasPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!marqueeStart.current || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) / scale;
+    const cy = (e.clientY - rect.top) / scale;
+    const sx = marqueeStart.current.x;
+    const sy = marqueeStart.current.y;
+    const box = {
+      x: Math.min(sx, cx),
+      y: Math.min(sy, cy),
+      w: Math.abs(cx - sx),
+      h: Math.abs(cy - sy),
+    };
+    setMarquee(box);
+    const hit = layers.filter((l) => intersects(box, l)).map((l) => l.id);
+    setSelectedIds(hit);
+  }, [scale, layers]);
+
+  const onCanvasPointerUp = useCallback(() => {
+    marqueeStart.current = null;
+    setTimeout(() => setMarquee(null), 0);
+  }, []);
+
+  // Copy / Paste
+  const copySelected = useCallback(() => {
+    const picked = layers.filter((l) => selectedSet.has(l.id));
+    if (picked.length) setClipboard(picked.map((l) => ({ ...l })));
+  }, [layers, selectedSet]);
+
+  const pasteClipboard = useCallback(() => {
+    if (!clipboard?.length) return;
+    const pasted = clipboard.map((l, idx) => ({
+      ...l,
+      id: crypto.randomUUID(),
+      x: l.x + 24 + idx * 4,
+      y: l.y + 24 + idx * 4,
+    }));
+    setLayers((prev) => [...prev, ...pasted]);
+    setSelectedIds(pasted.map((p) => p.id));
+  }, [clipboard]);
+
+  const deleteSelected = useCallback(() => {
+    setLayers((prev) => prev.filter((l) => !selectedSet.has(l.id)));
+    setSelectedIds([]);
+  }, [selectedSet]);
+
+  const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === "c") { e.preventDefault(); copySelected(); }
+    if (mod && e.key.toLowerCase() === "v") { e.preventDefault(); pasteClipboard(); }
+    if (e.key === "Delete" || e.key === "Backspace") {
+      if (!editingLayerId) { e.preventDefault(); deleteSelected(); }
+    }
+    // Select all
+    if (mod && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      setSelectedIds(layers.map((l) => l.id));
+    }
+  }, [copySelected, pasteClipboard, deleteSelected, editingLayerId, layers]);
+
+  const handleLayerSelect = useCallback((id: string, additive: boolean) => {
+    if (additive) {
+      setSelectedIds((prev) =>
+        prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+      );
+    } else {
+      setSelectedIds([id]);
+    }
+    const layer = layers.find((l) => l.id === id);
+    if (layer?.type === "text") setTab("settings");
+  }, [layers]);
+
   return (
-    <div className="h-full w-full bg-muted text-foreground">
+    <div className="h-full w-full bg-muted text-foreground" tabIndex={0} onKeyDown={onKeyDown} style={{ outline: "none" }}>
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
         <div className="text-sm text-muted-foreground">
           Layouts &gt; {contentName} &gt; Main scene
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={copySelected}
+            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent"
+            title="Copiar selección (Ctrl+C)"
+          >
+            <Copy className="mr-1 inline h-4 w-4" /> Copiar
+          </button>
+          <button
+            onClick={pasteClipboard}
+            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent"
+            title="Pegar (Ctrl+V)"
+          >
+            <Clipboard className="mr-1 inline h-4 w-4" /> Pegar
+          </button>
+          <span className="mx-1 h-5 w-px bg-border" />
           <button className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent">
             <Save className="mr-1 inline h-4 w-4" /> Guardar
           </button>
@@ -185,37 +327,66 @@ export default function EditorPage() {
 
         {/* Center canvas */}
         <main className="relative overflow-auto bg-muted p-6">
-          <div className="mb-3 flex items-center justify-end gap-2">
-            <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
-              <Undo2 className="h-4 w-4" />
-            </button>
-            <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
-              <Redo2 className="h-4 w-4" />
-            </button>
-            <select
-              value={zoom}
-              onChange={(e) => setZoom(Number(e.target.value))}
-              className="rounded border border-border bg-card px-2 py-1 text-sm"
-            >
-              {[50, 75, 90, 100].map((z) => (
-                <option key={z} value={z}>
-                  {z}%
-                </option>
-              ))}
-            </select>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="text-xs text-muted-foreground">
+              {selectedIds.length > 0
+                ? `${selectedIds.length} capa${selectedIds.length > 1 ? "s" : ""} seleccionada${selectedIds.length > 1 ? "s" : ""}`
+                : "Sin selección"}
+              {clipboard ? ` · ${clipboard.length} en portapapeles` : ""}
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
+                <Undo2 className="h-4 w-4" />
+              </button>
+              <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
+                <Redo2 className="h-4 w-4" />
+              </button>
+              <select
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="rounded border border-border bg-card px-2 py-1 text-sm"
+              >
+                {[50, 75, 90, 100].map((z) => (
+                  <option key={z} value={z}>
+                    {z}%
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div
             ref={stageWrapRef}
             className="inline-block rounded border border-border bg-card shadow-lg"
           >
-            <div style={stageStyle} className="relative overflow-hidden" onClick={handleCanvasClick}>
+            <div
+              ref={canvasRef}
+              style={stageStyle}
+              className="relative overflow-hidden"
+              onClick={handleCanvasClick}
+              onPointerDown={onCanvasPointerDown}
+              onPointerMove={onCanvasPointerMove}
+              onPointerUp={onCanvasPointerUp}
+            >
               {/* Snap guides */}
               {guides.v && (
                 <div className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-50" style={{ left: baseResolution.w / 2 }} />
               )}
               {guides.h && (
                 <div className="absolute left-0 right-0 h-px bg-cyan-400 pointer-events-none z-50" style={{ top: baseResolution.h / 2 }} />
+              )}
+              {/* Marquee selection rectangle */}
+              {marquee && marquee.w > 2 && marquee.h > 2 && (
+                <div
+                  className="absolute border border-dashed border-cyan-400 pointer-events-none z-50"
+                  style={{
+                    left: marquee.x,
+                    top: marquee.y,
+                    width: marquee.w,
+                    height: marquee.h,
+                    background: "rgba(34, 211, 238, 0.12)",
+                  }}
+                />
               )}
               {layers.map((l) => {
                 const isEditing = editingLayerId === l.id;
@@ -228,14 +399,12 @@ export default function EditorPage() {
                     w={l.w}
                     h={l.h}
                     zoom={zoom}
-                    selected={selectedLayerId === l.id}
+                    selected={selectedSet.has(l.id)}
                     editing={isEditing}
-                    onSelect={(id) => {
-                      setSelectedLayerId(id);
-                      if (l.type === "text") setTab("settings");
-                    }}
+                    onSelect={handleLayerSelect}
                     onDoubleClick={handleDoubleClick}
-                    onMove={moveLayer}
+                    onMove={moveLayerDelta}
+                    onMoveEnd={() => setGuides({ v: false, h: false })}
                     onResize={resizeLayer}
                     onDragEnd={() => setGuides({ v: false, h: false })}
                   >
@@ -317,7 +486,6 @@ export default function EditorPage() {
 
           {tab === "settings" && (
             <div className="space-y-4 p-4 text-sm">
-              {/* Text layer style panel */}
               {selectedLayer ? (
                 <>
                   <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
@@ -332,7 +500,7 @@ export default function EditorPage() {
                       layerY={selectedLayer.y}
                       layerW={selectedLayer.w}
                       layerH={selectedLayer.h}
-                      onMove={(x, y) => moveLayer(selectedLayer.id, x, y)}
+                      onMove={(x, y) => moveLayerSingle(selectedLayer.id, x, y)}
                     />
                   </div>
                   {selectedLayer.type === "text" && selectedLayer.textStyle ? (
@@ -347,6 +515,10 @@ export default function EditorPage() {
                     </>
                   ) : null}
                 </>
+              ) : selectedIds.length > 1 ? (
+                <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
+                  {selectedIds.length} capas seleccionadas — Usa Ctrl+C para copiar, Delete para eliminar
+                </div>
               ) : (
                 <>
                   <div>
@@ -435,12 +607,12 @@ export default function EditorPage() {
                 {layers.map((l) => (
                   <div
                     key={l.id}
-                    onClick={() => {
-                      setSelectedLayerId(l.id);
-                      if (l.type === "text") setTab("settings");
+                    onClick={(e) => {
+                      const additive = e.ctrlKey || e.metaKey || e.shiftKey;
+                      handleLayerSelect(l.id, additive);
                     }}
                     className={`flex cursor-pointer items-center justify-between rounded border px-2 py-2 text-sm ${
-                      selectedLayerId === l.id
+                      selectedSet.has(l.id)
                         ? "border-primary bg-primary/5"
                         : "border-border"
                     }`}
@@ -469,11 +641,23 @@ export default function EditorPage() {
 
           {tab === "actions" && (
             <div className="space-y-2 p-4">
-              <button className="flex w-full items-center justify-center gap-2 rounded border border-border px-3 py-2 text-sm hover:bg-accent">
-                <Copy className="h-4 w-4" /> Duplicar layout
+              <button
+                onClick={copySelected}
+                className="flex w-full items-center justify-center gap-2 rounded border border-border px-3 py-2 text-sm hover:bg-accent"
+              >
+                <Copy className="h-4 w-4" /> Copiar selección
               </button>
-              <button className="flex w-full items-center justify-center gap-2 rounded border border-destructive/50 px-3 py-2 text-sm text-destructive hover:bg-destructive/10">
-                <Trash2 className="h-4 w-4" /> Eliminar layout
+              <button
+                onClick={pasteClipboard}
+                className="flex w-full items-center justify-center gap-2 rounded border border-border px-3 py-2 text-sm hover:bg-accent"
+              >
+                <Clipboard className="h-4 w-4" /> Pegar
+              </button>
+              <button
+                onClick={deleteSelected}
+                className="flex w-full items-center justify-center gap-2 rounded border border-destructive/50 px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" /> Eliminar selección
               </button>
             </div>
           )}
