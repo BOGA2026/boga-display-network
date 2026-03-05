@@ -8,14 +8,16 @@ type Props = {
   h: number;
   selected: boolean;
   zoom: number;
+  editing: boolean;
   onSelect: (id: string) => void;
+  onDoubleClick: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
   onResize: (id: string, w: number, h: number) => void;
   children: React.ReactNode;
 };
 
 export function DraggableLayer({
-  id, x, y, w, h, selected, zoom, onSelect, onMove, onResize, children,
+  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onResize, children,
 }: Props) {
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -23,12 +25,13 @@ export function DraggableLayer({
   const scale = zoom / 100;
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
+    if (editing) return; // don't drag while editing text
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     onSelect(id);
     setDragging(true);
     startRef.current = { mx: e.clientX, my: e.clientY, x, y, w, h };
-  }, [id, x, y, w, h, onSelect]);
+  }, [id, x, y, w, h, onSelect, editing]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!startRef.current) return;
@@ -57,11 +60,17 @@ export function DraggableLayer({
     startRef.current = { mx: e.clientX, my: e.clientY, x, y, w, h };
   }, [id, x, y, w, h, onSelect]);
 
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDoubleClick(id);
+  }, [id, onDoubleClick]);
+
   return (
     <div
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onDoubleClick={handleDoubleClick}
       className={`absolute select-none ${
         selected ? "ring-2 ring-primary ring-offset-1" : ""
       }`}
@@ -70,11 +79,11 @@ export function DraggableLayer({
         top: y,
         width: w,
         height: h,
-        cursor: dragging ? "grabbing" : "grab",
+        cursor: editing ? "text" : dragging ? "grabbing" : "grab",
       }}
     >
       {children}
-      {selected && (
+      {selected && !editing && (
         <div
           onPointerDown={onResizeDown}
           onPointerMove={onPointerMove}
