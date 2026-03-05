@@ -340,9 +340,16 @@ export default function EditorPage() {
             <button onClick={() => addLayer("Texto", "text")} className="rounded p-2 hover:bg-accent" title="Texto">
               <Type className="h-5 w-5" />
             </button>
-            <button onClick={() => addLayer("Imagen", "image")} className="rounded p-2 hover:bg-accent" title="Imagen">
-              <ImageIcon className="h-5 w-5" />
-            </button>
+            <Popover open={imageGalleryOpen} onOpenChange={setImageGalleryOpen}>
+              <PopoverTrigger asChild>
+                <button className="rounded p-2 hover:bg-accent" title="Imagen">
+                  <ImageIcon className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className="w-auto p-0 border-0 bg-transparent shadow-none">
+                <ImageGalleryMenu onInsertImage={addImageLayer} />
+              </PopoverContent>
+            </Popover>
             <button onClick={() => addLayer("Widget", "widget")} className="rounded p-2 hover:bg-accent" title="Widget">
               <Star className="h-5 w-5" />
             </button>
@@ -474,6 +481,13 @@ export default function EditorPage() {
                       ) : (
                         <TextLayerPreview style={l.textStyle} />
                       )
+                    ) : l.type === "image" && l.imageUrl ? (
+                      <img
+                        src={l.imageUrl}
+                        alt={l.name}
+                        className="h-full w-full object-cover rounded"
+                        draggable={false}
+                      />
                     ) : (
                       <div
                         className="h-full w-full rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
