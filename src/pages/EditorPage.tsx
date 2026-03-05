@@ -22,6 +22,7 @@ import {
   defaultTextStyle,
   type TextStyle,
 } from "@/components/editor/EditorTextTools";
+import { PresetPicker } from "@/components/editor/PresetPicker";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
