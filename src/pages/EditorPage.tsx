@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useCallback } from "react";
 import {
   Save,
   Send,
@@ -24,6 +24,7 @@ import {
 } from "@/components/editor/EditorTextTools";
 import { PresetPicker } from "@/components/editor/PresetPicker";
 import { DraggableLayer } from "@/components/editor/DraggableLayer";
+import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -50,7 +51,9 @@ export default function EditorPage() {
   const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const selectedLayer = layers.find((l) => l.id === selectedLayerId) ?? null;
 
@@ -113,6 +116,18 @@ export default function EditorPage() {
   const resizeLayer = (id: string, w: number, h: number) => {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, w, h } : l)));
   };
+
+  const handleDoubleClick = useCallback((id: string) => {
+    const layer = layers.find((l) => l.id === id);
+    if (layer?.type === "text") {
+      setEditingLayerId(id);
+      requestAnimationFrame(() => textareaRef.current?.focus());
+    }
+  }, [layers]);
+
+  const handleCanvasClick = useCallback(() => {
+    setEditingLayerId(null);
+  }, []);
 
   return (
     <div className="h-full w-full bg-muted text-foreground">
