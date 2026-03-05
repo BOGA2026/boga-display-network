@@ -295,12 +295,28 @@ export default function EditorPage() {
           {tab === "settings" && (
             <div className="space-y-4 p-4 text-sm">
               {/* Text layer style panel */}
-              {selectedLayer?.type === "text" && selectedLayer.textStyle ? (
+              {selectedLayer ? (
                 <>
                   <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
                     Editando: {selectedLayer.name}
                   </div>
-                  <PresetPicker
+                  <div>
+                    <label className="mb-1 block text-muted-foreground text-xs">Alinear en canvas</label>
+                    <CanvasAlignToolbar
+                      canvasW={baseResolution.w}
+                      canvasH={baseResolution.h}
+                      layerX={selectedLayer.x}
+                      layerY={selectedLayer.y}
+                      layerW={selectedLayer.w}
+                      layerH={selectedLayer.h}
+                      onMove={(x, y) => moveLayer(selectedLayer.id, x, y)}
+                    />
+                  </div>
+                  {selectedLayer.type === "text" && selectedLayer.textStyle ? (
+                    <>
+                      <PresetPicker
+                        onApply={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
+                      />
                     onApply={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
                   />
                   <TextStylePanel
