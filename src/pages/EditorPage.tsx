@@ -135,7 +135,6 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
-  const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
 
   const addWidgetFromPreset = (presetId: string) => {
     const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
