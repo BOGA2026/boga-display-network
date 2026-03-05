@@ -50,7 +50,7 @@ export default function EditorPage() {
   const [customResolution, setCustomResolution] = useState(false);
   const [customW, setCustomW] = useState(1920);
   const [customH, setCustomH] = useState(1080);
-  const [zoom, setZoom] = useState(90);
+  const [zoom, setZoom] = useState(50);
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
   const [layers, setLayers] = useState<LayerItem[]>([]);
@@ -75,18 +75,16 @@ export default function EditorPage() {
       : { w: 1080, h: 1920 };
   }, [orientation, customResolution, customW, customH]);
 
+  const scale = zoom / 100;
+
   const stageStyle = useMemo(
     () => ({
-      width: `${baseResolution.w}px`,
-      height: `${baseResolution.h}px`,
-      transform: `scale(${zoom / 100})`,
-      transformOrigin: "top left",
+      width: baseResolution.w,
+      height: baseResolution.h,
       background,
     }),
-    [baseResolution, zoom, background]
+    [baseResolution, background]
   );
-
-  const scale = zoom / 100;
 
   const addLayer = (name: string, type: LayerType) => {
     const id = crypto.randomUUID();
@@ -360,13 +358,19 @@ export default function EditorPage() {
         </aside>
 
         {/* Center canvas */}
-        <main className="relative overflow-auto bg-muted p-6">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="text-xs text-muted-foreground">
-              {selectedIds.length > 0
-                ? `${selectedIds.length} capa${selectedIds.length > 1 ? "s" : ""} seleccionada${selectedIds.length > 1 ? "s" : ""}`
-                : "Sin selección"}
-              {clipboard ? ` · ${clipboard.length} en portapapeles` : ""}
+        <main className="relative flex flex-col bg-muted">
+          {/* Canvas toolbar */}
+          <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                Lienzo: {baseResolution.w}×{baseResolution.h}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {selectedIds.length > 0
+                  ? `${selectedIds.length} capa${selectedIds.length > 1 ? "s" : ""} seleccionada${selectedIds.length > 1 ? "s" : ""}`
+                  : "Sin selección"}
+                {clipboard ? ` · ${clipboard.length} en portapapeles` : ""}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
@@ -380,7 +384,7 @@ export default function EditorPage() {
                 onChange={(e) => setZoom(Number(e.target.value))}
                 className="rounded border border-border bg-card px-2 py-1 text-sm"
               >
-                {[50, 75, 90, 100].map((z) => (
+                {[25, 50, 75, 100, 125, 150].map((z) => (
                   <option key={z} value={z}>
                     {z}%
                   </option>
@@ -389,19 +393,31 @@ export default function EditorPage() {
             </div>
           </div>
 
-          <div
-            ref={stageWrapRef}
-            className="inline-block rounded border border-border bg-card shadow-lg"
-          >
+          {/* Scrollable canvas area */}
+          <div className="flex-1 overflow-auto p-6">
             <div
-              ref={canvasRef}
-              style={stageStyle}
-              className="relative overflow-hidden"
-              onClick={handleCanvasClick}
-              onPointerDown={onCanvasPointerDown}
-              onPointerMove={onCanvasPointerMove}
-              onPointerUp={onCanvasPointerUp}
+              ref={stageWrapRef}
+              className="inline-block"
+              style={{
+                width: baseResolution.w * scale,
+                height: baseResolution.h * scale,
+                minWidth: baseResolution.w * scale,
+                minHeight: baseResolution.h * scale,
+              }}
             >
+              <div
+                ref={canvasRef}
+                style={{
+                  ...stageStyle,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }}
+                className="relative overflow-hidden rounded border-2 border-border shadow-lg"
+                onClick={handleCanvasClick}
+                onPointerDown={onCanvasPointerDown}
+                onPointerMove={onCanvasPointerMove}
+                onPointerUp={onCanvasPointerUp}
+              >
               {/* Snap guides */}
               {guides.v && (
                 <div className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-50" style={{ left: baseResolution.w / 2 }} />
@@ -500,6 +516,7 @@ export default function EditorPage() {
                 );
               })}
             </div>
+          </div>
           </div>
         </main>
 
@@ -630,6 +647,57 @@ export default function EditorPage() {
                       onChange={(e) => setBackground(e.target.value)}
                       className="h-10 w-full rounded border border-border p-1"
                     />
+                  </div>
+                  {/* Mini preview */}
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Vista previa</label>
+                    <div
+                      className="relative rounded border border-border overflow-hidden bg-card"
+                      style={{
+                        width: "100%",
+                        aspectRatio: `${baseResolution.w} / ${baseResolution.h}`,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: baseResolution.w,
+                          height: baseResolution.h,
+                          transform: `scale(${280 / baseResolution.w})`,
+                          transformOrigin: "top left",
+                          background,
+                        }}
+                        className="relative overflow-hidden"
+                      >
+                        {layers.map((l) => (
+                          <div
+                            key={l.id}
+                            className="absolute"
+                            style={{
+                              left: l.x,
+                              top: l.y,
+                              width: l.w,
+                              height: l.h,
+                            }}
+                          >
+                            {l.type === "image" && l.imageUrl ? (
+                              <img src={l.imageUrl} alt="" className="h-full w-full object-cover" draggable={false} />
+                            ) : l.type === "text" && l.textStyle ? (
+                              <div className="h-full w-full" style={{
+                                background: l.textStyle.bannerStyle === "solid" ? l.textStyle.bannerColor : "transparent",
+                                color: l.textStyle.color,
+                                fontSize: `${l.textStyle.fontSize}px`,
+                                fontWeight: l.textStyle.fontWeight,
+                                overflow: "hidden",
+                              }}>
+                                {l.textStyle.content}
+                              </div>
+                            ) : (
+                              <div className="h-full w-full rounded" style={{ background: l.color }} />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
