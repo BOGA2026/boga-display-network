@@ -41,6 +41,7 @@ type LayerItem = {
   h: number;
   color: string;
   textStyle?: TextStyle;
+  imageUrl?: string;
 };
 
 export default function EditorPage() {
