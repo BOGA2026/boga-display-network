@@ -194,36 +194,78 @@ export default function EditorPage() {
             ref={stageWrapRef}
             className="inline-block rounded border border-border bg-card shadow-lg"
           >
-            <div style={stageStyle} className="relative overflow-hidden">
-              {layers.map((l) => (
-                <DraggableLayer
-                  key={l.id}
-                  id={l.id}
-                  x={l.x}
-                  y={l.y}
-                  w={l.w}
-                  h={l.h}
-                  zoom={zoom}
-                  selected={selectedLayerId === l.id}
-                  onSelect={(id) => {
-                    setSelectedLayerId(id);
-                    if (l.type === "text") setTab("settings");
-                  }}
-                  onMove={moveLayer}
-                  onResize={resizeLayer}
-                >
-                  {l.type === "text" && l.textStyle ? (
-                    <TextLayerPreview style={l.textStyle} />
-                  ) : (
-                    <div
-                      className="h-full w-full rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
-                      style={{ background: l.color }}
-                    >
-                      {l.name}
-                    </div>
-                  )}
-                </DraggableLayer>
-              ))}
+            <div style={stageStyle} className="relative overflow-hidden" onClick={handleCanvasClick}>
+              {layers.map((l) => {
+                const isEditing = editingLayerId === l.id;
+                return (
+                  <DraggableLayer
+                    key={l.id}
+                    id={l.id}
+                    x={l.x}
+                    y={l.y}
+                    w={l.w}
+                    h={l.h}
+                    zoom={zoom}
+                    selected={selectedLayerId === l.id}
+                    editing={isEditing}
+                    onSelect={(id) => {
+                      setSelectedLayerId(id);
+                      if (l.type === "text") setTab("settings");
+                    }}
+                    onDoubleClick={handleDoubleClick}
+                    onMove={moveLayer}
+                    onResize={resizeLayer}
+                  >
+                    {l.type === "text" && l.textStyle ? (
+                      isEditing ? (
+                        <div
+                          className="h-full w-full flex items-center"
+                          style={{
+                            padding: `${l.textStyle.paddingY}px ${l.textStyle.paddingX}px`,
+                            background:
+                              l.textStyle.bannerStyle === "none"
+                                ? "transparent"
+                                : l.textStyle.bannerStyle === "solid"
+                                ? l.textStyle.bannerColor
+                                : `linear-gradient(90deg, ${l.textStyle.bannerFrom}, ${l.textStyle.bannerTo})`,
+                            borderRadius: l.textStyle.borderRadius,
+                          }}
+                        >
+                          <textarea
+                            ref={textareaRef}
+                            value={l.textStyle.content}
+                            onChange={(e) =>
+                              updateLayerTextStyle(l.id, { ...l.textStyle!, content: e.target.value })
+                            }
+                            onBlur={() => setEditingLayerId(null)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full h-full bg-transparent border-none outline-none resize-none"
+                            style={{
+                              color: l.textStyle.color,
+                              fontFamily: l.textStyle.fontFamily,
+                              fontSize: `${l.textStyle.fontSize}px`,
+                              fontWeight: l.textStyle.fontWeight,
+                              lineHeight: l.textStyle.lineHeight,
+                              letterSpacing: `${l.textStyle.letterSpacing}px`,
+                              textAlign: l.textStyle.textAlign,
+                              textIndent: `${l.textStyle.textIndent}px`,
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <TextLayerPreview style={l.textStyle} />
+                      )
+                    ) : (
+                      <div
+                        className="h-full w-full rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
+                        style={{ background: l.color }}
+                      >
+                        {l.name}
+                      </div>
+                    )}
+                  </DraggableLayer>
+                );
+              })}
             </div>
           </div>
         </main>
