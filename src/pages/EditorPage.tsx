@@ -50,7 +50,7 @@ export default function EditorPage() {
   const [customResolution, setCustomResolution] = useState(false);
   const [customW, setCustomW] = useState(1920);
   const [customH, setCustomH] = useState(1080);
-  const [zoom, setZoom] = useState(90);
+  const [zoom, setZoom] = useState(50);
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
   const [layers, setLayers] = useState<LayerItem[]>([]);
