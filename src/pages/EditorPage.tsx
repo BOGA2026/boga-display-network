@@ -237,6 +237,7 @@ export default function EditorPage() {
                     onDoubleClick={handleDoubleClick}
                     onMove={moveLayer}
                     onResize={resizeLayer}
+                    onDragEnd={() => setGuides({ v: false, h: false })}
                   >
                     {l.type === "text" && l.textStyle ? (
                       isEditing ? (
