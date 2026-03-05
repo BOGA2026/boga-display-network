@@ -317,12 +317,12 @@ export default function EditorPage() {
                       <PresetPicker
                         onApply={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
                       />
-                    onApply={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
-                  />
-                  <TextStylePanel
-                    value={selectedLayer.textStyle}
-                    onChange={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
-                  />
+                      <TextStylePanel
+                        value={selectedLayer.textStyle}
+                        onChange={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
+                      />
+                    </>
+                  ) : null}
                 </>
               ) : (
                 <>
