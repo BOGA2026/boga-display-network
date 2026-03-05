@@ -122,6 +122,7 @@ export default function EditorPage() {
   );
 
   const addLayer = (name: string, type: LayerType) => {
+    saveSnapshot();
     const id = crypto.randomUUID();
     const isText = type === "text";
     setLayers((prev) => [
@@ -145,6 +146,7 @@ export default function EditorPage() {
   };
 
   const addImageLayer = (url: string, name: string) => {
+    saveSnapshot();
     const id = crypto.randomUUID();
     setLayers((prev) => [
       ...prev,
@@ -168,6 +170,7 @@ export default function EditorPage() {
   const addWidgetFromPreset = (presetId: string) => {
     const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
     if (!preset) return;
+    saveSnapshot();
     const id = crypto.randomUUID();
     setLayers((prev) => [
       ...prev,
@@ -189,11 +192,13 @@ export default function EditorPage() {
   };
 
   const removeLayer = (id: string) => {
+    saveSnapshot();
     setLayers((prev) => prev.filter((l) => l.id !== id));
     setSelectedIds((prev) => prev.filter((sid) => sid !== id));
   };
 
   const updateLayerTextStyle = (id: string, ts: TextStyle) => {
+    saveSnapshot();
     setLayers((prev) =>
       prev.map((l) => (l.id === id ? { ...l, textStyle: ts } : l))
     );
