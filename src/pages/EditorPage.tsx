@@ -648,6 +648,57 @@ export default function EditorPage() {
                       className="h-10 w-full rounded border border-border p-1"
                     />
                   </div>
+                  {/* Mini preview */}
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Vista previa</label>
+                    <div
+                      className="relative rounded border border-border overflow-hidden bg-card"
+                      style={{
+                        width: "100%",
+                        aspectRatio: `${baseResolution.w} / ${baseResolution.h}`,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: baseResolution.w,
+                          height: baseResolution.h,
+                          transform: `scale(${280 / baseResolution.w})`,
+                          transformOrigin: "top left",
+                          background,
+                        }}
+                        className="relative overflow-hidden"
+                      >
+                        {layers.map((l) => (
+                          <div
+                            key={l.id}
+                            className="absolute"
+                            style={{
+                              left: l.x,
+                              top: l.y,
+                              width: l.w,
+                              height: l.h,
+                            }}
+                          >
+                            {l.type === "image" && l.imageUrl ? (
+                              <img src={l.imageUrl} alt="" className="h-full w-full object-cover" draggable={false} />
+                            ) : l.type === "text" && l.textStyle ? (
+                              <div className="h-full w-full" style={{
+                                background: l.textStyle.bannerStyle === "solid" ? l.textStyle.bannerColor : "transparent",
+                                color: l.textStyle.color,
+                                fontSize: `${l.textStyle.fontSize}px`,
+                                fontWeight: l.textStyle.fontWeight,
+                                overflow: "hidden",
+                              }}>
+                                {l.textStyle.content}
+                              </div>
+                            ) : (
+                              <div className="h-full w-full rounded" style={{ background: l.color }} />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
             </div>
