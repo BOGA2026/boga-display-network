@@ -540,6 +540,15 @@ export default function EditorPage() {
                         className="h-full w-full object-cover rounded"
                         draggable={false}
                       />
+                    ) : l.type === "widget" && l.widgetType && l.widgetData ? (
+                      <WidgetRenderer
+                        layer={{
+                          widgetType: l.widgetType,
+                          content: l.widgetData,
+                          w: l.w,
+                          h: l.h,
+                        }}
+                      />
                     ) : (
                       <div
                         className="h-full w-full rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
