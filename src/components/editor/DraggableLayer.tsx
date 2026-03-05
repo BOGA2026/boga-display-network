@@ -84,9 +84,8 @@ export function DraggableLayer({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onDoubleClick={handleDoubleClick}
-      className={`absolute select-none ${
-        selected ? "ring-2 ring-primary ring-offset-1" : ""
-      }`}
+      className="absolute select-none"
+      data-selected={selected || undefined}
       style={{
         left: x,
         top: y,
