@@ -377,9 +377,16 @@ export default function EditorPage() {
                 <ImageGalleryMenu onInsertImage={addImageLayer} />
               </PopoverContent>
             </Popover>
-            <button onClick={() => addLayer("Widget", "widget")} className="rounded p-2 hover:bg-accent" title="Widget">
-              <Star className="h-5 w-5" />
-            </button>
+            <Popover open={widgetPickerOpen} onOpenChange={setWidgetPickerOpen}>
+              <PopoverTrigger asChild>
+                <button className="rounded p-2 hover:bg-accent" title="Widget">
+                  <Star className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className="w-72 p-0 border-0 bg-transparent shadow-none">
+                <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
+              </PopoverContent>
+            </Popover>
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
