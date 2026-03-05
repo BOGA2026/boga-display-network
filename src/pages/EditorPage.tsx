@@ -22,6 +22,7 @@ import {
   defaultTextStyle,
   type TextStyle,
 } from "@/components/editor/EditorTextTools";
+import { PresetPicker } from "@/components/editor/PresetPicker";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -235,6 +236,9 @@ export default function EditorPage() {
                   <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
                     Editando: {selectedLayer.name}
                   </div>
+                  <PresetPicker
+                    onApply={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
+                  />
                   <TextStylePanel
                     value={selectedLayer.textStyle}
                     onChange={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
