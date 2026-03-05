@@ -52,6 +52,7 @@ export default function EditorPage() {
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
+  const [guides, setGuides] = useState({ v: false, h: false });
   const stageWrapRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -109,7 +110,20 @@ export default function EditorPage() {
     );
   };
 
-  const moveLayer = (id: string, x: number, y: number) => {
+  const SNAP = 10;
+  const moveLayer = (id: string, rawX: number, rawY: number) => {
+    const layer = layers.find((l) => l.id === id);
+    if (!layer) return;
+    let x = rawX;
+    let y = rawY;
+    const cx = x + layer.w / 2;
+    const cy = y + layer.h / 2;
+    const canvasCx = baseResolution.w / 2;
+    const canvasCy = baseResolution.h / 2;
+    let showV = false, showH = false;
+    if (Math.abs(cx - canvasCx) <= SNAP) { x = Math.round(canvasCx - layer.w / 2); showV = true; }
+    if (Math.abs(cy - canvasCy) <= SNAP) { y = Math.round(canvasCy - layer.h / 2); showH = true; }
+    setGuides({ v: showV, h: showH });
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, x, y } : l)));
   };
 
