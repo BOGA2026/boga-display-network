@@ -131,7 +131,6 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
-  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
 
   const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
