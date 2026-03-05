@@ -110,6 +110,28 @@ export default function EditorPage() {
     }
   };
 
+  const addImageLayer = (url: string, name: string) => {
+    const id = crypto.randomUUID();
+    setLayers((prev) => [
+      ...prev,
+      {
+        id,
+        name: name || "Imagen",
+        type: "image" as LayerType,
+        x: 100 + prev.length * 20,
+        y: 100 + prev.length * 20,
+        w: 400,
+        h: 300,
+        color: "transparent",
+        imageUrl: url,
+      },
+    ]);
+    setSelectedIds([id]);
+    setImageGalleryOpen(false);
+  };
+
+  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
+
   const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
     setSelectedIds((prev) => prev.filter((sid) => sid !== id));
