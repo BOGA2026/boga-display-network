@@ -27,6 +27,9 @@ import { PresetPicker } from "@/components/editor/PresetPicker";
 import { DraggableLayer } from "@/components/editor/DraggableLayer";
 import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
 import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
+import { WidgetRenderer } from "@/components/editor/WidgetRenderer";
+import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
+import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type Orientation = "landscape" | "portrait";
@@ -42,6 +45,8 @@ type LayerItem = {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  widgetType?: "product_card" | "menu_board";
+  widgetData?: ProductCardData | MenuBoardData;
 };
 
 export default function EditorPage() {
@@ -64,6 +69,7 @@ export default function EditorPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
+  const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedLayer = selectedIds.length === 1 ? layers.find((l) => l.id === selectedIds[0]) ?? null : null;
@@ -129,6 +135,29 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
+
+  const addWidgetFromPreset = (presetId: string) => {
+    const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    const id = crypto.randomUUID();
+    setLayers((prev) => [
+      ...prev,
+      {
+        id,
+        name: preset.name,
+        type: "widget" as LayerType,
+        x: 80 + prev.length * 20,
+        y: 80 + prev.length * 20,
+        w: preset.w,
+        h: preset.h,
+        color: "transparent",
+        widgetType: preset.type,
+        widgetData: preset.data,
+      },
+    ]);
+    setSelectedIds([id]);
+    setWidgetPickerOpen(false);
+  };
 
   const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
@@ -348,9 +377,16 @@ export default function EditorPage() {
                 <ImageGalleryMenu onInsertImage={addImageLayer} />
               </PopoverContent>
             </Popover>
-            <button onClick={() => addLayer("Widget", "widget")} className="rounded p-2 hover:bg-accent" title="Widget">
-              <Star className="h-5 w-5" />
-            </button>
+            <Popover open={widgetPickerOpen} onOpenChange={setWidgetPickerOpen}>
+              <PopoverTrigger asChild>
+                <button className="rounded p-2 hover:bg-accent" title="Widget">
+                  <Star className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className="w-72 p-0 border-0 bg-transparent shadow-none">
+                <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
+              </PopoverContent>
+            </Popover>
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
@@ -503,6 +539,15 @@ export default function EditorPage() {
                         alt={l.name}
                         className="h-full w-full object-cover rounded"
                         draggable={false}
+                      />
+                    ) : l.type === "widget" && l.widgetType && l.widgetData ? (
+                      <WidgetRenderer
+                        layer={{
+                          widgetType: l.widgetType,
+                          content: l.widgetData,
+                          w: l.w,
+                          h: l.h,
+                        }}
                       />
                     ) : (
                       <div
