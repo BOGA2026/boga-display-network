@@ -9,16 +9,17 @@ type Props = {
   selected: boolean;
   zoom: number;
   editing: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, additive: boolean) => void;
   onDoubleClick: (id: string) => void;
-  onMove: (id: string, x: number, y: number) => void;
+  onMove: (id: string, dx: number, dy: number) => void;
+  onMoveEnd?: () => void;
   onResize: (id: string, w: number, h: number) => void;
   onDragEnd?: () => void;
   children: React.ReactNode;
 };
 
 export function DraggableLayer({
-  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onResize, onDragEnd, children,
+  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onMoveEnd, onResize, onDragEnd, children,
 }: Props) {
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -26,10 +27,11 @@ export function DraggableLayer({
   const scale = zoom / 100;
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    if (editing) return; // don't drag while editing text
+    if (editing) return;
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
-    onSelect(id);
+    const additive = e.ctrlKey || e.metaKey || e.shiftKey;
+    onSelect(id, additive);
     setDragging(true);
     startRef.current = { mx: e.clientX, my: e.clientY, x, y, w, h };
   }, [id, x, y, w, h, onSelect, editing]);
@@ -39,12 +41,17 @@ export function DraggableLayer({
     const dx = (e.clientX - startRef.current.mx) / scale;
     const dy = (e.clientY - startRef.current.my) / scale;
     if (dragging) {
-      onMove(id, Math.round(startRef.current.x + dx), Math.round(startRef.current.y + dy));
+      // Send delta for multi-drag support
+      onMove(id, Math.round(dx), Math.round(dy));
+      // Update start so deltas are incremental
+      startRef.current.mx = e.clientX;
+      startRef.current.my = e.clientY;
     }
     if (resizing) {
-      onResize(id, Math.max(40, Math.round(startRef.current.w + dx)), Math.max(40, Math.round(startRef.current.h + dy)));
+      const totalDx = (e.clientX - startRef.current.mx + (startRef.current.w - w) * scale) / scale;
+      onResize(id, Math.max(40, Math.round(startRef.current.w + (e.clientX - startRef.current.mx) / scale)), Math.max(40, Math.round(startRef.current.h + (e.clientY - startRef.current.my) / scale)));
     }
-  }, [dragging, resizing, id, scale, onMove, onResize]);
+  }, [dragging, resizing, id, scale, onMove, onResize, w]);
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
@@ -52,13 +59,16 @@ export function DraggableLayer({
     setDragging(false);
     setResizing(false);
     startRef.current = null;
-    if (wasDragging) onDragEnd?.();
-  }, [dragging, onDragEnd]);
+    if (wasDragging) {
+      onDragEnd?.();
+      onMoveEnd?.();
+    }
+  }, [dragging, onDragEnd, onMoveEnd]);
 
   const onResizeDown = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
-    onSelect(id);
+    onSelect(id, false);
     setResizing(true);
     startRef.current = { mx: e.clientX, my: e.clientY, x, y, w, h };
   }, [id, x, y, w, h, onSelect]);
