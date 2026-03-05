@@ -23,6 +23,7 @@ import {
   type TextStyle,
 } from "@/components/editor/EditorTextTools";
 import { PresetPicker } from "@/components/editor/PresetPicker";
+import { DraggableLayer } from "@/components/editor/DraggableLayer";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -105,6 +106,14 @@ export default function EditorPage() {
     );
   };
 
+  const moveLayer = (id: string, x: number, y: number) => {
+    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, x, y } : l)));
+  };
+
+  const resizeLayer = (id: string, w: number, h: number) => {
+    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, w, h } : l)));
+  };
+
   return (
     <div className="h-full w-full bg-muted text-foreground">
       {/* Top bar */}
@@ -172,23 +181,21 @@ export default function EditorPage() {
           >
             <div style={stageStyle} className="relative overflow-hidden">
               {layers.map((l) => (
-                <div
+                <DraggableLayer
                   key={l.id}
-                  onClick={() => {
-                    setSelectedLayerId(l.id);
+                  id={l.id}
+                  x={l.x}
+                  y={l.y}
+                  w={l.w}
+                  h={l.h}
+                  zoom={zoom}
+                  selected={selectedLayerId === l.id}
+                  onSelect={(id) => {
+                    setSelectedLayerId(id);
                     if (l.type === "text") setTab("settings");
                   }}
-                  className={`absolute cursor-pointer ${
-                    selectedLayerId === l.id
-                      ? "ring-2 ring-primary ring-offset-1"
-                      : ""
-                  }`}
-                  style={{
-                    left: l.x,
-                    top: l.y,
-                    width: l.w,
-                    height: l.h,
-                  }}
+                  onMove={moveLayer}
+                  onResize={resizeLayer}
                 >
                   {l.type === "text" && l.textStyle ? (
                     <TextLayerPreview style={l.textStyle} />
@@ -200,7 +207,7 @@ export default function EditorPage() {
                       {l.name}
                     </div>
                   )}
-                </div>
+                </DraggableLayer>
               ))}
             </div>
           </div>
