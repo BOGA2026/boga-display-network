@@ -16,16 +16,25 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
+import {
+  TextLayerPreview,
+  TextStylePanel,
+  defaultTextStyle,
+  type TextStyle,
+} from "@/components/editor/EditorTextTools";
 
 type Orientation = "landscape" | "portrait";
+type LayerType = "zone" | "text" | "image" | "widget";
 type LayerItem = {
   id: string;
   name: string;
+  type: LayerType;
   x: number;
   y: number;
   w: number;
   h: number;
   color: string;
+  textStyle?: TextStyle;
 };
 
 export default function EditorPage() {
@@ -38,7 +47,10 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
   const [layers, setLayers] = useState<LayerItem[]>([]);
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const stageWrapRef = useRef<HTMLDivElement>(null);
+
+  const selectedLayer = layers.find((l) => l.id === selectedLayerId) ?? null;
 
   const baseResolution = useMemo(() => {
     if (customResolution) return { w: customW, h: customH };
@@ -58,24 +70,39 @@ export default function EditorPage() {
     [baseResolution, zoom, background]
   );
 
-  const addLayer = (name: string) => {
+  const addLayer = (name: string, type: LayerType) => {
     const id = crypto.randomUUID();
+    const isText = type === "text";
     setLayers((prev) => [
       ...prev,
       {
         id,
         name,
+        type,
         x: 100 + prev.length * 20,
         y: 100 + prev.length * 20,
-        w: 300,
-        h: 180,
-        color: "#8B5CF6",
+        w: isText ? 700 : 300,
+        h: isText ? 120 : 180,
+        color: isText ? "transparent" : "#8B5CF6",
+        textStyle: isText ? { ...defaultTextStyle } : undefined,
       },
     ]);
+    if (isText) {
+      setSelectedLayerId(id);
+      setTab("settings");
+    }
   };
 
-  const removeLayer = (id: string) =>
+  const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
+    if (selectedLayerId === id) setSelectedLayerId(null);
+  };
+
+  const updateLayerTextStyle = (id: string, ts: TextStyle) => {
+    setLayers((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, textStyle: ts } : l))
+    );
+  };
 
   return (
     <div className="h-full w-full bg-muted text-foreground">
@@ -98,16 +125,16 @@ export default function EditorPage() {
         {/* Left tools */}
         <aside className="border-r border-border bg-card p-2">
           <div className="flex flex-col gap-2">
-            <button onClick={() => addLayer("Zona")} className="rounded p-2 hover:bg-accent" title="Zona">
+            <button onClick={() => addLayer("Zona", "zone")} className="rounded p-2 hover:bg-accent" title="Zona">
               <LayoutGrid className="h-5 w-5" />
             </button>
-            <button onClick={() => addLayer("Texto")} className="rounded p-2 hover:bg-accent" title="Texto">
+            <button onClick={() => addLayer("Texto", "text")} className="rounded p-2 hover:bg-accent" title="Texto">
               <Type className="h-5 w-5" />
             </button>
-            <button onClick={() => addLayer("Imagen")} className="rounded p-2 hover:bg-accent" title="Imagen">
+            <button onClick={() => addLayer("Imagen", "image")} className="rounded p-2 hover:bg-accent" title="Imagen">
               <ImageIcon className="h-5 w-5" />
             </button>
-            <button onClick={() => addLayer("Widget")} className="rounded p-2 hover:bg-accent" title="Widget">
+            <button onClick={() => addLayer("Widget", "widget")} className="rounded p-2 hover:bg-accent" title="Widget">
               <Star className="h-5 w-5" />
             </button>
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
@@ -146,16 +173,32 @@ export default function EditorPage() {
               {layers.map((l) => (
                 <div
                   key={l.id}
-                  className="absolute rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
+                  onClick={() => {
+                    setSelectedLayerId(l.id);
+                    if (l.type === "text") setTab("settings");
+                  }}
+                  className={`absolute cursor-pointer ${
+                    selectedLayerId === l.id
+                      ? "ring-2 ring-primary ring-offset-1"
+                      : ""
+                  }`}
                   style={{
                     left: l.x,
                     top: l.y,
                     width: l.w,
                     height: l.h,
-                    background: l.color,
                   }}
                 >
-                  {l.name}
+                  {l.type === "text" && l.textStyle ? (
+                    <TextLayerPreview style={l.textStyle} />
+                  ) : (
+                    <div
+                      className="h-full w-full rounded border border-white/80 p-2 text-xs font-semibold text-white shadow"
+                      style={{ background: l.color }}
+                    >
+                      {l.name}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -163,7 +206,7 @@ export default function EditorPage() {
         </main>
 
         {/* Right panel */}
-        <aside className="border-l border-border bg-card">
+        <aside className="border-l border-border bg-card overflow-y-auto">
           <div className="flex border-b border-border text-sm">
             {([
               { id: "settings", label: "Ajustes", icon: Settings },
@@ -186,82 +229,97 @@ export default function EditorPage() {
 
           {tab === "settings" && (
             <div className="space-y-4 p-4 text-sm">
-              <div>
-                <label className="mb-1 block text-muted-foreground">Nombre del contenido</label>
-                <input
-                  value={contentName}
-                  onChange={(e) => setContentName(e.target.value)}
-                  className="w-full rounded border border-border bg-background px-2 py-1.5"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-muted-foreground">Orientación</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setOrientation("landscape")}
-                    className={`rounded border border-border px-2 py-1.5 ${
-                      orientation === "landscape" ? "bg-primary text-primary-foreground" : ""
-                    }`}
-                  >
-                    Horizontal
-                  </button>
-                  <button
-                    onClick={() => setOrientation("portrait")}
-                    className={`rounded border border-border px-2 py-1.5 ${
-                      orientation === "portrait" ? "bg-primary text-primary-foreground" : ""
-                    }`}
-                  >
-                    Vertical
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-muted-foreground">Resolución</label>
-                <select className="w-full rounded border border-border bg-background px-2 py-1.5">
-                  <option>Full HD 1920×1080 (16:9)</option>
-                  <option>Portrait 1080×1920 (9:16)</option>
-                </select>
-                <label className="mt-2 flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={customResolution}
-                    onChange={(e) => setCustomResolution(e.target.checked)}
+              {/* Text layer style panel */}
+              {selectedLayer?.type === "text" && selectedLayer.textStyle ? (
+                <>
+                  <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
+                    Editando: {selectedLayer.name}
+                  </div>
+                  <TextStylePanel
+                    value={selectedLayer.textStyle}
+                    onChange={(ts) => updateLayerTextStyle(selectedLayer.id, ts)}
                   />
-                  Resolución personalizada
-                </label>
-                {customResolution && (
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Nombre del contenido</label>
                     <input
-                      type="number"
-                      value={customW}
-                      onChange={(e) => setCustomW(Number(e.target.value))}
-                      className="rounded border border-border bg-background px-2 py-1.5"
-                    />
-                    <input
-                      type="number"
-                      value={customH}
-                      onChange={(e) => setCustomH(Number(e.target.value))}
-                      className="rounded border border-border bg-background px-2 py-1.5"
+                      value={contentName}
+                      onChange={(e) => setContentName(e.target.value)}
+                      className="w-full rounded border border-border bg-background px-2 py-1.5"
                     />
                   </div>
-                )}
-              </div>
-              <div>
-                <label className="mb-1 block text-muted-foreground">Color de fondo</label>
-                <input
-                  type="color"
-                  value={background}
-                  onChange={(e) => setBackground(e.target.value)}
-                  className="h-10 w-full rounded border border-border p-1"
-                />
-              </div>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Orientación</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setOrientation("landscape")}
+                        className={`rounded border border-border px-2 py-1.5 ${
+                          orientation === "landscape" ? "bg-primary text-primary-foreground" : ""
+                        }`}
+                      >
+                        Horizontal
+                      </button>
+                      <button
+                        onClick={() => setOrientation("portrait")}
+                        className={`rounded border border-border px-2 py-1.5 ${
+                          orientation === "portrait" ? "bg-primary text-primary-foreground" : ""
+                        }`}
+                      >
+                        Vertical
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Resolución</label>
+                    <select className="w-full rounded border border-border bg-background px-2 py-1.5">
+                      <option>Full HD 1920×1080 (16:9)</option>
+                      <option>Portrait 1080×1920 (9:16)</option>
+                    </select>
+                    <label className="mt-2 flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={customResolution}
+                        onChange={(e) => setCustomResolution(e.target.checked)}
+                      />
+                      Resolución personalizada
+                    </label>
+                    {customResolution && (
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <input
+                          type="number"
+                          value={customW}
+                          onChange={(e) => setCustomW(Number(e.target.value))}
+                          className="rounded border border-border bg-background px-2 py-1.5"
+                        />
+                        <input
+                          type="number"
+                          value={customH}
+                          onChange={(e) => setCustomH(Number(e.target.value))}
+                          className="rounded border border-border bg-background px-2 py-1.5"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground">Color de fondo</label>
+                    <input
+                      type="color"
+                      value={background}
+                      onChange={(e) => setBackground(e.target.value)}
+                      className="h-10 w-full rounded border border-border p-1"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           )}
 
           {tab === "layers" && (
             <div className="p-4">
               <button
-                onClick={() => addLayer("Nueva zona")}
+                onClick={() => addLayer("Nueva zona", "zone")}
                 className="mb-3 flex w-full items-center justify-center gap-2 rounded border border-border px-3 py-2 text-sm hover:bg-accent"
               >
                 <Plus className="h-4 w-4" /> Agregar capa
@@ -270,11 +328,28 @@ export default function EditorPage() {
                 {layers.map((l) => (
                   <div
                     key={l.id}
-                    className="flex items-center justify-between rounded border border-border px-2 py-2 text-sm"
+                    onClick={() => {
+                      setSelectedLayerId(l.id);
+                      if (l.type === "text") setTab("settings");
+                    }}
+                    className={`flex cursor-pointer items-center justify-between rounded border px-2 py-2 text-sm ${
+                      selectedLayerId === l.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border"
+                    }`}
                   >
-                    <span>{l.name}</span>
+                    <span className="flex items-center gap-1.5">
+                      {l.type === "text" && <Type className="h-3.5 w-3.5 text-muted-foreground" />}
+                      {l.type === "zone" && <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />}
+                      {l.type === "image" && <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" />}
+                      {l.type === "widget" && <Star className="h-3.5 w-3.5 text-muted-foreground" />}
+                      {l.name}
+                    </span>
                     <button
-                      onClick={() => removeLayer(l.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeLayer(l.id);
+                      }}
                       className="rounded p-1 hover:bg-accent"
                     >
                       <Trash2 className="h-4 w-4" />
