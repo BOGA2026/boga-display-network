@@ -221,8 +221,15 @@ export default function EditorPage() {
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, x, y } : l)));
   };
 
-  // Multi-drag: move all selected layers by delta
+  // Multi-drag: move all selected layers by delta (no snapshot here — saved on drag start)
   const moveLayerDelta = useCallback((id: string, dx: number, dy: number) => {
+    // Save snapshot once at drag start
+    if (!dragSnapshotSaved.current) {
+      historyRef.current.push(cloneLayers(layers));
+      if (historyRef.current.length > MAX_HISTORY) historyRef.current.shift();
+      futureRef.current = [];
+      dragSnapshotSaved.current = true;
+    }
     if (selectedIds.length <= 1) {
       // Single layer: use absolute positioning with snap
       setLayers((prev) => {
@@ -250,9 +257,24 @@ export default function EditorPage() {
     );
   }, [selectedIds, selectedSet, baseResolution, SNAP]);
 
+  const handleMoveEnd = useCallback(() => {
+    dragSnapshotSaved.current = false;
+    setGuides({ v: false, h: false });
+  }, []);
+
   const resizeLayer = (id: string, w: number, h: number) => {
+    if (!dragSnapshotSaved.current) {
+      historyRef.current.push(cloneLayers(layers));
+      if (historyRef.current.length > MAX_HISTORY) historyRef.current.shift();
+      futureRef.current = [];
+      dragSnapshotSaved.current = true;
+    }
     setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, w, h } : l)));
   };
+
+  const handleResizeEnd = useCallback(() => {
+    dragSnapshotSaved.current = false;
+  }, []);
 
   const handleDoubleClick = useCallback((id: string) => {
     const layer = layers.find((l) => l.id === id);
@@ -318,6 +340,7 @@ export default function EditorPage() {
 
   const pasteClipboard = useCallback(() => {
     if (!clipboard?.length) return;
+    saveSnapshot();
     const pasted = clipboard.map((l, idx) => ({
       ...l,
       id: crypto.randomUUID(),
@@ -329,9 +352,10 @@ export default function EditorPage() {
   }, [clipboard]);
 
   const deleteSelected = useCallback(() => {
+    saveSnapshot();
     setLayers((prev) => prev.filter((l) => !selectedSet.has(l.id)));
     setSelectedIds([]);
-  }, [selectedSet]);
+  }, [selectedSet, saveSnapshot]);
 
   const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     const mod = e.ctrlKey || e.metaKey;
@@ -345,7 +369,15 @@ export default function EditorPage() {
       e.preventDefault();
       setSelectedIds(layers.map((l) => l.id));
     }
-  }, [copySelected, pasteClipboard, deleteSelected, editingLayerId, layers]);
+    // Undo: Ctrl+Z
+    if (mod && e.key.toLowerCase() === "z" && !e.shiftKey) {
+      e.preventDefault(); undo();
+    }
+    // Redo: Ctrl+Shift+Z or Ctrl+Y
+    if ((mod && e.key.toLowerCase() === "z" && e.shiftKey) || (mod && e.key.toLowerCase() === "y")) {
+      e.preventDefault(); redo();
+    }
+  }, [copySelected, pasteClipboard, deleteSelected, editingLayerId, layers, undo, redo]);
 
   const handleLayerSelect = useCallback((id: string, additive: boolean) => {
     if (additive) {
@@ -443,10 +475,10 @@ export default function EditorPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
+              <button onClick={undo} className="rounded border border-border bg-card px-2 py-1 hover:bg-accent" title="Deshacer (Ctrl+Z)">
                 <Undo2 className="h-4 w-4" />
               </button>
-              <button className="rounded border border-border bg-card px-2 py-1 hover:bg-accent">
+              <button onClick={redo} className="rounded border border-border bg-card px-2 py-1 hover:bg-accent" title="Rehacer (Ctrl+Shift+Z)">
                 <Redo2 className="h-4 w-4" />
               </button>
               <select
@@ -655,6 +687,7 @@ export default function EditorPage() {
                       widgetType={selectedLayer.widgetType}
                       content={selectedLayer.widgetData}
                       onUpdate={(nextContent) => {
+                        saveSnapshot();
                         setLayers((prev) =>
                           prev.map((l) =>
                             l.id === selectedLayer.id
