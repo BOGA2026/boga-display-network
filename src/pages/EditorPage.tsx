@@ -26,6 +26,8 @@ import {
 import { PresetPicker } from "@/components/editor/PresetPicker";
 import { DraggableLayer } from "@/components/editor/DraggableLayer";
 import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
+import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
