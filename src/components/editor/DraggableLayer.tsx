@@ -13,11 +13,12 @@ type Props = {
   onDoubleClick: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
   onResize: (id: string, w: number, h: number) => void;
+  onDragEnd?: () => void;
   children: React.ReactNode;
 };
 
 export function DraggableLayer({
-  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onResize, children,
+  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onResize, onDragEnd, children,
 }: Props) {
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -47,10 +48,12 @@ export function DraggableLayer({
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
+    const wasDragging = dragging;
     setDragging(false);
     setResizing(false);
     startRef.current = null;
-  }, []);
+    if (wasDragging) onDragEnd?.();
+  }, [dragging, onDragEnd]);
 
   const onResizeDown = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
