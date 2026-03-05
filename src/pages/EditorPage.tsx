@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useCallback } from "react";
+import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import {
   Save,
   Send,
@@ -71,6 +71,34 @@ export default function EditorPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+
+  // Undo / Redo history
+  const historyRef = useRef<LayerItem[][]>([]);
+  const futureRef = useRef<LayerItem[][]>([]);
+  const dragSnapshotSaved = useRef(false);
+  const MAX_HISTORY = 80;
+
+  const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
+
+  const saveSnapshot = useCallback(() => {
+    historyRef.current.push(cloneLayers(layers));
+    if (historyRef.current.length > MAX_HISTORY) historyRef.current.shift();
+    futureRef.current = [];
+  }, [layers]);
+
+  const undo = useCallback(() => {
+    const prev = historyRef.current.pop();
+    if (!prev) return;
+    futureRef.current.push(cloneLayers(layers));
+    setLayers(prev);
+  }, [layers]);
+
+  const redo = useCallback(() => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    historyRef.current.push(cloneLayers(layers));
+    setLayers(next);
+  }, [layers]);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedLayer = selectedIds.length === 1 ? layers.find((l) => l.id === selectedIds[0]) ?? null : null;
