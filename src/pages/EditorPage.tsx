@@ -134,6 +134,30 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
+  const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+
+  const addWidgetFromPreset = (presetId: string) => {
+    const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    const id = crypto.randomUUID();
+    setLayers((prev) => [
+      ...prev,
+      {
+        id,
+        name: preset.name,
+        type: "widget" as LayerType,
+        x: 80 + prev.length * 20,
+        y: 80 + prev.length * 20,
+        w: preset.w,
+        h: preset.h,
+        color: "transparent",
+        widgetType: preset.type,
+        widgetData: preset.data,
+      },
+    ]);
+    setSelectedIds([id]);
+    setWidgetPickerOpen(false);
+  };
 
   const removeLayer = (id: string) => {
     setLayers((prev) => prev.filter((l) => l.id !== id));
