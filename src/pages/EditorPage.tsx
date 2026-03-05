@@ -176,7 +176,9 @@ export default function EditorPage() {
     }
   }, [layers]);
 
-  const handleCanvasClick = useCallback(() => {
+  const handleCanvasClick = useCallback((e: React.MouseEvent) => {
+    // Only deselect if clicking directly on the canvas background
+    if (e.target !== canvasRef.current) return;
     setEditingLayerId(null);
     setSelectedIds([]);
     setGuides({ v: false, h: false });
