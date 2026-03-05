@@ -141,6 +141,7 @@ export default function EditorPage() {
 
   const handleCanvasClick = useCallback(() => {
     setEditingLayerId(null);
+    setGuides({ v: false, h: false });
   }, []);
 
   return (
