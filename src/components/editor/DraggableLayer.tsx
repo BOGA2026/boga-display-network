@@ -92,6 +92,8 @@ export function DraggableLayer({
         width: w,
         height: h,
         cursor: editing ? "text" : dragging ? "grabbing" : "grab",
+        border: selected ? "2px solid hsl(var(--primary))" : "1px dashed transparent",
+        boxShadow: selected ? "0 0 0 2px hsla(var(--primary) / 0.3)" : "none",
       }}
     >
       {children}
