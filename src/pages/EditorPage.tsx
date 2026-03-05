@@ -210,6 +210,13 @@ export default function EditorPage() {
             className="inline-block rounded border border-border bg-card shadow-lg"
           >
             <div style={stageStyle} className="relative overflow-hidden" onClick={handleCanvasClick}>
+              {/* Snap guides */}
+              {guides.v && (
+                <div className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-50" style={{ left: baseResolution.w / 2 }} />
+              )}
+              {guides.h && (
+                <div className="absolute left-0 right-0 h-px bg-cyan-400 pointer-events-none z-50" style={{ top: baseResolution.h / 2 }} />
+              )}
               {layers.map((l) => {
                 const isEditing = editingLayerId === l.id;
                 return (
