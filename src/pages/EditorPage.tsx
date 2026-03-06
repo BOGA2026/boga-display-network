@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import {
-  Save,
-  Send,
   Undo2,
   Redo2,
   LayoutGrid,
@@ -21,6 +20,7 @@ import {
   ArrowDown,
   ChevronsUp,
   ChevronsDown,
+  BookmarkPlus,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -37,6 +37,7 @@ import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
 import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
 import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { EditorTopBar } from "@/components/editor/EditorTopBar";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -63,7 +64,8 @@ export default function EditorPage() {
   const [customH, setCustomH] = useState(1080);
   const [zoom, setZoom] = useState(50);
   const [background, setBackground] = useState("#FFFFFF");
-  const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
+  const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
+  const [saving, setSaving] = useState(false);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
@@ -481,37 +483,50 @@ export default function EditorPage() {
     if (layer?.type === "text") setTab("settings");
   }, [layers]);
 
+  const buildLayoutPayload = useCallback(() => ({
+    name: contentName,
+    orientation,
+    width: baseResolution.w,
+    height: baseResolution.h,
+    background,
+    layers: layers.map((l) => ({ ...l })),
+  }), [contentName, orientation, baseResolution, background, layers]);
+
+  const onSaveContent = useCallback(async () => {
+    setSaving(true);
+    try {
+      // TODO: integrate with Supabase content table
+      await new Promise((r) => setTimeout(r, 600));
+      toast.success("Guardado en Contenido");
+    } catch {
+      toast.error("Error al guardar");
+    } finally {
+      setSaving(false);
+    }
+  }, [buildLayoutPayload]);
+
+  const onSavePreset = useCallback(async () => {
+    setSaving(true);
+    try {
+      // TODO: integrate with Supabase presets table
+      await new Promise((r) => setTimeout(r, 600));
+      toast.success("Preset guardado");
+      setTab("presets");
+    } catch {
+      toast.error("Error al guardar preset");
+    } finally {
+      setSaving(false);
+    }
+  }, [buildLayoutPayload]);
+
   return (
     <div className="h-full w-full bg-muted text-foreground" tabIndex={0} onKeyDown={onKeyDown} style={{ outline: "none" }}>
-      {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
-        <div className="text-sm text-muted-foreground">
-          Layouts &gt; {contentName} &gt; Main scene
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copySelected}
-            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent"
-            title="Copiar selección (Ctrl+C)"
-          >
-            <Copy className="mr-1 inline h-4 w-4" /> Copiar
-          </button>
-          <button
-            onClick={pasteClipboard}
-            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent"
-            title="Pegar (Ctrl+V)"
-          >
-            <Clipboard className="mr-1 inline h-4 w-4" /> Pegar
-          </button>
-          <span className="mx-1 h-5 w-px bg-border" />
-          <button className="rounded border border-border px-3 py-1.5 text-sm hover:bg-accent">
-            <Save className="mr-1 inline h-4 w-4" /> Guardar
-          </button>
-          <button className="rounded bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-            <Send className="mr-1 inline h-4 w-4" /> Enviar a pantalla
-          </button>
-        </div>
-      </div>
+      <EditorTopBar
+        contentName={contentName}
+        onSaveContent={onSaveContent}
+        onSavePreset={onSavePreset}
+        saving={saving}
+      />
 
       <div className="grid h-[calc(100%-56px)] grid-cols-[56px_1fr_320px]">
         {/* Left tools */}
@@ -745,10 +760,11 @@ export default function EditorPage() {
         <aside className="border-l border-border bg-card overflow-y-auto">
           <div className="flex border-b border-border text-sm">
             {([
-              { id: "settings", label: "Ajustes", icon: Settings },
-              { id: "layers", label: "Capas", icon: Layers },
-              { id: "actions", label: "Acciones", icon: PlaySquare },
-            ] as const).map(({ id, label, icon: Icon }) => (
+              { id: "settings" as const, label: "Ajustes", icon: Settings },
+              { id: "layers" as const, label: "Capas", icon: Layers },
+              { id: "presets" as const, label: "Presets", icon: BookmarkPlus },
+              { id: "actions" as const, label: "Acciones", icon: PlaySquare },
+            ]).map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
@@ -997,6 +1013,18 @@ export default function EditorPage() {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {tab === "presets" && (
+            <div className="space-y-3 p-4">
+              <p className="text-xs text-muted-foreground">
+                Los presets guardados aparecerán aquí. Usa "Save preset" en la barra superior para guardar el layout actual como plantilla reutilizable.
+              </p>
+              <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                Aún no hay presets guardados
               </div>
             </div>
           )}
