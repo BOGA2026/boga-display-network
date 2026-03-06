@@ -93,6 +93,38 @@ export default function EditorPage() {
   const dragSnapshotSaved = useRef(false);
   const MAX_HISTORY = 80;
 
+  // Load existing layout when contentId param is present
+  useEffect(() => {
+    const cid = searchParams.get("contentId");
+    if (!cid) return;
+    setContentId(cid);
+    const load = async () => {
+      const { data, error } = await supabase
+        .from("content")
+        .select("id, name, file_url, type")
+        .eq("id", cid)
+        .single();
+      if (error || !data || data.type !== "layout" || !data.file_url) return;
+      try {
+        const base64 = data.file_url.replace(/^data:[^;]+;base64,/, "");
+        const json = decodeURIComponent(escape(atob(base64)));
+        const payload = JSON.parse(json);
+        setContentName(payload.name || data.name);
+        if (payload.orientation) setOrientation(payload.orientation);
+        if (payload.width && payload.height) {
+          setCustomResolution(true);
+          setCustomW(payload.width);
+          setCustomH(payload.height);
+        }
+        if (payload.background) setBackground(payload.background);
+        if (Array.isArray(payload.layers)) setLayers(payload.layers);
+      } catch (e) {
+        console.error("Error loading layout:", e);
+      }
+    };
+    load();
+  }, [searchParams]);
+
   const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
 
   const saveSnapshot = useCallback(() => {
