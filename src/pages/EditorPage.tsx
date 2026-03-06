@@ -73,6 +73,9 @@ export default function EditorPage() {
   const [saving, setSaving] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveFileName, setSaveFileName] = useState("");
+  const [presetDialogOpen, setPresetDialogOpen] = useState(false);
+  const [presetName, setPresetName] = useState("");
+  const [presets, setPresets] = useState<{ id: string; name: string; thumbnail_url: string | null; file_url: string | null }[]>([]);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
@@ -600,19 +603,90 @@ export default function EditorPage() {
     }
   }, [saveFileName, buildLayoutPayload, contentId, generateThumbnail]);
 
+  // Presets: fetch on mount
+  useEffect(() => {
+    fetchPresets();
+  }, []);
+
+  const fetchPresets = async () => {
+    const { data } = await supabase
+      .from("content")
+      .select("id, name, thumbnail_url, file_url")
+      .eq("type", "preset")
+      .order("created_at", { ascending: false });
+    setPresets(data ?? []);
+  };
+
   const onSavePreset = useCallback(async () => {
+    setPresetName(contentName + " (preset)");
+    setPresetDialogOpen(true);
+  }, [contentName]);
+
+  const confirmSavePreset = useCallback(async () => {
+    if (!presetName.trim()) return;
     setSaving(true);
     try {
-      // TODO: integrate with Supabase presets table
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Preset guardado");
+      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
+
+      const payload = buildLayoutPayload();
+      const layoutJson = JSON.stringify({ ...payload, name: presetName.trim() });
+      const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
+      const thumbnailDataUrl = await generateThumbnail();
+
+      const { error } = await supabase.from("content").insert({
+        name: presetName.trim(),
+        type: "preset",
+        file_url: dataUri,
+        thumbnail_url: thumbnailDataUrl,
+        business_id: bizId,
+        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+      });
+      if (error) throw error;
+
+      toast.success(`Preset "${presetName.trim()}" guardado`);
+      setPresetDialogOpen(false);
       setTab("presets");
-    } catch {
-      toast.error("Error al guardar preset");
+      fetchPresets();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Error al guardar preset: " + (err.message || ""));
     } finally {
       setSaving(false);
     }
-  }, [buildLayoutPayload]);
+  }, [presetName, buildLayoutPayload, generateThumbnail]);
+
+  const loadPreset = useCallback(async (preset: { file_url: string | null }) => {
+    if (!preset.file_url) return;
+    try {
+      const base64 = preset.file_url.replace(/^data:[^;]+;base64,/, "");
+      const json = decodeURIComponent(escape(atob(base64)));
+      const payload = JSON.parse(json);
+      saveSnapshot();
+      if (payload.orientation) setOrientation(payload.orientation);
+      if (payload.width && payload.height) {
+        setCustomResolution(true);
+        setCustomW(payload.width);
+        setCustomH(payload.height);
+      }
+      if (payload.background) setBackground(payload.background);
+      if (Array.isArray(payload.layers)) setLayers(payload.layers);
+      toast.success("Preset aplicado");
+    } catch (e) {
+      console.error("Error loading preset:", e);
+      toast.error("No se pudo cargar el preset");
+    }
+  }, [saveSnapshot]);
+
+  const deletePreset = useCallback(async (id: string) => {
+    const { error } = await supabase.from("content").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar preset");
+    } else {
+      setPresets((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Preset eliminado");
+    }
+  }, []);
 
   return (
     <div className="h-full w-full bg-muted text-foreground" tabIndex={0} onKeyDown={onKeyDown} style={{ outline: "none" }}>
@@ -1115,12 +1189,41 @@ export default function EditorPage() {
           {tab === "presets" && (
             <div className="space-y-3 p-4">
               <p className="text-xs text-muted-foreground">
-                Los presets guardados aparecerán aquí. Usa "Save preset" en la barra superior para guardar el layout actual como plantilla reutilizable.
+                Presets guardados. Haz clic en uno para aplicarlo al canvas.
               </p>
-              <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                Aún no hay presets guardados
-              </div>
+              {presets.length === 0 ? (
+                <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                  <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                  Aún no hay presets guardados
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {presets.map((p) => (
+                    <div key={p.id} className="group relative rounded-lg border border-border overflow-hidden hover:border-primary transition-colors cursor-pointer">
+                      <div
+                        className="aspect-video bg-secondary/50 flex items-center justify-center"
+                        onClick={() => loadPreset(p)}
+                      >
+                        {p.thumbnail_url ? (
+                          <img src={p.thumbnail_url} alt={p.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <LayoutGrid className="h-6 w-6 text-muted-foreground/40" />
+                        )}
+                      </div>
+                      <div className="p-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-medium truncate">{p.name}</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deletePreset(p.id); }}
+                          className="opacity-0 group-hover:opacity-100 rounded p-0.5 hover:bg-destructive/10 text-destructive transition-opacity"
+                          title="Eliminar preset"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1179,6 +1282,41 @@ export default function EditorPage() {
               className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Save Preset dialog */}
+      <Dialog open={presetDialogOpen} onOpenChange={setPresetDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Guardar como preset</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <label className="text-sm text-muted-foreground">Nombre del preset</label>
+            <input
+              autoFocus
+              value={presetName}
+              onChange={(e) => setPresetName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") confirmSavePreset(); }}
+              placeholder="Ej: Menú restaurante premium"
+              className="w-full rounded border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setPresetDialogOpen(false)}
+              className="rounded border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmSavePreset}
+              disabled={saving || !presetName.trim()}
+              className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {saving ? "Guardando…" : "Guardar preset"}
             </button>
           </DialogFooter>
         </DialogContent>
