@@ -75,6 +75,11 @@ const Content = () => {
   const [loadingSamples, setLoadingSamples] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const openInEditor = (id: string) => {
+    navigate(`/dashboard/editor?contentId=${id}`);
+  };
 
   const getBusinessId = async (): Promise<string | null> => {
     const { data, error } = await supabase.rpc("get_user_business_id");
