@@ -38,6 +38,7 @@ import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
 import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
