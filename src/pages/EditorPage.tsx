@@ -603,19 +603,90 @@ export default function EditorPage() {
     }
   }, [saveFileName, buildLayoutPayload, contentId, generateThumbnail]);
 
+  // Presets: fetch on mount
+  useEffect(() => {
+    fetchPresets();
+  }, []);
+
+  const fetchPresets = async () => {
+    const { data } = await supabase
+      .from("content")
+      .select("id, name, thumbnail_url, file_url")
+      .eq("type", "preset")
+      .order("created_at", { ascending: false });
+    setPresets(data ?? []);
+  };
+
   const onSavePreset = useCallback(async () => {
+    setPresetName(contentName + " (preset)");
+    setPresetDialogOpen(true);
+  }, [contentName]);
+
+  const confirmSavePreset = useCallback(async () => {
+    if (!presetName.trim()) return;
     setSaving(true);
     try {
-      // TODO: integrate with Supabase presets table
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Preset guardado");
+      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
+
+      const payload = buildLayoutPayload();
+      const layoutJson = JSON.stringify({ ...payload, name: presetName.trim() });
+      const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
+      const thumbnailDataUrl = await generateThumbnail();
+
+      const { error } = await supabase.from("content").insert({
+        name: presetName.trim(),
+        type: "preset",
+        file_url: dataUri,
+        thumbnail_url: thumbnailDataUrl,
+        business_id: bizId,
+        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+      });
+      if (error) throw error;
+
+      toast.success(`Preset "${presetName.trim()}" guardado`);
+      setPresetDialogOpen(false);
       setTab("presets");
-    } catch {
-      toast.error("Error al guardar preset");
+      fetchPresets();
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Error al guardar preset: " + (err.message || ""));
     } finally {
       setSaving(false);
     }
-  }, [buildLayoutPayload]);
+  }, [presetName, buildLayoutPayload, generateThumbnail]);
+
+  const loadPreset = useCallback(async (preset: { file_url: string | null }) => {
+    if (!preset.file_url) return;
+    try {
+      const base64 = preset.file_url.replace(/^data:[^;]+;base64,/, "");
+      const json = decodeURIComponent(escape(atob(base64)));
+      const payload = JSON.parse(json);
+      saveSnapshot();
+      if (payload.orientation) setOrientation(payload.orientation);
+      if (payload.width && payload.height) {
+        setCustomResolution(true);
+        setCustomW(payload.width);
+        setCustomH(payload.height);
+      }
+      if (payload.background) setBackground(payload.background);
+      if (Array.isArray(payload.layers)) setLayers(payload.layers);
+      toast.success("Preset aplicado");
+    } catch (e) {
+      console.error("Error loading preset:", e);
+      toast.error("No se pudo cargar el preset");
+    }
+  }, [saveSnapshot]);
+
+  const deletePreset = useCallback(async (id: string) => {
+    const { error } = await supabase.from("content").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar preset");
+    } else {
+      setPresets((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Preset eliminado");
+    }
+  }, []);
 
   return (
     <div className="h-full w-full bg-muted text-foreground" tabIndex={0} onKeyDown={onKeyDown} style={{ outline: "none" }}>
