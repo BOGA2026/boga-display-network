@@ -536,6 +536,23 @@ export default function EditorPage() {
     setSaveDialogOpen(true);
   }, [contentName]);
 
+  const generateThumbnail = useCallback(async (): Promise<string | null> => {
+    if (!canvasRef.current) return null;
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(canvasRef.current, {
+        scale: 0.35,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: background,
+      });
+      return canvas.toDataURL("image/jpeg", 0.7);
+    } catch (e) {
+      console.warn("Thumbnail generation failed:", e);
+      return null;
+    }
+  }, [background]);
+
   const confirmSaveContent = useCallback(async () => {
     if (!saveFileName.trim()) return;
     setSaving(true);
@@ -547,11 +564,15 @@ export default function EditorPage() {
       const layoutJson = JSON.stringify({ ...payload, name: saveFileName.trim() });
       const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
 
+      // Generate thumbnail from canvas
+      const thumbnailDataUrl = await generateThumbnail();
+
       if (contentId) {
         // Update existing layout
         const { error } = await supabase.from("content").update({
           name: saveFileName.trim(),
           file_url: dataUri,
+          thumbnail_url: thumbnailDataUrl,
         }).eq("id", contentId);
         if (error) throw error;
       } else {
@@ -560,6 +581,7 @@ export default function EditorPage() {
           name: saveFileName.trim(),
           type: "layout",
           file_url: dataUri,
+          thumbnail_url: thumbnailDataUrl,
           business_id: bizId,
           created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
         }).select("id").single();
@@ -576,7 +598,7 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [saveFileName, buildLayoutPayload, contentId]);
+  }, [saveFileName, buildLayoutPayload, contentId, generateThumbnail]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
