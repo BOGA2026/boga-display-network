@@ -206,6 +206,54 @@ export default function EditorPage() {
     e.target.value = "";
   };
 
+  // Z-order controls
+  const swapLayers = useCallback((i: number, j: number) => {
+    if (i < 0 || j < 0 || i >= layers.length || j >= layers.length) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }, [layers.length, saveSnapshot]);
+
+  const bringForward = useCallback(() => {
+    if (!selectedLayer) return;
+    const idx = layers.findIndex((l) => l.id === selectedLayer.id);
+    swapLayers(idx, idx + 1);
+  }, [selectedLayer, layers, swapLayers]);
+
+  const sendBackward = useCallback(() => {
+    if (!selectedLayer) return;
+    const idx = layers.findIndex((l) => l.id === selectedLayer.id);
+    swapLayers(idx, idx - 1);
+  }, [selectedLayer, layers, swapLayers]);
+
+  const bringToFront = useCallback(() => {
+    if (!selectedLayer) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const idx = prev.findIndex((l) => l.id === selectedLayer.id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.push(item);
+      return next;
+    });
+  }, [selectedLayer, saveSnapshot]);
+
+  const sendToBack = useCallback(() => {
+    if (!selectedLayer) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const idx = prev.findIndex((l) => l.id === selectedLayer.id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.unshift(item);
+      return next;
+    });
+  }, [selectedLayer, saveSnapshot]);
 
   const addWidgetFromPreset = (presetId: string) => {
     const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
@@ -493,6 +541,18 @@ export default function EditorPage() {
                 <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
               </PopoverContent>
             </Popover>
+            <span className="h-px w-full bg-border" />
+            <button onClick={() => fileInputRef.current?.click()} className="rounded p-2 hover:bg-accent" title="Subir imagen (PNG)">
+              <Upload className="h-5 w-5" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              hidden
+              onChange={onPickLocalFiles}
+            />
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
