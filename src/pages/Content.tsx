@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -227,7 +228,11 @@ const Content = () => {
           {items.map((item) => {
             const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
             return (
-              <Card key={item.id} className="surface-elevated border-border/30 overflow-hidden transition-all hover:border-primary/30 hover:glow-primary-sm group">
+              <Card
+                key={item.id}
+                className="surface-elevated border-border/30 overflow-hidden transition-all hover:border-primary/30 hover:glow-primary-sm group cursor-pointer"
+                onClick={() => item.type === "layout" ? openInEditor(item.id) : undefined}
+              >
                 {/* Thumbnail area */}
                 <div className="relative aspect-video bg-secondary/50 flex items-center justify-center overflow-hidden">
                   {item.type === "image" && item.file_url ? (
