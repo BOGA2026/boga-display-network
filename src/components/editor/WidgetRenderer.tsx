@@ -1,5 +1,5 @@
 import React from "react";
-import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
+import type { ProductCardData, MenuBoardData, PromoData, WidgetTypography } from "./widgetPresets";
 import { EditableWidgetText } from "./EditableWidgetText";
 
 type WidgetLayer = {
@@ -14,6 +14,14 @@ type Props = {
   onUpdateContent?: (next: ProductCardData | MenuBoardData | PromoData) => void;
 };
 
+function typo(t?: WidgetTypography): React.CSSProperties {
+  if (!t) return {};
+  return {
+    ...(t.fontFamily ? { fontFamily: t.fontFamily } : {}),
+    ...(t.fontWeight ? { fontWeight: t.fontWeight } : {}),
+  };
+}
+
 export function WidgetRenderer({ layer, onUpdateContent }: Props) {
   const editable = !!onUpdateContent;
   const update = (patch: Record<string, unknown>) => {
@@ -22,9 +30,16 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
     }
   };
 
+  const t = (layer.content as any).typography as WidgetTypography | undefined;
+  const baseFont = typo(t);
+  const scaleFactor = t?.fontSize ? t.fontSize / 24 : 1;
+
   if (layer.widgetType === "product_card") {
     const d = layer.content as ProductCardData;
     const isVertical = layer.h > layer.w;
+    const titleSize = Math.round((isVertical ? 30 : 34) * scaleFactor);
+    const subtitleSize = Math.round((isVertical ? 18 : 20) * scaleFactor);
+    const priceSize = Math.round((isVertical ? 28 : 32) * scaleFactor);
 
     return (
       <div
@@ -39,6 +54,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
           display: "grid",
           gridTemplateColumns: isVertical ? "1fr" : "42% 58%",
           gridTemplateRows: isVertical ? "52% 48%" : "1fr",
+          ...baseFont,
         }}
       >
         <img
@@ -47,14 +63,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
           draggable={false}
         />
-        <div
-          style={{
-            padding: 18,
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
+        <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 8 }}>
           <span
             style={{
               fontSize: 12,
@@ -70,23 +79,19 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
             <EditableWidgetText
               value={d.title}
               onChange={(v) => update({ title: v })}
-              style={{ margin: 0, fontSize: isVertical ? 30 : 34, lineHeight: 1.05, fontWeight: 700 }}
+              style={{ margin: 0, fontSize: titleSize, lineHeight: 1.05, fontWeight: t?.fontWeight || 700 }}
             />
           ) : (
-            <h3 style={{ margin: 0, fontSize: isVertical ? 30 : 34, lineHeight: 1.05 }}>
-              {d.title}
-            </h3>
+            <h3 style={{ margin: 0, fontSize: titleSize, lineHeight: 1.05 }}>{d.title}</h3>
           )}
           {editable ? (
             <EditableWidgetText
               value={d.subtitle}
               onChange={(v) => update({ subtitle: v })}
-              style={{ margin: 0, opacity: 0.85, fontSize: isVertical ? 18 : 20 }}
+              style={{ margin: 0, opacity: 0.85, fontSize: subtitleSize }}
             />
           ) : (
-            <p style={{ margin: 0, opacity: 0.85, fontSize: isVertical ? 18 : 20 }}>
-              {d.subtitle}
-            </p>
+            <p style={{ margin: 0, opacity: 0.85, fontSize: subtitleSize }}>{d.subtitle}</p>
           )}
           <div style={{ marginTop: "auto" }}>
             {editable ? (
@@ -99,7 +104,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
                   color: "#fff",
                   padding: "10px 16px",
                   borderRadius: 12,
-                  fontSize: isVertical ? 28 : 32,
+                  fontSize: priceSize,
                   fontWeight: 800,
                 }}
               />
@@ -111,7 +116,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
                   color: "#fff",
                   padding: "10px 16px",
                   borderRadius: 12,
-                  fontSize: isVertical ? 28 : 32,
+                  fontSize: priceSize,
                   fontWeight: 800,
                 }}
               >
@@ -127,6 +132,10 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
   if (layer.widgetType === "promo") {
     const d = layer.content as PromoData;
     const isVertical = layer.h > layer.w;
+    const titleSize = Math.round((isVertical ? 44 : 48) * scaleFactor);
+    const msgSize = Math.round((isVertical ? 26 : 28) * scaleFactor);
+    const ctaSize = Math.round((isVertical ? 24 : 26) * scaleFactor);
+
     return (
       <div
         style={{
@@ -142,29 +151,26 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
           flexDirection: "column",
           justifyContent: "center",
           gap: 12,
+          ...baseFont,
         }}
       >
         {editable ? (
           <EditableWidgetText
             value={d.title}
             onChange={(v) => update({ title: v })}
-            style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}
+            style={{ margin: 0, fontSize: titleSize, fontWeight: t?.fontWeight || 900, lineHeight: 1.1 }}
           />
         ) : (
-          <h2 style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}>
-            {d.title}
-          </h2>
+          <h2 style={{ margin: 0, fontSize: titleSize, fontWeight: 900, lineHeight: 1.1 }}>{d.title}</h2>
         )}
         {editable ? (
           <EditableWidgetText
             value={d.message}
             onChange={(v) => update({ message: v })}
-            style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}
+            style={{ margin: 0, fontSize: msgSize, opacity: 0.85 }}
           />
         ) : (
-          <p style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}>
-            {d.message}
-          </p>
+          <p style={{ margin: 0, fontSize: msgSize, opacity: 0.85 }}>{d.message}</p>
         )}
         <div>
           {editable ? (
@@ -178,7 +184,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
                 fontWeight: 800,
                 padding: "10px 18px",
                 borderRadius: 12,
-                fontSize: isVertical ? 24 : 26,
+                fontSize: ctaSize,
               }}
             />
           ) : (
@@ -190,7 +196,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
                 fontWeight: 800,
                 padding: "10px 18px",
                 borderRadius: 12,
-                fontSize: isVertical ? 24 : 26,
+                fontSize: ctaSize,
               }}
             >
               {d.cta}
@@ -203,6 +209,8 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
 
   const d = layer.content as MenuBoardData;
   const isVertical = layer.h > layer.w;
+  const headerSize = Math.round((isVertical ? 34 : 38) * scaleFactor);
+  const itemSize = Math.round((isVertical ? 24 : 22) * scaleFactor);
 
   const updateItem = (idx: number, patch: Partial<{ name: string; price: string }>) => {
     const next = d.items.map((it, i) => (i === idx ? { ...it, ...patch } : it));
@@ -221,6 +229,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
         border: "1px solid #1f2937",
         display: "flex",
         flexDirection: "column",
+        ...baseFont,
       }}
     >
       <div
@@ -228,7 +237,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
           background: d.accent,
           color: "#111827",
           fontWeight: 900,
-          fontSize: isVertical ? 34 : 38,
+          fontSize: headerSize,
           padding: "14px 18px",
           letterSpacing: 0.5,
         }}
@@ -264,7 +273,7 @@ export function WidgetRenderer({ layer, onUpdateContent }: Props) {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              fontSize: isVertical ? 24 : 22,
+              fontSize: itemSize,
               fontWeight: 600,
             }}
           >
