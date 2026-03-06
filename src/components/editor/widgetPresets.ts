@@ -10,18 +10,26 @@ export type WidgetPreset = {
   data: ProductCardData | MenuBoardData | PromoData;
 };
 
+export type WidgetTypography = {
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: 400 | 500 | 600 | 700 | 800;
+};
+
 export type ProductCardData = {
   title: string;
   subtitle: string;
   price: string;
   image: string;
   accent: string;
+  typography?: WidgetTypography;
 };
 
 export type MenuBoardData = {
   header: string;
   items: { name: string; price: string }[];
   accent: string;
+  typography?: WidgetTypography;
 };
 
 export type PromoData = {
@@ -30,6 +38,7 @@ export type PromoData = {
   cta: string;
   accent: string;
   bg: string;
+  typography?: WidgetTypography;
 };
 
 export const WIDGET_PRESETS: WidgetPreset[] = [
