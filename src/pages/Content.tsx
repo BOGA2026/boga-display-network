@@ -140,6 +140,52 @@ const Content = () => {
     setLoading(false);
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from("content").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: "Error al eliminar", description: error.message, variant: "destructive" });
+    } else {
+      setItems((prev) => prev.filter((x) => x.id !== deleteTarget.id));
+      toast({ title: "Contenido eliminado" });
+    }
+    setDeleteTarget(null);
+  };
+
+  const openAssignDialog = async (item: ContentItem) => {
+    setAssignTarget(item);
+    setSelectedPlaylistId("");
+    const { data } = await supabase.from("playlists").select("id, name").order("name");
+    setPlaylists(data ?? []);
+  };
+
+  const handleAssign = async () => {
+    if (!assignTarget || !selectedPlaylistId) return;
+    setAssigning(true);
+    // Get max sort_order
+    const { data: existing } = await supabase
+      .from("playlist_items")
+      .select("sort_order")
+      .eq("playlist_id", selectedPlaylistId)
+      .order("sort_order", { ascending: false })
+      .limit(1);
+    const nextOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+    const { error } = await supabase.from("playlist_items").insert({
+      playlist_id: selectedPlaylistId,
+      content_id: assignTarget.id,
+      sort_order: nextOrder,
+    });
+    setAssigning(false);
+    if (error) {
+      toast({ title: "Error al asignar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Asignado a playlist", description: `"${assignTarget.name}" agregado correctamente.` });
+    }
+    setAssignTarget(null);
+  };
+
   const resetUploadForm = () => {
     setSelectedType(null);
     setContentName("");
