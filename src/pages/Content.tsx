@@ -549,6 +549,67 @@ const Content = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ========== Delete Confirmation ========== */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El archivo será eliminado permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Eliminando…" : "Eliminar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ========== Assign to Playlist ========== */}
+      <Dialog open={!!assignTarget} onOpenChange={(open) => !open && setAssignTarget(null)}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg">Asignar a playlist</DialogTitle>
+            <DialogDescription>
+              Agrega "{assignTarget?.name}" a una playlist existente.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label>Playlist</Label>
+            <Select value={selectedPlaylistId} onValueChange={setSelectedPlaylistId}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Selecciona una playlist" />
+              </SelectTrigger>
+              <SelectContent>
+                {playlists.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {playlists.length === 0 && (
+              <p className="text-xs text-muted-foreground mt-2">No hay playlists disponibles.</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)}>Cancelar</Button>
+            <Button
+              onClick={handleAssign}
+              disabled={assigning || !selectedPlaylistId}
+              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
+            >
+              <ListPlus className="h-4 w-4" />
+              {assigning ? "Asignando…" : "Asignar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };
