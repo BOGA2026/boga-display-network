@@ -22,6 +22,8 @@ import {
   ChevronsUp,
   ChevronsDown,
   BookmarkPlus,
+  Film,
+  Loader2,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -43,7 +45,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 
 type Orientation = "landscape" | "portrait";
-type LayerType = "zone" | "text" | "image" | "widget";
+type LayerType = "zone" | "text" | "image" | "widget" | "video";
 type LayerItem = {
   id: string;
   name: string;
@@ -55,6 +57,7 @@ type LayerItem = {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  videoUrl?: string;
   widgetType?: "product_card" | "menu_board" | "promo";
   widgetData?: ProductCardData | MenuBoardData | PromoData;
 };
