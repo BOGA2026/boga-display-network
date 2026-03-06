@@ -21,7 +21,7 @@ export function WidgetPresetPicker({ orientation, onInsertPreset }: Props) {
           >
             <span className="font-medium text-foreground">{p.name}</span>
             <span className="block text-xs text-muted-foreground mt-0.5">
-              {p.w}×{p.h} · {p.type === "product_card" ? "Producto" : "Menú"}
+              {p.w}×{p.h} · {p.type === "product_card" ? "Producto" : p.type === "promo" ? "Promo" : "Menú"}
             </span>
           </button>
         ))}
