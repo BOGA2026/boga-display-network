@@ -545,15 +545,27 @@ export default function EditorPage() {
 
       const payload = buildLayoutPayload();
       const layoutJson = JSON.stringify({ ...payload, name: saveFileName.trim() });
+      const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
 
-      const { error: insertError } = await supabase.from("content").insert({
-        name: saveFileName.trim(),
-        type: "layout",
-        file_url: `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`,
-        business_id: bizId,
-        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
-      });
-      if (insertError) throw insertError;
+      if (contentId) {
+        // Update existing layout
+        const { error } = await supabase.from("content").update({
+          name: saveFileName.trim(),
+          file_url: dataUri,
+        }).eq("id", contentId);
+        if (error) throw error;
+      } else {
+        // Insert new layout
+        const { data: inserted, error: insertError } = await supabase.from("content").insert({
+          name: saveFileName.trim(),
+          type: "layout",
+          file_url: dataUri,
+          business_id: bizId,
+          created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+        }).select("id").single();
+        if (insertError) throw insertError;
+        if (inserted) setContentId(inserted.id);
+      }
 
       setContentName(saveFileName.trim());
       toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
@@ -564,7 +576,7 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [saveFileName, buildLayoutPayload]);
+  }, [saveFileName, buildLayoutPayload, contentId]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
