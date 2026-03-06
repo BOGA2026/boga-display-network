@@ -1189,12 +1189,41 @@ export default function EditorPage() {
           {tab === "presets" && (
             <div className="space-y-3 p-4">
               <p className="text-xs text-muted-foreground">
-                Los presets guardados aparecerán aquí. Usa "Save preset" en la barra superior para guardar el layout actual como plantilla reutilizable.
+                Presets guardados. Haz clic en uno para aplicarlo al canvas.
               </p>
-              <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                Aún no hay presets guardados
-              </div>
+              {presets.length === 0 ? (
+                <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                  <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                  Aún no hay presets guardados
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {presets.map((p) => (
+                    <div key={p.id} className="group relative rounded-lg border border-border overflow-hidden hover:border-primary transition-colors cursor-pointer">
+                      <div
+                        className="aspect-video bg-secondary/50 flex items-center justify-center"
+                        onClick={() => loadPreset(p)}
+                      >
+                        {p.thumbnail_url ? (
+                          <img src={p.thumbnail_url} alt={p.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <LayoutGrid className="h-6 w-6 text-muted-foreground/40" />
+                        )}
+                      </div>
+                      <div className="p-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-medium truncate">{p.name}</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deletePreset(p.id); }}
+                          className="opacity-0 group-hover:opacity-100 rounded p-0.5 hover:bg-destructive/10 text-destructive transition-opacity"
+                          title="Eliminar preset"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
