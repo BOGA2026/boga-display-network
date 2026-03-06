@@ -21,6 +21,7 @@ import {
   Music,
   FileUp,
   Layers,
+  LayoutGrid,
   X,
   Check,
 } from "lucide-react";
