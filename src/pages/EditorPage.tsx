@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import {
-  Save,
-  Send,
   Undo2,
   Redo2,
   LayoutGrid,
