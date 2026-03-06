@@ -77,6 +77,57 @@ export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
     );
   }
 
+  if (widgetType === "promo") {
+    const c = content as PromoData;
+    return (
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-primary">Widget: Promo Banner</p>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Título</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.title}
+            onChange={(e) => update({ title: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Mensaje</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.message}
+            onChange={(e) => update({ message: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">CTA (botón)</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.cta}
+            onChange={(e) => update({ cta: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Color acento</label>
+          <input
+            className="h-10 w-full rounded border border-border p-1"
+            type="color"
+            value={c.accent}
+            onChange={(e) => update({ accent: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Color fondo</label>
+          <input
+            className="h-10 w-full rounded border border-border p-1"
+            type="color"
+            value={c.bg}
+            onChange={(e) => update({ bg: e.target.value })}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const c = content as MenuBoardData;
   const updateItem = (idx: number, patch: Partial<{ name: string; price: string }>) => {
     const next = c.items.map((it, i) => (i === idx ? { ...it, ...patch } : it));
