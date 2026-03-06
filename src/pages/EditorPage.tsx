@@ -92,6 +92,8 @@ export default function EditorPage() {
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
