@@ -327,7 +327,9 @@ const Content = () => {
               >
                 {/* Thumbnail area */}
                 <div className="relative aspect-video bg-secondary/50 flex items-center justify-center overflow-hidden">
-                  {item.type === "image" && item.file_url ? (
+                  {item.thumbnail_url ? (
+                    <img src={item.thumbnail_url} alt={item.name} className="h-full w-full object-cover" />
+                  ) : item.type === "image" && item.file_url ? (
                     <img src={item.file_url} alt={item.name} className="h-full w-full object-cover" />
                   ) : item.type === "video" && item.file_url ? (
                     <video src={item.file_url} className="h-full w-full object-cover" muted />
@@ -336,7 +338,7 @@ const Content = () => {
                       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
                         <LayoutGrid className="h-7 w-7 text-primary" />
                       </div>
-                      <span className="text-xs text-muted-foreground font-medium">Plantilla de editor</span>
+                      <span className="text-xs text-muted-foreground font-medium">Sin preview</span>
                     </div>
                   ) : (
                     <Icon className="h-10 w-10 text-muted-foreground/40" />
