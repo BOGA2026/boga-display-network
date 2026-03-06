@@ -234,11 +234,18 @@ const Content = () => {
                     <img src={item.file_url} alt={item.name} className="h-full w-full object-cover" />
                   ) : item.type === "video" && item.file_url ? (
                     <video src={item.file_url} className="h-full w-full object-cover" muted />
+                  ) : item.type === "layout" ? (
+                    <div className="flex flex-col items-center gap-2 p-4">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+                        <LayoutGrid className="h-7 w-7 text-primary" />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium">Plantilla de editor</span>
+                    </div>
                   ) : (
                     <Icon className="h-10 w-10 text-muted-foreground/40" />
                   )}
                   <div className="absolute top-2 right-2 rounded-md bg-background/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
-                    {item.type}
+                    {item.type === "layout" ? "Layout" : item.type}
                   </div>
                 </div>
                 <CardContent className="p-4">
