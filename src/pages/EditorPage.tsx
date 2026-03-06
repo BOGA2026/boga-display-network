@@ -22,6 +22,8 @@ import {
   ChevronsUp,
   ChevronsDown,
   BookmarkPlus,
+  Film,
+  Loader2,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -43,7 +45,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 
 type Orientation = "landscape" | "portrait";
-type LayerType = "zone" | "text" | "image" | "widget";
+type LayerType = "zone" | "text" | "image" | "widget" | "video";
 type LayerItem = {
   id: string;
   name: string;
@@ -55,6 +57,7 @@ type LayerItem = {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  videoUrl?: string;
   widgetType?: "product_card" | "menu_board" | "promo";
   widgetData?: ProductCardData | MenuBoardData | PromoData;
 };
@@ -89,6 +92,8 @@ export default function EditorPage() {
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
@@ -250,7 +255,57 @@ export default function EditorPage() {
     e.target.value = "";
   };
 
-  // Z-order controls
+  const onPickVideoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploadingVideo(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("No auth");
+      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      if (!bizId) throw new Error("No business");
+      const ext = file.name.split(".").pop();
+      const filePath = `${bizId}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(filePath, file);
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+      const publicUrl = urlData.publicUrl;
+
+      // Also save to content table
+      await supabase.from("content").insert({
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        type: "video",
+        file_url: publicUrl,
+        business_id: bizId,
+      });
+
+      // Add video layer
+      saveSnapshot();
+      const id = crypto.randomUUID();
+      setLayers((prev) => [
+        ...prev,
+        {
+          id,
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          type: "video" as LayerType,
+          x: 100 + prev.length * 20,
+          y: 100 + prev.length * 20,
+          w: 640,
+          h: 360,
+          color: "transparent",
+          videoUrl: publicUrl,
+        },
+      ]);
+      setSelectedIds([id]);
+      toast.success("Video agregado al canvas");
+    } catch (err: any) {
+      toast.error(err?.message || "Error al subir video");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
   const swapLayers = useCallback((i: number, j: number) => {
     if (i < 0 || j < 0 || i >= layers.length || j >= layers.length) return;
     saveSnapshot();
@@ -739,6 +794,21 @@ export default function EditorPage() {
               hidden
               onChange={onPickLocalFiles}
             />
+            <button
+              onClick={() => videoInputRef.current?.click()}
+              className="rounded p-2 hover:bg-accent relative"
+              title="Subir video"
+              disabled={uploadingVideo}
+            >
+              {uploadingVideo ? <Loader2 className="h-5 w-5 animate-spin" /> : <Film className="h-5 w-5" />}
+            </button>
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/webm,video/quicktime"
+              hidden
+              onChange={onPickVideoFile}
+            />
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
@@ -890,6 +960,15 @@ export default function EditorPage() {
                         src={l.imageUrl}
                         alt={l.name}
                         className="h-full w-full object-cover rounded"
+                        draggable={false}
+                      />
+                    ) : l.type === "video" && l.videoUrl ? (
+                      <video
+                        src={l.videoUrl}
+                        className="h-full w-full object-cover rounded"
+                        muted
+                        loop
+                        autoPlay
                         draggable={false}
                       />
                     ) : l.type === "widget" && l.widgetType && l.widgetData ? (
