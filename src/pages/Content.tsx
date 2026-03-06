@@ -318,7 +318,12 @@ const Content = () => {
               <Card
                 key={item.id}
                 className="surface-elevated border-border/30 overflow-hidden transition-all hover:border-primary/30 hover:glow-primary-sm group cursor-pointer"
-                onClick={() => item.type === "layout" ? openInEditor(item.id) : undefined}
+                onClick={(e) => {
+                  // Don't navigate if clicking on dropdown menu area
+                  const target = e.target as HTMLElement;
+                  if (target.closest('[data-radix-collection-item]') || target.closest('[role="menu"]')) return;
+                  if (item.type === "layout") openInEditor(item.id);
+                }}
               >
                 {/* Thumbnail area */}
                 <div className="relative aspect-video bg-secondary/50 flex items-center justify-center overflow-hidden">
