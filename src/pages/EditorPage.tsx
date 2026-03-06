@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Undo2,
@@ -59,6 +60,8 @@ type LayerItem = {
 };
 
 export default function EditorPage() {
+  const [searchParams] = useSearchParams();
+  const [contentId, setContentId] = useState<string | null>(null);
   const [contentName, setContentName] = useState("Nuevo layout");
   const [orientation, setOrientation] = useState<Orientation>("landscape");
   const [customResolution, setCustomResolution] = useState(false);
@@ -89,6 +92,38 @@ export default function EditorPage() {
   const futureRef = useRef<LayerItem[][]>([]);
   const dragSnapshotSaved = useRef(false);
   const MAX_HISTORY = 80;
+
+  // Load existing layout when contentId param is present
+  useEffect(() => {
+    const cid = searchParams.get("contentId");
+    if (!cid) return;
+    setContentId(cid);
+    const load = async () => {
+      const { data, error } = await supabase
+        .from("content")
+        .select("id, name, file_url, type")
+        .eq("id", cid)
+        .single();
+      if (error || !data || data.type !== "layout" || !data.file_url) return;
+      try {
+        const base64 = data.file_url.replace(/^data:[^;]+;base64,/, "");
+        const json = decodeURIComponent(escape(atob(base64)));
+        const payload = JSON.parse(json);
+        setContentName(payload.name || data.name);
+        if (payload.orientation) setOrientation(payload.orientation);
+        if (payload.width && payload.height) {
+          setCustomResolution(true);
+          setCustomW(payload.width);
+          setCustomH(payload.height);
+        }
+        if (payload.background) setBackground(payload.background);
+        if (Array.isArray(payload.layers)) setLayers(payload.layers);
+      } catch (e) {
+        console.error("Error loading layout:", e);
+      }
+    };
+    load();
+  }, [searchParams]);
 
   const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
 
@@ -510,15 +545,27 @@ export default function EditorPage() {
 
       const payload = buildLayoutPayload();
       const layoutJson = JSON.stringify({ ...payload, name: saveFileName.trim() });
+      const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
 
-      const { error: insertError } = await supabase.from("content").insert({
-        name: saveFileName.trim(),
-        type: "layout",
-        file_url: `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`,
-        business_id: bizId,
-        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
-      });
-      if (insertError) throw insertError;
+      if (contentId) {
+        // Update existing layout
+        const { error } = await supabase.from("content").update({
+          name: saveFileName.trim(),
+          file_url: dataUri,
+        }).eq("id", contentId);
+        if (error) throw error;
+      } else {
+        // Insert new layout
+        const { data: inserted, error: insertError } = await supabase.from("content").insert({
+          name: saveFileName.trim(),
+          type: "layout",
+          file_url: dataUri,
+          business_id: bizId,
+          created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+        }).select("id").single();
+        if (insertError) throw insertError;
+        if (inserted) setContentId(inserted.id);
+      }
 
       setContentName(saveFileName.trim());
       toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
@@ -529,7 +576,7 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [saveFileName, buildLayoutPayload]);
+  }, [saveFileName, buildLayoutPayload, contentId]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
