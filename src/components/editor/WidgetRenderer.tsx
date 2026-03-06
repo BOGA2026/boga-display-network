@@ -1,5 +1,6 @@
 import React from "react";
 import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
+import { EditableWidgetText } from "./EditableWidgetText";
 
 type WidgetLayer = {
   widgetType: "product_card" | "menu_board" | "promo";
@@ -8,7 +9,19 @@ type WidgetLayer = {
   h: number;
 };
 
-export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
+type Props = {
+  layer: WidgetLayer;
+  onUpdateContent?: (next: ProductCardData | MenuBoardData | PromoData) => void;
+};
+
+export function WidgetRenderer({ layer, onUpdateContent }: Props) {
+  const editable = !!onUpdateContent;
+  const update = (patch: Record<string, unknown>) => {
+    if (onUpdateContent) {
+      onUpdateContent({ ...layer.content, ...patch } as any);
+    }
+  };
+
   if (layer.widgetType === "product_card") {
     const d = layer.content as ProductCardData;
     const isVertical = layer.h > layer.w;
@@ -53,26 +66,58 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
           >
             destacado
           </span>
-          <h3 style={{ margin: 0, fontSize: isVertical ? 30 : 34, lineHeight: 1.05 }}>
-            {d.title}
-          </h3>
-          <p style={{ margin: 0, opacity: 0.85, fontSize: isVertical ? 18 : 20 }}>
-            {d.subtitle}
-          </p>
+          {editable ? (
+            <EditableWidgetText
+              value={d.title}
+              onChange={(v) => update({ title: v })}
+              style={{ margin: 0, fontSize: isVertical ? 30 : 34, lineHeight: 1.05, fontWeight: 700 }}
+            />
+          ) : (
+            <h3 style={{ margin: 0, fontSize: isVertical ? 30 : 34, lineHeight: 1.05 }}>
+              {d.title}
+            </h3>
+          )}
+          {editable ? (
+            <EditableWidgetText
+              value={d.subtitle}
+              onChange={(v) => update({ subtitle: v })}
+              style={{ margin: 0, opacity: 0.85, fontSize: isVertical ? 18 : 20 }}
+            />
+          ) : (
+            <p style={{ margin: 0, opacity: 0.85, fontSize: isVertical ? 18 : 20 }}>
+              {d.subtitle}
+            </p>
+          )}
           <div style={{ marginTop: "auto" }}>
-            <span
-              style={{
-                display: "inline-block",
-                background: d.accent,
-                color: "#fff",
-                padding: "10px 16px",
-                borderRadius: 12,
-                fontSize: isVertical ? 28 : 32,
-                fontWeight: 800,
-              }}
-            >
-              {d.price}
-            </span>
+            {editable ? (
+              <EditableWidgetText
+                value={d.price}
+                onChange={(v) => update({ price: v })}
+                style={{
+                  display: "inline-block",
+                  background: d.accent,
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 12,
+                  fontSize: isVertical ? 28 : 32,
+                  fontWeight: 800,
+                }}
+              />
+            ) : (
+              <span
+                style={{
+                  display: "inline-block",
+                  background: d.accent,
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 12,
+                  fontSize: isVertical ? 28 : 32,
+                  fontWeight: 800,
+                }}
+              >
+                {d.price}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -99,26 +144,58 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
           gap: 12,
         }}
       >
-        <h2 style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}>
-          {d.title}
-        </h2>
-        <p style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}>
-          {d.message}
-        </p>
+        {editable ? (
+          <EditableWidgetText
+            value={d.title}
+            onChange={(v) => update({ title: v })}
+            style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}
+          />
+        ) : (
+          <h2 style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}>
+            {d.title}
+          </h2>
+        )}
+        {editable ? (
+          <EditableWidgetText
+            value={d.message}
+            onChange={(v) => update({ message: v })}
+            style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}
+          />
+        ) : (
+          <p style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}>
+            {d.message}
+          </p>
+        )}
         <div>
-          <span
-            style={{
-              display: "inline-block",
-              background: d.accent,
-              color: "#111",
-              fontWeight: 800,
-              padding: "10px 18px",
-              borderRadius: 12,
-              fontSize: isVertical ? 24 : 26,
-            }}
-          >
-            {d.cta}
-          </span>
+          {editable ? (
+            <EditableWidgetText
+              value={d.cta}
+              onChange={(v) => update({ cta: v })}
+              style={{
+                display: "inline-block",
+                background: d.accent,
+                color: "#111",
+                fontWeight: 800,
+                padding: "10px 18px",
+                borderRadius: 12,
+                fontSize: isVertical ? 24 : 26,
+              }}
+            />
+          ) : (
+            <span
+              style={{
+                display: "inline-block",
+                background: d.accent,
+                color: "#111",
+                fontWeight: 800,
+                padding: "10px 18px",
+                borderRadius: 12,
+                fontSize: isVertical ? 24 : 26,
+              }}
+            >
+              {d.cta}
+            </span>
+          )}
         </div>
       </div>
     );
@@ -126,6 +203,11 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
 
   const d = layer.content as MenuBoardData;
   const isVertical = layer.h > layer.w;
+
+  const updateItem = (idx: number, patch: Partial<{ name: string; price: string }>) => {
+    const next = d.items.map((it, i) => (i === idx ? { ...it, ...patch } : it));
+    update({ items: next });
+  };
 
   return (
     <div
@@ -151,7 +233,15 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
           letterSpacing: 0.5,
         }}
       >
-        {d.header}
+        {editable ? (
+          <EditableWidgetText
+            value={d.header}
+            onChange={(v) => update({ header: v })}
+            style={{ fontWeight: 900, fontSize: "inherit" }}
+          />
+        ) : (
+          d.header
+        )}
       </div>
       <div
         style={{
@@ -178,8 +268,26 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
               fontWeight: 600,
             }}
           >
-            <span>{it.name}</span>
-            <span style={{ fontWeight: 900, color: d.accent }}>{it.price}</span>
+            {editable ? (
+              <>
+                <EditableWidgetText
+                  value={it.name}
+                  onChange={(v) => updateItem(idx, { name: v })}
+                  style={{ flex: 1, fontSize: "inherit" }}
+                />
+                <EditableWidgetText
+                  value={it.price}
+                  onChange={(v) => updateItem(idx, { price: v })}
+                  align="right"
+                  style={{ width: 120, fontWeight: 900, color: d.accent, fontSize: "inherit" }}
+                />
+              </>
+            ) : (
+              <>
+                <span>{it.name}</span>
+                <span style={{ fontWeight: 900, color: d.accent }}>{it.price}</span>
+              </>
+            )}
           </div>
         ))}
       </div>
