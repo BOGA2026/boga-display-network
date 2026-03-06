@@ -20,10 +20,10 @@ import { signOut } from "@/hooks/useAuth";
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
   { icon: Monitor, label: "Pantallas", path: "/dashboard/pantallas" },
-  { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
-  { icon: PenTool, label: "Editor", path: "/dashboard/editor" },
   { icon: ListVideo, label: "Playlists", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Programación", path: "/dashboard/programacion" },
+  { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
+  { icon: PenTool, label: "Editor", path: "/dashboard/editor" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
 ];
