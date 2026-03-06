@@ -39,6 +39,7 @@ import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoDat
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -504,17 +505,41 @@ export default function EditorPage() {
     if (!saveFileName.trim()) return;
     setSaving(true);
     try {
+      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
+
+      const payload = buildLayoutPayload();
+      const htmlBlob = new Blob(
+        [JSON.stringify({ ...payload, name: saveFileName.trim() })],
+        { type: "application/json" }
+      );
+      const filePath = `layouts/${Date.now()}-${saveFileName.trim().replace(/\s+/g, "_")}.json`;
+      const { error: uploadError } = await supabase.storage
+        .from("media")
+        .upload(filePath, htmlBlob, { contentType: "application/json", upsert: false });
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage.from("media").getPublicUrl(filePath);
+
+      const { error: insertError } = await supabase.from("content").insert({
+        name: saveFileName.trim(),
+        type: "layout",
+        file_url: publicUrlData.publicUrl,
+        business_id: bizId,
+        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+      });
+      if (insertError) throw insertError;
+
       setContentName(saveFileName.trim());
-      // TODO: integrate with Supabase content table
-      await new Promise((r) => setTimeout(r, 600));
       toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
       setSaveDialogOpen(false);
-    } catch {
-      toast.error("Error al guardar");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Error al guardar: " + (err.message || ""));
     } finally {
       setSaving(false);
     }
-  }, [saveFileName]);
+  }, [saveFileName, buildLayoutPayload]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
