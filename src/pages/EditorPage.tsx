@@ -16,6 +16,11 @@ import {
   Trash2,
   Copy,
   Clipboard,
+  Upload,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -71,6 +76,7 @@ export default function EditorPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
@@ -164,6 +170,40 @@ export default function EditorPage() {
     ]);
     setSelectedIds([id]);
     setImageGalleryOpen(false);
+  };
+
+  const addLocalImageLayer = (file: File) => {
+    const src = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      saveSnapshot();
+      const maxW = 420;
+      const s = Math.min(1, maxW / img.width);
+      const id = crypto.randomUUID();
+      setLayers((prev) => [
+        ...prev,
+        {
+          id,
+          name: file.name,
+          type: "image" as LayerType,
+          x: 100 + prev.length * 20,
+          y: 100 + prev.length * 20,
+          w: Math.round(img.width * s),
+          h: Math.round(img.height * s),
+          color: "transparent",
+          imageUrl: src,
+        },
+      ]);
+      setSelectedIds([id]);
+    };
+    img.src = src;
+  };
+
+  const onPickLocalFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    Array.from(e.target.files || []).forEach((f) => {
+      if (f.type.startsWith("image/")) addLocalImageLayer(f);
+    });
+    e.target.value = "";
   };
 
 
