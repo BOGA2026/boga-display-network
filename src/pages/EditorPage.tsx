@@ -369,6 +369,8 @@ export default function EditorPage() {
     if (layer?.type === "text") {
       setEditingLayerId(id);
       requestAnimationFrame(() => textareaRef.current?.focus());
+    } else if (layer?.type === "widget") {
+      setEditingLayerId(id);
     }
   }, [layers]);
 
