@@ -1,16 +1,16 @@
 import React from "react";
 import { Trash2, Plus } from "lucide-react";
-import type { ProductCardData, MenuBoardData } from "./widgetPresets";
+import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
 
 type Props = {
-  widgetType: "product_card" | "menu_board";
-  content: ProductCardData | MenuBoardData;
-  onUpdate: (nextContent: ProductCardData | MenuBoardData) => void;
+  widgetType: "product_card" | "menu_board" | "promo";
+  content: ProductCardData | MenuBoardData | PromoData;
+  onUpdate: (nextContent: ProductCardData | MenuBoardData | PromoData) => void;
 };
 
 export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
   const update = (patch: Record<string, unknown>) => {
-    onUpdate({ ...content, ...patch } as ProductCardData | MenuBoardData);
+    onUpdate({ ...content, ...patch } as ProductCardData | MenuBoardData | PromoData);
   };
 
   const onReplaceImage = (file: File) => {
