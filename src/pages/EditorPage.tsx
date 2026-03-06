@@ -772,6 +772,23 @@ export default function EditorPage() {
                       onMove={(x, y) => moveLayerSingle(selectedLayer.id, x, y)}
                     />
                   </div>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground text-xs">Orden de capas</label>
+                    <div className="flex gap-1">
+                      <button onClick={bringToFront} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Traer al frente">
+                        <ChevronsUp className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={bringForward} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Adelantar 1">
+                        <ArrowUp className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={sendBackward} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Atrasar 1">
+                        <ArrowDown className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={sendToBack} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Enviar al fondo">
+                        <ChevronsDown className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
                   {selectedLayer.type === "text" && selectedLayer.textStyle ? (
                     <>
                       <PresetPicker
