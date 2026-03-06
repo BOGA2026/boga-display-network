@@ -39,6 +39,7 @@ import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoDat
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
