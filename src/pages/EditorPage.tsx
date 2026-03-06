@@ -16,6 +16,11 @@ import {
   Trash2,
   Copy,
   Clipboard,
+  Upload,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -71,6 +76,7 @@ export default function EditorPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
@@ -166,6 +172,88 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
+  const addLocalImageLayer = (file: File) => {
+    const src = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      saveSnapshot();
+      const maxW = 420;
+      const s = Math.min(1, maxW / img.width);
+      const id = crypto.randomUUID();
+      setLayers((prev) => [
+        ...prev,
+        {
+          id,
+          name: file.name,
+          type: "image" as LayerType,
+          x: 100 + prev.length * 20,
+          y: 100 + prev.length * 20,
+          w: Math.round(img.width * s),
+          h: Math.round(img.height * s),
+          color: "transparent",
+          imageUrl: src,
+        },
+      ]);
+      setSelectedIds([id]);
+    };
+    img.src = src;
+  };
+
+  const onPickLocalFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    Array.from(e.target.files || []).forEach((f) => {
+      if (f.type.startsWith("image/")) addLocalImageLayer(f);
+    });
+    e.target.value = "";
+  };
+
+  // Z-order controls
+  const swapLayers = useCallback((i: number, j: number) => {
+    if (i < 0 || j < 0 || i >= layers.length || j >= layers.length) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }, [layers.length, saveSnapshot]);
+
+  const bringForward = useCallback(() => {
+    if (!selectedLayer) return;
+    const idx = layers.findIndex((l) => l.id === selectedLayer.id);
+    swapLayers(idx, idx + 1);
+  }, [selectedLayer, layers, swapLayers]);
+
+  const sendBackward = useCallback(() => {
+    if (!selectedLayer) return;
+    const idx = layers.findIndex((l) => l.id === selectedLayer.id);
+    swapLayers(idx, idx - 1);
+  }, [selectedLayer, layers, swapLayers]);
+
+  const bringToFront = useCallback(() => {
+    if (!selectedLayer) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const idx = prev.findIndex((l) => l.id === selectedLayer.id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.push(item);
+      return next;
+    });
+  }, [selectedLayer, saveSnapshot]);
+
+  const sendToBack = useCallback(() => {
+    if (!selectedLayer) return;
+    saveSnapshot();
+    setLayers((prev) => {
+      const idx = prev.findIndex((l) => l.id === selectedLayer.id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.unshift(item);
+      return next;
+    });
+  }, [selectedLayer, saveSnapshot]);
 
   const addWidgetFromPreset = (presetId: string) => {
     const preset = WIDGET_PRESETS.find((p) => p.id === presetId);
@@ -453,6 +541,18 @@ export default function EditorPage() {
                 <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
               </PopoverContent>
             </Popover>
+            <span className="h-px w-full bg-border" />
+            <button onClick={() => fileInputRef.current?.click()} className="rounded p-2 hover:bg-accent" title="Subir imagen (PNG)">
+              <Upload className="h-5 w-5" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              hidden
+              onChange={onPickLocalFiles}
+            />
             <button className="rounded p-2 hover:bg-accent" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
@@ -671,6 +771,23 @@ export default function EditorPage() {
                       layerH={selectedLayer.h}
                       onMove={(x, y) => moveLayerSingle(selectedLayer.id, x, y)}
                     />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-muted-foreground text-xs">Orden de capas</label>
+                    <div className="flex gap-1">
+                      <button onClick={bringToFront} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Traer al frente">
+                        <ChevronsUp className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={bringForward} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Adelantar 1">
+                        <ArrowUp className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={sendBackward} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Atrasar 1">
+                        <ArrowDown className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={sendToBack} className="flex-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-accent" title="Enviar al fondo">
+                        <ChevronsDown className="mx-auto h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                   {selectedLayer.type === "text" && selectedLayer.textStyle ? (
                     <>
