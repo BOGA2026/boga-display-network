@@ -714,6 +714,14 @@ export default function EditorPage() {
                           w: l.w,
                           h: l.h,
                         }}
+                        onUpdateContent={(nextContent) => {
+                          saveSnapshot();
+                          setLayers((prev) =>
+                            prev.map((ly) =>
+                              ly.id === l.id ? { ...ly, widgetData: nextContent } : ly
+                            )
+                          );
+                        }}
                       />
                     ) : (
                       <div
