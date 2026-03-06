@@ -1,12 +1,72 @@
 import React from "react";
 import { Trash2, Plus } from "lucide-react";
-import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
+import type { ProductCardData, MenuBoardData, PromoData, WidgetTypography } from "./widgetPresets";
+import { FONT_OPTIONS } from "./EditorTextTools";
 
 type Props = {
   widgetType: "product_card" | "menu_board" | "promo";
   content: ProductCardData | MenuBoardData | PromoData;
   onUpdate: (nextContent: ProductCardData | MenuBoardData | PromoData) => void;
 };
+
+function TypographyControls({
+  typography,
+  onChange,
+}: {
+  typography: WidgetTypography;
+  onChange: (next: WidgetTypography) => void;
+}) {
+  const t = {
+    fontFamily: typography.fontFamily || "Inter",
+    fontSize: typography.fontSize || 24,
+    fontWeight: typography.fontWeight || 700,
+  };
+
+  return (
+    <div className="space-y-2 rounded border border-border p-2">
+      <p className="text-xs font-semibold text-muted-foreground">Tipografía</p>
+      <div>
+        <label className="mb-1 block text-xs text-muted-foreground">Fuente</label>
+        <select
+          className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+          value={t.fontFamily}
+          onChange={(e) => onChange({ ...t, fontFamily: e.target.value })}
+        >
+          {FONT_OPTIONS.map((f) => (
+            <option key={f} value={f}>{f}</option>
+          ))}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Tamaño</label>
+          <input
+            type="number"
+            min={10}
+            max={120}
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={t.fontSize}
+            onChange={(e) => onChange({ ...t, fontSize: Number(e.target.value) })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Peso</label>
+          <select
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={t.fontWeight}
+            onChange={(e) => onChange({ ...t, fontWeight: Number(e.target.value) as 400 | 500 | 600 | 700 | 800 })}
+          >
+            <option value={400}>Regular (400)</option>
+            <option value={500}>Medium (500)</option>
+            <option value={600}>Semibold (600)</option>
+            <option value={700}>Bold (700)</option>
+            <option value={800}>Extra Bold (800)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
   const update = (patch: Record<string, unknown>) => {
@@ -18,11 +78,17 @@ export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
     update({ image: localUrl });
   };
 
+  const currentTypo = (content as any).typography || {};
+
   if (widgetType === "product_card") {
     const c = content as ProductCardData;
     return (
       <div className="space-y-3">
         <p className="text-xs font-semibold text-primary">Widget: Producto + Precio</p>
+        <TypographyControls
+          typography={currentTypo}
+          onChange={(t) => update({ typography: t })}
+        />
         <div>
           <label className="mb-1 block text-xs text-muted-foreground">Título</label>
           <input
@@ -82,6 +148,10 @@ export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
     return (
       <div className="space-y-3">
         <p className="text-xs font-semibold text-primary">Widget: Promo Banner</p>
+        <TypographyControls
+          typography={currentTypo}
+          onChange={(t) => update({ typography: t })}
+        />
         <div>
           <label className="mb-1 block text-xs text-muted-foreground">Título</label>
           <input
@@ -139,6 +209,10 @@ export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
   return (
     <div className="space-y-3">
       <p className="text-xs font-semibold text-primary">Widget: Carta Menú</p>
+      <TypographyControls
+        typography={currentTypo}
+        onChange={(t) => update({ typography: t })}
+      />
       <div>
         <label className="mb-1 block text-xs text-muted-foreground">Encabezado</label>
         <input
