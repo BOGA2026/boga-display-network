@@ -1017,6 +1017,18 @@ export default function EditorPage() {
             </div>
           )}
 
+          {tab === "presets" && (
+            <div className="space-y-3 p-4">
+              <p className="text-xs text-muted-foreground">
+                Los presets guardados aparecerán aquí. Usa "Save preset" en la barra superior para guardar el layout actual como plantilla reutilizable.
+              </p>
+              <div className="rounded border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                <BookmarkPlus className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                Aún no hay presets guardados
+              </div>
+            </div>
+          )}
+
           {tab === "actions" && (
             <div className="space-y-2 p-4">
               <button
