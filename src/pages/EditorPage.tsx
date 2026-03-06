@@ -66,6 +66,8 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
   const [saving, setSaving] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveFileName, setSaveFileName] = useState("");
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
