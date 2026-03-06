@@ -30,7 +30,7 @@ import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
 import { WidgetRenderer } from "@/components/editor/WidgetRenderer";
 import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
 import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
-import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData } from "@/components/editor/widgetPresets";
+import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type Orientation = "landscape" | "portrait";
@@ -46,8 +46,8 @@ type LayerItem = {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
-  widgetType?: "product_card" | "menu_board";
-  widgetData?: ProductCardData | MenuBoardData;
+  widgetType?: "product_card" | "menu_board" | "promo";
+  widgetData?: ProductCardData | MenuBoardData | PromoData;
 };
 
 export default function EditorPage() {

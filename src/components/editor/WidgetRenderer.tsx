@@ -1,9 +1,9 @@
 import React from "react";
-import type { ProductCardData, MenuBoardData } from "./widgetPresets";
+import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
 
 type WidgetLayer = {
-  widgetType: "product_card" | "menu_board";
-  content: ProductCardData | MenuBoardData;
+  widgetType: "product_card" | "menu_board" | "promo";
+  content: ProductCardData | MenuBoardData | PromoData;
   w: number;
   h: number;
 };
@@ -74,6 +74,51 @@ export function WidgetRenderer({ layer }: { layer: WidgetLayer }) {
               {d.price}
             </span>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (layer.widgetType === "promo") {
+    const d = layer.content as PromoData;
+    const isVertical = layer.h > layer.w;
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 18,
+          overflow: "hidden",
+          background: d.bg,
+          color: "#fff",
+          border: `2px solid ${d.accent}`,
+          padding: isVertical ? 24 : 28,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 12,
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: isVertical ? 44 : 48, fontWeight: 900, lineHeight: 1.1 }}>
+          {d.title}
+        </h2>
+        <p style={{ margin: 0, fontSize: isVertical ? 26 : 28, opacity: 0.85 }}>
+          {d.message}
+        </p>
+        <div>
+          <span
+            style={{
+              display: "inline-block",
+              background: d.accent,
+              color: "#111",
+              fontWeight: 800,
+              padding: "10px 18px",
+              borderRadius: 12,
+              fontSize: isVertical ? 24 : 26,
+            }}
+          >
+            {d.cta}
+          </span>
         </div>
       </div>
     );

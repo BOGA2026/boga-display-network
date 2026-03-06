@@ -1,16 +1,16 @@
 import React from "react";
 import { Trash2, Plus } from "lucide-react";
-import type { ProductCardData, MenuBoardData } from "./widgetPresets";
+import type { ProductCardData, MenuBoardData, PromoData } from "./widgetPresets";
 
 type Props = {
-  widgetType: "product_card" | "menu_board";
-  content: ProductCardData | MenuBoardData;
-  onUpdate: (nextContent: ProductCardData | MenuBoardData) => void;
+  widgetType: "product_card" | "menu_board" | "promo";
+  content: ProductCardData | MenuBoardData | PromoData;
+  onUpdate: (nextContent: ProductCardData | MenuBoardData | PromoData) => void;
 };
 
 export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
   const update = (patch: Record<string, unknown>) => {
-    onUpdate({ ...content, ...patch } as ProductCardData | MenuBoardData);
+    onUpdate({ ...content, ...patch } as ProductCardData | MenuBoardData | PromoData);
   };
 
   const onReplaceImage = (file: File) => {
@@ -71,6 +71,57 @@ export function EditableWidgetPanel({ widgetType, content, onUpdate }: Props) {
             type="color"
             value={c.accent}
             onChange={(e) => update({ accent: e.target.value })}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (widgetType === "promo") {
+    const c = content as PromoData;
+    return (
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-primary">Widget: Promo Banner</p>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Título</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.title}
+            onChange={(e) => update({ title: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Mensaje</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.message}
+            onChange={(e) => update({ message: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">CTA (botón)</label>
+          <input
+            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm"
+            value={c.cta}
+            onChange={(e) => update({ cta: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Color acento</label>
+          <input
+            className="h-10 w-full rounded border border-border p-1"
+            type="color"
+            value={c.accent}
+            onChange={(e) => update({ accent: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Color fondo</label>
+          <input
+            className="h-10 w-full rounded border border-border p-1"
+            type="color"
+            value={c.bg}
+            onChange={(e) => update({ bg: e.target.value })}
           />
         </div>
       </div>

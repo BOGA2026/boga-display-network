@@ -6,8 +6,8 @@ export type WidgetPreset = {
   orientation: WidgetOrientation;
   w: number;
   h: number;
-  type: "product_card" | "menu_board";
-  data: ProductCardData | MenuBoardData;
+  type: "product_card" | "menu_board" | "promo";
+  data: ProductCardData | MenuBoardData | PromoData;
 };
 
 export type ProductCardData = {
@@ -22,6 +22,14 @@ export type MenuBoardData = {
   header: string;
   items: { name: string; price: string }[];
   accent: string;
+};
+
+export type PromoData = {
+  title: string;
+  message: string;
+  cta: string;
+  accent: string;
+  bg: string;
 };
 
 export const WIDGET_PRESETS: WidgetPreset[] = [
@@ -88,5 +96,35 @@ export const WIDGET_PRESETS: WidgetPreset[] = [
       ],
       accent: "#F59E0B",
     },
+  },
+  {
+    id: "promo-horizontal",
+    name: "Promo Banner (Horizontal)",
+    orientation: "horizontal",
+    w: 920,
+    h: 320,
+    type: "promo",
+    data: {
+      title: "PROMO DEL DÍA",
+      message: "2x1 en combos seleccionados",
+      cta: "¡Solo hoy!",
+      accent: "#F59E0B",
+      bg: "#111827",
+    } as PromoData,
+  },
+  {
+    id: "promo-vertical",
+    name: "Promo Banner (Vertical)",
+    orientation: "vertical",
+    w: 420,
+    h: 900,
+    type: "promo",
+    data: {
+      title: "OFERTA ESPECIAL",
+      message: "Combo familiar con descuento",
+      cta: "Aprovecha ahora",
+      accent: "#EC4899",
+      bg: "#0f172a",
+    } as PromoData,
   },
 ];
