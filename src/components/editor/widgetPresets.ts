@@ -6,8 +6,8 @@ export type WidgetPreset = {
   orientation: WidgetOrientation;
   w: number;
   h: number;
-  type: "product_card" | "menu_board";
-  data: ProductCardData | MenuBoardData;
+  type: "product_card" | "menu_board" | "promo";
+  data: ProductCardData | MenuBoardData | PromoData;
 };
 
 export type ProductCardData = {
@@ -22,6 +22,14 @@ export type MenuBoardData = {
   header: string;
   items: { name: string; price: string }[];
   accent: string;
+};
+
+export type PromoData = {
+  title: string;
+  message: string;
+  cta: string;
+  accent: string;
+  bg: string;
 };
 
 export const WIDGET_PRESETS: WidgetPreset[] = [
