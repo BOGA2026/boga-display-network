@@ -1064,6 +1064,41 @@ export default function EditorPage() {
           )}
         </aside>
       </div>
+
+      {/* Save to Content dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Guardar en Contenido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <label className="text-sm text-muted-foreground">Nombre del archivo</label>
+            <input
+              autoFocus
+              value={saveFileName}
+              onChange={(e) => setSaveFileName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") confirmSaveContent(); }}
+              placeholder="Ej: Menú almuerzo lunes"
+              className="w-full rounded border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setSaveDialogOpen(false)}
+              className="rounded border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmSaveContent}
+              disabled={saving || !saveFileName.trim()}
+              className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
