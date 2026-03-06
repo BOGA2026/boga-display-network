@@ -511,12 +511,12 @@ export default function EditorPage() {
       const payload = buildLayoutPayload();
       const htmlBlob = new Blob(
         [JSON.stringify({ ...payload, name: saveFileName.trim() })],
-        { type: "application/json" }
+        { type: "text/plain" }
       );
-      const filePath = `layouts/${Date.now()}-${saveFileName.trim().replace(/\s+/g, "_")}.json`;
+      const filePath = `layouts/${Date.now()}-${saveFileName.trim().replace(/\s+/g, "_")}.txt`;
       const { error: uploadError } = await supabase.storage
         .from("media")
-        .upload(filePath, htmlBlob, { contentType: "application/json", upsert: false });
+        .upload(filePath, htmlBlob, { contentType: "text/plain", upsert: false });
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from("media").getPublicUrl(filePath);
