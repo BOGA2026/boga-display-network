@@ -363,17 +363,17 @@ const Content = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       {item.type === "layout" && (
-                        <DropdownMenuItem onClick={() => openInEditor(item.id)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openInEditor(item.id); }}>
                           <LayoutGrid className="mr-2 h-4 w-4" />
                           Editar en canvas
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onClick={() => openAssignDialog(item)}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openAssignDialog(item); }}>
                         <ListPlus className="mr-2 h-4 w-4" />
                         Asignar a playlist
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => setDeleteTarget(item)}
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(item); }}
                         className="text-destructive focus:text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
