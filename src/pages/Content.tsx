@@ -550,10 +550,10 @@ const Content = () => {
       </Dialog>
 
       {/* ========== Delete Confirmation ========== */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open && !deleting) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar &quot;{deleteTarget?.name}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. El archivo será eliminado permanentemente.
             </AlertDialogDescription>
@@ -561,7 +561,7 @@ const Content = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
