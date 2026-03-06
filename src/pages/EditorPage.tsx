@@ -20,6 +20,7 @@ import {
   ArrowDown,
   ChevronsUp,
   ChevronsDown,
+  BookmarkPlus,
 } from "lucide-react";
 import {
   TextLayerPreview,
