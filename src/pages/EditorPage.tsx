@@ -759,10 +759,11 @@ export default function EditorPage() {
         <aside className="border-l border-border bg-card overflow-y-auto">
           <div className="flex border-b border-border text-sm">
             {([
-              { id: "settings", label: "Ajustes", icon: Settings },
-              { id: "layers", label: "Capas", icon: Layers },
-              { id: "actions", label: "Acciones", icon: PlaySquare },
-            ] as const).map(({ id, label, icon: Icon }) => (
+              { id: "settings" as const, label: "Ajustes", icon: Settings },
+              { id: "layers" as const, label: "Capas", icon: Layers },
+              { id: "presets" as const, label: "Presets", icon: BookmarkPlus },
+              { id: "actions" as const, label: "Acciones", icon: PlaySquare },
+            ]).map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
