@@ -103,6 +103,16 @@ const Content = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<ContentItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Assign to playlist state
+  const [assignTarget, setAssignTarget] = useState<ContentItem | null>(null);
+  const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
+  const [assigning, setAssigning] = useState(false);
+
   const openInEditor = (id: string) => {
     navigate(`/dashboard/editor?contentId=${id}`);
   };
