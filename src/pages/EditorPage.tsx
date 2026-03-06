@@ -60,6 +60,8 @@ type LayerItem = {
 };
 
 export default function EditorPage() {
+  const [searchParams] = useSearchParams();
+  const [contentId, setContentId] = useState<string | null>(null);
   const [contentName, setContentName] = useState("Nuevo layout");
   const [orientation, setOrientation] = useState<Orientation>("landscape");
   const [customResolution, setCustomResolution] = useState(false);
