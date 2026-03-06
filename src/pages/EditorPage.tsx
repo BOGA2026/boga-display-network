@@ -495,17 +495,25 @@ export default function EditorPage() {
   }), [contentName, orientation, baseResolution, background, layers]);
 
   const onSaveContent = useCallback(async () => {
+    setSaveFileName(contentName);
+    setSaveDialogOpen(true);
+  }, [contentName]);
+
+  const confirmSaveContent = useCallback(async () => {
+    if (!saveFileName.trim()) return;
     setSaving(true);
     try {
+      setContentName(saveFileName.trim());
       // TODO: integrate with Supabase content table
       await new Promise((r) => setTimeout(r, 600));
-      toast.success("Guardado en Contenido");
+      toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
+      setSaveDialogOpen(false);
     } catch {
       toast.error("Error al guardar");
     } finally {
       setSaving(false);
     }
-  }, [buildLayoutPayload]);
+  }, [saveFileName]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
