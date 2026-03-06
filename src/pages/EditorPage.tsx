@@ -38,6 +38,7 @@ import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
 import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -66,6 +67,8 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
   const [saving, setSaving] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveFileName, setSaveFileName] = useState("");
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
@@ -493,17 +496,25 @@ export default function EditorPage() {
   }), [contentName, orientation, baseResolution, background, layers]);
 
   const onSaveContent = useCallback(async () => {
+    setSaveFileName(contentName);
+    setSaveDialogOpen(true);
+  }, [contentName]);
+
+  const confirmSaveContent = useCallback(async () => {
+    if (!saveFileName.trim()) return;
     setSaving(true);
     try {
+      setContentName(saveFileName.trim());
       // TODO: integrate with Supabase content table
       await new Promise((r) => setTimeout(r, 600));
-      toast.success("Guardado en Contenido");
+      toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
+      setSaveDialogOpen(false);
     } catch {
       toast.error("Error al guardar");
     } finally {
       setSaving(false);
     }
-  }, [buildLayoutPayload]);
+  }, [saveFileName]);
 
   const onSavePreset = useCallback(async () => {
     setSaving(true);
@@ -1053,6 +1064,41 @@ export default function EditorPage() {
           )}
         </aside>
       </div>
+
+      {/* Save to Content dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Guardar en Contenido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <label className="text-sm text-muted-foreground">Nombre del archivo</label>
+            <input
+              autoFocus
+              value={saveFileName}
+              onChange={(e) => setSaveFileName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") confirmSaveContent(); }}
+              placeholder="Ej: Menú almuerzo lunes"
+              className="w-full rounded border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setSaveDialogOpen(false)}
+              className="rounded border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmSaveContent}
+              disabled={saving || !saveFileName.trim()}
+              className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {saving ? "Guardando…" : "Guardar"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
