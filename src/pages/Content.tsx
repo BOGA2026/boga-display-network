@@ -21,6 +21,7 @@ import {
   Music,
   FileUp,
   Layers,
+  LayoutGrid,
   X,
   Check,
 } from "lucide-react";
@@ -50,6 +51,7 @@ const TYPE_ICONS: Record<string, typeof ImageIcon> = {
   video: Film,
   html: Code2,
   audio: Music,
+  layout: LayoutGrid,
 };
 
 const SAMPLE_CONTENT = [
