@@ -25,7 +25,33 @@ import {
   LayoutGrid,
   X,
   Check,
+  MoreVertical,
+  Trash2,
+  ListPlus,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +103,16 @@ const Content = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<ContentItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Assign to playlist state
+  const [assignTarget, setAssignTarget] = useState<ContentItem | null>(null);
+  const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
+  const [assigning, setAssigning] = useState(false);
+
   const openInEditor = (id: string) => {
     navigate(`/dashboard/editor?contentId=${id}`);
   };
@@ -102,6 +138,52 @@ const Content = () => {
       .order("created_at", { ascending: false });
     setItems(data ?? []);
     setLoading(false);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from("content").delete().eq("id", deleteTarget.id);
+    setDeleting(false);
+    if (error) {
+      toast({ title: "Error al eliminar", description: error.message, variant: "destructive" });
+    } else {
+      setItems((prev) => prev.filter((x) => x.id !== deleteTarget.id));
+      toast({ title: "Contenido eliminado" });
+    }
+    setDeleteTarget(null);
+  };
+
+  const openAssignDialog = async (item: ContentItem) => {
+    setAssignTarget(item);
+    setSelectedPlaylistId("");
+    const { data } = await supabase.from("playlists").select("id, name").order("name");
+    setPlaylists(data ?? []);
+  };
+
+  const handleAssign = async () => {
+    if (!assignTarget || !selectedPlaylistId) return;
+    setAssigning(true);
+    // Get max sort_order
+    const { data: existing } = await supabase
+      .from("playlist_items")
+      .select("sort_order")
+      .eq("playlist_id", selectedPlaylistId)
+      .order("sort_order", { ascending: false })
+      .limit(1);
+    const nextOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+    const { error } = await supabase.from("playlist_items").insert({
+      playlist_id: selectedPlaylistId,
+      content_id: assignTarget.id,
+      sort_order: nextOrder,
+    });
+    setAssigning(false);
+    if (error) {
+      toast({ title: "Error al asignar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Asignado a playlist", description: `"${assignTarget.name}" agregado correctamente.` });
+    }
+    setAssignTarget(null);
   };
 
   const resetUploadForm = () => {
@@ -258,11 +340,42 @@ const Content = () => {
                     {item.type === "layout" ? "Layout" : item.type}
                   </div>
                 </div>
-                <CardContent className="p-4">
-                  <p className="font-semibold truncate text-sm">{item.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {new Date(item.created_at).toLocaleDateString("es-MX")}
-                  </p>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate text-sm">{item.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(item.created_at).toLocaleDateString("es-MX")}
+                    </p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded-md p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {item.type === "layout" && (
+                        <DropdownMenuItem onClick={() => openInEditor(item.id)}>
+                          <LayoutGrid className="mr-2 h-4 w-4" />
+                          Editar en canvas
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => openAssignDialog(item)}>
+                        <ListPlus className="mr-2 h-4 w-4" />
+                        Asignar a playlist
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setDeleteTarget(item)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </CardContent>
               </Card>
             );
@@ -431,6 +544,67 @@ const Content = () => {
             >
               <FileUp className="h-4 w-4" />
               {uploading ? "Subiendo..." : "Subir contenido"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========== Delete Confirmation ========== */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El archivo será eliminado permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Eliminando…" : "Eliminar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ========== Assign to Playlist ========== */}
+      <Dialog open={!!assignTarget} onOpenChange={(open) => !open && setAssignTarget(null)}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg">Asignar a playlist</DialogTitle>
+            <DialogDescription>
+              Agrega "{assignTarget?.name}" a una playlist existente.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label>Playlist</Label>
+            <Select value={selectedPlaylistId} onValueChange={setSelectedPlaylistId}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Selecciona una playlist" />
+              </SelectTrigger>
+              <SelectContent>
+                {playlists.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {playlists.length === 0 && (
+              <p className="text-xs text-muted-foreground mt-2">No hay playlists disponibles.</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAssignTarget(null)}>Cancelar</Button>
+            <Button
+              onClick={handleAssign}
+              disabled={assigning || !selectedPlaylistId}
+              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
+            >
+              <ListPlus className="h-4 w-4" />
+              {assigning ? "Asignando…" : "Asignar"}
             </Button>
           </DialogFooter>
         </DialogContent>
