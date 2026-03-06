@@ -36,6 +36,7 @@ import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
 import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
 import { WIDGET_PRESETS, type ProductCardData, type MenuBoardData, type PromoData } from "@/components/editor/widgetPresets";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { EditorTopBar } from "@/components/editor/EditorTopBar";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget";
@@ -62,7 +63,8 @@ export default function EditorPage() {
   const [customH, setCustomH] = useState(1080);
   const [zoom, setZoom] = useState(50);
   const [background, setBackground] = useState("#FFFFFF");
-  const [tab, setTab] = useState<"settings" | "layers" | "actions">("settings");
+  const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
+  const [saving, setSaving] = useState(false);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
