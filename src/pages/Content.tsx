@@ -51,6 +51,7 @@ const TYPE_ICONS: Record<string, typeof ImageIcon> = {
   video: Film,
   html: Code2,
   audio: Music,
+  layout: LayoutGrid,
 };
 
 const SAMPLE_CONTENT = [
