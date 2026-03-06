@@ -509,22 +509,12 @@ export default function EditorPage() {
       if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
 
       const payload = buildLayoutPayload();
-      const htmlBlob = new Blob(
-        [JSON.stringify({ ...payload, name: saveFileName.trim() })],
-        { type: "text/plain" }
-      );
-      const filePath = `layouts/${Date.now()}-${saveFileName.trim().replace(/\s+/g, "_")}.txt`;
-      const { error: uploadError } = await supabase.storage
-        .from("media")
-        .upload(filePath, htmlBlob, { contentType: "text/plain", upsert: false });
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage.from("media").getPublicUrl(filePath);
+      const layoutJson = JSON.stringify({ ...payload, name: saveFileName.trim() });
 
       const { error: insertError } = await supabase.from("content").insert({
         name: saveFileName.trim(),
         type: "layout",
-        file_url: publicUrlData.publicUrl,
+        file_url: `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`,
         business_id: bizId,
         created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
       });
