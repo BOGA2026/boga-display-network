@@ -340,11 +340,42 @@ const Content = () => {
                     {item.type === "layout" ? "Layout" : item.type}
                   </div>
                 </div>
-                <CardContent className="p-4">
-                  <p className="font-semibold truncate text-sm">{item.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {new Date(item.created_at).toLocaleDateString("es-MX")}
-                  </p>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate text-sm">{item.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(item.created_at).toLocaleDateString("es-MX")}
+                    </p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded-md p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {item.type === "layout" && (
+                        <DropdownMenuItem onClick={() => openInEditor(item.id)}>
+                          <LayoutGrid className="mr-2 h-4 w-4" />
+                          Editar en canvas
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => openAssignDialog(item)}>
+                        <ListPlus className="mr-2 h-4 w-4" />
+                        Asignar a playlist
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setDeleteTarget(item)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </CardContent>
               </Card>
             );
