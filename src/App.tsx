@@ -27,6 +27,7 @@ import VisualiaLunchTemplate from "./templates/lunch-dual/VisualiaLunchTemplate"
 import EditorPage from "./pages/EditorPage";
 import RestaurantSolutionPage from "./pages/RestaurantSolutionPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
+import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/precios" element={<Pricing />} />
           <Route path="/soluciones/restaurantes" element={<RestaurantSolutionPage />} />
+          <Route path="/acerca" element={<AboutPage />} />
           <Route path="/studio" element={<Studio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />

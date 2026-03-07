@@ -23,6 +23,10 @@ const menuItems = [
   },
 ];
 
+const directLinks = [
+  { label: "Acerca de Visualia", href: "/acerca" },
+];
+
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
