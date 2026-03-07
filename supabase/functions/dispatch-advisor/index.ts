@@ -56,7 +56,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Join #leads channel first (idempotent — no error if already joined)
+    // Step 1: Find #leads channel ID by listing channels
+    const listRes = await fetch(`${GATEWAY_URL}/conversations.list?types=public_channel,private_channel&limit=200`, {
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": SLACK_API_KEY,
+      },
+    });
+    const listData = await listRes.json();
+    console.log("conversations.list ok:", listData.ok, "channels:", (listData.channels ?? []).length);
+    
+    const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
+    if (!found) {
+      return Response.json({ ok: false, error: "Canal #leads no encontrado en el workspace" }, { status: 404, headers: corsHeaders });
+    }
+    const channelId = found.id;
+    console.log("Found #leads channel ID:", channelId);
+
+    // Step 2: Join the channel (idempotent)
     const joinRes = await fetch(`${GATEWAY_URL}/conversations.join`, {
       method: "POST",
       headers: {
@@ -64,40 +81,10 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": SLACK_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ channel: "leads" }),
+      body: JSON.stringify({ channel: channelId }),
     });
     const joinData = await joinRes.json();
-
-    // If join fails, try to find channel ID by name
-    let channelId = "leads";
-    if (!joinData.ok && joinData.error === "channel_not_found") {
-      // List channels to find #leads by name
-      const listRes = await fetch(`${GATEWAY_URL}/conversations.list?types=public_channel&limit=200`, {
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "X-Connection-Api-Key": SLACK_API_KEY,
-        },
-      });
-      const listData = await listRes.json();
-      const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
-      if (found) {
-        channelId = found.id;
-        // Join using actual ID
-        await fetch(`${GATEWAY_URL}/conversations.join`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": SLACK_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ channel: channelId }),
-        });
-      } else {
-        console.error("Channel #leads not found in workspace");
-      }
-    } else if (joinData.ok && joinData.channel?.id) {
-      channelId = joinData.channel.id;
-    }
+    console.log("conversations.join result:", JSON.stringify(joinData));
 
     const { data: rows } = await supabase
       .from("advisor_notifications")
