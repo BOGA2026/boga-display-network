@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.screen-commands]
 verify_jwt = false
+
+[functions.submit-lead]
+verify_jwt = false
+
+[functions.dispatch-advisor]
+verify_jwt = false
