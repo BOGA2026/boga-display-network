@@ -14,7 +14,6 @@ import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
-import RestaurantSolution from "@/components/landing/RestaurantSolution";
 import { useParallax } from "@/hooks/useParallax";
 
 const steps = [
@@ -334,9 +333,6 @@ const Landing = () => {
       <div ref={featuresParallax.ref as any} style={featuresParallax.style}>
         <FeaturesSection onDemo={() => setChatOpen(true)} />
       </div>
-
-      {/* Restaurant Solution */}
-      <RestaurantSolution onDemo={() => setChatOpen(true)} />
 
       {/* How It Works */}
       <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
