@@ -34,6 +34,7 @@ const Landing = () => {
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
   const [muted, setMuted] = useState(true);
   const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [showBenefitsVideo, setShowBenefitsVideo] = useState(false);
   const [benefitsMuted, setBenefitsMuted] = useState(true);
   const [benefitsPaused, setBenefitsPaused] = useState(false);
