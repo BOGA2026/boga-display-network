@@ -2,6 +2,7 @@ import { MonitorPlay, Sparkles, TrendingUp } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import muestraPlatos from "@/assets/muestra-platos.gif";
+import destacaPromociones from "@/assets/destaca-promociones.gif";
 
 const steps = [
   {
@@ -17,8 +18,7 @@ const steps = [
     title: "Destaca lo que importa",
     description:
       "Combos, ofertas del día, platos nuevos. Con un clic eliges qué destacar y cuándo mostrarlo.",
-    image:
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop",
+    image: destacaPromociones,
     alt: "Restaurante con menú digital visible",
   },
   {
