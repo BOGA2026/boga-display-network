@@ -51,27 +51,17 @@ const Landing = () => {
   const testimonialsParallax = useParallax({ speed: 0.4, direction: "up", opacity: true });
   const ctaParallax = useParallax({ speed: 0.5, direction: "up", scale: true });
 
-  // Autoplay muted first (required for iOS), then try unmuting
+  // Autoplay muted (required for iOS/mobile), show prompt to unmute
   useEffect(() => {
     const vid = heroRef.current;
     if (!vid) return;
-    // Ensure muted autoplay starts on iOS
     vid.muted = true;
     vid.playsInline = true;
     vid.play().then(() => {
-      // Video is playing muted, now try to unmute
-      vid.muted = false;
-      vid.play().then(() => {
-        setMuted(false);
-        setShowSoundPrompt(false);
-      }).catch(() => {
-        // Unmuted play blocked — keep muted
-        vid.muted = true;
-        setMuted(true);
-        setShowSoundPrompt(true);
-      });
-    }).catch(() => {
-      // Even muted autoplay failed — keep muted, show prompt
+      setMuted(true);
+      setShowSoundPrompt(true);
+    }).catch((err) => {
+      console.error("Video autoplay failed:", err);
       vid.muted = true;
       setMuted(true);
       setShowSoundPrompt(true);
