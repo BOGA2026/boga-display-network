@@ -129,19 +129,34 @@ const LandingHeader = () => {
                       "linear-gradient(180deg, hsl(260 25% 13%) 0%, hsl(260 25% 10%) 100%)",
                   }}
                 >
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.label}
-                      to={child.href}
-                      className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
-                    >
-                      <span
-                        className="h-1 w-1 rounded-full opacity-0 transition-opacity group-hover/item:opacity-100"
-                        style={{ background: "#C000FF" }}
-                      />
-                      {child.label}
-                    </Link>
-                  ))}
+                  {item.children.map((child) =>
+                    child.href.startsWith("#") ? (
+                      <a
+                        key={child.label}
+                        href={child.href}
+                        onClick={() => setActiveMenu(null)}
+                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                      >
+                        <span
+                          className="h-1 w-1 rounded-full opacity-0 transition-opacity group-hover/item:opacity-100"
+                          style={{ background: "#C000FF" }}
+                        />
+                        {child.label}
+                      </a>
+                    ) : (
+                      <Link
+                        key={child.label}
+                        to={child.href}
+                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                      >
+                        <span
+                          className="h-1 w-1 rounded-full opacity-0 transition-opacity group-hover/item:opacity-100"
+                          style={{ background: "#C000FF" }}
+                        />
+                        {child.label}
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             </div>
