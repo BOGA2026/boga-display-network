@@ -23,6 +23,10 @@ const menuItems = [
   },
 ];
 
+const directLinks = [
+  { label: "Acerca de Visualia", href: "/acerca" },
+];
+
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -161,6 +165,17 @@ const LandingHeader = () => {
               </div>
             </div>
           ))}
+
+          {/* Direct links (no dropdown) */}
+          {directLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="relative rounded-lg px-6 py-3 text-lg font-semibold text-[hsl(275,100%,65%)] transition-colors hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Right — Actions */}
@@ -243,6 +258,17 @@ const LandingHeader = () => {
                 </div>
               </div>
             </div>
+          ))}
+          {/* Direct links in mobile */}
+          {directLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="block rounded-lg px-3 py-3 text-sm font-medium text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.label}
+            </Link>
           ))}
           <div className="flex flex-col gap-3 pt-4">
             <Button
