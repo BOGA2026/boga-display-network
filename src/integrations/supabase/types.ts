@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_notifications: {
+        Row: {
+          channel: string
+          id: number
+          lead_id: string
+          payload: Json
+          send_after: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          channel?: string
+          id?: never
+          lead_id: string
+          payload: Json
+          send_after: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          channel?: string
+          id?: never
+          lead_id?: string
+          payload?: Json
+          send_after?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_notifications_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_memberships: {
         Row: {
           business_id: string
@@ -291,6 +329,83 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_events: {
+        Row: {
+          answer: string | null
+          created_at: string | null
+          id: number
+          lead_id: string
+          step: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string | null
+          id?: never
+          lead_id: string
+          step: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string | null
+          id?: never
+          lead_id?: string
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          budget: string | null
+          company: string | null
+          created_at: string | null
+          email: string | null
+          goal: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          preferred_contact: string | null
+          screens: number
+          source: string
+          status: string
+        }
+        Insert: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          goal?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          preferred_contact?: string | null
+          screens?: number
+          source?: string
+          status?: string
+        }
+        Update: {
+          budget?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          goal?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          preferred_contact?: string | null
+          screens?: number
+          source?: string
+          status?: string
+        }
+        Relationships: []
       }
       locations: {
         Row: {
