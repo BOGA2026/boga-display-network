@@ -25,6 +25,7 @@ import ScreensList from "./pages/digital-signage/ScreensList";
 import ScreenDetail from "./pages/digital-signage/ScreenDetail";
 import VisualiaLunchTemplate from "./templates/lunch-dual/VisualiaLunchTemplate";
 import EditorPage from "./pages/EditorPage";
+import RestaurantSolutionPage from "./pages/RestaurantSolutionPage";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/precios" element={<Pricing />} />
+          <Route path="/soluciones/restaurantes" element={<RestaurantSolutionPage />} />
           <Route path="/studio" element={<Studio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
