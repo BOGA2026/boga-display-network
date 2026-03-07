@@ -1,6 +1,7 @@
 import { MonitorPlay, Sparkles, TrendingUp } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import muestraPlatos from "@/assets/muestra-platos.gif";
 
 const steps = [
   {
@@ -8,9 +9,8 @@ const steps = [
     title: "Muestra tus platos",
     description:
       "Fotos que abren el apetito. Tu comida se ve como se merece: grande, clara y con los precios bien visibles.",
-    image:
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=800&auto=format&fit=crop",
-    alt: "Pizza gourmet en pantalla digital",
+    image: muestraPlatos,
+    alt: "Menú digital animado en pantalla",
   },
   {
     icon: Sparkles,
