@@ -30,15 +30,14 @@ const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
+  
   const [muted, setMuted] = useState(true);
   const [showSoundPrompt, setShowSoundPrompt] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
   const [showBenefitsVideo, setShowBenefitsVideo] = useState(false);
   const [benefitsMuted, setBenefitsMuted] = useState(true);
   const [benefitsPaused, setBenefitsPaused] = useState(false);
-  const introRef = useRef<HTMLVideoElement>(null);
-  const mainRef = useRef<HTMLVideoElement>(null);
+  const heroRef = useRef<HTMLVideoElement>(null);
   const benefitsVideoRef = useRef<HTMLVideoElement>(null);
   const benefitsContainerRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +53,7 @@ const Landing = () => {
 
   // Try to autoplay with audio; if blocked, keep muted and show prompt
   useEffect(() => {
-    const vid = introRef.current;
+    const vid = heroRef.current;
     if (!vid) return;
     vid.muted = false;
     vid.play().then(() => {
@@ -68,44 +67,19 @@ const Landing = () => {
   }, []);
 
   const activateSound = useCallback(() => {
-    const active = activeVideo === 0 ? introRef.current : mainRef.current;
-    if (active) {
-      active.muted = false;
-      if (introRef.current) introRef.current.muted = false;
-      if (mainRef.current) mainRef.current.muted = false;
-    }
+    if (heroRef.current) heroRef.current.muted = false;
     setMuted(false);
     setShowSoundPrompt(false);
-  }, [activeVideo]);
+  }, []);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
-      if (introRef.current) introRef.current.muted = next;
-      if (mainRef.current) mainRef.current.muted = next;
+      if (heroRef.current) heroRef.current.muted = next;
       return next;
     });
   }, []);
 
-  const handleIntroEnded = useCallback(() => {
-    setTimeout(() => {
-      setActiveVideo(1);
-      if (mainRef.current) {
-        mainRef.current.currentTime = 0;
-        mainRef.current.play();
-      }
-    }, 700);
-  }, []);
-
-  const handleMainEnded = useCallback(() => {
-    setTimeout(() => {
-      setActiveVideo(0);
-      if (introRef.current) {
-        introRef.current.currentTime = 0;
-        introRef.current.play();
-      }
-    }, 700);
-  }, []);
   const forceIntro = searchParams.get("intro") === "reset";
   const [showIntro, setShowIntro] = useState(() => forceIntro || !hasSeenIntro());
   const handleIntroComplete = useCallback(() => {
@@ -150,45 +124,18 @@ const Landing = () => {
                 className="w-full h-auto block"
               />
             )}
-            {/* Intro video */}
+            {/* Hero video */}
             <video
-              ref={introRef}
-              src={heroVideoIntro}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={handleIntroEnded}
-              onError={() => setVideoFailed(true)}
-              className="w-full h-auto block"
-              style={{
-                display: videoFailed ? "none" : "block",
-                position: activeVideo === 1 ? "absolute" : "relative",
-                inset: 0,
-                opacity: activeVideo === 0 ? 1 : 0,
-                transition: "opacity 0.7s ease-in-out",
-                zIndex: activeVideo === 0 ? 2 : 1,
-              }}
-            />
-            {/* Main video (no loop — handled manually) */}
-            <video
-              ref={mainRef}
+              ref={heroRef}
               src={heroVideo}
               autoPlay
               muted
+              loop
               playsInline
               preload="auto"
-              onEnded={handleMainEnded}
               onError={() => setVideoFailed(true)}
               className="w-full h-auto block"
-              style={{
-                display: videoFailed ? "none" : "block",
-                position: activeVideo === 0 ? "absolute" : "relative",
-                inset: 0,
-                opacity: activeVideo === 1 ? 1 : 0,
-                transition: "opacity 0.7s ease-in-out",
-                zIndex: activeVideo === 1 ? 2 : 1,
-              }}
+              style={{ display: videoFailed ? "none" : "block" }}
             />
 
             {/* Sound prompt overlay */}
