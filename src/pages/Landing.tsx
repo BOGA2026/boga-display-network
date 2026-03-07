@@ -143,6 +143,14 @@ const Landing = () => {
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
             }}
           >
+            {/* Fallback image when video format not supported (e.g. .mov on Android) */}
+            {videoFailed && (
+              <img
+                src={logoVisualia}
+                alt="Visualia hero"
+                className="w-full h-auto block"
+              />
+            )}
             {/* Intro video */}
             <video
               ref={introRef}
@@ -150,9 +158,12 @@ const Landing = () => {
               autoPlay
               muted
               playsInline
+              preload="auto"
               onEnded={handleIntroEnded}
+              onError={() => setVideoFailed(true)}
               className="w-full h-auto block"
               style={{
+                display: videoFailed ? "none" : "block",
                 position: activeVideo === 1 ? "absolute" : "relative",
                 inset: 0,
                 opacity: activeVideo === 0 ? 1 : 0,
@@ -167,9 +178,12 @@ const Landing = () => {
               autoPlay
               muted
               playsInline
+              preload="auto"
               onEnded={handleMainEnded}
+              onError={() => setVideoFailed(true)}
               className="w-full h-auto block"
               style={{
+                display: videoFailed ? "none" : "block",
                 position: activeVideo === 0 ? "absolute" : "relative",
                 inset: 0,
                 opacity: activeVideo === 1 ? 1 : 0,
