@@ -1,0 +1,1 @@
+UPDATE advisor_notifications SET status = 'pending', send_after = now() WHERE id = 1;
