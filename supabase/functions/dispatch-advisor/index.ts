@@ -64,8 +64,7 @@ Deno.serve(async (req) => {
       },
     });
     const listData = await listRes.json();
-    const channelNames = (listData.channels ?? []).map((c: any) => `${c.name}(${c.id})`);
-    console.log("Available channels:", channelNames.join(", "));
+    console.log("conversations.list full response:", JSON.stringify(listData));
     
     const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
     if (!found) {
