@@ -3,7 +3,7 @@ import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import muestraPlatos from "@/assets/muestra-platos.gif";
 import destacaPromociones from "@/assets/destaca-promociones.gif";
-import vendeMasRapido from "@/assets/vende-mas-rapido.gif";
+import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
 
 const steps = [
   {
@@ -98,13 +98,25 @@ function StepRow({
         className={`relative rounded-2xl overflow-hidden ${isEven ? "md:order-1" : "md:order-2"}`}
         style={imageParallax.style}
       >
-        <img
-          src={step.image}
-          alt={step.alt}
-          className="w-full object-cover object-top"
-          style={typeof step.image !== 'string' || !step.image.startsWith('http') ? { aspectRatio: 'auto', clipPath: 'inset(0 0 10% 0)' } : { aspectRatio: '4/3' }}
-          loading="lazy"
-        />
+        {step.image.endsWith('.mp4') ? (
+          <video
+            src={step.image}
+            className="w-full object-cover object-top"
+            style={{ aspectRatio: 'auto', clipPath: 'inset(0 0 10% 0)' }}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        ) : (
+          <img
+            src={step.image}
+            alt={step.alt}
+            className="w-full object-cover object-top"
+            style={typeof step.image !== 'string' || !step.image.startsWith('http') ? { aspectRatio: 'auto', clipPath: 'inset(0 0 10% 0)' } : { aspectRatio: '4/3' }}
+            loading="lazy"
+          />
+        )}
         {/* Neon border overlay */}
         <div
           className="absolute inset-0 rounded-2xl pointer-events-none"
