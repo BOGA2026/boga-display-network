@@ -96,12 +96,13 @@ function StepRow({
       <div
         ref={imageParallax.ref}
         className={`relative rounded-2xl overflow-hidden ${isEven ? "md:order-1" : "md:order-2"}`}
-        style={imageParallax.style}
+        style={{ ...imageParallax.style, maxHeight: typeof step.image !== 'string' || !step.image.startsWith('http') ? '420px' : undefined }}
       >
         <img
           src={step.image}
           alt={step.alt}
-          className={`w-full ${typeof step.image === 'string' && step.image.startsWith('http') ? 'aspect-[4/3]' : 'aspect-auto'} object-cover`}
+          className="w-full object-cover object-top"
+          style={typeof step.image !== 'string' || !step.image.startsWith('http') ? { height: '420px' } : { aspectRatio: '4/3' }}
           loading="lazy"
         />
         {/* Neon border overlay */}
