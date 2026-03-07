@@ -56,6 +56,49 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Join #leads channel first (idempotent — no error if already joined)
+    const joinRes = await fetch(`${GATEWAY_URL}/conversations.join`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": SLACK_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ channel: "leads" }),
+    });
+    const joinData = await joinRes.json();
+
+    // If join fails, try to find channel ID by name
+    let channelId = "leads";
+    if (!joinData.ok && joinData.error === "channel_not_found") {
+      // List channels to find #leads by name
+      const listRes = await fetch(`${GATEWAY_URL}/conversations.list?types=public_channel&limit=200`, {
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": SLACK_API_KEY,
+        },
+      });
+      const listData = await listRes.json();
+      const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
+      if (found) {
+        channelId = found.id;
+        // Join using actual ID
+        await fetch(`${GATEWAY_URL}/conversations.join`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "X-Connection-Api-Key": SLACK_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ channel: channelId }),
+        });
+      } else {
+        console.error("Channel #leads not found in workspace");
+      }
+    } else if (joinData.ok && joinData.channel?.id) {
+      channelId = joinData.channel.id;
+    }
+
     const { data: rows } = await supabase
       .from("advisor_notifications")
       .select("*")
@@ -78,7 +121,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            channel: "#leads",
+            channel: channelId,
             text: `🔔 Nuevo lead: ${payload.name ?? "Sin nombre"} — ${payload.company ?? ""}`,
             blocks: buildSlackBlocks(payload),
           }),
