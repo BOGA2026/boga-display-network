@@ -22,7 +22,7 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
         style={bgParallax.style}
       >
         <img
-          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1920&auto=format&fit=crop"
+          src={heroRestaurantBg}
           alt="Interior de restaurante moderno con pantallas digitales"
           className="w-full h-full object-cover"
           loading="eager"
