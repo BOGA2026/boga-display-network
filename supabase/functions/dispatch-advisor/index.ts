@@ -116,6 +116,8 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             channel: channelId,
+            username: "Visualia CRM",
+            icon_url: "https://signa-pulse-network.lovable.app/favicon.png",
             text: `🔔 Nuevo lead: ${payload.name ?? "Sin nombre"} — ${payload.company ?? ""}`,
             blocks: buildSlackBlocks(payload),
           }),
