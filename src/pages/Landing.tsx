@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import heroVideoIntro from "@/assets/hero-video-intro.mov";
-import heroVideo from "@/assets/hero-video.mov";
+import heroVideo from "@/assets/hero-video.mp4";
 import benefitsVideo from "@/assets/benefits-video.mp4";
 import { Link, useSearchParams } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
