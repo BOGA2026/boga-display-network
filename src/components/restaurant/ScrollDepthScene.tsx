@@ -3,6 +3,7 @@ import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import muestraPlatos from "@/assets/muestra-platos.gif";
 import destacaPromociones from "@/assets/destaca-promociones.gif";
+import vendeMasRapido from "@/assets/vende-mas-rapido.gif";
 
 const steps = [
   {
@@ -26,8 +27,7 @@ const steps = [
     title: "Vende más rápido",
     description:
       "Tus clientes deciden en segundos. La fila avanza. Tu cocina rinde más. Tú ganas más.",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=800&auto=format&fit=crop",
+    image: vendeMasRapido,
     alt: "Servicio eficiente en restaurante",
   },
 ];
