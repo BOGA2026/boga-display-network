@@ -3,6 +3,7 @@ import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import muestraPlatos from "@/assets/muestra-platos.gif";
 import destacaPromociones from "@/assets/destaca-promociones.gif";
+import vendeMasRapido from "@/assets/vende-mas-rapido.gif";
 
 const steps = [
   {
