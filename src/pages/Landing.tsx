@@ -129,16 +129,26 @@ const Landing = () => {
             {/* Hero video */}
             <video
               ref={heroRef}
-              src={heroVideo}
               autoPlay
               muted
               loop
               playsInline
-              preload="auto"
+              // @ts-ignore — webkit prefix needed for older iOS
+              webkit-playsinline="true"
+              preload="metadata"
               onError={() => setVideoFailed(true)}
+              onLoadedData={() => {
+                const vid = heroRef.current;
+                if (vid) {
+                  vid.muted = true;
+                  vid.play().catch(() => {});
+                }
+              }}
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
-            />
+            >
+              <source src={heroVideo} type="video/mp4" />
+            </video>
 
             {/* Sound prompt overlay */}
             {showSoundPrompt && (
