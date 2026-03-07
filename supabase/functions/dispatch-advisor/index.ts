@@ -56,6 +56,43 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Step 1: Find #leads channel ID by listing channels
+    const listRes = await fetch(`${GATEWAY_URL}/conversations.list`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": SLACK_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ types: "public_channel,private_channel", limit: 200 }),
+    });
+    const listData = await listRes.json();
+    console.log("conversations.list ok:", listData.ok, "error:", listData.error, "count:", (listData.channels ?? []).length);
+    
+    const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
+    if (!found) {
+      return Response.json({ ok: false, error: "Canal #leads no encontrado en el workspace" }, { status: 404, headers: corsHeaders });
+    }
+    const channelId = found.id;
+    console.log("Found #leads channel ID:", channelId);
+
+    // Step 2: Join the channel (idempotent, best-effort)
+    try {
+      const joinRes = await fetch(`${GATEWAY_URL}/conversations.join`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": SLACK_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ channel: channelId }),
+      });
+      const joinText = await joinRes.text();
+      console.log("conversations.join status:", joinRes.status, "body:", joinText);
+    } catch (joinErr) {
+      console.warn("conversations.join failed (continuing):", joinErr);
+    }
+
     const { data: rows } = await supabase
       .from("advisor_notifications")
       .select("*")
@@ -78,7 +115,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            channel: "#leads",
+            channel: channelId,
             text: `🔔 Nuevo lead: ${payload.name ?? "Sin nombre"} — ${payload.company ?? ""}`,
             blocks: buildSlackBlocks(payload),
           }),
