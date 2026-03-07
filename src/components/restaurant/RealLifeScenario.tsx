@@ -1,13 +1,19 @@
 import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import iconFamilia from "@/assets/icons/icon-familia.png";
+import iconMenuScreen from "@/assets/icons/icon-menu-screen.png";
+import iconHamburguesa from "@/assets/icons/icon-hamburguesa.png";
+import iconCheck from "@/assets/icons/icon-check.png";
+import iconRayo from "@/assets/icons/icon-rayo.png";
+import iconFuego from "@/assets/icons/icon-fuego.png";
 
 const moments = [
-  { emoji: "👨‍👩‍👧‍👦", text: "Una familia entra al restaurante." },
-  { emoji: "📺", text: "Miran la pantalla y ven los combos al instante." },
-  { emoji: "🍔", text: 'El niño señala: "¡Esa hamburguesa!"' },
-  { emoji: "✅", text: "Los papás ya saben qué pedir." },
-  { emoji: "⚡", text: "Ordenan rápido. La fila avanza." },
-  { emoji: "🔥", text: "Tu cocina trabaja mejor." },
+  { icon: iconFamilia, text: "Una familia entra al restaurante." },
+  { icon: iconMenuScreen, text: "Miran la pantalla y ven los combos al instante." },
+  { icon: iconHamburguesa, text: 'El niño señala: "¡Esa hamburguesa!"' },
+  { icon: iconCheck, text: "Los papás ya saben qué pedir." },
+  { icon: iconRayo, text: "Ordenan rápido. La fila avanza." },
+  { icon: iconFuego, text: "Tu cocina trabaja mejor." },
 ];
 
 const RealLifeScenario = () => {
