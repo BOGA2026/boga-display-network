@@ -219,16 +219,27 @@ const LandingHeader = () => {
                 )}
               >
                 <div className="space-y-1 pb-2 pl-4">
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.label}
-                      to={child.href}
-                      className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
+                  {item.children.map((child) =>
+                    child.href.startsWith("#") ? (
+                      <a
+                        key={child.label}
+                        href={child.href}
+                        className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {child.label}
+                      </a>
+                    ) : (
+                      <Link
+                        key={child.label}
+                        to={child.href}
+                        className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {child.label}
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             </div>
