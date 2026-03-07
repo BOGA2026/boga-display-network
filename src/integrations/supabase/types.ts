@@ -370,12 +370,15 @@ export type Database = {
           email: string | null
           goal: string | null
           id: string
+          inquiry: string | null
           name: string | null
           phone: string | null
           preferred_contact: string | null
+          preferred_time: string | null
           screens: number
           source: string
           status: string
+          whatsapp: string | null
         }
         Insert: {
           budget?: string | null
@@ -384,12 +387,15 @@ export type Database = {
           email?: string | null
           goal?: string | null
           id?: string
+          inquiry?: string | null
           name?: string | null
           phone?: string | null
           preferred_contact?: string | null
+          preferred_time?: string | null
           screens?: number
           source?: string
           status?: string
+          whatsapp?: string | null
         }
         Update: {
           budget?: string | null
@@ -398,12 +404,15 @@ export type Database = {
           email?: string | null
           goal?: string | null
           id?: string
+          inquiry?: string | null
           name?: string | null
           phone?: string | null
           preferred_contact?: string | null
+          preferred_time?: string | null
           screens?: number
           source?: string
           status?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }

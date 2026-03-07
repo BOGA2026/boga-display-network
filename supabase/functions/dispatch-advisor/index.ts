@@ -14,23 +14,42 @@ const supabase = createClient(
 );
 
 function buildSlackBlocks(p: Record<string, unknown>) {
-  return [
+  const fields = [
+    { type: "mrkdwn", text: `*Nombre:*\n${p.name ?? "—"}` },
+    { type: "mrkdwn", text: `*Empresa:*\n${p.company ?? "—"}` },
+    { type: "mrkdwn", text: `*Email:*\n${p.email ?? "—"}` },
+    { type: "mrkdwn", text: `*Teléfono:*\n${p.phone ?? "—"}` },
+    { type: "mrkdwn", text: `*WhatsApp:*\n${p.whatsapp || p.phone || "—"}` },
+    { type: "mrkdwn", text: `*Pantallas:*\n${p.screens ?? "—"}` },
+    { type: "mrkdwn", text: `*Objetivo:*\n${p.goal ?? "—"}` },
+    { type: "mrkdwn", text: `*Presupuesto:*\n${p.budget ?? "—"}` },
+  ];
+
+  const blocks: any[] = [
     {
       type: "header",
       text: { type: "plain_text", text: "🔔 Nuevo Lead — Visualia", emoji: true },
     },
-    {
+    { type: "section", fields },
+  ];
+
+  // Preferred time
+  if (p.preferred_time) {
+    blocks.push({
       type: "section",
-      fields: [
-        { type: "mrkdwn", text: `*Nombre:*\n${p.name ?? "—"}` },
-        { type: "mrkdwn", text: `*Empresa:*\n${p.company ?? "—"}` },
-        { type: "mrkdwn", text: `*Email:*\n${p.email ?? "—"}` },
-        { type: "mrkdwn", text: `*Teléfono:*\n${p.phone ?? "—"}` },
-        { type: "mrkdwn", text: `*Pantallas:*\n${p.screens ?? "—"}` },
-        { type: "mrkdwn", text: `*Objetivo:*\n${p.goal ?? "—"}` },
-        { type: "mrkdwn", text: `*Presupuesto:*\n${p.budget ?? "—"}` },
-      ],
-    },
+      text: { type: "mrkdwn", text: `🕐 *Hora preferida de contacto:* ${p.preferred_time}` },
+    });
+  }
+
+  // Inquiry
+  if (p.inquiry) {
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: `💬 *Inquietud:*\n${p.inquiry}` },
+    });
+  }
+
+  blocks.push(
     { type: "divider" },
     {
       type: "context",
@@ -38,7 +57,9 @@ function buildSlackBlocks(p: Record<string, unknown>) {
         { type: "mrkdwn", text: `Lead ID: \`${p.lead_id}\`` },
       ],
     },
-  ];
+  );
+
+  return blocks;
 }
 
 Deno.serve(async (req) => {

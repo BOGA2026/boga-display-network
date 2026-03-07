@@ -52,14 +52,14 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { name, email, phone, company, screens, goal, budget, preferred_contact, events = [] } = body;
+    const { name, email, phone, whatsapp, company, screens, goal, budget, inquiry, preferred_time, preferred_contact, events = [] } = body;
 
     const { data: lead, error } = await supabase
       .from("leads")
       .insert({
-        name, email, phone, company,
+        name, email, phone, whatsapp, company,
         screens: Number(screens || 1),
-        goal, budget,
+        goal, budget, inquiry, preferred_time,
         preferred_contact,
       })
       .select("*")
@@ -82,7 +82,8 @@ Deno.serve(async (req) => {
       send_after,
       payload: {
         lead_id: lead.id,
-        name, email, phone, company, screens, goal, budget,
+        name, email, phone, whatsapp, company, screens, goal, budget,
+        inquiry, preferred_time,
         mensaje: "Nuevo lead de Visualia para atención inmediata.",
       },
     });

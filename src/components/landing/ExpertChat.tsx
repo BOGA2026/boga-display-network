@@ -15,8 +15,11 @@ const leadSchema = z.object({
   name: z.string().trim().min(2, "Ingresa tu nombre").max(100),
   email: z.string().trim().email("Correo inválido").max(255),
   phone: z.string().trim().min(7, "Teléfono inválido").max(20),
+  whatsapp: z.string().trim().max(20).optional(),
   company: z.string().trim().max(150).optional(),
   screens: z.number().int().min(1).max(999),
+  inquiry: z.string().trim().max(1000).optional(),
+  preferred_time: z.string().max(100).optional(),
   consent: z.literal(true, { errorMap: () => ({ message: "Debes aceptar el tratamiento de datos" }) }),
 });
 
@@ -114,10 +117,37 @@ function InlineLeadForm({ onSubmitted }: { onSubmitted: () => void }) {
         {errors.phone && <p className="mt-0.5 text-[11px]" style={{ color: "hsl(0 80% 60%)" }}>{errors.phone}</p>}
       </div>
       <input placeholder="Empresa (opcional)" value={form.company ?? ""} onChange={(e) => update({ company: e.target.value })} className={inputCls} style={inputSt(false)} />
+      <input placeholder="WhatsApp (opcional)" type="tel" value={form.whatsapp ?? ""} onChange={(e) => update({ whatsapp: e.target.value })} className={inputCls} style={inputSt(false)} />
 
       <div className="flex items-center gap-2">
         <label className="text-xs text-muted-foreground flex-1">Nº de pantallas</label>
         <input type="number" min={1} max={999} value={form.screens ?? 1} onChange={(e) => update({ screens: Math.max(1, Number(e.target.value)) })} className="w-20 rounded-lg bg-transparent px-3 py-2 text-sm text-foreground text-center outline-none" style={inputSt(false)} />
+      </div>
+
+      <textarea
+        placeholder="¿Tienes alguna inquietud o pregunta? (opcional)"
+        value={form.inquiry ?? ""}
+        onChange={(e) => update({ inquiry: e.target.value })}
+        rows={2}
+        className={`${inputCls} resize-none`}
+        style={inputSt(false)}
+      />
+
+      <div>
+        <label className="text-[11px] text-muted-foreground mb-0.5 block">¿A qué hora prefieres ser contactado?</label>
+        <select
+          value={form.preferred_time ?? ""}
+          onChange={(e) => update({ preferred_time: e.target.value })}
+          className="w-full rounded-lg px-3 py-2 text-sm text-foreground outline-none"
+          style={{ background: "hsl(260 25% 9%)", border: "1px solid hsl(270 25% 22%)" }}
+        >
+          <option value="">Cualquier hora</option>
+          <option value="8:00 - 10:00">8:00 - 10:00 AM</option>
+          <option value="10:00 - 12:00">10:00 - 12:00 PM</option>
+          <option value="12:00 - 14:00">12:00 - 2:00 PM</option>
+          <option value="14:00 - 16:00">2:00 - 4:00 PM</option>
+          <option value="16:00 - 18:00">4:00 - 6:00 PM</option>
+        </select>
       </div>
 
       {/* Consent checkbox */}
