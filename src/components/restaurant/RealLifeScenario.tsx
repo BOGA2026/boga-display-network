@@ -99,7 +99,7 @@ function MomentCard({
   moment,
   index,
 }: {
-  moment: { emoji: string; text: string };
+  moment: { icon: string; text: string };
   index: number;
 }) {
   const reveal = useScrollReveal({ threshold: 0.3 });
@@ -113,10 +113,10 @@ function MomentCard({
       style={{ transitionDelay: `${index * 80}ms` }}
     >
       <div
-        className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-xl"
+        className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
         style={{ background: "hsl(var(--card))" }}
       >
-        {moment.emoji}
+        <img src={moment.icon} alt="" className="h-10 w-10 object-contain" />
       </div>
       <p className="text-base text-muted-foreground md:text-lg pt-2.5">{moment.text}</p>
     </div>
