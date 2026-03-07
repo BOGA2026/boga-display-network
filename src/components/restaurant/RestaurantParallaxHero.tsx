@@ -2,6 +2,7 @@ import { ArrowRight, Play } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import heroRestaurantBg from "@/assets/hero-restaurant-bg.png";
 
 interface Props {
   onDemo: () => void;
