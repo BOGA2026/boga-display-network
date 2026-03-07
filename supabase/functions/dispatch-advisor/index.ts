@@ -57,14 +57,17 @@ Deno.serve(async (req) => {
 
   try {
     // Step 1: Find #leads channel ID by listing channels
-    const listRes = await fetch(`${GATEWAY_URL}/conversations.list?types=public_channel,private_channel&limit=200`, {
+    const listRes = await fetch(`${GATEWAY_URL}/conversations.list`, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "X-Connection-Api-Key": SLACK_API_KEY,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ types: "public_channel,private_channel", limit: 200 }),
     });
     const listData = await listRes.json();
-    console.log("conversations.list full response:", JSON.stringify(listData));
+    console.log("conversations.list ok:", listData.ok, "error:", listData.error, "count:", (listData.channels ?? []).length);
     
     const found = (listData.channels ?? []).find((c: any) => c.name === "leads");
     if (!found) {
