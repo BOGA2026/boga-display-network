@@ -9,10 +9,13 @@ const leadSchema = z.object({
   name: z.string().trim().min(2, "Ingresa tu nombre").max(100),
   email: z.string().trim().email("Correo inválido").max(255),
   phone: z.string().trim().min(7, "Teléfono inválido").max(20),
+  whatsapp: z.string().trim().max(20).optional(),
   company: z.string().trim().max(150).optional(),
   screens: z.number().int().min(1).max(999),
   goal: z.string().max(500).optional(),
   budget: z.string().max(100).optional(),
+  inquiry: z.string().trim().max(1000).optional(),
+  preferred_time: z.string().max(100).optional(),
   preferred_contact: z.enum(["chatbot", "asesor"]),
 });
 
@@ -171,6 +174,16 @@ export function VisualiaChatbot() {
         style={inputStyle(false)}
       />
 
+      {/* WhatsApp */}
+      <input
+        placeholder="WhatsApp (opcional)"
+        type="tel"
+        value={form.whatsapp ?? ""}
+        onChange={(e) => update({ whatsapp: e.target.value })}
+        className={inputClass}
+        style={inputStyle(false)}
+      />
+
       {/* Screens + simulate */}
       <div className="flex items-end gap-3">
         <div className="flex-1">
@@ -208,6 +221,34 @@ export function VisualiaChatbot() {
           </span>
         </div>
       )}
+
+      {/* Inquiry */}
+      <textarea
+        placeholder="¿Tienes alguna inquietud o pregunta? (opcional)"
+        value={form.inquiry ?? ""}
+        onChange={(e) => update({ inquiry: e.target.value })}
+        rows={3}
+        className={`${inputClass} resize-none`}
+        style={inputStyle(false)}
+      />
+
+      {/* Preferred contact time */}
+      <div>
+        <label className="mb-1 block text-xs text-muted-foreground">¿A qué hora prefieres ser contactado?</label>
+        <select
+          value={form.preferred_time ?? ""}
+          onChange={(e) => update({ preferred_time: e.target.value })}
+          className="w-full rounded-xl px-4 py-3 text-sm text-foreground outline-none"
+          style={{ background: "hsl(260 20% 10%)", border: "1px solid hsl(270 30% 20%)" }}
+        >
+          <option value="">Cualquier hora</option>
+          <option value="8:00 - 10:00">8:00 - 10:00 AM</option>
+          <option value="10:00 - 12:00">10:00 - 12:00 PM</option>
+          <option value="12:00 - 14:00">12:00 - 2:00 PM</option>
+          <option value="14:00 - 16:00">2:00 - 4:00 PM</option>
+          <option value="16:00 - 18:00">4:00 - 6:00 PM</option>
+        </select>
+      </div>
 
       {/* Preferred contact */}
       <select
