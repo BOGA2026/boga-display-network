@@ -9,7 +9,7 @@ const menuItems = [
   {
     label: "Soluciones",
     children: [
-      { label: "Restaurantes", href: "#" },
+      { label: "Restaurantes", href: "#soluciones-restaurantes" },
       { label: "Clínicas", href: "#" },
       { label: "Hoteles", href: "#" },
     ],
