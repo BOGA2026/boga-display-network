@@ -165,6 +165,17 @@ const LandingHeader = () => {
               </div>
             </div>
           ))}
+
+          {/* Direct links (no dropdown) */}
+          {directLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="relative rounded-lg px-6 py-3 text-lg font-semibold text-[hsl(275,100%,65%)] transition-colors hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Right — Actions */}
