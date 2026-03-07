@@ -76,18 +76,22 @@ Deno.serve(async (req) => {
     const channelId = found.id;
     console.log("Found #leads channel ID:", channelId);
 
-    // Step 2: Join the channel (idempotent)
-    const joinRes = await fetch(`${GATEWAY_URL}/conversations.join`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": SLACK_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ channel: channelId }),
-    });
-    const joinData = await joinRes.json();
-    console.log("conversations.join result:", JSON.stringify(joinData));
+    // Step 2: Join the channel (idempotent, best-effort)
+    try {
+      const joinRes = await fetch(`${GATEWAY_URL}/conversations.join`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": SLACK_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ channel: channelId }),
+      });
+      const joinText = await joinRes.text();
+      console.log("conversations.join status:", joinRes.status, "body:", joinText);
+    } catch (joinErr) {
+      console.warn("conversations.join failed (continuing):", joinErr);
+    }
 
     const { data: rows } = await supabase
       .from("advisor_notifications")
