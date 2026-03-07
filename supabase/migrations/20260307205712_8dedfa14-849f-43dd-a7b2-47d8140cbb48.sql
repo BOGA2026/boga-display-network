@@ -1,0 +1,1 @@
+UPDATE advisor_notifications SET status = 'pending', send_after = now() WHERE status IN ('pending', 'failed');
