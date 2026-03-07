@@ -195,7 +195,7 @@ const Landing = () => {
             )}
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -217,6 +217,19 @@ const Landing = () => {
             >
               Ver beneficios
             </Button>
+            <Link
+              to="/precios"
+              className="inline-flex items-center justify-center rounded-xl border px-8 py-3 text-lg font-semibold transition-colors hover-lift"
+              style={{
+                borderColor: "hsl(290 100% 50% / 0.6)",
+                color: "hsl(290 100% 75%)",
+                background: "transparent",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(290 100% 50% / 0.1)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              Ver planes
+            </Link>
           </div>
         </div>
       </section>
