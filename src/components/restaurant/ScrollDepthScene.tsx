@@ -101,7 +101,7 @@ function StepRow({
         <img
           src={step.image}
           alt={step.alt}
-          className="w-full aspect-[4/3] object-cover"
+          className={`w-full ${typeof step.image === 'string' && step.image.startsWith('http') ? 'aspect-[4/3]' : 'aspect-auto'} object-cover`}
           loading="lazy"
         />
         {/* Neon border overlay */}
