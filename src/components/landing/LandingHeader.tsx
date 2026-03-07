@@ -259,6 +259,17 @@ const LandingHeader = () => {
               </div>
             </div>
           ))}
+          {/* Direct links in mobile */}
+          {directLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="block rounded-lg px-3 py-3 text-sm font-medium text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
           <div className="flex flex-col gap-3 pt-4">
             <Button
               className="w-full gradient-primary glow-primary-sm border-0 text-primary-foreground"
