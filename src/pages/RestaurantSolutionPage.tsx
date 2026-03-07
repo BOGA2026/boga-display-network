@@ -1,6 +1,5 @@
 import LandingHeader from "@/components/landing/LandingHeader";
 import RestaurantSolution from "@/components/landing/RestaurantSolution";
-import PremiumBackground from "@/components/layout/PremiumBackground";
 import ExpertChat from "@/components/landing/ExpertChat";
 import { useState } from "react";
 
@@ -8,13 +7,11 @@ const RestaurantSolutionPage = () => {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <PremiumBackground>
+    <div className="relative min-h-screen" style={{ background: "hsl(var(--background))" }}>
       <LandingHeader />
-      <div className="pt-24">
-        <RestaurantSolution onDemo={() => setChatOpen(true)} />
-      </div>
+      <RestaurantSolution onDemo={() => setChatOpen(true)} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
-    </PremiumBackground>
+    </div>
   );
 };
 
