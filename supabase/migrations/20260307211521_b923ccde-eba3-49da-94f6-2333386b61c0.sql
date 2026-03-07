@@ -1,0 +1,1 @@
+UPDATE advisor_notifications SET send_after = now() WHERE lead_id = '5cafad63-d20d-4fb4-830c-67b06bd6df8c';
