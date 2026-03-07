@@ -6,14 +6,53 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/slack/api";
+
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
+function buildSlackBlocks(p: Record<string, unknown>) {
+  return [
+    {
+      type: "header",
+      text: { type: "plain_text", text: "🔔 Nuevo Lead — Visualia", emoji: true },
+    },
+    {
+      type: "section",
+      fields: [
+        { type: "mrkdwn", text: `*Nombre:*\n${p.name ?? "—"}` },
+        { type: "mrkdwn", text: `*Empresa:*\n${p.company ?? "—"}` },
+        { type: "mrkdwn", text: `*Email:*\n${p.email ?? "—"}` },
+        { type: "mrkdwn", text: `*Teléfono:*\n${p.phone ?? "—"}` },
+        { type: "mrkdwn", text: `*Pantallas:*\n${p.screens ?? "—"}` },
+        { type: "mrkdwn", text: `*Objetivo:*\n${p.goal ?? "—"}` },
+        { type: "mrkdwn", text: `*Presupuesto:*\n${p.budget ?? "—"}` },
+      ],
+    },
+    { type: "divider" },
+    {
+      type: "context",
+      elements: [
+        { type: "mrkdwn", text: `Lead ID: \`${p.lead_id}\`` },
+      ],
+    },
+  ];
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    return Response.json({ ok: false, error: "LOVABLE_API_KEY not configured" }, { status: 500, headers: corsHeaders });
+  }
+  const SLACK_API_KEY = Deno.env.get("SLACK_API_KEY");
+  if (!SLACK_API_KEY) {
+    return Response.json({ ok: false, error: "SLACK_API_KEY not configured" }, { status: 500, headers: corsHeaders });
   }
 
   try {
@@ -24,18 +63,30 @@ Deno.serve(async (req) => {
       .lte("send_after", new Date().toISOString())
       .limit(20);
 
-    const webhookUrl = Deno.env.get("ADVISOR_WEBHOOK_URL");
     let sent = 0;
     let failed = 0;
 
     for (const n of rows ?? []) {
       try {
-        if (webhookUrl) {
-          await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(n.payload),
-          });
+        const payload = (n.payload ?? {}) as Record<string, unknown>;
+
+        const res = await fetch(`${GATEWAY_URL}/chat.postMessage`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "X-Connection-Api-Key": SLACK_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            channel: "#leads",
+            text: `🔔 Nuevo lead: ${payload.name ?? "Sin nombre"} — ${payload.company ?? ""}`,
+            blocks: buildSlackBlocks(payload),
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(`Slack API error [${res.status}]: ${JSON.stringify(data)}`);
         }
 
         await supabase
