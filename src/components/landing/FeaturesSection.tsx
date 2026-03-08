@@ -33,7 +33,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
           <span style={{ color: "hsl(270 60% 70%)" }}>controlar tus pantallas</span>{" "}
           y vender más
         </h2>
-        <p className="mt-5 text-base leading-relaxed" style={{ color: "hsl(0 0% 55%)" }}>
+        <p className="mt-2 text-base leading-relaxed" style={{ color: "hsl(0 0% 55%)" }}>
           Controla, actualiza y automatiza tus pantallas desde un solo lugar.
         </p>
       </div>
