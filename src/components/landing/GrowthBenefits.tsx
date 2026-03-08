@@ -26,7 +26,7 @@ const cards = [
 ];
 
 const GrowthBenefits = () => (
-  <section className="px-4 py-12 md:px-6 md:py-16">
+<section className="px-4 py-8 md:px-6 md:py-10">
     <style>{`
       .stat-card {
         background: hsl(260 20% 7%);
@@ -49,8 +49,7 @@ const GrowthBenefits = () => (
       }
     `}</style>
     <div className="mx-auto max-w-5xl">
-      {/* Headline */}
-      <div className="mb-6">
+      <div className="mb-4">
         <h2
           className="text-4xl font-black md:text-5xl lg:text-6xl leading-tight"
           style={{
