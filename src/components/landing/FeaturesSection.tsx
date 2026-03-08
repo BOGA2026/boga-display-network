@@ -24,7 +24,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
     <div className="mx-auto max-w-5xl">
 
       {/* Header */}
-      <div className="mb-10 max-w-2xl">
+      <div className="mb-6 max-w-2xl">
         <p className="mb-3 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
           Plataforma
         </p>
