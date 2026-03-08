@@ -321,15 +321,15 @@ const Landing = () => {
       </div>
 
       {/* How It Works */}
-      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-8 md:px-6 md:py-10">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-6 text-center">
+          <div className="mb-4 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
-            <p className="mx-auto mt-2 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
+            <p className="mx-auto mt-1 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
           </div>
           <div className="relative">
             <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-            <div className="space-y-6 md:space-y-8">
+            <div className="space-y-4 md:space-y-5">
               {steps.map((s) => (
                 <div key={s.num} className="flex gap-8 md:gap-12 group">
                   <div className="relative flex-shrink-0">
