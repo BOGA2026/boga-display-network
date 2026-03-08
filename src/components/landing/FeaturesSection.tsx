@@ -20,12 +20,12 @@ const results = [
 ];
 
 const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
-  <section id="features" className="px-4 py-12 md:px-6 md:py-16">
+  <section id="features" className="px-4 py-8 md:px-6 md:py-10">
     <div className="mx-auto max-w-5xl">
 
       {/* Header */}
-      <div className="mb-6 max-w-2xl">
-        <p className="mb-3 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
+      <div className="mb-4 max-w-2xl">
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
           Plataforma
         </p>
         <h2 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl leading-tight">
@@ -33,7 +33,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
           <span style={{ color: "hsl(270 60% 70%)" }}>controlar tus pantallas</span>{" "}
           y vender más
         </h2>
-        <p className="mt-2 text-base leading-relaxed" style={{ color: "hsl(0 0% 55%)" }}>
+        <p className="mt-1 text-base leading-relaxed" style={{ color: "hsl(0 0% 55%)" }}>
           Controla, actualiza y automatiza tus pantallas desde un solo lugar.
         </p>
       </div>
@@ -61,7 +61,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
 
       {/* Results strip */}
       <div
-        className="mt-10 grid grid-cols-3 border-t border-b"
+        className="mt-6 grid grid-cols-3 border-t border-b"
         style={{ borderColor: "hsl(270 15% 14%)" }}
       >
         {results.map((r, i) => (
@@ -79,7 +79,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
       </div>
 
       {/* CTA */}
-      <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
         <div>
           <h3 className="text-xl font-bold text-white">Empieza hoy</h3>
           <p className="mt-1 text-sm" style={{ color: "hsl(0 0% 45%)" }}>

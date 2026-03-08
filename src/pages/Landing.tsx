@@ -98,7 +98,7 @@ const Landing = () => {
       <LandingHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-4 pb-12 pt-24 md:px-6 md:pt-32">
+      <section className="relative overflow-hidden px-4 pb-6 pt-24 md:px-6 md:pt-28">
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
           <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
@@ -195,7 +195,7 @@ const Landing = () => {
             )}
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -321,15 +321,15 @@ const Landing = () => {
       </div>
 
       {/* How It Works */}
-      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-8 md:px-6 md:py-10">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-6 text-center">
+          <div className="mb-4 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
-            <p className="mx-auto mt-2 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
+            <p className="mx-auto mt-1 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
           </div>
           <div className="relative">
             <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-            <div className="space-y-6 md:space-y-8">
+            <div className="space-y-4 md:space-y-5">
               {steps.map((s) => (
                 <div key={s.num} className="flex gap-8 md:gap-12 group">
                   <div className="relative flex-shrink-0">
@@ -352,10 +352,10 @@ const Landing = () => {
       </div>
 
       {/* Testimonials */}
-      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
+      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-8 md:px-6 md:py-10">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
-          <div className="mb-6 text-center">
+          <div className="mb-4 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
@@ -376,14 +376,14 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-8 md:px-6 md:py-10">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
+          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-10 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza con <span className="text-gradient-primary">Visualia</span> hoy</h2>
-              <p className="mx-auto mt-5 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <p className="mx-auto mt-2 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
+              <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
                 <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setChatOpen(true)}>Hablar con un experto</Button>
               </div>
@@ -393,23 +393,23 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/20 px-4 py-8 md:px-6">
+      <footer className="border-t border-border/20 px-4 py-6 md:px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-6">
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</a>
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
               <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
             </div>
-            <div className="flex gap-5">
+            <div className="flex gap-4">
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Twitter className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-10 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
+          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
