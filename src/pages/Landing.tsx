@@ -329,7 +329,7 @@ const Landing = () => {
           </div>
           <div className="relative">
             <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-            <div className="space-y-10 md:space-y-12">
+            <div className="space-y-6 md:space-y-8">
               {steps.map((s) => (
                 <div key={s.num} className="flex gap-8 md:gap-12 group">
                   <div className="relative flex-shrink-0">
