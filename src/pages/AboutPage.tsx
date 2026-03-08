@@ -151,10 +151,17 @@ export default function AboutPage() {
               , comunicar mejor y modernizar su experiencia con los clientes.
             </p>
           </div>
-          <p>
-            Desde Colombia, estamos construyendo tecnología accesible para que cualquier negocio
-            pueda tener herramientas que antes solo tenían las grandes marcas.
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="flex h-5 w-8 shrink-0 overflow-hidden rounded" style={{ boxShadow: "0 1px 4px hsl(0 0% 0% / 0.3)" }}>
+              <div className="w-full h-[50%]" style={{ background: "#FCD116" }} />
+              <div className="w-full h-[25%]" style={{ background: "#003893" }} />
+              <div className="w-full h-[25%]" style={{ background: "#CE1126" }} />
+            </div>
+            <p>
+              Desde <span className="font-semibold text-foreground">Colombia</span>, estamos construyendo tecnología accesible para que cualquier negocio
+              pueda tener herramientas que antes solo tenían las grandes marcas.
+            </p>
+          </div>
         </div>
       </section>
 
