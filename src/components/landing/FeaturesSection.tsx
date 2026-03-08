@@ -61,7 +61,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
 
       {/* Results strip */}
       <div
-        className="mt-10 grid grid-cols-3 border-t border-b"
+        className="mt-6 grid grid-cols-3 border-t border-b"
         style={{ borderColor: "hsl(270 15% 14%)" }}
       >
         {results.map((r, i) => (
