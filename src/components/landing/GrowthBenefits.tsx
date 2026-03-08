@@ -50,7 +50,7 @@ const GrowthBenefits = () => (
     `}</style>
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
-      <div className="mb-10">
+      <div className="mb-6">
         <h2
           className="text-4xl font-black md:text-5xl lg:text-6xl leading-tight"
           style={{
