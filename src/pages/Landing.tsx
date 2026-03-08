@@ -355,7 +355,7 @@ const Landing = () => {
       <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
+          <div className="mb-6 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">

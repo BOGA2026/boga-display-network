@@ -79,7 +79,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
       </div>
 
       {/* CTA */}
-      <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-8 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
+      <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t" style={{ borderColor: "hsl(270 15% 14%)" }}>
         <div>
           <h3 className="text-xl font-bold text-white">Empieza hoy</h3>
           <p className="mt-1 text-sm" style={{ color: "hsl(0 0% 45%)" }}>

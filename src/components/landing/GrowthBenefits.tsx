@@ -71,7 +71,7 @@ const GrowthBenefits = () => (
           con pantallas digitales
         </h2>
         <p
-          className="mt-5 text-lg font-medium"
+          className="mt-2 text-lg font-medium"
           style={{
             color: "hsl(0 0% 80%)",
             textShadow: "0 0 20px hsl(270 100% 60% / 0.2)",
