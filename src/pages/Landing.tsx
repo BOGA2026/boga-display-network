@@ -195,7 +195,7 @@ const Landing = () => {
             )}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
