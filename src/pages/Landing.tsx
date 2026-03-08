@@ -376,14 +376,14 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-12 md:px-6 md:py-16">
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-8 md:px-6 md:py-10">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-16 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
+          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-10 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
             <div className="relative">
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza con <span className="text-gradient-primary">Visualia</span> hoy</h2>
-              <p className="mx-auto mt-5 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <p className="mx-auto mt-2 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
+              <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
                 <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setChatOpen(true)}>Hablar con un experto</Button>
               </div>
