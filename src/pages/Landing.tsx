@@ -98,7 +98,7 @@ const Landing = () => {
       <LandingHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-4 pb-12 pt-24 md:px-6 md:pt-32">
+      <section className="relative overflow-hidden px-4 pb-6 pt-24 md:px-6 md:pt-28">
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
           <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
