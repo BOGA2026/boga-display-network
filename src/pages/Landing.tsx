@@ -336,7 +336,7 @@ const Landing = () => {
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">{s.num}</div>
                   </div>
                   <div className="pt-2">
-                    <h3 className="mb-3 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
+                    <h3 className="mb-1 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
                     <p className="max-w-lg text-muted-foreground">{s.desc}</p>
                   </div>
                 </div>
