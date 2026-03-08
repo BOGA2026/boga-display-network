@@ -152,10 +152,10 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-5 w-8 shrink-0 overflow-hidden rounded" style={{ boxShadow: "0 1px 4px hsl(0 0% 0% / 0.3)" }}>
-              <div className="w-full h-[50%]" style={{ background: "#FCD116" }} />
-              <div className="w-full h-[25%]" style={{ background: "#003893" }} />
-              <div className="w-full h-[25%]" style={{ background: "#CE1126" }} />
+            <div className="flex flex-col h-5 w-8 shrink-0 overflow-hidden rounded" style={{ boxShadow: "0 1px 4px hsl(0 0% 0% / 0.3)" }}>
+              <div style={{ background: "#FCD116", height: "50%" }} />
+              <div style={{ background: "#003893", height: "25%" }} />
+              <div style={{ background: "#CE1126", height: "25%" }} />
             </div>
             <p>
               Desde <span className="font-semibold text-foreground">Colombia</span>, estamos construyendo tecnología accesible para que cualquier negocio
