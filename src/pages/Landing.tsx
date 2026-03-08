@@ -195,7 +195,7 @@ const Landing = () => {
             )}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
               Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -323,20 +323,20 @@ const Landing = () => {
       {/* How It Works */}
       <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-12 md:px-6 md:py-16">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-10 text-center">
+          <div className="mb-6 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
-            <p className="mx-auto mt-5 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
+            <p className="mx-auto mt-2 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
           </div>
           <div className="relative">
             <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-            <div className="space-y-10 md:space-y-12">
+            <div className="space-y-6 md:space-y-8">
               {steps.map((s) => (
                 <div key={s.num} className="flex gap-8 md:gap-12 group">
                   <div className="relative flex-shrink-0">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">{s.num}</div>
                   </div>
                   <div className="pt-2">
-                    <h3 className="mb-3 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
+                    <h3 className="mb-1 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
                     <p className="max-w-lg text-muted-foreground">{s.desc}</p>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ const Landing = () => {
       <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-12 md:px-6 md:py-16">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
+          <div className="mb-6 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">

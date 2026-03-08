@@ -50,7 +50,7 @@ const GrowthBenefits = () => (
     `}</style>
     <div className="mx-auto max-w-5xl">
       {/* Headline */}
-      <div className="mb-10">
+      <div className="mb-6">
         <h2
           className="text-4xl font-black md:text-5xl lg:text-6xl leading-tight"
           style={{
@@ -71,7 +71,7 @@ const GrowthBenefits = () => (
           con pantallas digitales
         </h2>
         <p
-          className="mt-5 text-lg font-medium"
+          className="mt-2 text-lg font-medium"
           style={{
             color: "hsl(0 0% 80%)",
             textShadow: "0 0 20px hsl(270 100% 60% / 0.2)",
