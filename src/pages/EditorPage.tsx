@@ -754,17 +754,17 @@ export default function EditorPage() {
 
       <div className="grid h-[calc(100%-56px)] grid-cols-[56px_1fr_320px]">
         {/* Left tools */}
-        <aside className="border-r border-border bg-card p-2">
+         <aside className="border-r border-border bg-card p-2">
           <div className="flex flex-col gap-2">
-            <button onClick={() => addLayer("Zona", "zone")} className="rounded p-2 hover:bg-accent" title="Zona">
+            <button onClick={() => addLayer("Zona", "zone")} className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Zona">
               <LayoutGrid className="h-5 w-5" />
             </button>
-            <button onClick={() => addLayer("Texto", "text")} className="rounded p-2 hover:bg-accent" title="Texto">
+            <button onClick={() => addLayer("Texto", "text")} className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Texto">
               <Type className="h-5 w-5" />
             </button>
             <Popover open={imageGalleryOpen} onOpenChange={setImageGalleryOpen}>
               <PopoverTrigger asChild>
-                <button className="rounded p-2 hover:bg-accent" title="Imagen">
+                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Imagen">
                   <ImageIcon className="h-5 w-5" />
                 </button>
               </PopoverTrigger>
@@ -774,7 +774,7 @@ export default function EditorPage() {
             </Popover>
             <Popover open={widgetPickerOpen} onOpenChange={setWidgetPickerOpen}>
               <PopoverTrigger asChild>
-                <button className="rounded p-2 hover:bg-accent" title="Widget">
+                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Widget">
                   <Star className="h-5 w-5" />
                 </button>
               </PopoverTrigger>
@@ -783,7 +783,7 @@ export default function EditorPage() {
               </PopoverContent>
             </Popover>
             <span className="h-px w-full bg-border" />
-            <button onClick={() => fileInputRef.current?.click()} className="rounded p-2 hover:bg-accent" title="Subir imagen (PNG)">
+            <button onClick={() => fileInputRef.current?.click()} className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Subir imagen (PNG)">
               <Upload className="h-5 w-5" />
             </button>
             <input
@@ -796,7 +796,7 @@ export default function EditorPage() {
             />
             <button
               onClick={() => videoInputRef.current?.click()}
-              className="rounded p-2 hover:bg-accent relative"
+              className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary relative"
               title="Subir video"
               disabled={uploadingVideo}
             >
@@ -809,7 +809,7 @@ export default function EditorPage() {
               hidden
               onChange={onPickVideoFile}
             />
-            <button className="rounded p-2 hover:bg-accent" title="Paleta">
+            <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Paleta">
               <Palette className="h-5 w-5" />
             </button>
           </div>
@@ -831,16 +831,16 @@ export default function EditorPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={undo} className="rounded border border-border bg-card px-2 py-1 hover:bg-accent" title="Deshacer (Ctrl+Z)">
+              <button onClick={undo} className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.35)] transition-all duration-200" title="Deshacer (Ctrl+Z)">
                 <Undo2 className="h-4 w-4" />
               </button>
-              <button onClick={redo} className="rounded border border-border bg-card px-2 py-1 hover:bg-accent" title="Rehacer (Ctrl+Shift+Z)">
+              <button onClick={redo} className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.35)] transition-all duration-200" title="Rehacer (Ctrl+Shift+Z)">
                 <Redo2 className="h-4 w-4" />
               </button>
               <select
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="rounded border border-border bg-card px-2 py-1 text-sm"
+                className="rounded-lg border border-border bg-card px-2 py-1 text-sm hover:border-primary/30 focus:border-primary/40 focus:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.3)] transition-all duration-200"
               >
                 {[25, 50, 75, 100, 125, 150].map((z) => (
                   <option key={z} value={z}>
@@ -869,9 +869,9 @@ export default function EditorPage() {
                   ...stageStyle,
                   transform: `scale(${scale})`,
                   transformOrigin: "top left",
-                  boxShadow: "0 0 40px 8px hsl(var(--primary) / 0.25), 0 0 80px 20px hsl(var(--primary) / 0.1)",
+                  boxShadow: "0 0 60px 12px hsl(var(--primary) / 0.4), 0 0 120px 40px hsl(var(--primary) / 0.2), 0 0 200px 60px hsl(var(--primary) / 0.08)",
                 }}
-                className="relative overflow-hidden rounded border border-primary/30"
+                className="relative overflow-hidden rounded-lg border border-primary/40"
                 onClick={handleCanvasClick}
                 onPointerDown={onCanvasPointerDown}
                 onPointerMove={onCanvasPointerMove}
@@ -1017,10 +1017,10 @@ export default function EditorPage() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`flex-1 px-3 py-2 ${
+                className={`flex-1 px-3 py-2 transition-all duration-200 ${
                   tab === id
-                    ? "border-b-2 border-primary font-semibold text-foreground"
-                    : "text-muted-foreground"
+                    ? "border-b-2 border-primary font-semibold text-foreground shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.5)]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
                 }`}
               >
                 <Icon className="mr-1 inline h-4 w-4" /> {label}
