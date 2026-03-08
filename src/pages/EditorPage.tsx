@@ -869,14 +869,9 @@ export default function EditorPage() {
                   ...stageStyle,
                   transform: `scale(${scale})`,
                   transformOrigin: "top left",
-                }}
-                className="relative overflow-hidden rounded border border-primary/30"
-                style={{
-                  ...stageStyle,
-                  transform: `scale(${scale})`,
-                  transformOrigin: "top left",
                   boxShadow: "0 0 40px 8px hsl(var(--primary) / 0.25), 0 0 80px 20px hsl(var(--primary) / 0.1)",
                 }}
+                className="relative overflow-hidden rounded border border-primary/30"
                 onClick={handleCanvasClick}
                 onPointerDown={onCanvasPointerDown}
                 onPointerMove={onCanvasPointerMove}
