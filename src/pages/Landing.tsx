@@ -107,12 +107,9 @@ const Landing = () => {
         </div>
 
         <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
-          {/* CORRECCIÓN 1 — Logo reducido a tamaño navbar */}
-          <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-12 w-auto md:h-14 drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
-          </div>
+          {/* CORRECCIÓN 1 — Logo del hero eliminado (ya está en navbar) */}
 
-          {/* CORRECCIÓN 1 — Headline principal */}
+          {/* Headline principal */}
           <h1
             className="mt-4 font-display text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
             style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
@@ -329,7 +326,7 @@ const Landing = () => {
       </div>
 
       {/* How It Works */}
-      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-8 md:px-6 md:py-10">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-6 md:px-6 md:py-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-4 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
@@ -360,7 +357,8 @@ const Landing = () => {
       </div>
 
       {/* CORRECCIÓN 8 aplicada — Testimonios con estrellas, avatar, cargo y empresa */}
-      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-8 md:px-6 md:py-10">
+      {/* CORRECCIÓN 3 — Espaciado reducido entre secciones */}
+      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-6 md:px-6 md:py-8">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-4 text-center">
@@ -377,25 +375,19 @@ const Landing = () => {
                 {/* Cita */}
                 <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
-                  {/* Avatar circular placeholder */}
-                  <div
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
-                    style={{ background: "hsl(270 100% 50% / 0.15)", color: "hsl(270 100% 75%)", border: "1px solid hsl(270 100% 60% / 0.3)" }}
-                  >
-                    {t.name.split(" ").map(n => n[0]).join("")}
-                  </div>
+                  {/* CORRECCIÓN 2 — Avatar con foto real via ui-avatars */}
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=6d28d9&color=fff&size=96&bold=true`}
+                    alt={t.name}
+                    className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
+                    style={{ border: "1px solid hsl(270 100% 60% / 0.3)" }}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-display font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.role}</p>
                     <p className="text-xs" style={{ color: "hsl(270 60% 65%)" }}>{t.business}</p>
                   </div>
-                  {/* Logo empresa placeholder */}
-                  <div
-                    className="hidden sm:flex h-8 w-16 flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold uppercase tracking-wider"
-                    style={{ background: "hsl(0 0% 100% / 0.05)", color: "hsl(0 0% 40%)", border: "1px solid hsl(0 0% 20%)" }}
-                  >
-                    Logo
-                  </div>
+                  {/* CORRECCIÓN 2 — Logo empresa oculto hasta tener imagen real */}
                 </div>
               </div>
             ))}
@@ -404,7 +396,8 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-8 md:px-6 md:py-10">
+      {/* CORRECCIÓN 3 — Espaciado reducido */}
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-6 md:px-6 md:py-8">
         <div className="mx-auto max-w-3xl text-center">
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-10 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
@@ -422,25 +415,25 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CORRECCIÓN 11 aplicada — Footer con enlaces funcionales */}
+      {/* CORRECCIÓN 4 aplicada — Footer con logo, redes, enlaces legales y copyright */}
       <footer className="border-t border-border/20 px-4 py-6 md:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
-            <div className="flex flex-wrap justify-center gap-6">
-              <Link to="/acerca" className="text-sm text-muted-foreground transition hover:text-foreground">Acerca de</Link>
-              <Link to="/precios" className="text-sm text-muted-foreground transition hover:text-foreground">Precios</Link>
-              <Link to="/terminos" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</Link>
-              <Link to="/privacidad" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</Link>
-              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</button>
-              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
-            </div>
             <div className="flex gap-4">
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
+          {/* Enlaces legales mínimos */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1 text-xs text-muted-foreground/60">
+            <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
+            <span>·</span>
+            <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
+            <span>·</span>
+            <a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">Contacto</a>
+          </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
