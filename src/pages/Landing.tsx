@@ -432,18 +432,17 @@ const Landing = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
             <div className="flex flex-wrap justify-center gap-6">
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
+              <Link to="/acerca" className="text-sm text-muted-foreground transition hover:text-foreground">Acerca de</Link>
+              <Link to="/precios" className="text-sm text-muted-foreground transition hover:text-foreground">Precios</Link>
+              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</button>
+              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
             </div>
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground transition hover:text-primary"><Twitter className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
+          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
