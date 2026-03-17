@@ -10,21 +10,21 @@ const menuItems = [
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "/soluciones/restaurantes" },
-      { label: "Clínicas", href: "#" },
-      { label: "Hoteles", href: "#" },
+      { label: "Clínicas · Próximamente", href: "#", disabled: true },
+      { label: "Hoteles · Próximamente", href: "#", disabled: true },
     ],
   },
   {
-    label: "Planes y Precios",
+    label: "Precios",
     children: [
-      { label: "Plataforma Visualia", href: "/precios" },
-      { label: "Visualia Studio", href: "/studio" },
+      { label: "Planes de plataforma", href: "/precios" },
+      { label: "Servicio de diseño (Studio)", href: "/studio" },
     ],
   },
 ];
 
 const directLinks = [
-  { label: "Acerca de Visualia", href: "/acerca" },
+  { label: "Nosotros", href: "/acerca" },
 ];
 
 const LandingHeader = () => {
