@@ -357,7 +357,8 @@ const Landing = () => {
       </div>
 
       {/* CORRECCIÓN 8 aplicada — Testimonios con estrellas, avatar, cargo y empresa */}
-      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-8 md:px-6 md:py-10">
+      {/* CORRECCIÓN 3 — Espaciado reducido entre secciones */}
+      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-6 md:px-6 md:py-8">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-4 text-center">
