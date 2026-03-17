@@ -380,18 +380,28 @@ const Landing = () => {
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-4 text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
+            <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>Casos reales</p>
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Negocios que ya venden más con Visualia</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {testimonials.map((t) => (
               <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
-                <div className="mb-5 flex gap-1">
+                <div className="mb-4 flex gap-1">
                   {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />))}
                 </div>
-                <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
-                <div>
-                  <p className="font-display font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
+                <div className="flex items-center gap-3">
+                  {/* Avatar placeholder */}
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                    style={{ background: "hsl(270 100% 50% / 0.15)", color: "hsl(270 100% 75%)", border: "1px solid hsl(270 100% 60% / 0.3)" }}
+                  >
+                    {t.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="font-display font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role} · <span style={{ color: "hsl(270 60% 65%)" }}>{t.business}</span></p>
+                  </div>
                 </div>
               </div>
             ))}
