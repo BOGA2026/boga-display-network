@@ -374,13 +374,13 @@ const Landing = () => {
                 {/* Cita */}
                 <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
-                  {/* Avatar circular placeholder */}
-                  <div
-                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
-                    style={{ background: "hsl(270 100% 50% / 0.15)", color: "hsl(270 100% 75%)", border: "1px solid hsl(270 100% 60% / 0.3)" }}
-                  >
-                    {t.name.split(" ").map(n => n[0]).join("")}
-                  </div>
+                  {/* CORRECCIÓN 2 — Avatar con foto real via ui-avatars */}
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=6d28d9&color=fff&size=96&bold=true`}
+                    alt={t.name}
+                    className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
+                    style={{ border: "1px solid hsl(270 100% 60% / 0.3)" }}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-display font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.role}</p>
