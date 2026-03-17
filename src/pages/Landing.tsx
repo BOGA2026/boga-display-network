@@ -115,7 +115,7 @@ const Landing = () => {
             style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
           >
             Controla tus pantallas digitales y{" "}
-            <span className="text-gradient-primary">vende más, desde el celular</span>
+            <span className="text-gradient-primary">vende más</span>
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl">
             Actualiza menús, precios y promociones en segundos — <span className="text-foreground/80">sin técnicos, sin complicaciones.</span>
