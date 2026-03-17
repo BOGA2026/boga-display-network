@@ -415,25 +415,25 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CORRECCIÓN 11 aplicada — Footer con enlaces funcionales */}
+      {/* CORRECCIÓN 4 aplicada — Footer con logo, redes, enlaces legales y copyright */}
       <footer className="border-t border-border/20 px-4 py-6 md:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
-            <div className="flex flex-wrap justify-center gap-6">
-              <Link to="/acerca" className="text-sm text-muted-foreground transition hover:text-foreground">Acerca de</Link>
-              <Link to="/precios" className="text-sm text-muted-foreground transition hover:text-foreground">Precios</Link>
-              <Link to="/terminos" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</Link>
-              <Link to="/privacidad" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</Link>
-              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</button>
-              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
-            </div>
             <div className="flex gap-4">
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
+          {/* Enlaces legales mínimos */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1 text-xs text-muted-foreground/60">
+            <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
+            <span>·</span>
+            <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
+            <span>·</span>
+            <a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">Contacto</a>
+          </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
