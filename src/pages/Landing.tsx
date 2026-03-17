@@ -13,12 +13,14 @@ import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import { ArrowRight, Star, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
+import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
 import { useParallax } from "@/hooks/useParallax";
 
+// CORRECCIÓN 6 aplicada — "Cómo funciona" copy reescrito en lenguaje accesible
 const steps = [
-  { num: "01", title: "Crea tu cuenta gratis", desc: "Regístrate en menos de 2 minutos. Sin tarjeta de crédito ni instalaciones técnicas." },
-  { num: "02", title: "Conecta tu pantalla", desc: "Ingresa el código que aparece en tu pantalla y listo: queda vinculada a tu cuenta." },
-  { num: "03", title: "Publica y programa tu contenido", desc: "Sube tus imágenes, arma tu menú digital y programa qué se muestra en cada horario." },
+  { num: "01", title: "Crea tu cuenta y sube tu contenido", desc: "Entra a Visualia, sube tus imágenes, menús o promociones y organízalos como quieras. Sin saber de diseño." },
+  { num: "02", title: "Conecta tu pantalla en segundos", desc: "Ingresa un código corto en tu pantalla o TV y listo — ya está vinculada a tu cuenta." },
+  { num: "03", title: "Programa y olvídate", desc: "Define qué mostrar, a qué hora y en qué pantalla. Visualia lo hace funcionar solo." },
 ];
 
 const testimonials = [
@@ -41,7 +43,7 @@ const Landing = () => {
   const benefitsVideoRef = useRef<HTMLVideoElement>(null);
   const benefitsContainerRef = useRef<HTMLDivElement>(null);
 
-  // Parallax refs for each section — aggressive parallax
+  // Parallax refs for each section
   const heroParallax = useParallax({ speed: 0.6, direction: "up" });
   const heroGlowParallax = useParallax({ speed: 1.0, direction: "up" });
   const growthParallax = useParallax({ speed: 0.4, direction: "up", opacity: true });
@@ -51,7 +53,6 @@ const Landing = () => {
   const testimonialsParallax = useParallax({ speed: 0.4, direction: "up", opacity: true });
   const ctaParallax = useParallax({ speed: 0.5, direction: "up", scale: true });
 
-  // Autoplay muted (required for iOS/mobile), show prompt to unmute
   useEffect(() => {
     const vid = heroRef.current;
     if (!vid) return;
@@ -97,7 +98,7 @@ const Landing = () => {
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
 
-      {/* Hero */}
+      {/* CORRECCIÓN 1 aplicada — Hero con headline, subtítulo y logo reducido */}
       <section className="relative overflow-hidden px-4 pb-6 pt-24 md:px-6 md:pt-28">
         <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
           <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
@@ -106,63 +107,56 @@ const Landing = () => {
         </div>
 
         <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
+          {/* CORRECCIÓN 1 — Logo reducido a tamaño navbar */}
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-40 w-auto md:h-52 drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
+            <img src={logoVisualia} alt="Visualia" className="h-12 w-auto md:h-14 drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
 
-          {/* Headline + subtitle */}
+          {/* CORRECCIÓN 1 — Headline principal */}
           <h1
-            className="mt-4 font-display text-4xl font-black leading-tight text-foreground md:text-5xl lg:text-6xl"
+            className="mt-4 font-display text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
             style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
           >
-            Tus pantallas vendiendo{" "}
-            <span className="text-gradient-primary">por ti, 24/7</span>
+            Controla tus pantallas digitales y{" "}
+            <span className="text-gradient-primary">vende más, desde el celular</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-lg text-muted-foreground md:text-xl">
-            Controla lo que muestran tus pantallas desde el celular.{" "}
-            <span className="text-foreground/80">Cambia menús, precios y promociones en segundos.</span>
+          <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl">
+            Actualiza menús, precios y promociones en segundos — <span className="text-foreground/80">sin técnicos, sin complicaciones.</span>
           </p>
 
-          {/* CTAs — ordered: explore first, contact last */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {/* CORRECCIÓN 5 aplicada — CTAs reordenados: primario, secundario, enlace texto */}
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            {/* 1. PRIMARIO */}
             <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
               <Link to="/precios">Ver planes y precios <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
+            {/* 2. SECUNDARIO */}
             <Button
               size="lg"
               variant="outline"
               className="neon-border neon-border-hover px-8 text-lg hover-lift"
-              onClick={() => {
-                setShowBenefitsVideo(true);
-                setTimeout(() => {
-                  benefitsContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-                  if (benefitsVideoRef.current) {
-                    benefitsVideoRef.current.currentTime = 0;
-                    benefitsVideoRef.current.play();
-                    setBenefitsPaused(false);
-                  }
-                }, 100);
-              }}
+              asChild
             >
-              Ver cómo funciona
+              <Link to="/registro">Crear cuenta gratis</Link>
             </Button>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="inline-flex items-center gap-1 text-sm font-medium transition-colors"
-              style={{ color: "hsl(270 100% 75%)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(270 100% 85%)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(270 100% 75%)")}
-            >
-              ¿Tienes preguntas? Habla con un experto <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
+          {/* 3. ENLACE DE TEXTO terciario */}
+          <button
+            onClick={() => setChatOpen(true)}
+            className="mt-3 inline-flex items-center gap-1 text-sm font-medium transition-colors"
+            style={{ color: "hsl(0 0% 50%)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(270 100% 75%)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(0 0% 50%)")}
+          >
+            ¿Prefieres hablar con alguien? → 
+          </button>
 
-          {/* Video context label */}
-          <p className="mt-6 mb-2 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
-            Mira cómo se ve Visualia en acción
+          {/* CORRECCIÓN 2 aplicada — Contexto textual encima del video */}
+          <p className="mt-8 mb-2 text-xs font-medium uppercase tracking-widest text-center" style={{ color: "hsl(0 0% 50%)" }}>
+            Mira cómo un negocio controla todas sus pantallas en menos de 2 minutos
           </p>
 
-          {/* Hero Video with crossfade */}
+          {/* Hero Video */}
           <div
             className="mx-auto w-full overflow-hidden rounded-2xl relative"
             style={{
@@ -170,31 +164,22 @@ const Landing = () => {
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
             }}
           >
-            {/* Fallback image when video format not supported (e.g. .mov on Android) */}
             {videoFailed && (
-              <img
-                src={logoVisualia}
-                alt="Visualia hero"
-                className="w-full h-auto block"
-              />
+              <img src={logoVisualia} alt="Visualia hero" className="w-full h-auto block" />
             )}
-            {/* Hero video */}
             <video
               ref={heroRef}
               autoPlay
               muted
               loop
               playsInline
-              // @ts-ignore — webkit prefix needed for older iOS
+              // @ts-ignore
               webkit-playsinline="true"
               preload="metadata"
               onError={() => setVideoFailed(true)}
               onLoadedData={() => {
                 const vid = heroRef.current;
-                if (vid) {
-                  vid.muted = true;
-                  vid.play().catch(() => {});
-                }
+                if (vid) { vid.muted = true; vid.play().catch(() => {}); }
               }}
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
@@ -202,7 +187,6 @@ const Landing = () => {
               <source src={heroVideo} type="video/mp4" />
             </video>
 
-            {/* Sound prompt overlay */}
             {showSoundPrompt && (
               <button
                 onClick={activateSound}
@@ -226,7 +210,6 @@ const Landing = () => {
               </button>
             )}
 
-            {/* Mute/Unmute button */}
             {!showSoundPrompt && (
               <button
                 onClick={toggleMute}
@@ -263,6 +246,9 @@ const Landing = () => {
         <GrowthBenefits />
       </div>
 
+      {/* CORRECCIÓN 9 aplicada — Sección de logos de clientes */}
+      <ClientLogosStrip />
+
       {/* Benefits Video — revealed on click */}
       <div
         ref={benefitsContainerRef}
@@ -289,8 +275,6 @@ const Landing = () => {
               loop
               className="w-full h-auto block"
             />
-
-            {/* Controls */}
             <div className="absolute bottom-4 right-4 z-30 flex gap-2">
               <button
                 onClick={() => {
@@ -372,10 +356,10 @@ const Landing = () => {
 
       {/* Showcase Carousel */}
       <div ref={showcaseParallax.ref as any} style={showcaseParallax.style}>
-        <ShowcaseCarousel />
+        <ShowcaseCarousel onOpenChat={() => setChatOpen(true)} />
       </div>
 
-      {/* Testimonials */}
+      {/* CORRECCIÓN 8 aplicada — Testimonios con estrellas, avatar, cargo y empresa */}
       <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-8 md:px-6 md:py-10">
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
@@ -386,21 +370,31 @@ const Landing = () => {
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {testimonials.map((t) => (
               <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
+                {/* Estrellas */}
                 <div className="mb-4 flex gap-1">
                   {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />))}
                 </div>
+                {/* Cita */}
                 <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
-                  {/* Avatar placeholder */}
+                  {/* Avatar circular placeholder */}
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
                     style={{ background: "hsl(270 100% 50% / 0.15)", color: "hsl(270 100% 75%)", border: "1px solid hsl(270 100% 60% / 0.3)" }}
                   >
                     {t.name.split(" ").map(n => n[0]).join("")}
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="font-display font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role} · <span style={{ color: "hsl(270 60% 65%)" }}>{t.business}</span></p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                    <p className="text-xs" style={{ color: "hsl(270 60% 65%)" }}>{t.business}</p>
+                  </div>
+                  {/* Logo empresa placeholder */}
+                  <div
+                    className="hidden sm:flex h-8 w-16 flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold uppercase tracking-wider"
+                    style={{ background: "hsl(0 0% 100% / 0.05)", color: "hsl(0 0% 40%)", border: "1px solid hsl(0 0% 20%)" }}
+                  >
+                    Logo
                   </div>
                 </div>
               </div>
@@ -418,7 +412,9 @@ const Landing = () => {
               <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza con <span className="text-gradient-primary">Visualia</span> hoy</h2>
               <p className="mx-auto mt-2 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
               <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setDemoOpen(true)}>Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Button>
+                <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
+                  <Link to="/registro">Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Link>
+                </Button>
                 <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setChatOpen(true)}>Hablar con un experto</Button>
               </div>
             </div>
@@ -426,7 +422,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* CORRECCIÓN 11 aplicada — Footer con enlaces funcionales */}
       <footer className="border-t border-border/20 px-4 py-6 md:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
@@ -434,8 +430,10 @@ const Landing = () => {
             <div className="flex flex-wrap justify-center gap-6">
               <Link to="/acerca" className="text-sm text-muted-foreground transition hover:text-foreground">Acerca de</Link>
               <Link to="/precios" className="text-sm text-muted-foreground transition hover:text-foreground">Precios</Link>
-              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</button>
-              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
+              <Link to="/terminos" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</Link>
+              <Link to="/privacidad" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</Link>
+              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</button>
+              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
             </div>
             <div className="flex gap-4">
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>

@@ -28,6 +28,8 @@ import EditorPage from "./pages/EditorPage";
 import RestaurantSolutionPage from "./pages/RestaurantSolutionPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AboutPage from "./pages/AboutPage";
+import TerminosPage from "./pages/TerminosPage";
+import PrivacidadPage from "./pages/PrivacidadPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/precios" element={<Pricing />} />
+          {/* CORRECCIÓN 11 — Rutas para páginas legales */}
+          <Route path="/terminos" element={<TerminosPage />} />
+          <Route path="/privacidad" element={<PrivacidadPage />} />
           <Route path="/soluciones/restaurantes" element={<RestaurantSolutionPage />} />
           <Route path="/acerca" element={<AboutPage />} />
           <Route path="/studio" element={<Studio />} />

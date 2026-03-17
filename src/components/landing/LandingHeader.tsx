@@ -5,25 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// CORRECCIÓN 3 aplicada — Menú reestructurado: "Productos" dropdown + "Precios" independiente
+// CORRECCIÓN 4 aplicada — Clínicas y Hoteles desactivados con badge "Próximamente"
 const menuItems = [
   {
-    label: "Soluciones",
+    label: "Productos",
     children: [
-      { label: "Restaurantes", href: "/soluciones/restaurantes" },
-      { label: "Clínicas · Próximamente", href: "#", disabled: true },
-      { label: "Hoteles · Próximamente", href: "#", disabled: true },
+      { label: "Panel de control", href: "/precios", disabled: false },
+      { label: "Crea tu contenido", href: "/studio", disabled: false },
     ],
   },
   {
-    label: "Precios",
+    label: "Soluciones",
     children: [
-      { label: "Planes de plataforma", href: "/precios" },
-      { label: "Servicio de diseño (Studio)", href: "/studio" },
+      { label: "Restaurantes", href: "/soluciones/restaurantes", disabled: false },
+      { label: "Clínicas", href: "#", disabled: true },
+      { label: "Hoteles", href: "#", disabled: true },
     ],
   },
 ];
 
 const directLinks = [
+  { label: "Precios", href: "/precios" },
   { label: "Nosotros", href: "/acerca" },
 ];
 
@@ -127,24 +130,31 @@ const LandingHeader = () => {
                 )}
               >
                 <div
-                  className="min-w-[200px] rounded-xl border border-border/30 p-2 shadow-xl shadow-black/30 backdrop-blur-2xl"
+                  className="min-w-[220px] rounded-xl border border-border/30 p-2 shadow-xl shadow-black/30 backdrop-blur-2xl"
                   style={{
                     background:
                       "linear-gradient(180deg, hsl(260 25% 13%) 0%, hsl(260 25% 10%) 100%)",
                   }}
                 >
                   {item.children.map((child) =>
-                    child.href.startsWith("#") ? (
+                    child.disabled ? (
+                      // CORRECCIÓN 4 — Disabled link with "Próximamente" badge
                       <span
                         key={child.label}
-                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors cursor-default"
-                        style={{ color: "hsl(0 0% 40%)" }}
+                        className="group/item flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm cursor-default select-none"
+                        style={{ color: "hsl(0 0% 35%)", pointerEvents: "none" }}
+                        title="Próximamente"
                       >
+                        <span className="flex items-center gap-3">
+                          <span className="h-1 w-1 rounded-full" style={{ background: "hsl(0 0% 25%)" }} />
+                          {child.label}
+                        </span>
                         <span
-                          className="h-1 w-1 rounded-full"
-                          style={{ background: "hsl(0 0% 30%)" }}
-                        />
-                        {child.label}
+                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+                          style={{ background: "hsl(270 100% 50% / 0.1)", color: "hsl(270 60% 55%)", border: "1px solid hsl(270 100% 50% / 0.2)" }}
+                        >
+                          Próximamente
+                        </span>
                       </span>
                     ) : (
                       <Link
@@ -165,7 +175,7 @@ const LandingHeader = () => {
             </div>
           ))}
 
-          {/* Direct links (no dropdown) */}
+          {/* Direct links (no dropdown) — includes standalone "Precios" */}
           {directLinks.map((link) => (
             <Link
               key={link.label}
@@ -234,15 +244,20 @@ const LandingHeader = () => {
               >
                 <div className="space-y-1 pb-2 pl-4">
                   {item.children.map((child) =>
-                    child.href.startsWith("#") ? (
-                      <a
+                    child.disabled ? (
+                      <span
                         key={child.label}
-                        href={child.href}
-                        className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-between rounded-lg px-3 py-2 text-sm cursor-default"
+                        style={{ color: "hsl(0 0% 35%)" }}
                       >
                         {child.label}
-                      </a>
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+                          style={{ background: "hsl(270 100% 50% / 0.1)", color: "hsl(270 60% 55%)" }}
+                        >
+                          Próximamente
+                        </span>
+                      </span>
                     ) : (
                       <Link
                         key={child.label}

@@ -17,7 +17,13 @@ const slides = [
   { src: img6, label: "Kiosko Digital", caption: "Pantalla autónoma en pasillo comercial" },
 ];
 
-const ShowcaseCarousel = () => {
+// CORRECCIÓN 10 aplicada — Props para abrir chat desde slide CTA
+interface ShowcaseCarouselProps {
+  onOpenChat?: () => void;
+}
+
+const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
+  const totalSlides = slides.length + 1; // +1 for CTA slide
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);
@@ -27,7 +33,7 @@ const ShowcaseCarousel = () => {
   const goTo = (index: number) => {
     if (isAnimating) return;
     setIsAnimating(true);
-    setCurrent((index + slides.length) % slides.length);
+    setCurrent((index + totalSlides) % totalSlides);
     setTimeout(() => setIsAnimating(false), 500);
   };
 
@@ -36,15 +42,15 @@ const ShowcaseCarousel = () => {
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % slides.length);
+      setCurrent((c) => (c + 1) % totalSlides);
     }, 4500);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, []);
+  }, [totalSlides]);
 
   const resetInterval = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % slides.length);
+      setCurrent((c) => (c + 1) % totalSlides);
     }, 4500);
   };
 
@@ -56,18 +62,20 @@ const ShowcaseCarousel = () => {
     });
   }, []);
 
+  const isCtaSlide = current === slides.length;
+
   return (
     <section className="relative px-4 py-10 md:px-6 md:py-12">
-      {/* Section header */}
+      {/* CORRECCIÓN 10 — Título y subtítulo actualizados */}
       <div className="mx-auto max-w-7xl mb-4">
         <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
           Galería
         </p>
         <h2 className="text-3xl font-bold text-white md:text-4xl">
-          Visualia en restaurantes y puntos de venta
+          Así se ve Visualia en negocios reales
         </h2>
         <p className="mt-1 text-sm" style={{ color: "hsl(0 0% 50%)" }}>
-          Así lucen las pantallas de nuestros clientes del sector gastronómico.
+          Hoy en gastronomía. Próximamente en clínicas, hoteles y más.
         </p>
       </div>
       <div
@@ -97,7 +105,6 @@ const ShowcaseCarousel = () => {
               playsInline
               className="h-full w-full object-cover"
             />
-            {/* Mute/Unmute button */}
             <button
               onClick={toggleVideoMute}
               className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
@@ -119,7 +126,6 @@ const ShowcaseCarousel = () => {
 
         {/* Carousel on the RIGHT */}
         <div className="relative flex-1 min-w-0 order-1 lg:order-2 flex flex-col">
-          {/* Neon frame glow layers */}
           <div
             className="pointer-events-none absolute -inset-[3px] rounded-2xl animate-neon-breathe"
             style={{
@@ -132,7 +138,7 @@ const ShowcaseCarousel = () => {
           <div className="relative overflow-hidden rounded-2xl flex flex-col h-full"
             style={{ background: "hsl(260 30% 6%)" }}
           >
-            {/* Image area — no text overlay */}
+            {/* Image area */}
             <div className="relative aspect-[16/7] w-full overflow-hidden flex-shrink-0">
               {slides.map((slide, i) => (
                 <img
@@ -147,6 +153,24 @@ const ShowcaseCarousel = () => {
                   }}
                 />
               ))}
+              {/* CORRECCIÓN 10 — CTA slide: "¿Tu negocio no está aquí?" */}
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-4 transition-all duration-700"
+                style={{
+                  opacity: isCtaSlide ? 1 : 0,
+                  pointerEvents: isCtaSlide ? "auto" : "none",
+                  background: "linear-gradient(135deg, hsl(260 30% 8%) 0%, hsl(270 40% 12%) 100%)",
+                }}
+              >
+                <p className="text-2xl font-bold text-white md:text-3xl">¿Tu negocio no está aquí?</p>
+                <button
+                  onClick={onOpenChat}
+                  className="rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  style={{ background: "hsl(270 70% 50%)" }}
+                >
+                  Cuéntanos tu caso
+                </button>
+              </div>
             </div>
 
             {/* Content & controls area below the image */}
@@ -154,7 +178,7 @@ const ShowcaseCarousel = () => {
               className="relative flex-1 flex items-center justify-between gap-4 px-6 py-5 md:px-8 md:py-6"
               style={{ background: "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 30% 6%) 100%)" }}
             >
-              {/* Left: text content with animated transitions */}
+              {/* Left: text content */}
               <div className="flex-1 min-w-0 relative overflow-hidden">
                 {slides.map((slide, i) => (
                   <div
@@ -184,6 +208,31 @@ const ShowcaseCarousel = () => {
                     </p>
                   </div>
                 ))}
+                {/* CTA slide label */}
+                <div
+                  className="transition-all duration-500"
+                  style={{
+                    opacity: isCtaSlide ? 1 : 0,
+                    transform: isCtaSlide ? "translateY(0)" : "translateY(8px)",
+                    position: isCtaSlide ? "relative" : "absolute",
+                    inset: isCtaSlide ? undefined : 0,
+                    pointerEvents: isCtaSlide ? "auto" : "none",
+                  }}
+                >
+                  <span
+                    className="inline-block mb-1.5 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+                    style={{
+                      background: "hsl(270 100% 50% / 0.15)",
+                      border: "1px solid hsl(270 100% 60% / 0.4)",
+                      color: "hsl(270 100% 80%)",
+                    }}
+                  >
+                    Tu negocio
+                  </span>
+                  <p className="text-sm font-medium text-foreground/80 md:text-base mt-1">
+                    Visualia funciona para cualquier tipo de negocio con pantallas.
+                  </p>
+                </div>
               </div>
 
               {/* Right: nav arrows + dots */}
@@ -213,7 +262,7 @@ const ShowcaseCarousel = () => {
                   </button>
                 </div>
                 <div className="flex gap-1.5">
-                  {slides.map((_, i) => (
+                  {[...Array(totalSlides)].map((_, i) => (
                     <button
                       key={i}
                       onClick={() => { goTo(i); resetInterval(); }}
