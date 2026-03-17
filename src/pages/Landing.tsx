@@ -326,7 +326,7 @@ const Landing = () => {
       </div>
 
       {/* How It Works */}
-      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-8 md:px-6 md:py-10">
+      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-6 md:px-6 md:py-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-4 text-center">
             <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
