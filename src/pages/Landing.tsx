@@ -386,13 +386,7 @@ const Landing = () => {
                     <p className="text-xs text-muted-foreground">{t.role}</p>
                     <p className="text-xs" style={{ color: "hsl(270 60% 65%)" }}>{t.business}</p>
                   </div>
-                  {/* Logo empresa placeholder */}
-                  <div
-                    className="hidden sm:flex h-8 w-16 flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold uppercase tracking-wider"
-                    style={{ background: "hsl(0 0% 100% / 0.05)", color: "hsl(0 0% 40%)", border: "1px solid hsl(0 0% 20%)" }}
-                  >
-                    Logo
-                  </div>
+                  {/* CORRECCIÓN 2 — Logo empresa oculto hasta tener imagen real */}
                 </div>
               </div>
             ))}
