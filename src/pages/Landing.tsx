@@ -107,12 +107,9 @@ const Landing = () => {
         </div>
 
         <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
-          {/* CORRECCIÓN 1 — Logo reducido a tamaño navbar */}
-          <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-12 w-auto md:h-14 drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
-          </div>
+          {/* CORRECCIÓN 1 — Logo del hero eliminado (ya está en navbar) */}
 
-          {/* CORRECCIÓN 1 — Headline principal */}
+          {/* Headline principal */}
           <h1
             className="mt-4 font-display text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
             style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
