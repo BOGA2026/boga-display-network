@@ -58,7 +58,18 @@ const ShowcaseCarousel = () => {
 
   return (
     <section className="relative px-4 py-10 md:px-6 md:py-12">
-      {/* Background glow */}
+      {/* Section header */}
+      <div className="mx-auto max-w-7xl mb-4">
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
+          Galería
+        </p>
+        <h2 className="text-3xl font-bold text-white md:text-4xl">
+          Visualia en restaurantes y puntos de venta
+        </h2>
+        <p className="mt-1 text-sm" style={{ color: "hsl(0 0% 50%)" }}>
+          Así lucen las pantallas de nuestros clientes del sector gastronómico.
+        </p>
+      </div>
       <div
         className="pointer-events-none absolute inset-0"
         style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, hsl(270 100% 45% / 0.08) 0%, transparent 70%)" }}
