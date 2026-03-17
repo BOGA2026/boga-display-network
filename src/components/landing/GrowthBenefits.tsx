@@ -1,3 +1,4 @@
+// CORRECCIÓN 7 aplicada — Nota de fuente debajo de estadísticas
 const cards = [
   {
     stat: "+60%",
@@ -97,9 +98,9 @@ const GrowthBenefits = () => (
           </div>
         ))}
       </div>
-      {/* Stats source */}
+      {/* CORRECCIÓN 7 — Nota de fuente */}
       <p className="mt-3 text-center text-[10px]" style={{ color: "hsl(0 0% 35%)" }}>
-        * Promedios reportados por clientes de Visualia en Colombia durante los primeros 90 días de uso.
+        * Promedio reportado por clientes activos de Visualia en sus primeros 3 meses de uso.
       </p>
     </div>
   </section>
