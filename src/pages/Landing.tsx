@@ -11,7 +11,7 @@ import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { ArrowRight, Star, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import { useParallax } from "@/hooks/useParallax";
 
