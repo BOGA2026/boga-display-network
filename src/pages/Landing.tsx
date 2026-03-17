@@ -16,14 +16,14 @@ import FeaturesSection from "@/components/landing/FeaturesSection";
 import { useParallax } from "@/hooks/useParallax";
 
 const steps = [
-  { num: "01", title: "Empieza con tu CMS", desc: "Regístrate y accede al panel de control. Sube tu contenido multimedia y organízalo." },
-  { num: "02", title: "Vincula la pantalla con código", desc: "Ingresa el código único de tu dispositivo para conectarlo a tu red de señalización." },
-  { num: "03", title: "Automatiza contenido y programación", desc: "Crea playlists, programa horarios y deja que Visualia haga el resto." },
+  { num: "01", title: "Crea tu cuenta gratis", desc: "Regístrate en menos de 2 minutos. Sin tarjeta de crédito ni instalaciones técnicas." },
+  { num: "02", title: "Conecta tu pantalla", desc: "Ingresa el código que aparece en tu pantalla y listo: queda vinculada a tu cuenta." },
+  { num: "03", title: "Publica y programa tu contenido", desc: "Sube tus imágenes, arma tu menú digital y programa qué se muestra en cada horario." },
 ];
 
 const testimonials = [
-  { name: "Alba Sabogal", role: "Gerente de Operaciones, El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
-  { name: "Diana Duarte", role: "Gerente de Mercadeo, Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
+  { name: "Alba Sabogal", role: "Gerente de Operaciones", business: "El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
+  { name: "Diana Duarte", role: "Gerente de Mercadeo", business: "Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
 ];
 
 const Landing = () => {
