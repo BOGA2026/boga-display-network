@@ -396,7 +396,8 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-8 md:px-6 md:py-10">
+      {/* CORRECCIÓN 3 — Espaciado reducido */}
+      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-6 md:px-6 md:py-8">
         <div className="mx-auto max-w-3xl text-center">
           <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-10 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
             <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
