@@ -11,19 +11,19 @@ import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import { ArrowRight, Star, Twitter, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { ArrowRight, Star, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import { useParallax } from "@/hooks/useParallax";
 
 const steps = [
-  { num: "01", title: "Empieza con tu CMS", desc: "Regístrate y accede al panel de control. Sube tu contenido multimedia y organízalo." },
-  { num: "02", title: "Vincula la pantalla con código", desc: "Ingresa el código único de tu dispositivo para conectarlo a tu red de señalización." },
-  { num: "03", title: "Automatiza contenido y programación", desc: "Crea playlists, programa horarios y deja que Visualia haga el resto." },
+  { num: "01", title: "Crea tu cuenta gratis", desc: "Regístrate en menos de 2 minutos. Sin tarjeta de crédito ni instalaciones técnicas." },
+  { num: "02", title: "Conecta tu pantalla", desc: "Ingresa el código que aparece en tu pantalla y listo: queda vinculada a tu cuenta." },
+  { num: "03", title: "Publica y programa tu contenido", desc: "Sube tus imágenes, arma tu menú digital y programa qué se muestra en cada horario." },
 ];
 
 const testimonials = [
-  { name: "Alba Sabogal", role: "Gerente de Operaciones, El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
-  { name: "Diana Duarte", role: "Gerente de Mercadeo, Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
+  { name: "Alba Sabogal", role: "Gerente de Operaciones", business: "El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
+  { name: "Diana Duarte", role: "Gerente de Mercadeo", business: "Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
 ];
 
 const Landing = () => {
@@ -107,12 +107,64 @@ const Landing = () => {
 
         <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
           <div className="flex justify-center">
-            <img src={logoVisualia} alt="Visualia" className="h-[24rem] w-auto md:h-[30rem] lg:h-[36rem] drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
+            <img src={logoVisualia} alt="Visualia" className="h-40 w-auto md:h-52 drop-shadow-[0_0_60px_hsl(270_100%_50%/0.3)]" />
           </div>
+
+          {/* Headline + subtitle */}
+          <h1
+            className="mt-4 font-display text-4xl font-black leading-tight text-foreground md:text-5xl lg:text-6xl"
+            style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
+          >
+            Tus pantallas vendiendo{" "}
+            <span className="text-gradient-primary">por ti, 24/7</span>
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-lg text-muted-foreground md:text-xl">
+            Controla lo que muestran tus pantallas desde el celular.{" "}
+            <span className="text-foreground/80">Cambia menús, precios y promociones en segundos.</span>
+          </p>
+
+          {/* CTAs — ordered: explore first, contact last */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
+              <Link to="/precios">Ver planes y precios <ArrowRight className="ml-2 h-5 w-5" /></Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="neon-border neon-border-hover px-8 text-lg hover-lift"
+              onClick={() => {
+                setShowBenefitsVideo(true);
+                setTimeout(() => {
+                  benefitsContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  if (benefitsVideoRef.current) {
+                    benefitsVideoRef.current.currentTime = 0;
+                    benefitsVideoRef.current.play();
+                    setBenefitsPaused(false);
+                  }
+                }, 100);
+              }}
+            >
+              Ver cómo funciona
+            </Button>
+            <button
+              onClick={() => setChatOpen(true)}
+              className="inline-flex items-center gap-1 text-sm font-medium transition-colors"
+              style={{ color: "hsl(270 100% 75%)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(270 100% 85%)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(270 100% 75%)")}
+            >
+              ¿Tienes preguntas? Habla con un experto <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Video context label */}
+          <p className="mt-6 mb-2 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
+            Mira cómo se ve Visualia en acción
+          </p>
 
           {/* Hero Video with crossfade */}
           <div
-            className="-mt-6 mx-auto w-full overflow-hidden rounded-2xl relative"
+            className="mx-auto w-full overflow-hidden rounded-2xl relative"
             style={{
               boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
               border: "1.5px solid hsl(270 100% 60% / 0.6)",
@@ -195,41 +247,13 @@ const Landing = () => {
             )}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" onClick={() => setChatOpen(true)}>
-              Hablar con un experto <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="neon-border neon-border-hover px-8 text-lg hover-lift"
-              onClick={() => {
-                setShowBenefitsVideo(true);
-                setTimeout(() => {
-                  benefitsContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-                  if (benefitsVideoRef.current) {
-                    benefitsVideoRef.current.currentTime = 0;
-                    benefitsVideoRef.current.play();
-                    setBenefitsPaused(false);
-                  }
-                }, 100);
-              }}
-            >
-              Ver beneficios
-            </Button>
-            <Link
-              to="/precios"
-              className="inline-flex items-center justify-center rounded-xl border px-8 py-3 text-lg font-semibold transition-colors hover-lift"
-              style={{
-                borderColor: "hsl(290 100% 50% / 0.6)",
-                color: "hsl(290 100% 75%)",
-                background: "transparent",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(290 100% 50% / 0.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            >
-              Ver planes
-            </Link>
+          {/* Social proof bar */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs" style={{ color: "hsl(0 0% 45%)" }}>
+            <span>✓ Sin tarjeta de crédito</span>
+            <span className="hidden sm:inline">•</span>
+            <span>✓ Configura en 5 minutos</span>
+            <span className="hidden sm:inline">•</span>
+            <span>✓ Soporte en español</span>
           </div>
         </div>
       </section>
@@ -356,18 +380,28 @@ const Landing = () => {
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
         <div className="relative mx-auto max-w-5xl">
           <div className="mb-4 text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Lo que dicen nuestros clientes</h2>
+            <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>Casos reales</p>
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Negocios que ya venden más con Visualia</h2>
           </div>
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             {testimonials.map((t) => (
               <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
-                <div className="mb-5 flex gap-1">
+                <div className="mb-4 flex gap-1">
                   {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />))}
                 </div>
-                <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
-                <div>
-                  <p className="font-display font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
+                <div className="flex items-center gap-3">
+                  {/* Avatar placeholder */}
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                    style={{ background: "hsl(270 100% 50% / 0.15)", color: "hsl(270 100% 75%)", border: "1px solid hsl(270 100% 60% / 0.3)" }}
+                  >
+                    {t.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="font-display font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role} · <span style={{ color: "hsl(270 60% 65%)" }}>{t.business}</span></p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -398,18 +432,17 @@ const Landing = () => {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
             <div className="flex flex-wrap justify-center gap-6">
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Términos</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Privacidad</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
-              <a href="#" className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</a>
+              <Link to="/acerca" className="text-sm text-muted-foreground transition hover:text-foreground">Acerca de</Link>
+              <Link to="/precios" className="text-sm text-muted-foreground transition hover:text-foreground">Precios</Link>
+              <button onClick={() => setChatOpen(true)} className="text-sm text-muted-foreground transition hover:text-foreground">Contacto</button>
+              <a href="mailto:hola@visualiamedia.com" className="text-sm text-muted-foreground transition hover:text-foreground">Soporte</a>
             </div>
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground transition hover:text-primary"><Twitter className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
               <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
+          <p className="mt-6 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
         </div>
       </footer>
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />

@@ -10,21 +10,21 @@ const menuItems = [
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "/soluciones/restaurantes" },
-      { label: "Clínicas", href: "#" },
-      { label: "Hoteles", href: "#" },
+      { label: "Clínicas · Próximamente", href: "#", disabled: true },
+      { label: "Hoteles · Próximamente", href: "#", disabled: true },
     ],
   },
   {
-    label: "Planes y Precios",
+    label: "Precios",
     children: [
-      { label: "Plataforma Visualia", href: "/precios" },
-      { label: "Visualia Studio", href: "/studio" },
+      { label: "Planes de plataforma", href: "/precios" },
+      { label: "Servicio de diseño (Studio)", href: "/studio" },
     ],
   },
 ];
 
 const directLinks = [
-  { label: "Acerca de Visualia", href: "/acerca" },
+  { label: "Nosotros", href: "/acerca" },
 ];
 
 const LandingHeader = () => {
@@ -135,18 +135,17 @@ const LandingHeader = () => {
                 >
                   {item.children.map((child) =>
                     child.href.startsWith("#") ? (
-                      <a
+                      <span
                         key={child.label}
-                        href={child.href}
-                        onClick={() => setActiveMenu(null)}
-                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors cursor-default"
+                        style={{ color: "hsl(0 0% 40%)" }}
                       >
                         <span
-                          className="h-1 w-1 rounded-full opacity-0 transition-opacity group-hover/item:opacity-100"
-                          style={{ background: "#C000FF" }}
+                          className="h-1 w-1 rounded-full"
+                          style={{ background: "hsl(0 0% 30%)" }}
                         />
                         {child.label}
-                      </a>
+                      </span>
                     ) : (
                       <Link
                         key={child.label}

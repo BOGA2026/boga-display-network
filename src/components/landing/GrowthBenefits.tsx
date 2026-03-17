@@ -97,6 +97,10 @@ const GrowthBenefits = () => (
           </div>
         ))}
       </div>
+      {/* Stats source */}
+      <p className="mt-3 text-center text-[10px]" style={{ color: "hsl(0 0% 35%)" }}>
+        * Promedios reportados por clientes de Visualia en Colombia durante los primeros 90 días de uso.
+      </p>
     </div>
   </section>
 );
