@@ -129,12 +129,14 @@ function DesignModal({
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <a href={result.canva_url} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="gradient-primary glow-primary-sm">
-                <ExternalLink className="h-3.5 w-3.5" />
-                Editar en Canva
-              </Button>
-            </a>
+            <Button
+              size="sm"
+              className="gradient-primary glow-primary-sm"
+              onClick={() => window.open(result.canva_url, "_blank", "noopener,noreferrer")}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Editar en Canva
+            </Button>
             <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8">
               <X className="h-4 w-4" />
               <span className="sr-only">Cerrar</span>
