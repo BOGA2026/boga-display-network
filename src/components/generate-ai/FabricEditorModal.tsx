@@ -4,13 +4,14 @@ import {
   X, Download, Save, Plus, Loader2, Type, Square, Circle, Minus,
   Triangle, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Image,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  Upload,
+  Upload, DollarSign, Clock, Tag, MapPin, QrCode, Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -24,6 +25,12 @@ interface LayerItem {
   name: string;
   type: "text" | "shape" | "image";
   visible: boolean;
+}
+
+interface ProductImage {
+  id: string;
+  url: string;
+  name: string;
 }
 
 interface Props {
@@ -46,6 +53,112 @@ function useGoogleFonts() {
       "https://fonts.googleapis.com/css2?family=Oswald:wght@700;800&family=Bebas+Neue&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@700&family=Montserrat:wght@700;800&family=Inter:wght@300;400;700&family=Roboto:wght@300;400;700&family=DM+Sans:wght@400;700&family=Source+Sans+Pro:wght@300;400;700&family=Cormorant:wght@300;400;700&display=swap";
     document.head.appendChild(link);
   }, []);
+}
+
+// ─── Widget builder helpers ───
+function createWidgetPrecio(fc: fabric.Canvas, acento: string, cw: number, ch: number, nextId: () => number) {
+  const bg = new fabric.Rect({ width: 180, height: 120, fill: acento, rx: 12, ry: 12, originX: "center", originY: "center" } as any);
+  const price = new fabric.IText("$0.00", { fontSize: 36, fontFamily: "Oswald", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", top: -14, editable: true, textAlign: "center" } as any);
+  const label = new fabric.IText("precio especial", { fontSize: 13, fontFamily: "Inter", fill: "rgba(255,255,255,0.85)", originX: "center", originY: "center", top: 30, editable: true, textAlign: "center" } as any);
+  const group = new fabric.Group([bg, price, label], { left: cw / 2 - 90, top: ch / 2 - 60, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget Precio";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
+}
+
+function createWidgetHorario(fc: fabric.Canvas, cw: number, ch: number, nextId: () => number) {
+  const bg = new fabric.Rect({ width: 220, height: 80, fill: "rgba(0,0,0,0.65)", rx: 8, ry: 8, originX: "center", originY: "center" } as any);
+  const clockIcon = new fabric.Circle({ radius: 10, fill: "transparent", stroke: "#FFFFFF", strokeWidth: 1.5, originX: "center", originY: "center", left: -80, top: -2 } as any);
+  const clockHand = new fabric.Line([0, 0, 0, -6], { stroke: "#FFFFFF", strokeWidth: 1.5, originX: "center", originY: "center", left: -80, top: -2 } as any);
+  const txt = new fabric.IText("Lun-Vie 8am-8pm", { fontSize: 16, fontFamily: "Inter", fill: "#FFFFFF", originX: "center", originY: "center", left: 10, editable: true, textAlign: "center" } as any);
+  const group = new fabric.Group([bg, clockIcon, clockHand, txt], { left: cw / 2 - 110, top: ch / 2 - 40, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget Horario";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
+}
+
+function createWidgetBadge(fc: fabric.Canvas, acento: string, cw: number, nextId: () => number) {
+  const bg = new fabric.Circle({ radius: 65, fill: acento, originX: "center", originY: "center" } as any);
+  const txt = new fabric.IText("30%\nOFF", { fontSize: 28, fontFamily: "Oswald", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", textAlign: "center", lineHeight: 1.05, editable: true } as any);
+  const group = new fabric.Group([bg, txt], { left: cw - 160, top: 30, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget Badge";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
+}
+
+function createWidgetDireccion(fc: fabric.Canvas, cw: number, ch: number, nextId: () => number) {
+  const bg = new fabric.Rect({ width: 240, height: 60, fill: "rgba(0,0,0,0.6)", rx: 8, ry: 8, originX: "center", originY: "center" } as any);
+  const pin = new fabric.Path("M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z", {
+    fill: "#FFFFFF", originX: "center", originY: "center", left: -95, scaleX: 0.9, scaleY: 0.9,
+  } as any);
+  const txt = new fabric.IText("Calle, Ciudad", { fontSize: 15, fontFamily: "Inter", fill: "#FFFFFF", originX: "center", originY: "center", left: 10, editable: true, textAlign: "center" } as any);
+  const group = new fabric.Group([bg, pin, txt], { left: cw / 2 - 120, top: ch - 100, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget Dirección";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
+}
+
+function createWidgetQR(fc: fabric.Canvas, cw: number, ch: number, nextId: () => number) {
+  const bg = new fabric.Rect({ width: 100, height: 100, fill: "#FFFFFF", rx: 4, ry: 4, originX: "center", originY: "center", top: -12 } as any);
+  // Simple QR pattern simulation
+  const cells: fabric.Object[] = [bg];
+  const cellSize = 8;
+  const gridOffset = -36;
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const isCorner = (r < 3 && c < 3) || (r < 3 && c > 5) || (r > 5 && c < 3);
+      const isFilled = isCorner || Math.random() > 0.55;
+      if (isFilled) {
+        cells.push(new fabric.Rect({
+          width: cellSize, height: cellSize,
+          fill: "#000000",
+          left: gridOffset + c * cellSize,
+          top: gridOffset + r * cellSize - 12,
+          originX: "center", originY: "center",
+        } as any));
+      }
+    }
+  }
+  const label = new fabric.IText("Escanéame", { fontSize: 12, fontFamily: "Inter", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", top: 52, editable: true, textAlign: "center" } as any);
+  cells.push(label);
+  const group = new fabric.Group(cells, { left: cw - 140, top: ch - 160, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget QR";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
+}
+
+function createWidgetRedes(fc: fabric.Canvas, cw: number, ch: number, nextId: () => number) {
+  const bg = new fabric.Rect({ width: 200, height: 50, fill: "rgba(0,0,0,0.5)", rx: 25, ry: 25, originX: "center", originY: "center" } as any);
+  // Simple circle icons for IG, FB, TT
+  const ig = new fabric.Circle({ radius: 12, fill: "transparent", stroke: "#FFFFFF", strokeWidth: 1.5, originX: "center", originY: "center", left: -55 } as any);
+  const fb = new fabric.Circle({ radius: 12, fill: "transparent", stroke: "#FFFFFF", strokeWidth: 1.5, originX: "center", originY: "center", left: -20 } as any);
+  const tt = new fabric.Circle({ radius: 12, fill: "transparent", stroke: "#FFFFFF", strokeWidth: 1.5, originX: "center", originY: "center", left: 15 } as any);
+  const igT = new fabric.Text("IG", { fontSize: 9, fontFamily: "Inter", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", left: -55 } as any);
+  const fbT = new fabric.Text("FB", { fontSize: 9, fontFamily: "Inter", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", left: -20 } as any);
+  const ttT = new fabric.Text("TT", { fontSize: 9, fontFamily: "Inter", fontWeight: "bold", fill: "#FFFFFF", originX: "center", originY: "center", left: 15 } as any);
+  const handle = new fabric.IText("@usuario", { fontSize: 13, fontFamily: "Inter", fill: "#FFFFFF", originX: "center", originY: "center", left: 60, editable: true } as any);
+  const group = new fabric.Group([bg, ig, fb, tt, igT, fbT, ttT, handle], { left: cw / 2 - 100, top: ch - 70, selectable: true, subTargetCheck: true } as any);
+  (group as any)._customName = "Widget Redes";
+  (group as any)._layerId = nextId();
+  (group as any)._isWidget = true;
+  fc.add(group);
+  fc.setActiveObject(group);
+  fc.renderAll();
 }
 
 export default function FabricEditorModal({ proposal, formato, cliente, onClose, onSave, saving }: Props) {
@@ -71,6 +184,12 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const [selItalic, setSelItalic] = useState(false);
   const [selUnderline, setSelUnderline] = useState(false);
   const [selAlign, setSelAlign] = useState<string>("center");
+
+  // Product images state
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  // Image-specific property states
+  const [selBrightness, setSelBrightness] = useState(0);
+  const [selCircularClip, setSelCircularClip] = useState(false);
 
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
 
@@ -111,6 +230,13 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       setSelItalic(t.fontStyle === "italic");
       setSelUnderline(!!t.underline);
       setSelAlign(t.textAlign ?? "center");
+    } else if (isImage) {
+      setSelColor((obj.fill as string) ?? "#FFFFFF");
+      // Read brightness filter if present
+      const imgObj = obj as fabric.Image;
+      const bFilter = imgObj.filters?.find((f: any) => f?.type === "Brightness") as any;
+      setSelBrightness(bFilter ? Math.round(bFilter.brightness * 100) : 0);
+      setSelCircularClip(!!imgObj.clipPath);
     } else {
       setSelColor((obj.fill as string) ?? "#FFFFFF");
       setSelStroke((obj.stroke as string) ?? "");
@@ -269,6 +395,21 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
         if (a) syncSelection(a);
       });
 
+      // Delete key handler
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Delete" || e.key === "Backspace") {
+          const active = fc.getActiveObject();
+          if (active && !(active as any).isEditing) {
+            fc.remove(active);
+            fc.discardActiveObject();
+            fc.renderAll();
+            syncSelection(null);
+          }
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+      (fc as any)._keyHandler = handleKeyDown;
+
       // Load background image
       const bgImageUrl = proposal.image_url;
       if (bgImageUrl) {
@@ -276,7 +417,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           bgImageUrl,
           (img) => {
             if (!img || !img.width) return;
-            // Cover scaling
             const scaleX = size.w / (img.width || 1);
             const scaleY = size.h / (img.height || 1);
             const scale = Math.max(scaleX, scaleY);
@@ -294,7 +434,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
             (img as any)._layerId = nextId();
             fc.insertAt(img, 0, false);
 
-            // Overlay
             const overlayColor = proposal.overlay_color ?? "#000000";
             const overlay = new fabric.Rect({
               left: 0, top: 0, width: size.w, height: size.h,
@@ -312,10 +451,8 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
         );
       }
 
-      // Render decorative elements BEFORE main text so text stays on top
       renderDecorativeElements(fc, proposal);
 
-      // Layout positioning
       const align = proposal.layout;
       const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
       const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
@@ -324,7 +461,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       const tSize = proposal.titulo_size ?? 84;
       const sSize = proposal.subtitulo_size ?? 28;
 
-      // Main text
       const mainText = new fabric.IText(proposal.texto_principal, {
         left: textX, top: size.h * 0.38, originX, originY: "center",
         fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
@@ -335,7 +471,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       (mainText as any)._layerId = nextId();
       fc.add(mainText);
 
-      // Secondary text
       const subText = new fabric.IText(proposal.texto_secundario, {
         left: textX, top: size.h * 0.55, originX, originY: "center",
         fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
@@ -346,7 +481,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       (subText as any)._layerId = nextId();
       fc.add(subText);
 
-      // CTA text
       if (proposal.texto_cta) {
         const cta = new fabric.IText(proposal.texto_cta, {
           left: textX, top: size.h * 0.72, originX, originY: "center",
@@ -361,11 +495,13 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       fc.renderAll();
       fcRef.current = fc;
       refreshLayers();
-    }, 800); // Wait for fonts to load
+    }, 800);
 
     return () => {
       clearTimeout(timer);
       if (fcRef.current) {
+        const handler = (fcRef.current as any)._keyHandler;
+        if (handler) document.removeEventListener("keydown", handler);
         fcRef.current.dispose();
         fcRef.current = null;
       }
@@ -509,6 +645,48 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     reader.readAsDataURL(file);
   };
 
+  // ─── Product images ───
+  const addProductImageToCanvas = (url: string, name: string) => {
+    const fc = fcRef.current;
+    if (!fc) return;
+    fabric.Image.fromURL(url, (img) => {
+      const scale = 200 / Math.max(img.width || 200, img.height || 200);
+      img.set({
+        left: size.w / 2 - 100,
+        top: size.h / 2 - 100,
+        scaleX: scale,
+        scaleY: scale,
+        selectable: true,
+        lockUniScaling: true,
+      } as any);
+      (img as any)._customName = name;
+      (img as any)._layerId = nextId();
+      (img as any)._isProductImage = true;
+      fc.add(img);
+      fc.setActiveObject(img);
+      fc.renderAll();
+    }, { crossOrigin: "anonymous" });
+  };
+
+  const handleProductUpload = (files: FileList | null) => {
+    if (!files) return;
+    const remaining = 6 - productImages.length;
+    const toProcess = Array.from(files).slice(0, remaining);
+    for (const file of toProcess) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const url = e.target?.result as string;
+        const id = `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        setProductImages((prev) => [...prev.slice(0, 5), { id, url, name: file.name.replace(/\.[^.]+$/, "") }]);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeProductImage = (id: string) => {
+    setProductImages((prev) => prev.filter((p) => p.id !== id));
+  };
+
   const deleteSelected = () => {
     const fc = fcRef.current;
     if (!fc || !selectedObj) return;
@@ -522,6 +700,21 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     const fc = fcRef.current;
     if (!fc || !selectedObj) return;
     fc.sendToBack(selectedObj);
+    // Keep bg image and overlay always at the very back
+    fc.getObjects().forEach((o: any) => {
+      if (o._customName === "__bgImage") fc.sendToBack(o);
+    });
+    fc.getObjects().forEach((o: any) => {
+      if (o._customName === "__overlay") { fc.sendToBack(o); fc.bringForward(o); }
+    });
+    fc.renderAll();
+    refreshLayers();
+  };
+
+  const bringToFront = () => {
+    const fc = fcRef.current;
+    if (!fc || !selectedObj) return;
+    fc.bringToFront(selectedObj);
     fc.renderAll();
     refreshLayers();
   };
@@ -530,6 +723,34 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     const fc = fcRef.current;
     if (!fc || !selectedObj) return;
     (selectedObj as any).set(key, val);
+    fc.renderAll();
+  };
+
+  const updateImageBrightness = (val: number) => {
+    const fc = fcRef.current;
+    if (!fc || !selectedObj || selectedObj.type !== "image") return;
+    const imgObj = selectedObj as fabric.Image;
+    setSelBrightness(val);
+    imgObj.filters = [new fabric.Image.filters.Brightness({ brightness: val / 100 })];
+    imgObj.applyFilters();
+    fc.renderAll();
+  };
+
+  const toggleCircularClip = (checked: boolean) => {
+    const fc = fcRef.current;
+    if (!fc || !selectedObj || selectedObj.type !== "image") return;
+    setSelCircularClip(checked);
+    const imgObj = selectedObj as fabric.Image;
+    if (checked) {
+      const r = Math.min((imgObj.width || 200) / 2, (imgObj.height || 200) / 2);
+      imgObj.clipPath = new fabric.Circle({
+        radius: r,
+        originX: "center",
+        originY: "center",
+      });
+    } else {
+      imgObj.clipPath = undefined as any;
+    }
     fc.renderAll();
   };
 
@@ -586,6 +807,17 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgFileInputRef = useRef<HTMLInputElement>(null);
+  const productFileInputRef = useRef<HTMLInputElement>(null);
+
+  // ─── Widget definitions for sidebar buttons ───
+  const WIDGETS = [
+    { name: "Precio", icon: DollarSign, fn: () => { const fc = fcRef.current; if (fc) createWidgetPrecio(fc, proposal.color_acento, size.w, size.h, nextId); } },
+    { name: "Horario", icon: Clock, fn: () => { const fc = fcRef.current; if (fc) createWidgetHorario(fc, size.w, size.h, nextId); } },
+    { name: "Badge oferta", icon: Tag, fn: () => { const fc = fcRef.current; if (fc) createWidgetBadge(fc, proposal.color_acento, size.w, nextId); } },
+    { name: "Dirección", icon: MapPin, fn: () => { const fc = fcRef.current; if (fc) createWidgetDireccion(fc, size.w, size.h, nextId); } },
+    { name: "QR", icon: QrCode, fn: () => { const fc = fcRef.current; if (fc) createWidgetQR(fc, size.w, size.h, nextId); } },
+    { name: "Redes", icon: Share2, fn: () => { const fc = fcRef.current; if (fc) createWidgetRedes(fc, size.w, size.h, nextId); } },
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm animate-in fade-in-0 duration-200">
@@ -699,9 +931,26 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                       <Label className="text-xs text-muted-foreground">Opacidad: {selOpacity}%</Label>
                       <Slider min={0} max={100} step={1} value={[selOpacity]} onValueChange={([v]) => { setSelOpacity(v); updateProp("opacity", v / 100); }} />
                     </div>
-                    <Button variant="outline" size="sm" className="w-full border-sidebar-border text-xs" onClick={sendToBack}>
-                      Enviar al fondo
-                    </Button>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Brillo: {selBrightness}%</Label>
+                      <Slider min={-100} max={100} step={1} value={[selBrightness]} onValueChange={([v]) => updateImageBrightness(v)} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="circular-clip"
+                        checked={selCircularClip}
+                        onCheckedChange={(checked) => toggleCircularClip(!!checked)}
+                      />
+                      <Label htmlFor="circular-clip" className="text-xs text-muted-foreground cursor-pointer">Recorte circular</Label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button variant="outline" size="sm" className="border-sidebar-border text-xs" onClick={sendToBack}>
+                        <ChevronDown className="h-3 w-3" /> Al fondo
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-sidebar-border text-xs" onClick={bringToFront}>
+                        <ChevronUp className="h-3 w-3" /> Al frente
+                      </Button>
+                    </div>
                   </>
                 )}
 
@@ -759,6 +1008,66 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                     <Button variant="outline" size="sm" className="border-sidebar-border text-[10px] h-7" onClick={() => bgFileInputRef.current?.click()}>
                       <Image className="h-3 w-3" /> Fondo
                     </Button>
+                  </div>
+                </div>
+
+                {/* ─── Product Images ─── */}
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Productos</Label>
+                  <input
+                    ref={productFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => { handleProductUpload(e.target.files); if (e.target) e.target.value = ""; }}
+                  />
+                  <Button
+                    variant="outline" size="sm"
+                    className="w-full border-sidebar-border text-[10px] h-7"
+                    onClick={() => productFileInputRef.current?.click()}
+                    disabled={productImages.length >= 6}
+                  >
+                    <Plus className="h-3 w-3" /> Agregar producto {productImages.length > 0 && `(${productImages.length}/6)`}
+                  </Button>
+                  {productImages.length > 0 && (
+                    <div className="grid grid-cols-3 gap-1.5 mt-1.5">
+                      {productImages.map((pi) => (
+                        <div
+                          key={pi.id}
+                          className="relative group cursor-pointer rounded border border-sidebar-border overflow-hidden"
+                          style={{ width: 60, height: 60 }}
+                          onClick={() => addProductImageToCanvas(pi.url, pi.name)}
+                        >
+                          <img src={pi.url} alt={pi.name} className="w-full h-full object-cover" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removeProductImage(pi.id); }}
+                            className="absolute top-0 right-0 bg-black/70 text-white rounded-bl p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* ─── Widgets ─── */}
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Widgets</Label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {WIDGETS.map(({ name, icon: Icon, fn }) => (
+                      <Button
+                        key={name}
+                        variant="outline"
+                        size="sm"
+                        className="border-sidebar-border text-[10px] h-8 justify-start gap-1.5"
+                        onClick={fn}
+                      >
+                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{name}</span>
+                      </Button>
+                    ))}
                   </div>
                 </div>
 
