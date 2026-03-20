@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X, Palette, Type, Layers } from "lucide-react";
+import { Sparkles, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -12,216 +12,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import FabricEditorModal, {
+  type DesignResult,
+} from "@/components/generate-ai/FabricEditorModal";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
 const STEPS = [
   "Analizando descripción",
   "Definiendo estructura visual",
-  "Generando en Canva",
+  "Generando diseño",
   "Diseño listo",
 ];
 
-interface DesignResult {
-  titulo: string;
-  descripcion: string;
-  colores: string[];
-  fuente_principal: string;
-  elementos: string[];
-  canva_url: string;
-}
-
-/* ─── Visual mockup of the design ─── */
-function DesignPreview({ result, formato }: { result: DesignResult; formato: string }) {
-  const [c1, c2, c3] = result.colores;
-  const isVertical = formato === "9:16";
-  const isSquare = formato === "1:1";
-  const aspectClass = isVertical
-    ? "aspect-[9/16] max-h-[60vh]"
-    : isSquare
-    ? "aspect-square max-h-[50vh]"
-    : "aspect-video max-h-[50vh]";
-
-  return (
-    <div
-      className={cn("relative w-full rounded-lg overflow-hidden shadow-xl mx-auto", aspectClass)}
-      style={{ background: `linear-gradient(135deg, ${c1} 0%, ${c2} 60%, ${c3} 100%)`, maxWidth: isVertical ? "320px" : undefined }}
-    >
-      {/* Simulated header bar */}
-      <div
-        className="absolute top-0 inset-x-0 px-5 py-4 flex items-center justify-between"
-        style={{ background: `${c1}cc` }}
-      >
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-white/20" />
-          <div className="h-3 w-20 rounded bg-white/30" />
-        </div>
-        <div className="h-3 w-16 rounded bg-white/20" />
-      </div>
-
-      {/* Title overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-        <h3
-          className="text-xl sm:text-2xl font-bold leading-tight drop-shadow-lg"
-          style={{ color: "#fff", textShadow: `0 2px 12px ${c1}88` }}
-        >
-          {result.titulo}
-        </h3>
-        <p className="mt-2 text-xs sm:text-sm text-white/70 max-w-[80%] line-clamp-2">
-          {result.descripcion}
-        </p>
-      </div>
-
-      {/* Simulated content blocks */}
-      <div className="absolute bottom-0 inset-x-0 p-4 flex gap-2 justify-center">
-        {result.elementos.slice(0, 3).map((_, i) => (
-          <div
-            key={i}
-            className="rounded-md backdrop-blur-sm px-3 py-2"
-            style={{ background: `${c3}44`, border: `1px solid ${c3}66` }}
-          >
-            <div className="h-2 rounded bg-white/30" style={{ width: `${40 + i * 12}px` }} />
-            <div className="h-1.5 mt-1 rounded bg-white/15" style={{ width: `${28 + i * 8}px` }} />
-          </div>
-        ))}
-      </div>
-
-      {/* Corner accent */}
-      <div
-        className="absolute top-12 right-4 h-20 w-20 rounded-full opacity-20 blur-xl"
-        style={{ background: c3 }}
-      />
-    </div>
-  );
-}
-
-/* ─── Full-screen modal ─── */
-function DesignModal({
-  result,
-  cliente,
-  formato,
-  onClose,
-  onSave,
-  saving,
-}: {
-  result: DesignResult;
-  cliente: string;
-  formato: string;
-  onClose: () => void;
-  onSave: () => void;
-  saving: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in-0 duration-200">
-      <div className="flex flex-col w-[90vw] max-w-5xl max-h-[90vh] rounded-xl border border-sidebar-border bg-sidebar shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-sidebar-border shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <h2 className="font-display text-lg font-bold truncate">{result.titulo}</h2>
-            {cliente && (
-              <Badge variant="secondary" className="shrink-0 text-xs">
-                {cliente}
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              className="gradient-primary glow-primary-sm"
-              onClick={() => window.open(result.canva_url, "_blank", "noopener,noreferrer")}
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Editar en Canva
-            </Button>
-            <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Cerrar</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Body — two-column layout */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="grid md:grid-cols-[1fr,320px] gap-6 p-6">
-            {/* Left: Visual preview */}
-            <div className="flex items-center justify-center">
-              <DesignPreview result={result} formato={formato} />
-            </div>
-
-            {/* Right: Design specs */}
-            <div className="space-y-5">
-              <p className="text-sm text-muted-foreground leading-relaxed">{result.descripcion}</p>
-
-              {/* Colors */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                  <Palette className="h-3.5 w-3.5" />
-                  Colores
-                </div>
-                <div className="flex gap-3">
-                  {result.colores.map((c, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <div
-                        className="h-8 w-8 rounded-md border border-sidebar-border"
-                        style={{ backgroundColor: c }}
-                      />
-                      <span className="text-xs text-muted-foreground font-mono">{c}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Font */}
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                  <Type className="h-3.5 w-3.5" />
-                  Tipografía
-                </div>
-                <p className="text-sm font-semibold">{result.fuente_principal}</p>
-              </div>
-
-              {/* Elements */}
-              {result.elementos?.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                    <Layers className="h-3.5 w-3.5" />
-                    Elementos
-                  </div>
-                  <ul className="space-y-1">
-                    {result.elementos.map((el, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                        {el}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-sidebar-border shrink-0">
-          <Button variant="secondary" onClick={onSave} disabled={saving}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Guardar como contenido
-          </Button>
-          <Button variant="outline" className="border-sidebar-border" onClick={onClose}>
-            <RotateCcw className="h-4 w-4" />
-            Generar otro diseño
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Page ─── */
 export default function GenerateAI() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
@@ -285,29 +91,44 @@ export default function GenerateAI() {
     }
   };
 
-  const saveAsContent = async () => {
-    if (!result) return;
+  const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
     try {
       const { data: bid } = await supabase.rpc("get_user_business_id");
       if (!bid) throw new Error("No business");
 
+      // Convert data URL to blob
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const fileName = `ai-designs/${Date.now()}.png`;
+
+      // Upload to storage
+      const { error: uploadErr } = await supabase.storage
+        .from("media")
+        .upload(fileName, blob, { contentType: "image/png" });
+      if (uploadErr) throw uploadErr;
+
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(fileName);
+
+      // Save to content table
       const { error } = await supabase.from("content").insert({
         business_id: bid,
-        name: result.titulo,
-        type: "layout",
-        file_url: result.canva_url,
+        name: result?.titulo ?? "Diseño IA",
+        type: "image",
+        file_url: urlData.publicUrl,
+        thumbnail_url: dataUrl.slice(0, 2000), // small preview
         created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
       });
 
       if (error) throw error;
-      toast({ title: "Guardado como borrador en Contenido" });
+      toast({ title: "Guardado en Contenido" });
+      reset();
     } catch (e: any) {
       toast({ title: "Error al guardar", description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
-  };
+  }, [result, toast, reset]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -317,7 +138,7 @@ export default function GenerateAI() {
           Generar diseño con IA
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Describe lo que necesita tu cliente y la IA crea el diseño en Canva
+          Describe lo que necesitas y la IA genera un diseño editable
         </p>
       </div>
 
@@ -446,14 +267,14 @@ export default function GenerateAI() {
         </Card>
       )}
 
-      {/* Full-screen modal with iframe */}
+      {/* Fabric.js Editor Modal */}
       {result && (
-        <DesignModal
+        <FabricEditorModal
           result={result}
-          cliente={cliente}
           formato={formato}
+          cliente={cliente}
           onClose={reset}
-          onSave={saveAsContent}
+          onSave={saveDesign}
           saving={saving}
         />
       )}
