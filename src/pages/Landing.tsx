@@ -357,6 +357,9 @@ const Landing = () => {
         <ShowcaseCarousel onOpenChat={() => setChatOpen(true)} />
       </div>
 
+      {/* Visualia Studio */}
+      <VisualiaStudio />
+
       {/* CORRECCIÓN 8 aplicada — Testimonios con estrellas, avatar, cargo y empresa */}
       {/* CORRECCIÓN 3 — Espaciado reducido entre secciones */}
       <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-6 md:px-6 md:py-8">
