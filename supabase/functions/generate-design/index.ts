@@ -54,7 +54,11 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
 
     let brief;
     try {
-      brief = JSON.parse(text);
+      let cleaned = text.trim();
+      if (cleaned.startsWith("```")) {
+        cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+      }
+      brief = JSON.parse(cleaned);
     } catch {
       console.error("Failed to parse Claude JSON:", text);
       return new Response(JSON.stringify({ error: "Respuesta IA inválida" }), {
