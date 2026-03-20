@@ -13,6 +13,8 @@ serve(async (req) => {
     const { prompt, tipo, formato, estilo, cliente } = await req.json();
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
+    if (!UNSPLASH_ACCESS_KEY) throw new Error("UNSPLASH_ACCESS_KEY is not configured");
 
     const systemPrompt = `Eres un director de arte senior especializado en digital signage de alto impacto. Tu trabajo es generar especificaciones de diseño que se vean como obra de un diseñador profesional, NO como PowerPoint. Cada diseño debe ser visualmente impactante, moderno y memorable.
 
