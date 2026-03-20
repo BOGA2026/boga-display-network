@@ -10,6 +10,7 @@ import {
   PenTool,
   LogOut,
   ChevronLeft,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -23,6 +24,7 @@ const navItems = [
   { icon: ListVideo, label: "Playlists", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Programación", path: "/dashboard/programacion" },
   { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
+  { icon: Sparkles, label: "Generar con IA", path: "/dashboard/generar-ia" },
   { icon: PenTool, label: "Editor", path: "/dashboard/editor" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
