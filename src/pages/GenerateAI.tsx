@@ -35,23 +35,89 @@ interface DesignResult {
   canva_url: string;
 }
 
+/* ─── Visual mockup of the design ─── */
+function DesignPreview({ result, formato }: { result: DesignResult; formato: string }) {
+  const [c1, c2, c3] = result.colores;
+  const isVertical = formato === "9:16";
+  const isSquare = formato === "1:1";
+  const aspectClass = isVertical
+    ? "aspect-[9/16] max-h-[60vh]"
+    : isSquare
+    ? "aspect-square max-h-[50vh]"
+    : "aspect-video max-h-[50vh]";
+
+  return (
+    <div
+      className={cn("relative w-full rounded-lg overflow-hidden shadow-xl mx-auto", aspectClass)}
+      style={{ background: `linear-gradient(135deg, ${c1} 0%, ${c2} 60%, ${c3} 100%)`, maxWidth: isVertical ? "320px" : undefined }}
+    >
+      {/* Simulated header bar */}
+      <div
+        className="absolute top-0 inset-x-0 px-5 py-4 flex items-center justify-between"
+        style={{ background: `${c1}cc` }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-white/20" />
+          <div className="h-3 w-20 rounded bg-white/30" />
+        </div>
+        <div className="h-3 w-16 rounded bg-white/20" />
+      </div>
+
+      {/* Title overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+        <h3
+          className="text-xl sm:text-2xl font-bold leading-tight drop-shadow-lg"
+          style={{ color: "#fff", textShadow: `0 2px 12px ${c1}88` }}
+        >
+          {result.titulo}
+        </h3>
+        <p className="mt-2 text-xs sm:text-sm text-white/70 max-w-[80%] line-clamp-2">
+          {result.descripcion}
+        </p>
+      </div>
+
+      {/* Simulated content blocks */}
+      <div className="absolute bottom-0 inset-x-0 p-4 flex gap-2 justify-center">
+        {result.elementos.slice(0, 3).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-md backdrop-blur-sm px-3 py-2"
+            style={{ background: `${c3}44`, border: `1px solid ${c3}66` }}
+          >
+            <div className="h-2 rounded bg-white/30" style={{ width: `${40 + i * 12}px` }} />
+            <div className="h-1.5 mt-1 rounded bg-white/15" style={{ width: `${28 + i * 8}px` }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Corner accent */}
+      <div
+        className="absolute top-12 right-4 h-20 w-20 rounded-full opacity-20 blur-xl"
+        style={{ background: c3 }}
+      />
+    </div>
+  );
+}
+
 /* ─── Full-screen modal ─── */
 function DesignModal({
   result,
   cliente,
+  formato,
   onClose,
   onSave,
   saving,
 }: {
   result: DesignResult;
   cliente: string;
+  formato: string;
   onClose: () => void;
   onSave: () => void;
   saving: boolean;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in-0 duration-200">
-      <div className="flex flex-col w-[90vw] max-w-4xl max-h-[90vh] rounded-xl border border-sidebar-border bg-sidebar shadow-2xl overflow-hidden">
+      <div className="flex flex-col w-[90vw] max-w-5xl max-h-[90vh] rounded-xl border border-sidebar-border bg-sidebar shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-sidebar-border shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -66,7 +132,7 @@ function DesignModal({
             <a href={result.canva_url} target="_blank" rel="noopener noreferrer">
               <Button size="sm" className="gradient-primary glow-primary-sm">
                 <ExternalLink className="h-3.5 w-3.5" />
-                Abrir en Canva
+                Editar en Canva
               </Button>
             </a>
             <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8">
@@ -76,59 +142,65 @@ function DesignModal({
           </div>
         </div>
 
-        {/* Body — Brief preview */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
-          {/* Description */}
-          <p className="text-sm text-muted-foreground leading-relaxed">{result.descripcion}</p>
-
-          {/* Colors */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-              <Palette className="h-3.5 w-3.5" />
-              Paleta de colores
+        {/* Body — two-column layout */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="grid md:grid-cols-[1fr,320px] gap-6 p-6">
+            {/* Left: Visual preview */}
+            <div className="flex items-center justify-center">
+              <DesignPreview result={result} formato={formato} />
             </div>
-            <div className="flex gap-4">
-              {result.colores.map((c, i) => (
-                <div key={i} className="flex flex-col items-center gap-2">
-                  <div
-                    className="h-16 w-16 rounded-lg border border-sidebar-border shadow-md"
-                    style={{ backgroundColor: c }}
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{c}</span>
+
+            {/* Right: Design specs */}
+            <div className="space-y-5">
+              <p className="text-sm text-muted-foreground leading-relaxed">{result.descripcion}</p>
+
+              {/* Colors */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                  <Palette className="h-3.5 w-3.5" />
+                  Colores
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Font */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-              <Type className="h-3.5 w-3.5" />
-              Tipografía principal
-            </div>
-            <p className="text-base font-semibold">{result.fuente_principal}</p>
-          </div>
-
-          {/* Elements */}
-          {result.elementos?.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                <Layers className="h-3.5 w-3.5" />
-                Elementos del diseño
+                <div className="flex gap-3">
+                  {result.colores.map((c, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div
+                        className="h-8 w-8 rounded-md border border-sidebar-border"
+                        style={{ backgroundColor: c }}
+                      />
+                      <span className="text-xs text-muted-foreground font-mono">{c}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {result.elementos.map((el, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 rounded-lg border border-sidebar-border bg-background/30 px-3 py-2 text-sm"
-                  >
-                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                    {el}
+
+              {/* Font */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                  <Type className="h-3.5 w-3.5" />
+                  Tipografía
+                </div>
+                <p className="text-sm font-semibold">{result.fuente_principal}</p>
+              </div>
+
+              {/* Elements */}
+              {result.elementos?.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                    <Layers className="h-3.5 w-3.5" />
+                    Elementos
                   </div>
-                ))}
-              </div>
+                  <ul className="space-y-1">
+                    {result.elementos.map((el, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                        {el}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Footer */}
@@ -377,6 +449,7 @@ export default function GenerateAI() {
         <DesignModal
           result={result}
           cliente={cliente}
+          formato={formato}
           onClose={reset}
           onSave={saveAsContent}
           saving={saving}
