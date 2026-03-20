@@ -326,17 +326,39 @@ serve(async (req) => {
     const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
     if (!UNSPLASH_ACCESS_KEY) throw new Error("UNSPLASH_ACCESS_KEY is not configured");
 
-    // Select specialized prompt based on content type (case-insensitive)
-    const tipoNorm = (tipo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    console.log("TIPO RECIBIDO:", tipo, "NORMALIZADO:", tipoNorm);
+    const normalizeText = (value: string = "") =>
+      value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    const systemPrompt = tipoNorm.startsWith('menu') ? PROMPT_MENU
-      : tipoNorm.startsWith('promoc') ? PROMPT_PROMO
-      : tipoNorm.startsWith('bienv') ? PROMPT_BIENVENIDA
-      : tipoNorm.startsWith('event') ? PROMPT_EVENTO
+    const tipoNormalizado = normalizeText(tipo);
+    const promptNormalizado = normalizeText(`${prompt} ${cliente}`);
+    const menuKeywords = /(menu|plato|platos|entradas|bebidas|postres|precio|precios|almuerzo ejecutivo|carta)/;
+    const promoKeywords = /(promocion|promo|descuento|oferta|off|rebaja|solo hoy|ultimas unidades)/;
+    const bienvenidaKeywords = /(bienvenida|bienvenido|welcome|recepcion|lobby)/;
+    const eventoKeywords = /(evento|concierto|festival|conferencia|seminario|show|fecha|hora|lugar)/;
+
+    let detectedType: "menu" | "promo" | "bienvenida" | "evento" | "generico" = "generico";
+
+    if (tipoNormalizado === "menu" || tipoNormalizado === "menú" || tipoNormalizado.startsWith("menu") || menuKeywords.test(promptNormalizado)) {
+      detectedType = "menu";
+    } else if (tipoNormalizado.startsWith("promoc") || promoKeywords.test(promptNormalizado)) {
+      detectedType = "promo";
+    } else if (tipoNormalizado.startsWith("bienv") || bienvenidaKeywords.test(promptNormalizado)) {
+      detectedType = "bienvenida";
+    } else if (tipoNormalizado.startsWith("event") || eventoKeywords.test(promptNormalizado)) {
+      detectedType = "evento";
+    }
+
+    console.log("TIPO RECIBIDO:", tipo);
+    console.log("TIPO NORMALIZADO:", tipoNormalizado);
+    console.log("TIPO DETECTADO:", detectedType);
+
+    const systemPrompt = detectedType === "menu" ? PROMPT_MENU
+      : detectedType === "promo" ? PROMPT_PROMO
+      : detectedType === "bienvenida" ? PROMPT_BIENVENIDA
+      : detectedType === "evento" ? PROMPT_EVENTO
       : PROMPT_GENERICO;
 
-    console.log("USANDO PROMPT:", tipoNorm.startsWith('menu') ? 'MENU' : tipoNorm.startsWith('promoc') ? 'PROMO' : tipoNorm.startsWith('bienv') ? 'BIENVENIDA' : tipoNorm.startsWith('event') ? 'EVENTO' : 'GENERICO');
+    console.log("USANDO PROMPT:", detectedType.toUpperCase());
 
     const userPrompt = `
 BRIEFING DEL CLIENTE — SIGUE ESTAS INSTRUCCIONES AL PIE DE LA LETRA:
