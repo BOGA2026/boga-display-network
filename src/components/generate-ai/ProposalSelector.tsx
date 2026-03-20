@@ -15,8 +15,8 @@ interface Props {
 export default function ProposalSelector({ propuestas, formato, onSelect, onRegenerate, loading }: Props) {
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
   const isVertical = formato === "9:16";
-  const previewW = isVertical ? 180 : 320;
-  const previewH = isVertical ? 320 : 180;
+  const previewW = isVertical ? 170 : 300;
+  const previewH = isVertical ? 300 : 170;
   const scale = previewW / size.w;
 
   return (
