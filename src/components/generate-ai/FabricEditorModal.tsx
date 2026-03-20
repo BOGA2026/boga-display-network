@@ -35,7 +35,6 @@ interface Props {
   saving: boolean;
 }
 
-// Load Google Fonts
 function useGoogleFonts() {
   useEffect(() => {
     const id = "visualia-fonts";
@@ -44,7 +43,7 @@ function useGoogleFonts() {
     link.id = id;
     link.rel = "stylesheet";
     link.href =
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&display=swap";
+      "https://fonts.googleapis.com/css2?family=Oswald:wght@700;800&family=Bebas+Neue&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@700&family=Montserrat:wght@700;800&family=Inter:wght@300;400;700&family=Roboto:wght@300;400;700&family=DM+Sans:wght@400;700&family=Source+Sans+Pro:wght@300;400;700&family=Cormorant:wght@300;400;700&display=swap";
     document.head.appendChild(link);
   }, []);
 }
@@ -62,7 +61,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const [selectedObj, setSelectedObj] = useState<fabric.Object | null>(null);
   const [selectedType, setSelectedType] = useState<"text" | "shape" | "image" | null>(null);
 
-  // For selected object properties
   const [selText, setSelText] = useState("");
   const [selFont, setSelFont] = useState("Inter");
   const [selSize, setSelSize] = useState(32);
@@ -81,7 +79,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const refreshLayers = useCallback(() => {
     const fc = fcRef.current;
     if (!fc) return;
-    const objs = fc.getObjects().filter((o: any) => o._customName !== "__overlay");
+    const objs = fc.getObjects().filter((o: any) => o._customName !== "__overlay" && o._customName !== "__bgImage");
     setLayers(
       objs.map((o: any) => ({
         id: o._layerId ?? 0,
@@ -109,7 +107,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       setSelFont((t.fontFamily as string) ?? "Inter");
       setSelSize(t.fontSize ?? 32);
       setSelColor((t.fill as string) ?? "#FFFFFF");
-      setSelBold(t.fontWeight === "bold");
+      setSelBold(t.fontWeight === "bold" || (t.fontWeight as number) >= 700);
       setSelItalic(t.fontStyle === "italic");
       setSelUnderline(!!t.underline);
       setSelAlign(t.textAlign ?? "center");
@@ -119,6 +117,134 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     }
     setSelOpacity(Math.round((obj.opacity ?? 1) * 100));
   }, []);
+
+  // ─── Render decorative elements ───
+  const renderDecorativeElements = useCallback((fc: fabric.Canvas, p: Proposal) => {
+    const cw = size.w;
+    const ch = size.h;
+    const align = p.layout;
+    const layoutLeft = align === "izquierda" ? cw * 0.1 : align === "derecha" ? cw * 0.3 : cw * 0.15;
+    const tituloTop = ch * 0.35;
+
+    if (!p.elementos_decorativos || p.elementos_decorativos.length === 0) return;
+
+    for (const el of p.elementos_decorativos) {
+      let obj: fabric.Object | null = null;
+
+      switch (el.tipo) {
+        case "linea_acento_vertical": {
+          const left = align === "derecha" ? cw * 0.9 + 10 : layoutLeft - 20;
+          obj = new fabric.Rect({
+            left, top: tituloTop - 10,
+            width: 4, height: 120,
+            fill: el.color, opacity: el.opacity,
+            selectable: true,
+          } as any);
+          (obj as any)._customName = "Línea acento";
+          break;
+        }
+        case "rectangulo_fondo_texto": {
+          obj = new fabric.Rect({
+            left: layoutLeft - 20, top: tituloTop - 20,
+            width: cw * 0.7, height: 160,
+            fill: el.color, opacity: el.opacity,
+            rx: 4, ry: 4, selectable: true,
+          } as any);
+          (obj as any)._customName = "Fondo texto";
+          break;
+        }
+        case "badge_cta": {
+          const badgeW = Math.max(p.texto_cta.length * 9 + 32, 100);
+          const badgeLeft = align === "izquierda" ? layoutLeft : align === "derecha" ? cw * 0.9 - badgeW : (cw - badgeW) / 2;
+          const badgeRect = new fabric.Rect({
+            left: badgeLeft, top: tituloTop - 60,
+            width: badgeW, height: 32,
+            fill: p.color_acento, opacity: el.opacity,
+            rx: 16, ry: 16, selectable: true,
+          } as any);
+          (badgeRect as any)._customName = "Badge BG";
+          (badgeRect as any)._layerId = nextId();
+          fc.add(badgeRect);
+
+          const badgeText = new fabric.IText(p.texto_cta.toUpperCase(), {
+            left: badgeLeft + badgeW / 2, top: tituloTop - 60 + 16,
+            originX: "center", originY: "center",
+            fontSize: 13, fontFamily: p.fuente_cuerpo,
+            fontWeight: "bold", fill: "#000000",
+            editable: true, selectable: true,
+          } as any);
+          (badgeText as any)._customName = "Badge CTA";
+          (badgeText as any)._layerId = nextId();
+          fc.add(badgeText);
+          break;
+        }
+        case "banda_inferior": {
+          obj = new fabric.Rect({
+            left: 0, top: ch * 0.85,
+            width: cw, height: ch * 0.15,
+            fill: el.color, opacity: el.opacity,
+            selectable: true,
+          } as any);
+          (obj as any)._customName = "Banda inferior";
+          break;
+        }
+        case "punto_decorativo": {
+          obj = new fabric.Circle({
+            radius: 250,
+            left: cw - 100, top: -100,
+            fill: el.color, opacity: el.opacity,
+            selectable: true,
+          } as any);
+          (obj as any)._customName = "Punto decorativo";
+          break;
+        }
+        case "linea_horizontal": {
+          const lx = align === "izquierda" ? layoutLeft : align === "derecha" ? cw * 0.5 : cw * 0.3;
+          const lineObj = new fabric.Line([lx, tituloTop + 80, lx + 200, tituloTop + 80], {
+            stroke: el.color, strokeWidth: 1,
+            opacity: el.opacity, selectable: true,
+          } as any);
+          (lineObj as any)._customName = "Línea horizontal";
+          (lineObj as any)._layerId = nextId();
+          fc.add(lineObj);
+          break;
+        }
+        case "numero_grande": {
+          const year = new Date().getFullYear().toString();
+          obj = new fabric.Text(year, {
+            fontSize: 280, fontFamily: "Oswald",
+            fill: el.color, opacity: el.opacity,
+            left: cw * 0.3, top: ch * 0.1,
+            selectable: true,
+          } as any);
+          (obj as any)._customName = "Número grande";
+          break;
+        }
+        case "overlay_gradiente": {
+          obj = new fabric.Rect({
+            left: 0, top: 0, width: cw, height: ch,
+            selectable: false, evented: false,
+            fill: new fabric.Gradient({
+              type: "linear",
+              coords: { x1: 0, y1: 0, x2: 0, y2: ch },
+              colorStops: [
+                { offset: 0, color: "rgba(0,0,0,0)" },
+                { offset: 0.5, color: "rgba(0,0,0,0.3)" },
+                { offset: 1, color: "rgba(0,0,0,0.85)" },
+              ],
+            }),
+          } as any);
+          (obj as any)._customName = "Overlay gradiente";
+          break;
+        }
+      }
+
+      if (obj) {
+        (obj as any)._layerId = nextId();
+        fc.add(obj);
+      }
+    }
+  }, [size]);
 
   // Initialize canvas
   useEffect(() => {
@@ -152,13 +278,17 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
             if (!img || !img.width) return;
             img.scaleToWidth(size.w);
             img.scaleToHeight(size.h);
-            img.set({ left: 0, top: 0, selectable: false, evented: false, _customName: "__bgImage", _layerId: nextId() } as any);
+            img.set({ left: 0, top: 0, selectable: false, evented: false } as any);
+            (img as any)._customName = "__bgImage";
+            (img as any)._layerId = nextId();
             fc.insertAt(img, 0, false);
 
             // Overlay
+            const overlayColor = proposal.overlay_color ?? "#000000";
             const overlay = new fabric.Rect({
               left: 0, top: 0, width: size.w, height: size.h,
-              fill: `rgba(0,0,0,${proposal.overlay_opacity})`,
+              fill: overlayColor,
+              opacity: proposal.overlay_opacity,
               selectable: false, evented: false,
             } as any);
             (overlay as any)._customName = "__overlay";
@@ -171,72 +301,42 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
         );
       }
 
+      // Render decorative elements BEFORE main text so text stays on top
+      renderDecorativeElements(fc, proposal);
+
       // Layout positioning
       const align = proposal.layout;
       const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
       const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
+      const textAlign = align === "centrado" ? "center" : align === "izquierda" ? "left" : "right";
 
-      // Decorative elements
-      if (proposal.elementos.includes("badge_superior")) {
-        const badge = new fabric.IText(proposal.texto_cta, {
-          left: textX, top: size.h * 0.12, originX, originY: "center",
-          fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
-          fill: proposal.color_texto, backgroundColor: proposal.color_acento,
-          padding: 8, editable: true,
-        } as any);
-        (badge as any)._customName = "Badge CTA";
-        (badge as any)._layerId = nextId();
-        fc.add(badge);
-      }
+      const tSize = proposal.titulo_size ?? 84;
+      const sSize = proposal.subtitulo_size ?? 28;
 
       // Main text
       const mainText = new fabric.IText(proposal.texto_principal, {
         left: textX, top: size.h * 0.38, originX, originY: "center",
-        fontSize: 60, fontWeight: "bold", fontFamily: proposal.fuente_titulo,
-        fill: proposal.color_texto, textAlign: align === "centrado" ? "center" : align,
-        editable: true, lineHeight: 1.1,
+        fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
+        fill: proposal.color_texto, textAlign,
+        editable: true, lineHeight: 1.05,
       } as any);
       (mainText as any)._customName = "Título";
       (mainText as any)._layerId = nextId();
       fc.add(mainText);
 
-      // Divider line
-      if (proposal.elementos.includes("linea_divisora")) {
-        const lineW = size.w * 0.25;
-        const lineX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 - lineW : (size.w - lineW) / 2;
-        const line = new fabric.Line([lineX, size.h * 0.47, lineX + lineW, size.h * 0.47], {
-          stroke: proposal.color_acento, strokeWidth: 3,
-        } as any);
-        (line as any)._customName = "Línea divisora";
-        (line as any)._layerId = nextId();
-        fc.add(line);
-      }
-
-      // Accent bar
-      if (proposal.elementos.includes("rectangulo_acento")) {
-        const bar = new fabric.Rect({
-          left: 0, top: 0, width: 8, height: size.h,
-          fill: proposal.color_acento, selectable: true,
-        } as any);
-        (bar as any)._customName = "Barra acento";
-        (bar as any)._layerId = nextId();
-        fc.add(bar);
-      }
-
       // Secondary text
       const subText = new fabric.IText(proposal.texto_secundario, {
         left: textX, top: size.h * 0.55, originX, originY: "center",
-        fontSize: 26, fontFamily: proposal.fuente_cuerpo,
-        fill: proposal.color_texto, opacity: 0.8,
-        textAlign: align === "centrado" ? "center" : align,
-        editable: true,
+        fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
+        fill: proposal.color_texto, opacity: 0.85,
+        textAlign, editable: true,
       } as any);
       (subText as any)._customName = "Subtítulo";
       (subText as any)._layerId = nextId();
       fc.add(subText);
 
-      // CTA text (if no badge)
-      if (!proposal.elementos.includes("badge_superior") && proposal.texto_cta) {
+      // CTA text
+      if (proposal.texto_cta) {
         const cta = new fabric.IText(proposal.texto_cta, {
           left: textX, top: size.h * 0.72, originX, originY: "center",
           fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
@@ -250,7 +350,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       fc.renderAll();
       fcRef.current = fc;
       refreshLayers();
-    }, 150);
+    }, 800); // Wait for fonts to load
 
     return () => {
       clearTimeout(timer);
@@ -377,7 +477,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           img.scaleToWidth(size.w);
           img.scaleToHeight(size.h);
           img.set({ left: 0, top: 0, selectable: false, evented: false } as any);
-          // Remove existing bg image
           fc.getObjects().forEach((o: any) => {
             if (o._customName === "__bgImage") fc.remove(o);
           });
@@ -416,7 +515,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     refreshLayers();
   };
 
-  // ─── Property updates ───
   const updateProp = (key: string, val: any) => {
     const fc = fcRef.current;
     if (!fc || !selectedObj) return;
@@ -424,7 +522,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     fc.renderAll();
   };
 
-  // ─── Layer actions ───
   const selectLayer = (layerId: number) => {
     const fc = fcRef.current;
     if (!fc) return;
@@ -457,7 +554,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     refreshLayers();
   };
 
-  // ─── Export ───
   const exportPNG = () => {
     const fc = fcRef.current;
     if (!fc) return;
@@ -480,7 +576,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgFileInputRef = useRef<HTMLInputElement>(null);
 
-  // ─── Render ───
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm animate-in fade-in-0 duration-200">
       <div className="flex flex-col w-[95vw] h-[95vh] rounded-xl border border-sidebar-border bg-sidebar shadow-2xl overflow-hidden">
@@ -488,6 +583,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-sidebar-border shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <h2 className="font-display text-sm font-bold truncate">{proposal.nombre}</h2>
+            {proposal.concepto && <span className="text-[10px] text-muted-foreground truncate hidden sm:inline">{proposal.concepto}</span>}
             {cliente && <Badge variant="secondary" className="text-[10px]">{cliente}</Badge>}
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -508,7 +604,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           {/* ─── Sidebar ─── */}
           <div className="w-[280px] shrink-0 border-r border-sidebar-border overflow-y-auto p-3 space-y-4 text-sm">
             {selectedObj && selectedType ? (
-              /* ─── PROPERTIES PANEL ─── */
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs uppercase tracking-wider text-muted-foreground">Propiedades</Label>
@@ -604,9 +699,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                 </Button>
               </div>
             ) : (
-              /* ─── TOOLS PANEL ─── */
               <div className="space-y-4">
-                {/* Text */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Texto</Label>
                   <Button variant="outline" size="sm" className="w-full border-sidebar-border text-xs" onClick={addText}>
@@ -614,7 +707,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   </Button>
                 </div>
 
-                {/* Background */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Fondo</Label>
                   <div className="flex items-center gap-2">
@@ -629,7 +721,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   )}
                 </div>
 
-                {/* AI Colors */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Colores IA</Label>
                   <div className="flex flex-wrap gap-1.5">
@@ -646,7 +737,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   </div>
                 </div>
 
-                {/* Images */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Imagen del cliente</Label>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) uploadImage(e.target.files[0], false); }} />
@@ -661,7 +751,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   </div>
                 </div>
 
-                {/* Elements */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Formas</Label>
                   <div className="grid grid-cols-4 gap-1">
@@ -704,7 +793,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   </div>
                 </div>
 
-                {/* Format */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Formato</Label>
                   <div className="rounded border border-sidebar-border bg-background/30 px-2 py-1.5 text-[10px] text-muted-foreground">
@@ -712,7 +800,6 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                   </div>
                 </div>
 
-                {/* Layers */}
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Capas ({layers.length})</Label>
                   <div className="space-y-0.5 max-h-40 overflow-y-auto">
