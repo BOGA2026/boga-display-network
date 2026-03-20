@@ -15,17 +15,48 @@ serve(async (req) => {
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const systemPrompt = `Eres el asistente de diseño de Visualia, empresa de señalización digital.
-Genera un brief de diseño en JSON con exactamente estos campos:
-- titulo: nombre del diseño (string)
-- descripcion: descripción breve del diseño (string)
-- background_color: color de fondo hexadecimal (string, ej: "#1A1A2E")
-- texto_principal: texto destacado del diseño, MÁXIMO 6 palabras (string)
-- texto_secundario: subtítulo o texto de apoyo, MÁXIMO 12 palabras (string)
-- color_texto: color del texto hexadecimal (string, ej: "#FFFFFF")
-- color_acento: color de acento hexadecimal (string, ej: "#E94560")
-- fuente: una de estas opciones EXACTAS: "Inter" | "Roboto" | "Montserrat" | "Oswald" | "Playfair Display"
+Genera EXACTAMENTE 3 propuestas de diseño diferentes en JSON.
 
-Responde SOLO el objeto JSON, sin markdown, sin backticks, sin explicación.`;
+REGLAS DE COMPOSICIÓN:
+- Regla de tercios: texto principal en tercio superior o inferior
+- Jerarquía tipográfica: titulo 60px bold > subtítulo 26px regular > CTA 18px
+- Layout "izquierda": textos alineados a la izquierda con padding 10% desde el borde
+- Layout "derecha": textos alineados a la derecha
+- Layout "centrado": todo centrado, espaciado generoso
+- Cada propuesta DEBE tener combinación de colores DIFERENTE
+- texto_principal: MÁXIMO 6 palabras impactantes
+- texto_secundario: MÁXIMO 12 palabras descriptivas
+- texto_cta: MÁXIMO 3 palabras (ej: "Visítanos hoy", "Llama ahora", "Reserva ya")
+- background_image_query: 3-5 palabras en inglés para buscar foto en Unsplash
+- elementos disponibles: "rectangulo_acento" (barra de color 8px en borde), "linea_divisora" (línea entre título y subtítulo), "badge_superior" (rectángulo redondeado con CTA arriba)
+
+Formato JSON EXACTO (responde SOLO este JSON, sin markdown):
+{
+  "propuestas": [
+    {
+      "id": 1,
+      "nombre": "Nombre estilo (ej: Minimalista)",
+      "background_color": "#hex",
+      "background_image_query": "english search terms",
+      "overlay_opacity": 0.5,
+      "layout": "centrado",
+      "texto_principal": "Texto Grande",
+      "texto_secundario": "Texto secundario descriptivo",
+      "texto_cta": "Acción",
+      "color_texto": "#hex",
+      "color_acento": "#hex",
+      "fuente_titulo": "Oswald",
+      "fuente_cuerpo": "Inter",
+      "elementos": ["rectangulo_acento"]
+    },
+    { "id": 2, "nombre": "...", "layout": "izquierda", ... },
+    { "id": 3, "nombre": "...", "layout": "derecha", ... }
+  ]
+}
+
+Las 3 propuestas deben tener layouts DIFERENTES (centrado, izquierda, derecha).
+fuente_titulo debe ser una de: "Oswald" | "Montserrat" | "Playfair Display"
+fuente_cuerpo debe ser una de: "Inter" | "Roboto"`;
 
     const userPrompt = `Diseño: ${prompt}
 Tipo: ${tipo}
@@ -42,7 +73,7 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
+        max_tokens: 2048,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       }),
@@ -60,13 +91,13 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
     const data = await response.json();
     const text = data.content?.[0]?.text ?? "";
 
-    let brief;
+    let parsed;
     try {
       let cleaned = text.trim();
       if (cleaned.startsWith("```")) {
         cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
       }
-      brief = JSON.parse(cleaned);
+      parsed = JSON.parse(cleaned);
     } catch {
       console.error("Failed to parse Claude JSON:", text);
       return new Response(JSON.stringify({ error: "Respuesta IA inválida" }), {
@@ -75,20 +106,30 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
       });
     }
 
-    const validFonts = ["Inter", "Roboto", "Montserrat", "Oswald", "Playfair Display"];
-    const fuente = validFonts.includes(brief.fuente) ? brief.fuente : "Inter";
+    const propuestas = parsed.propuestas ?? [parsed];
+    const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display"];
+    const validBodyFonts = ["Inter", "Roboto"];
+    const validLayouts = ["centrado", "izquierda", "derecha"];
+
+    const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => ({
+      id: i + 1,
+      nombre: p.nombre ?? `Propuesta ${i + 1}`,
+      background_color: p.background_color ?? "#1A1A2E",
+      background_image_query: p.background_image_query ?? "",
+      overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.5,
+      layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
+      texto_principal: p.texto_principal ?? "Texto Principal",
+      texto_secundario: p.texto_secundario ?? "Subtítulo del diseño",
+      texto_cta: p.texto_cta ?? "Ver más",
+      color_texto: p.color_texto ?? "#FFFFFF",
+      color_acento: p.color_acento ?? "#E94560",
+      fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Montserrat",
+      fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
+      elementos: Array.isArray(p.elementos) ? p.elementos : [],
+    }));
 
     return new Response(
-      JSON.stringify({
-        titulo: brief.titulo ?? "Diseño sin título",
-        descripcion: brief.descripcion ?? "",
-        background_color: brief.background_color ?? "#1A1A2E",
-        texto_principal: brief.texto_principal ?? "Texto Principal",
-        texto_secundario: brief.texto_secundario ?? "Subtítulo del diseño",
-        color_texto: brief.color_texto ?? "#FFFFFF",
-        color_acento: brief.color_acento ?? "#E94560",
-        fuente,
-      }),
+      JSON.stringify({ propuestas: sanitized }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
