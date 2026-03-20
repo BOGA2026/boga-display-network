@@ -326,12 +326,17 @@ serve(async (req) => {
     const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
     if (!UNSPLASH_ACCESS_KEY) throw new Error("UNSPLASH_ACCESS_KEY is not configured");
 
-    // Select specialized prompt based on content type
-    const systemPrompt = tipo === 'Menú' ? PROMPT_MENU
-      : tipo === 'Promoción' ? PROMPT_PROMO
-      : tipo === 'Bienvenida' ? PROMPT_BIENVENIDA
-      : tipo === 'Evento' ? PROMPT_EVENTO
+    // Select specialized prompt based on content type (case-insensitive)
+    const tipoNorm = (tipo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    console.log("TIPO RECIBIDO:", tipo, "NORMALIZADO:", tipoNorm);
+
+    const systemPrompt = tipoNorm.startsWith('menu') ? PROMPT_MENU
+      : tipoNorm.startsWith('promoc') ? PROMPT_PROMO
+      : tipoNorm.startsWith('bienv') ? PROMPT_BIENVENIDA
+      : tipoNorm.startsWith('event') ? PROMPT_EVENTO
       : PROMPT_GENERICO;
+
+    console.log("USANDO PROMPT:", tipoNorm.startsWith('menu') ? 'MENU' : tipoNorm.startsWith('promoc') ? 'PROMO' : tipoNorm.startsWith('bienv') ? 'BIENVENIDA' : tipoNorm.startsWith('event') ? 'EVENTO' : 'GENERICO');
 
     const userPrompt = `
 BRIEFING DEL CLIENTE — SIGUE ESTAS INSTRUCCIONES AL PIE DE LA LETRA:
@@ -392,8 +397,9 @@ Genera las 3 propuestas ahora.
         cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
       }
       parsed = JSON.parse(cleaned);
+      console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
     } catch {
-      console.error("Failed to parse Claude JSON:", text);
+      console.error("Failed to parse Claude JSON:", text.substring(0, 500));
       return new Response(JSON.stringify({ error: "Respuesta IA inválida" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

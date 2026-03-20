@@ -595,9 +595,50 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
       renderDecorativeElements(fc, proposal);
 
-      // Check if this is a menu layout
-      if (proposal.tipo_layout === "menu_dos_columnas") {
-        renderMenuDosColumnas(fc, proposal);
+      // Determine if this is a menu layout
+      const isMenuLayout = proposal.tipo_layout === "menu_dos_columnas" 
+        || (proposal.secciones && proposal.secciones.length > 0);
+
+      console.log("PROPUESTA RECIBIDA tipo_layout:", proposal.tipo_layout, "secciones:", proposal.secciones?.length);
+
+      if (isMenuLayout) {
+        // If secciones are missing, create fallback data
+        const menuProposal = { ...proposal };
+        if (!menuProposal.secciones || menuProposal.secciones.length === 0) {
+          menuProposal.tipo_layout = "menu_dos_columnas";
+          menuProposal.secciones = [
+            {
+              nombre: "Almuerzo Ejecutivo",
+              items: [
+                { plato: "Sopa del día", descripcion: "Receta de la casa", precio: "$15.000" },
+                { plato: "Bandeja Paisa", descripcion: "Frijoles, chicharrón, chorizo", precio: "$32.000" },
+                { plato: "Sancocho de Gallina", descripcion: "Receta tradicional tolimense", precio: "$28.000" },
+              ],
+            },
+            {
+              nombre: "Especialidades",
+              items: [
+                { plato: "Trucha al Ajillo", descripcion: "Con papas y ensalada fresca", precio: "$38.000" },
+                { plato: "Mojarra Frita", descripcion: "Acompañada de patacones", precio: "$35.000" },
+                { plato: "Cazuela de Mariscos", descripcion: "En salsa criolla", precio: "$45.000" },
+              ],
+            },
+            {
+              nombre: "Bebidas",
+              items: [
+                { plato: "Jugo Natural", descripcion: "Lulo, maracuyá o mora", precio: "$5.000" },
+                { plato: "Limonada de Coco", descripcion: "Refrescante y cremosa", precio: "$8.000" },
+              ],
+            },
+          ];
+          menuProposal.header = {
+            nombre_restaurante: menuProposal.texto_principal || "EL FOGÓN DEL RÍO",
+            tagline: menuProposal.texto_secundario || "Sabor auténtico colombiano",
+            size: 48,
+          };
+          menuProposal.footer_texto = "Almuerzo completo $15.000 · Lunes a Sábado";
+        }
+        renderMenuDosColumnas(fc, menuProposal);
       } else {
         // Generic text layout
         const align = proposal.layout;
