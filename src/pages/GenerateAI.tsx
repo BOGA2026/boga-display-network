@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2 } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,83 @@ interface DesignResult {
   canva_url: string;
 }
 
+/* ─── Full-screen modal ─── */
+function DesignModal({
+  result,
+  cliente,
+  onClose,
+  onSave,
+  saving,
+}: {
+  result: DesignResult;
+  cliente: string;
+  onClose: () => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  const [iframeLoading, setIframeLoading] = useState(true);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in-0 duration-200">
+      <div className="flex flex-col w-[90vw] h-[90vh] rounded-xl border border-sidebar-border bg-[hsl(var(--sidebar-background))] shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-sidebar-border shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <h2 className="font-display text-base font-bold truncate">{result.titulo}</h2>
+            {cliente && (
+              <Badge variant="secondary" className="shrink-0 text-xs">
+                {cliente}
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <a href={result.canva_url} target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="border-sidebar-border">
+                <ExternalLink className="h-3.5 w-3.5" />
+                Abrir en Canva
+              </Button>
+            </a>
+            <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Cerrar</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Body — iframe */}
+        <div className="relative flex-1 min-h-0">
+          {iframeLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/60 z-10">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+          <iframe
+            src={result.canva_url}
+            title="Canva Design"
+            className="w-full h-full border-0"
+            onLoad={() => setIframeLoading(false)}
+            allow="clipboard-write"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-sidebar-border shrink-0">
+          <Button variant="secondary" onClick={onSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Guardar como contenido
+          </Button>
+          <Button variant="outline" className="border-sidebar-border" onClick={onClose}>
+            <RotateCcw className="h-4 w-4" />
+            Generar otro diseño
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ─── */
 export default function GenerateAI() {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
@@ -47,6 +125,13 @@ export default function GenerateAI() {
   const [result, setResult] = useState<DesignResult | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const reset = useCallback(() => {
+    setResult(null);
+    setCurrentStep(-1);
+    setPrompt("");
+    setCliente("");
+  }, []);
+
   const generate = async () => {
     if (!prompt.trim()) {
       toast({ title: "Escribe una descripción", variant: "destructive" });
@@ -57,7 +142,6 @@ export default function GenerateAI() {
     setLoading(true);
     setCurrentStep(0);
 
-    // Animate steps
     const stepTimers = [1200, 2400, 3600];
     stepTimers.forEach((ms, i) => {
       setTimeout(() => setCurrentStep(i + 1), ms);
@@ -115,13 +199,6 @@ export default function GenerateAI() {
     }
   };
 
-  const reset = () => {
-    setResult(null);
-    setCurrentStep(-1);
-    setPrompt("");
-    setCliente("");
-  };
-
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
@@ -138,7 +215,6 @@ export default function GenerateAI() {
       {!result && (
         <Card className="border-sidebar-border bg-sidebar">
           <CardContent className="pt-6 space-y-6">
-            {/* Prompt */}
             <div className="space-y-2">
               <Label>Describe el diseño</Label>
               <Textarea
@@ -149,7 +225,6 @@ export default function GenerateAI() {
               />
             </div>
 
-            {/* Type tags */}
             <div className="space-y-2">
               <Label>Tipo</Label>
               <div className="flex flex-wrap gap-2">
@@ -170,7 +245,6 @@ export default function GenerateAI() {
               </div>
             </div>
 
-            {/* Selects row */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Formato de pantalla</Label>
@@ -201,7 +275,6 @@ export default function GenerateAI() {
               </div>
             </div>
 
-            {/* Client name */}
             <div className="space-y-2">
               <Label>Nombre del cliente (opcional)</Label>
               <Input
@@ -212,7 +285,6 @@ export default function GenerateAI() {
               />
             </div>
 
-            {/* Generate button */}
             <Button
               onClick={generate}
               disabled={loading}
@@ -264,78 +336,15 @@ export default function GenerateAI() {
         </Card>
       )}
 
-      {/* Result */}
+      {/* Full-screen modal with iframe */}
       {result && (
-        <Card className="border-sidebar-border bg-sidebar animate-fade-in">
-          <CardHeader>
-            <CardTitle className="text-lg">{result.titulo}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <p className="text-sm text-muted-foreground">{result.descripcion}</p>
-
-            {/* Colors */}
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                Colores sugeridos
-              </Label>
-              <div className="flex gap-3">
-                {result.colores.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div
-                      className="h-8 w-8 rounded-lg border border-sidebar-border"
-                      style={{ backgroundColor: c }}
-                    />
-                    <span className="text-xs text-muted-foreground">{c}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Font */}
-            <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                Tipografía
-              </Label>
-              <p className="text-sm font-medium">{result.fuente_principal}</p>
-            </div>
-
-            {/* Elements */}
-            {result.elementos?.length > 0 && (
-              <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Elementos
-                </Label>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-0.5">
-                  {result.elementos.map((el, i) => (
-                    <li key={i}>{el}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <a
-                href={result.canva_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button className="gradient-primary glow-primary-sm">
-                  <ExternalLink className="h-4 w-4" />
-                  Abrir en Canva
-                </Button>
-              </a>
-              <Button variant="secondary" onClick={saveAsContent} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Guardar como contenido
-              </Button>
-              <Button variant="outline" onClick={reset}>
-                <RotateCcw className="h-4 w-4" />
-                Generar otro diseño
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <DesignModal
+          result={result}
+          cliente={cliente}
+          onClose={reset}
+          onSave={saveAsContent}
+          saving={saving}
+        />
       )}
     </div>
   );
