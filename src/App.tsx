@@ -25,6 +25,7 @@ import ScreensList from "./pages/digital-signage/ScreensList";
 import ScreenDetail from "./pages/digital-signage/ScreenDetail";
 import VisualiaLunchTemplate from "./templates/lunch-dual/VisualiaLunchTemplate";
 import EditorPage from "./pages/EditorPage";
+import GenerateAI from "./pages/GenerateAI";
 import RestaurantSolutionPage from "./pages/RestaurantSolutionPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AboutPage from "./pages/AboutPage";
