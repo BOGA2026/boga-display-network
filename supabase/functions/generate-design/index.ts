@@ -433,37 +433,34 @@ Genera las 3 propuestas ahora.
     const validBodyFonts = ["Inter", "Roboto", "DM Sans", "Source Sans Pro", "Cormorant"];
     const validLayouts = ["centrado", "izquierda", "derecha"];
 
-    const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => ({
-      id: i + 1,
-      nombre: p.nombre ?? `Propuesta ${i + 1}`,
-      concepto: p.concepto ?? "",
-      tipo_layout: p.tipo_layout ?? null,
-      background_color: p.background_color ?? "#0a0a0a",
-      background_image_query: p.background_image_query ?? "",
-      overlay_color: p.overlay_color ?? "#000000",
-      overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
-      layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
-      texto_principal: p.texto_principal ?? "TEXTO PRINCIPAL",
-      texto_secundario: p.texto_secundario ?? "Subtítulo del diseño",
-      texto_cta: p.texto_cta ?? "Ver más",
-      color_texto: p.color_texto ?? "#FFFFFF",
-      color_acento: p.color_acento ?? "#00e5c4",
-      fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
-      fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
-      titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
-      subtitulo_size: typeof p.subtitulo_size === "number" ? p.subtitulo_size : 28,
-      elementos: Array.isArray(p.elementos) ? p.elementos : [],
-      elementos_decorativos: Array.isArray(p.elementos_decorativos)
-        ? p.elementos_decorativos.map((ed: any) => ({
-            tipo: ed.tipo ?? "",
-            color: ed.color ?? "#ffffff",
-            opacity: typeof ed.opacity === "number" ? ed.opacity : 0.5,
-            posicion: ed.posicion ?? "",
-          }))
-        : [],
-      // Menu-specific fields
-      header: p.header ?? null,
-      secciones: Array.isArray(p.secciones)
+    const defaultMenuSections = [
+      {
+        nombre: "Almuerzo Ejecutivo",
+        items: [
+          { plato: "Sopa del día", descripcion: "Receta de la casa", precio: "$15.000" },
+          { plato: "Bandeja Paisa", descripcion: "Frijoles, chicharrón, chorizo", precio: "$32.000" },
+          { plato: "Sancocho de Gallina", descripcion: "Receta tradicional tolimense", precio: "$28.000" },
+        ],
+      },
+      {
+        nombre: "Especialidades",
+        items: [
+          { plato: "Trucha al Ajillo", descripcion: "Con papas y ensalada fresca", precio: "$38.000" },
+          { plato: "Mojarra Frita", descripcion: "Acompañada de patacones", precio: "$35.000" },
+          { plato: "Cazuela de Mariscos", descripcion: "En salsa criolla", precio: "$45.000" },
+        ],
+      },
+      {
+        nombre: "Bebidas",
+        items: [
+          { plato: "Jugo Natural", descripcion: "Lulo, maracuyá o mora", precio: "$5.000" },
+          { plato: "Limonada de Coco", descripcion: "Refrescante y cremosa", precio: "$8.000" },
+        ],
+      },
+    ];
+
+    const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => {
+      const rawSections = Array.isArray(p.secciones)
         ? p.secciones.map((s: any) => ({
             nombre: s.nombre ?? "",
             items: Array.isArray(s.items)
@@ -474,9 +471,51 @@ Genera las 3 propuestas ahora.
                 }))
               : [],
           }))
-        : null,
-      footer_texto: p.footer_texto ?? null,
-    }));
+        : null;
+
+      const shouldForceMenu = detectedType === "menu" && (!rawSections || rawSections.length === 0);
+
+      return {
+        id: i + 1,
+        nombre: p.nombre ?? `Propuesta ${i + 1}`,
+        concepto: p.concepto ?? "",
+        tipo_layout: shouldForceMenu ? "menu_dos_columnas" : (p.tipo_layout ?? null),
+        background_color: p.background_color ?? "#0a0a0a",
+        background_image_query: p.background_image_query ?? "",
+        overlay_color: p.overlay_color ?? "#000000",
+        overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
+        layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
+        texto_principal: p.texto_principal ?? "TEXTO PRINCIPAL",
+        texto_secundario: p.texto_secundario ?? "Subtítulo del diseño",
+        texto_cta: p.texto_cta ?? "Ver más",
+        color_texto: p.color_texto ?? "#FFFFFF",
+        color_acento: p.color_acento ?? "#00e5c4",
+        fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
+        fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
+        titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
+        subtitulo_size: typeof p.subtitulo_size === "number" ? p.subtitulo_size : 28,
+        elementos: Array.isArray(p.elementos) ? p.elementos : [],
+        elementos_decorativos: Array.isArray(p.elementos_decorativos)
+          ? p.elementos_decorativos.map((ed: any) => ({
+              tipo: ed.tipo ?? "",
+              color: ed.color ?? "#ffffff",
+              opacity: typeof ed.opacity === "number" ? ed.opacity : 0.5,
+              posicion: ed.posicion ?? "",
+            }))
+          : [],
+        header: shouldForceMenu
+          ? {
+              nombre_restaurante: p.header?.nombre_restaurante ?? p.texto_principal ?? cliente ?? "EL FOGÓN DEL RÍO",
+              tagline: p.header?.tagline ?? p.texto_secundario ?? "Sabor auténtico colombiano",
+              size: p.header?.size ?? 48,
+            }
+          : (p.header ?? null),
+        secciones: shouldForceMenu ? defaultMenuSections : rawSections,
+        footer_texto: shouldForceMenu
+          ? (p.footer_texto ?? "Almuerzo completo $15.000 · Lunes a Sábado")
+          : (p.footer_texto ?? null),
+      };
+    });
 
     // Fetch Unsplash images for each proposal
     const orientation = formato === "9:16" ? "portrait" : "landscape";
