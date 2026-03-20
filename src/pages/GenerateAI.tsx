@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X } from "lucide-react";
+import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X, Palette, Type, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -49,15 +49,13 @@ function DesignModal({
   onSave: () => void;
   saving: boolean;
 }) {
-  const [iframeLoading, setIframeLoading] = useState(true);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in-0 duration-200">
-      <div className="flex flex-col w-[90vw] h-[90vh] rounded-xl border border-sidebar-border bg-[hsl(var(--sidebar-background))] shadow-2xl overflow-hidden">
+      <div className="flex flex-col w-[90vw] max-w-4xl max-h-[90vh] rounded-xl border border-sidebar-border bg-sidebar shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-sidebar-border shrink-0">
+        <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-sidebar-border shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <h2 className="font-display text-base font-bold truncate">{result.titulo}</h2>
+            <h2 className="font-display text-lg font-bold truncate">{result.titulo}</h2>
             {cliente && (
               <Badge variant="secondary" className="shrink-0 text-xs">
                 {cliente}
@@ -66,7 +64,7 @@ function DesignModal({
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <a href={result.canva_url} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" variant="outline" className="border-sidebar-border">
+              <Button size="sm" className="gradient-primary glow-primary-sm">
                 <ExternalLink className="h-3.5 w-3.5" />
                 Abrir en Canva
               </Button>
@@ -78,25 +76,63 @@ function DesignModal({
           </div>
         </div>
 
-        {/* Body — iframe */}
-        <div className="relative flex-1 min-h-0">
-          {iframeLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/60 z-10">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {/* Body — Brief preview */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
+          {/* Description */}
+          <p className="text-sm text-muted-foreground leading-relaxed">{result.descripcion}</p>
+
+          {/* Colors */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+              <Palette className="h-3.5 w-3.5" />
+              Paleta de colores
+            </div>
+            <div className="flex gap-4">
+              {result.colores.map((c, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <div
+                    className="h-16 w-16 rounded-lg border border-sidebar-border shadow-md"
+                    style={{ backgroundColor: c }}
+                  />
+                  <span className="text-xs text-muted-foreground font-mono">{c}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Font */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+              <Type className="h-3.5 w-3.5" />
+              Tipografía principal
+            </div>
+            <p className="text-base font-semibold">{result.fuente_principal}</p>
+          </div>
+
+          {/* Elements */}
+          {result.elementos?.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                <Layers className="h-3.5 w-3.5" />
+                Elementos del diseño
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {result.elementos.map((el, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 rounded-lg border border-sidebar-border bg-background/30 px-3 py-2 text-sm"
+                  >
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    {el}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-          <iframe
-            src={result.canva_url}
-            title="Canva Design"
-            className="w-full h-full border-0"
-            onLoad={() => setIframeLoading(false)}
-            allow="clipboard-write"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          />
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-sidebar-border shrink-0">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-sidebar-border shrink-0">
           <Button variant="secondary" onClick={onSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Guardar como contenido
