@@ -15,8 +15,8 @@ interface Props {
 export default function ProposalSelector({ propuestas, formato, onSelect, onRegenerate, loading }: Props) {
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
   const isVertical = formato === "9:16";
-  const previewW = isVertical ? 180 : 320;
-  const previewH = isVertical ? 320 : 180;
+  const previewW = isVertical ? 170 : 300;
+  const previewH = isVertical ? 300 : 170;
   const scale = previewW / size.w;
 
   return (
@@ -54,13 +54,24 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
                   backgroundColor: p.background_color,
                 }}
               >
-                {/* Overlay */}
-                {p.background_image_query && (
-                  <div
-                    className="absolute inset-0"
-                    style={{ backgroundColor: `rgba(0,0,0,${p.overlay_opacity})` }}
+                {/* Real Unsplash background image */}
+                {p.image_url && (
+                  <img
+                    src={p.image_url}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                    crossOrigin="anonymous"
                   />
                 )}
+
+                {/* Overlay */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundColor: p.overlay_color || "rgba(0,0,0,0.55)",
+                    opacity: p.overlay_opacity ?? 0.55,
+                  }}
+                />
 
                 {/* Decorative elements preview */}
                 {p.elementos_decorativos?.map((el, i) => {

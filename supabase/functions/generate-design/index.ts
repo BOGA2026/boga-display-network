@@ -13,6 +13,8 @@ serve(async (req) => {
     const { prompt, tipo, formato, estilo, cliente } = await req.json();
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
+    if (!UNSPLASH_ACCESS_KEY) throw new Error("UNSPLASH_ACCESS_KEY is not configured");
 
     const systemPrompt = `Eres un director de arte senior especializado en digital signage de alto impacto. Tu trabajo es generar especificaciones de diseño que se vean como obra de un diseñador profesional, NO como PowerPoint. Cada diseño debe ser visualmente impactante, moderno y memorable.
 
@@ -177,8 +179,31 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
         : [],
     }));
 
+    // Fetch Unsplash images for each proposal
+    const orientation = formato === "9:16" ? "portrait" : "landscape";
+    const withImages = await Promise.all(
+      sanitized.map(async (p: any) => {
+        if (!p.background_image_query) return { ...p, image_url: null };
+        try {
+          const unsplashRes = await fetch(
+            `https://api.unsplash.com/photos/random?query=${encodeURIComponent(p.background_image_query)}&orientation=${orientation}`,
+            { headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
+          );
+          if (!unsplashRes.ok) {
+            console.error("Unsplash error:", unsplashRes.status);
+            return { ...p, image_url: null };
+          }
+          const unsplashData = await unsplashRes.json();
+          return { ...p, image_url: unsplashData.urls?.regular || null };
+        } catch (err) {
+          console.error("Unsplash fetch failed:", err);
+          return { ...p, image_url: null };
+        }
+      })
+    );
+
     return new Response(
-      JSON.stringify({ propuestas: sanitized }),
+      JSON.stringify({ propuestas: withImages }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
