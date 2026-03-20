@@ -449,6 +449,7 @@ export default function GenerateAI() {
         <DesignModal
           result={result}
           cliente={cliente}
+          formato={formato}
           onClose={reset}
           onSave={saveAsContent}
           saving={saving}
