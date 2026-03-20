@@ -397,8 +397,9 @@ Genera las 3 propuestas ahora.
         cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
       }
       parsed = JSON.parse(cleaned);
+      console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
     } catch {
-      console.error("Failed to parse Claude JSON:", text);
+      console.error("Failed to parse Claude JSON:", text.substring(0, 500));
       return new Response(JSON.stringify({ error: "Respuesta IA inválida" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
