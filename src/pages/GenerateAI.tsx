@@ -315,13 +315,16 @@ export default function GenerateAI() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button
-                onClick={() => window.open(result.canva_url, "_blank")}
-                className="gradient-primary glow-primary-sm"
+              <a
+                href={result.canva_url}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <ExternalLink className="h-4 w-4" />
-                Abrir en Canva
-              </Button>
+                <Button className="gradient-primary glow-primary-sm">
+                  <ExternalLink className="h-4 w-4" />
+                  Abrir en Canva
+                </Button>
+              </a>
               <Button variant="secondary" onClick={saveAsContent} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Guardar como contenido
