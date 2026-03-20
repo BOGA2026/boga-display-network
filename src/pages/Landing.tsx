@@ -14,6 +14,7 @@ import PremiumBackground from "@/components/layout/PremiumBackground";
 import { ArrowRight, Star, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
+import VisualiaStudio from "@/components/landing/VisualiaStudio";
 import { useParallax } from "@/hooks/useParallax";
 
 // CORRECCIÓN 6 aplicada — "Cómo funciona" copy reescrito en lenguaje accesible
