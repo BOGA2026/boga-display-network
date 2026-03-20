@@ -11,6 +11,7 @@ export interface Proposal {
   concepto: string;
   background_color: string;
   background_image_query: string;
+  image_url: string | null;
   overlay_color: string;
   overlay_opacity: number;
   layout: "centrado" | "izquierda" | "derecha";
