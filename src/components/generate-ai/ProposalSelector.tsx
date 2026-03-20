@@ -35,7 +35,9 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
       <div className={cn("grid gap-5", isVertical ? "grid-cols-3 max-w-2xl" : "grid-cols-1 sm:grid-cols-3")}>
         {propuestas.map((p) => {
           const textAlign = p.layout === "izquierda" ? "left" : p.layout === "derecha" ? "right" : "center";
-          const pad = p.layout === "centrado" ? "10%" : "10%";
+          const pad = "10%";
+          const tSize = Math.max((p.titulo_size ?? 84) * scale, 12);
+          const sSize = Math.max((p.subtitulo_size ?? 28) * scale, 7);
 
           return (
             <button
@@ -60,27 +62,35 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
                   />
                 )}
 
-                {/* Accent elements */}
-                {p.elementos.includes("rectangulo_acento") && (
-                  <div
-                    className="absolute left-0 top-0 bottom-0"
-                    style={{ width: 4 * scale > 2 ? 4 : 2, backgroundColor: p.color_acento }}
-                  />
-                )}
-                {p.elementos.includes("badge_superior") && (
-                  <div
-                    className="absolute top-2 rounded-sm px-2 py-0.5 text-[8px] font-medium"
-                    style={{
-                      backgroundColor: p.color_acento,
-                      color: p.color_texto,
-                      left: textAlign === "right" ? "auto" : textAlign === "center" ? "50%" : "10%",
-                      right: textAlign === "right" ? "10%" : "auto",
-                      transform: textAlign === "center" ? "translateX(-50%)" : "none",
-                    }}
-                  >
-                    {p.texto_cta}
-                  </div>
-                )}
+                {/* Decorative elements preview */}
+                {p.elementos_decorativos?.map((el, i) => {
+                  if (el.tipo === "banda_inferior") {
+                    return (
+                      <div key={i} className="absolute bottom-0 left-0 right-0" style={{
+                        height: `${15}%`, backgroundColor: el.color, opacity: el.opacity,
+                      }} />
+                    );
+                  }
+                  if (el.tipo === "linea_acento_vertical") {
+                    return (
+                      <div key={i} className="absolute top-[30%]" style={{
+                        left: textAlign === "right" ? "auto" : `${8}%`,
+                        right: textAlign === "right" ? `${8}%` : "auto",
+                        width: 3 * scale > 1 ? 3 : 1.5,
+                        height: 40, backgroundColor: el.color, opacity: el.opacity,
+                      }} />
+                    );
+                  }
+                  if (el.tipo === "punto_decorativo") {
+                    return (
+                      <div key={i} className="absolute rounded-full" style={{
+                        width: 80, height: 80, right: -20, top: -20,
+                        backgroundColor: el.color, opacity: el.opacity,
+                      }} />
+                    );
+                  }
+                  return null;
+                })}
 
                 {/* Text content */}
                 <div
@@ -91,32 +101,21 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
                     className="font-bold leading-tight"
                     style={{
                       fontFamily: p.fuente_titulo,
-                      fontSize: Math.max(60 * scale, 10),
+                      fontSize: tSize,
                       color: p.color_texto,
+                      fontWeight: 800,
                     }}
                   >
                     {p.texto_principal}
                   </p>
 
-                  {p.elementos.includes("linea_divisora") && (
-                    <div
-                      className="my-1"
-                      style={{
-                        height: 1,
-                        width: "40%",
-                        backgroundColor: p.color_acento,
-                        marginLeft: textAlign === "center" ? "auto" : textAlign === "right" ? "auto" : 0,
-                        marginRight: textAlign === "center" ? "auto" : textAlign === "right" ? 0 : "auto",
-                      }}
-                    />
-                  )}
-
                   <p
-                    className="leading-snug opacity-80"
+                    className="leading-snug opacity-85"
                     style={{
                       fontFamily: p.fuente_cuerpo,
-                      fontSize: Math.max(26 * scale, 7),
+                      fontSize: sSize,
                       color: p.color_texto,
+                      fontWeight: 300,
                       marginTop: 4 * scale,
                     }}
                   >
@@ -126,9 +125,10 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
               </div>
 
               {/* Label */}
-              <div className="px-3 py-2.5 flex items-center justify-between">
-                <span className="text-sm font-medium">{p.nombre}</span>
-                <div className="flex gap-1.5">
+              <div className="px-3 py-2.5">
+                <span className="text-sm font-medium block">{p.nombre}</span>
+                {p.concepto && <span className="text-[10px] text-muted-foreground block mt-0.5">{p.concepto}</span>}
+                <div className="flex gap-1.5 mt-1.5">
                   {[p.background_color, p.color_texto, p.color_acento].map((c, i) => (
                     <div key={i} className="h-3 w-3 rounded-full border border-sidebar-border" style={{ backgroundColor: c }} />
                   ))}
