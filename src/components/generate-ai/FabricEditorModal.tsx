@@ -595,14 +595,18 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
       renderDecorativeElements(fc, proposal);
 
-      // Determine if this is a menu layout
-      const isMenuLayout = proposal.tipo_layout === "menu_dos_columnas" 
-        || (proposal.secciones && proposal.secciones.length > 0);
+      const serializedProposal = JSON.stringify(proposal);
+      const contentLooksLikeMenu = /(menu|almuerzo|plato|entrada|bebida|postre|precio|\$\d)/i.test(
+        `${proposal.texto_principal} ${proposal.texto_secundario} ${proposal.texto_cta} ${proposal.concepto}`
+      );
+      const hasSections = Array.isArray(proposal.secciones) && proposal.secciones.length > 0;
+      const isMenuLayout = proposal.tipo_layout === "menu_dos_columnas" || hasSections || contentLooksLikeMenu;
 
-      console.log("PROPUESTA RECIBIDA tipo_layout:", proposal.tipo_layout, "secciones:", proposal.secciones?.length);
+      console.log("PROPUESTA RECIBIDA:", serializedProposal);
+      console.log("TIPO LAYOUT:", proposal.tipo_layout);
+      console.log("SECCIONES:", proposal.secciones);
 
       if (isMenuLayout) {
-        // If secciones are missing, create fallback data
         const menuProposal = { ...proposal };
         if (!menuProposal.secciones || menuProposal.secciones.length === 0) {
           menuProposal.tipo_layout = "menu_dos_columnas";
@@ -636,7 +640,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
             tagline: menuProposal.texto_secundario || "Sabor auténtico colombiano",
             size: 48,
           };
-          menuProposal.footer_texto = "Almuerzo completo $15.000 · Lunes a Sábado";
+          menuProposal.footer_texto = menuProposal.footer_texto || "Almuerzo completo $15.000 · Lunes a Sábado";
         }
         renderMenuDosColumnas(fc, menuProposal);
       } else {
