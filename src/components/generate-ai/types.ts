@@ -1,8 +1,17 @@
+export interface DecorativeElement {
+  tipo: string;
+  color: string;
+  opacity: number;
+  posicion: string;
+}
+
 export interface Proposal {
   id: number;
   nombre: string;
+  concepto: string;
   background_color: string;
   background_image_query: string;
+  overlay_color: string;
   overlay_opacity: number;
   layout: "centrado" | "izquierda" | "derecha";
   texto_principal: string;
@@ -12,7 +21,10 @@ export interface Proposal {
   color_acento: string;
   fuente_titulo: string;
   fuente_cuerpo: string;
+  titulo_size: number;
+  subtitulo_size: number;
   elementos: string[];
+  elementos_decorativos: DecorativeElement[];
 }
 
 export interface GenerateResponse {
@@ -25,8 +37,8 @@ export const CANVAS_SIZES: Record<string, { w: number; h: number }> = {
   "1:1": { w: 700, h: 700 },
 };
 
-export const TITLE_FONTS = ["Oswald", "Montserrat", "Playfair Display"];
-export const BODY_FONTS = ["Inter", "Roboto"];
+export const TITLE_FONTS = ["Oswald", "Montserrat", "Playfair Display", "Space Grotesk", "Bebas Neue"];
+export const BODY_FONTS = ["Inter", "Roboto", "DM Sans", "Source Sans Pro", "Cormorant"];
 export const ALL_FONTS = [...TITLE_FONTS, ...BODY_FONTS];
 
 export const SVG_ICONS: Record<string, { path: string; viewBox: string }> = {

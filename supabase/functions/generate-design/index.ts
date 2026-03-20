@@ -14,49 +14,86 @@ serve(async (req) => {
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
-    const systemPrompt = `Eres el asistente de diseño de Visualia, empresa de señalización digital.
-Genera EXACTAMENTE 3 propuestas de diseño diferentes en JSON.
+    const systemPrompt = `Eres un director de arte senior especializado en digital signage de alto impacto. Tu trabajo es generar especificaciones de diseño que se vean como obra de un diseñador profesional, NO como PowerPoint. Cada diseño debe ser visualmente impactante, moderno y memorable.
 
-REGLAS DE COMPOSICIÓN:
-- Regla de tercios: texto principal en tercio superior o inferior
-- Jerarquía tipográfica: titulo 60px bold > subtítulo 26px regular > CTA 18px
-- Layout "izquierda": textos alineados a la izquierda con padding 10% desde el borde
-- Layout "derecha": textos alineados a la derecha
-- Layout "centrado": todo centrado, espaciado generoso
-- Cada propuesta DEBE tener combinación de colores DIFERENTE
-- texto_principal: MÁXIMO 6 palabras impactantes
-- texto_secundario: MÁXIMO 12 palabras descriptivas
-- texto_cta: MÁXIMO 3 palabras (ej: "Visítanos hoy", "Llama ahora", "Reserva ya")
-- background_image_query: 3-5 palabras en inglés para buscar foto en Unsplash
-- elementos disponibles: "rectangulo_acento" (barra de color 8px en borde), "linea_divisora" (línea entre título y subtítulo), "badge_superior" (rectángulo redondeado con CTA arriba)
+REGLAS QUE DEBES SEGUIR SIEMPRE:
 
-Formato JSON EXACTO (responde SOLO este JSON, sin markdown):
+FONDOS: Nunca uses blanco o gris claro. Siempre fondos ricos: oscuros profundos (#0a0a0a, #0d1117, #1a0a2e), o colores saturados y valientes (#c0392b, #1a1a2e, #0f3460).
+
+TIPOGRAFÍA con carácter — combina fuentes con contraste extremo:
+- Impacto dramático: Oswald + Inter
+- Lujo: Playfair Display + Cormorant
+- Moderno urbano: Space Grotesk + DM Sans
+- Editorial: Bebas Neue + Source Sans Pro
+Título principal SIEMPRE en mayúsculas si usas Oswald o Bebas Neue.
+
+JERARQUÍA agresiva:
+- Título: 72-96px weight 800
+- Subtítulo: 28-36px weight 300 (contraste con el bold del título)
+- CTA: 16-20px en badge con color acento
+
+PALETA con alma — máximo 3 colores:
+- Dominante oscuro + acento VIBRANTE + neutro blanco/crema
+- Acentos que dan vida: #00e5c4, #ff6b35, #ffd700, #e91e8c, #7c3aed, #f97316
+
+ELEMENTOS DECORATIVOS — usa SIEMPRE mínimo 3:
+- linea_acento_vertical: línea 3px del color acento, izq del texto
+- rectangulo_fondo_texto: rect semitransparente detrás del título
+- badge_cta: píldora pequeña arriba del título
+- banda_inferior: franja del color acento en 15% inferior canvas
+- punto_decorativo: círculo 200-300px semitransparente, fuera del canvas
+- linea_horizontal: línea fina entre título y subtítulo
+- numero_grande: número enorme opacity 0.06 como fondo decorativo
+- overlay_gradiente: negro desde abajo para legibilidad
+
+IMÁGENES DE FONDO — queries cinematográficos y específicos:
+MAL → "restaurant food"
+BIEN → "dark moody restaurant interior bokeh lights"
+MAL → "gym"
+BIEN → "athletic silhouette dramatic lighting dark"
+
+Genera 3 propuestas con conceptos y paletas radicalmente diferentes.
+Cada una debe verse como diseñada por una persona diferente.
+
+Responde ÚNICAMENTE con este JSON sin markdown:
 {
   "propuestas": [
     {
       "id": 1,
-      "nombre": "Nombre estilo (ej: Minimalista)",
-      "background_color": "#hex",
-      "background_image_query": "english search terms",
-      "overlay_opacity": 0.5,
-      "layout": "centrado",
-      "texto_principal": "Texto Grande",
-      "texto_secundario": "Texto secundario descriptivo",
-      "texto_cta": "Acción",
-      "color_texto": "#hex",
-      "color_acento": "#hex",
+      "nombre": "nombre evocador del concepto (ej: Obsidiana, Neón Urbano)",
+      "concepto": "1 línea de atmósfera",
+      "background_color": "#hex oscuro o saturado",
+      "background_image_query": "query cinematográfico 6-8 palabras inglés",
+      "overlay_color": "#000000",
+      "overlay_opacity": 0.55,
+      "layout": "centrado | izquierda | derecha",
+      "texto_principal": "TEXTO EN MAYÚSCULAS máx 5 palabras",
+      "texto_secundario": "frase evocadora máx 10 palabras",
+      "texto_cta": "2-3 palabras acción",
+      "color_texto": "#ffffff",
+      "color_acento": "#hex vibrante",
       "fuente_titulo": "Oswald",
       "fuente_cuerpo": "Inter",
-      "elementos": ["rectangulo_acento"]
+      "titulo_size": 84,
+      "subtitulo_size": 28,
+      "elementos_decorativos": [
+        {
+          "tipo": "nombre del elemento",
+          "color": "#hex",
+          "opacity": 0.8,
+          "posicion": "descripción de posición"
+        }
+      ]
     },
-    { "id": 2, "nombre": "...", "layout": "izquierda", ... },
-    { "id": 3, "nombre": "...", "layout": "derecha", ... }
+    { "id": 2, ... },
+    { "id": 3, ... }
   ]
 }
 
 Las 3 propuestas deben tener layouts DIFERENTES (centrado, izquierda, derecha).
-fuente_titulo debe ser una de: "Oswald" | "Montserrat" | "Playfair Display"
-fuente_cuerpo debe ser una de: "Inter" | "Roboto"`;
+fuente_titulo debe ser una de: "Oswald" | "Montserrat" | "Playfair Display" | "Space Grotesk" | "Bebas Neue"
+fuente_cuerpo debe ser una de: "Inter" | "Roboto" | "DM Sans" | "Source Sans Pro" | "Cormorant"
+Cada propuesta debe tener mínimo 3 elementos_decorativos diferentes.`;
 
     const userPrompt = `Diseño: ${prompt}
 Tipo: ${tipo}
@@ -73,7 +110,7 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
       }),
@@ -107,25 +144,37 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
     }
 
     const propuestas = parsed.propuestas ?? [parsed];
-    const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display"];
-    const validBodyFonts = ["Inter", "Roboto"];
+    const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display", "Space Grotesk", "Bebas Neue"];
+    const validBodyFonts = ["Inter", "Roboto", "DM Sans", "Source Sans Pro", "Cormorant"];
     const validLayouts = ["centrado", "izquierda", "derecha"];
 
     const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => ({
       id: i + 1,
       nombre: p.nombre ?? `Propuesta ${i + 1}`,
-      background_color: p.background_color ?? "#1A1A2E",
+      concepto: p.concepto ?? "",
+      background_color: p.background_color ?? "#0a0a0a",
       background_image_query: p.background_image_query ?? "",
-      overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.5,
+      overlay_color: p.overlay_color ?? "#000000",
+      overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
       layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
-      texto_principal: p.texto_principal ?? "Texto Principal",
+      texto_principal: p.texto_principal ?? "TEXTO PRINCIPAL",
       texto_secundario: p.texto_secundario ?? "Subtítulo del diseño",
       texto_cta: p.texto_cta ?? "Ver más",
       color_texto: p.color_texto ?? "#FFFFFF",
-      color_acento: p.color_acento ?? "#E94560",
-      fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Montserrat",
+      color_acento: p.color_acento ?? "#00e5c4",
+      fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
       fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
+      titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
+      subtitulo_size: typeof p.subtitulo_size === "number" ? p.subtitulo_size : 28,
       elementos: Array.isArray(p.elementos) ? p.elementos : [],
+      elementos_decorativos: Array.isArray(p.elementos_decorativos)
+        ? p.elementos_decorativos.map((ed: any) => ({
+            tipo: ed.tipo ?? "",
+            color: ed.color ?? "#ffffff",
+            opacity: typeof ed.opacity === "number" ? ed.opacity : 0.5,
+            posicion: ed.posicion ?? "",
+          }))
+        : [],
     }));
 
     return new Response(
