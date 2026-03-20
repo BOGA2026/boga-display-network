@@ -14,10 +14,18 @@ serve(async (req) => {
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
-    const systemPrompt = `Eres el asistente de diseño de Visualia, empresa de señalización digital. 
-Genera un brief de diseño en JSON con: titulo, descripcion, colores (array 3), 
-fuente_principal, elementos (array), canva_query (6 palabras en inglés para buscar plantilla).
-Responde SOLO JSON sin markdown.`;
+    const systemPrompt = `Eres el asistente de diseño de Visualia, empresa de señalización digital.
+Genera un brief de diseño en JSON con exactamente estos campos:
+- titulo: nombre del diseño (string)
+- descripcion: descripción breve del diseño (string)
+- background_color: color de fondo hexadecimal (string, ej: "#1A1A2E")
+- texto_principal: texto destacado del diseño, MÁXIMO 6 palabras (string)
+- texto_secundario: subtítulo o texto de apoyo, MÁXIMO 12 palabras (string)
+- color_texto: color del texto hexadecimal (string, ej: "#FFFFFF")
+- color_acento: color de acento hexadecimal (string, ej: "#E94560")
+- fuente: una de estas opciones EXACTAS: "Inter" | "Roboto" | "Montserrat" | "Oswald" | "Playfair Display"
+
+Responde SOLO el objeto JSON, sin markdown, sin backticks, sin explicación.`;
 
     const userPrompt = `Diseño: ${prompt}
 Tipo: ${tipo}
@@ -67,16 +75,19 @@ ${cliente ? `Cliente: ${cliente}` : ""}`;
       });
     }
 
-    const canva_url = `https://www.canva.com/search/templates?q=${encodeURIComponent(brief.canva_query ?? "")}`;
+    const validFonts = ["Inter", "Roboto", "Montserrat", "Oswald", "Playfair Display"];
+    const fuente = validFonts.includes(brief.fuente) ? brief.fuente : "Inter";
 
     return new Response(
       JSON.stringify({
-        titulo: brief.titulo,
-        descripcion: brief.descripcion,
-        colores: brief.colores,
-        fuente_principal: brief.fuente_principal,
-        elementos: brief.elementos,
-        canva_url,
+        titulo: brief.titulo ?? "Diseño sin título",
+        descripcion: brief.descripcion ?? "",
+        background_color: brief.background_color ?? "#1A1A2E",
+        texto_principal: brief.texto_principal ?? "Texto Principal",
+        texto_secundario: brief.texto_secundario ?? "Subtítulo del diseño",
+        color_texto: brief.color_texto ?? "#FFFFFF",
+        color_acento: brief.color_acento ?? "#E94560",
+        fuente,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
