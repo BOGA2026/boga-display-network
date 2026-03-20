@@ -97,11 +97,30 @@ fuente_titulo debe ser una de: "Oswald" | "Montserrat" | "Playfair Display" | "S
 fuente_cuerpo debe ser una de: "Inter" | "Roboto" | "DM Sans" | "Source Sans Pro" | "Cormorant"
 Cada propuesta debe tener mínimo 3 elementos_decorativos diferentes.`;
 
-    const userPrompt = `Diseño: ${prompt}
-Tipo: ${tipo}
-Formato: ${formato}
-Estilo: ${estilo}
-${cliente ? `Cliente: ${cliente}` : ""}`;
+    const userPrompt = `
+BRIEFING DEL CLIENTE — SIGUE ESTAS INSTRUCCIONES AL PIE DE LA LETRA:
+
+Cliente: ${cliente || 'Sin nombre'}
+Descripción exacta del cliente: "${prompt}"
+Tipo de contenido: ${tipo}
+Formato de pantalla: ${formato}
+Estilo visual solicitado: ${estilo}
+
+OBLIGATORIO:
+- El texto_principal DEBE referirse directamente a: "${prompt}"
+- El texto_secundario DEBE complementar la descripción del cliente
+- El background_image_query DEBE buscar imágenes relacionadas con: "${prompt}"
+- Los 3 conceptos deben interpretar "${prompt}" de formas distintas
+- Si el cliente mencionó colores específicos, úsalos como color_acento
+- Si mencionó un negocio específico, el diseño debe evocar ESE negocio
+
+PROHIBIDO:
+- Inventar un negocio diferente al descrito
+- Usar textos genéricos que no tengan relación con la descripción
+- Repetir el mismo concepto visual en las 3 propuestas
+
+Genera las 3 propuestas ahora.
+`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
