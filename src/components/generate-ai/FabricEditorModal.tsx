@@ -269,16 +269,27 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
         if (a) syncSelection(a);
       });
 
-      // Load background image from Unsplash
-      if (proposal.background_image_query) {
-        const url = `https://source.unsplash.com/featured/${size.w}x${size.h}/?${encodeURIComponent(proposal.background_image_query)}`;
+      // Load background image
+      const bgImageUrl = proposal.image_url;
+      if (bgImageUrl) {
         fabric.Image.fromURL(
-          url,
+          bgImageUrl,
           (img) => {
             if (!img || !img.width) return;
-            img.scaleToWidth(size.w);
-            img.scaleToHeight(size.h);
-            img.set({ left: 0, top: 0, selectable: false, evented: false } as any);
+            // Cover scaling
+            const scaleX = size.w / (img.width || 1);
+            const scaleY = size.h / (img.height || 1);
+            const scale = Math.max(scaleX, scaleY);
+            img.set({
+              scaleX: scale,
+              scaleY: scale,
+              left: (size.w - (img.width || 0) * scale) / 2,
+              top: (size.h - (img.height || 0) * scale) / 2,
+              originX: "left",
+              originY: "top",
+              selectable: false,
+              evented: false,
+            } as any);
             (img as any)._customName = "__bgImage";
             (img as any)._layerId = nextId();
             fc.insertAt(img, 0, false);
