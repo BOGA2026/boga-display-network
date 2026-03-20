@@ -5,27 +5,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import FabricEditorModal, {
-  type DesignResult,
-} from "@/components/generate-ai/FabricEditorModal";
+import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
+import ProposalSelector from "@/components/generate-ai/ProposalSelector";
+import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
 const STEPS = [
   "Analizando descripción",
   "Definiendo estructura visual",
-  "Generando diseño",
-  "Diseño listo",
+  "Generando 3 propuestas",
+  "Propuestas listas",
 ];
 
 export default function GenerateAI() {
@@ -38,11 +34,13 @@ export default function GenerateAI() {
 
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
-  const [result, setResult] = useState<DesignResult | null>(null);
+  const [propuestas, setPropuestas] = useState<Proposal[] | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
   const [saving, setSaving] = useState(false);
 
   const reset = useCallback(() => {
-    setResult(null);
+    setPropuestas(null);
+    setSelectedProposal(null);
     setCurrentStep(-1);
     setPrompt("");
     setCliente("");
@@ -54,7 +52,8 @@ export default function GenerateAI() {
       return;
     }
 
-    setResult(null);
+    setPropuestas(null);
+    setSelectedProposal(null);
     setLoading(true);
     setCurrentStep(0);
 
@@ -81,9 +80,9 @@ export default function GenerateAI() {
         throw new Error(err.error || "Error al generar");
       }
 
-      const data: DesignResult = await res.json();
+      const data: GenerateResponse = await res.json();
       setCurrentStep(3);
-      setTimeout(() => setResult(data), 600);
+      setTimeout(() => setPropuestas(data.propuestas), 600);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
@@ -97,12 +96,10 @@ export default function GenerateAI() {
       const { data: bid } = await supabase.rpc("get_user_business_id");
       if (!bid) throw new Error("No business");
 
-      // Convert data URL to blob
       const res = await fetch(dataUrl);
       const blob = await res.blob();
       const fileName = `ai-designs/${Date.now()}.png`;
 
-      // Upload to storage
       const { error: uploadErr } = await supabase.storage
         .from("media")
         .upload(fileName, blob, { contentType: "image/png" });
@@ -110,13 +107,11 @@ export default function GenerateAI() {
 
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(fileName);
 
-      // Save to content table
       const { error } = await supabase.from("content").insert({
         business_id: bid,
-        name: result?.titulo ?? "Diseño IA",
+        name: selectedProposal?.texto_principal ?? "Diseño IA",
         type: "image",
         file_url: urlData.publicUrl,
-        thumbnail_url: dataUrl.slice(0, 2000), // small preview
         created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
       });
 
@@ -128,22 +123,21 @@ export default function GenerateAI() {
     } finally {
       setSaving(false);
     }
-  }, [result, toast, reset]);
+  }, [selectedProposal, toast, reset]);
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold tracking-tight">
           Generar diseño con IA
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Describe lo que necesitas y la IA genera un diseño editable
+          Describe lo que necesitas y la IA genera 3 propuestas editables
         </p>
       </div>
 
-      {/* Form */}
-      {!result && (
+      {/* Form — shown when no proposals yet */}
+      {!propuestas && !selectedProposal && (
         <Card className="border-sidebar-border bg-sidebar">
           <CardContent className="pt-6 space-y-6">
             <div className="space-y-2">
@@ -180,9 +174,7 @@ export default function GenerateAI() {
               <div className="space-y-2">
                 <Label>Formato de pantalla</Label>
                 <Select value={formato} onValueChange={setFormato}>
-                  <SelectTrigger className="bg-background/50 border-sidebar-border">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="bg-background/50 border-sidebar-border"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="16:9">Horizontal 16:9</SelectItem>
                     <SelectItem value="9:16">Vertical 9:16</SelectItem>
@@ -193,9 +185,7 @@ export default function GenerateAI() {
               <div className="space-y-2">
                 <Label>Estilo visual</Label>
                 <Select value={estilo} onValueChange={setEstilo}>
-                  <SelectTrigger className="bg-background/50 border-sidebar-border">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="bg-background/50 border-sidebar-border"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Moderno">Moderno</SelectItem>
                     <SelectItem value="Vibrante">Vibrante</SelectItem>
@@ -216,17 +206,8 @@ export default function GenerateAI() {
               />
             </div>
 
-            <Button
-              onClick={generate}
-              disabled={loading}
-              className="gradient-primary glow-primary-sm w-full sm:w-auto"
-              size="lg"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
+            <Button onClick={generate} disabled={loading} className="gradient-primary glow-primary-sm w-full sm:w-auto" size="lg">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Generar diseño
             </Button>
           </CardContent>
@@ -234,30 +215,21 @@ export default function GenerateAI() {
       )}
 
       {/* Stepper */}
-      {currentStep >= 0 && !result && (
+      {currentStep >= 0 && !propuestas && !selectedProposal && (
         <Card className="border-sidebar-border bg-sidebar">
           <CardContent className="pt-6">
             <div className="space-y-4">
               {STEPS.map((label, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500",
-                      i < currentStep
-                        ? "gradient-primary text-primary-foreground"
-                        : i === currentStep
-                        ? "gradient-primary text-primary-foreground animate-pulse"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
+                  <div className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500",
+                    i < currentStep ? "gradient-primary text-primary-foreground"
+                      : i === currentStep ? "gradient-primary text-primary-foreground animate-pulse"
+                      : "bg-muted text-muted-foreground"
+                  )}>
                     {i < currentStep ? <Check className="h-4 w-4" /> : i + 1}
                   </div>
-                  <span
-                    className={cn(
-                      "text-sm transition-colors duration-300",
-                      i <= currentStep ? "text-foreground font-medium" : "text-muted-foreground"
-                    )}
-                  >
+                  <span className={cn("text-sm transition-colors duration-300", i <= currentStep ? "text-foreground font-medium" : "text-muted-foreground")}>
                     {label}
                   </span>
                 </div>
@@ -267,10 +239,21 @@ export default function GenerateAI() {
         </Card>
       )}
 
-      {/* Fabric.js Editor Modal */}
-      {result && (
+      {/* Proposal selector */}
+      {propuestas && !selectedProposal && (
+        <ProposalSelector
+          propuestas={propuestas}
+          formato={formato}
+          onSelect={(p) => setSelectedProposal(p)}
+          onRegenerate={generate}
+          loading={loading}
+        />
+      )}
+
+      {/* Fabric editor */}
+      {selectedProposal && (
         <FabricEditorModal
-          result={result}
+          proposal={selectedProposal}
           formato={formato}
           cliente={cliente}
           onClose={reset}
