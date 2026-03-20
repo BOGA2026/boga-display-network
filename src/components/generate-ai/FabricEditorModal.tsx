@@ -453,43 +453,49 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
       renderDecorativeElements(fc, proposal);
 
-      const align = proposal.layout;
-      const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
-      const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
-      const textAlign = align === "centrado" ? "center" : align === "izquierda" ? "left" : "right";
+      // Check if this is a menu layout
+      if (proposal.tipo_layout === "menu_dos_columnas") {
+        renderMenuDosColumnas(fc, proposal);
+      } else {
+        // Generic text layout
+        const align = proposal.layout;
+        const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
+        const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
+        const textAlign = align === "centrado" ? "center" : align === "izquierda" ? "left" : "right";
 
-      const tSize = proposal.titulo_size ?? 84;
-      const sSize = proposal.subtitulo_size ?? 28;
+        const tSize = proposal.titulo_size ?? 84;
+        const sSize = proposal.subtitulo_size ?? 28;
 
-      const mainText = new fabric.IText(proposal.texto_principal, {
-        left: textX, top: size.h * 0.38, originX, originY: "center",
-        fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
-        fill: proposal.color_texto, textAlign,
-        editable: true, lineHeight: 1.05,
-      } as any);
-      (mainText as any)._customName = "Título";
-      (mainText as any)._layerId = nextId();
-      fc.add(mainText);
-
-      const subText = new fabric.IText(proposal.texto_secundario, {
-        left: textX, top: size.h * 0.55, originX, originY: "center",
-        fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
-        fill: proposal.color_texto, opacity: 0.85,
-        textAlign, editable: true,
-      } as any);
-      (subText as any)._customName = "Subtítulo";
-      (subText as any)._layerId = nextId();
-      fc.add(subText);
-
-      if (proposal.texto_cta) {
-        const cta = new fabric.IText(proposal.texto_cta, {
-          left: textX, top: size.h * 0.72, originX, originY: "center",
-          fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
-          fill: proposal.color_acento, editable: true,
+        const mainText = new fabric.IText(proposal.texto_principal, {
+          left: textX, top: size.h * 0.38, originX, originY: "center",
+          fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
+          fill: proposal.color_texto, textAlign,
+          editable: true, lineHeight: 1.05,
         } as any);
-        (cta as any)._customName = "CTA";
-        (cta as any)._layerId = nextId();
-        fc.add(cta);
+        (mainText as any)._customName = "Título";
+        (mainText as any)._layerId = nextId();
+        fc.add(mainText);
+
+        const subText = new fabric.IText(proposal.texto_secundario, {
+          left: textX, top: size.h * 0.55, originX, originY: "center",
+          fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
+          fill: proposal.color_texto, opacity: 0.85,
+          textAlign, editable: true,
+        } as any);
+        (subText as any)._customName = "Subtítulo";
+        (subText as any)._layerId = nextId();
+        fc.add(subText);
+
+        if (proposal.texto_cta) {
+          const cta = new fabric.IText(proposal.texto_cta, {
+            left: textX, top: size.h * 0.72, originX, originY: "center",
+            fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
+            fill: proposal.color_acento, editable: true,
+          } as any);
+          (cta as any)._customName = "CTA";
+          (cta as any)._layerId = nextId();
+          fc.add(cta);
+        }
       }
 
       fc.renderAll();
