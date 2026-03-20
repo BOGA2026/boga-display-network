@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X } from "lucide-react";
+import { Sparkles, ExternalLink, Save, RotateCcw, Check, Loader2, X, Palette, Type, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
