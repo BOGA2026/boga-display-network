@@ -372,6 +372,148 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     }
   }, [size]);
 
+  // ─── Menu two-column renderer ───
+  const renderMenuDosColumnas = useCallback((fc: fabric.Canvas, p: Proposal) => {
+    const W = size.w;
+    const H = size.h;
+    const acento = p.color_acento;
+    const blanco = p.color_texto;
+    const fuente = p.fuente_titulo;
+    const fuenteBody = p.fuente_cuerpo;
+
+    // HEADER — nombre del restaurante
+    const headerName = p.header?.nombre_restaurante || p.texto_principal;
+    const headerObj = new fabric.IText(headerName.toUpperCase(), {
+      left: W / 2, top: 28, originX: "center",
+      fontSize: p.header?.size || 52,
+      fontFamily: fuente, fontWeight: "700",
+      fill: blanco, selectable: true, editable: true,
+    } as any);
+    (headerObj as any)._customName = "Nombre restaurante";
+    (headerObj as any)._layerId = nextId();
+    fc.add(headerObj);
+
+    // Tagline
+    const tagline = p.header?.tagline || p.texto_secundario;
+    const tagObj = new fabric.IText(tagline, {
+      left: W / 2, top: 90, originX: "center",
+      fontSize: 16, fontFamily: fuenteBody,
+      fontStyle: "italic", fill: acento,
+      selectable: true, editable: true,
+    } as any);
+    (tagObj as any)._customName = "Tagline";
+    (tagObj as any)._layerId = nextId();
+    fc.add(tagObj);
+
+    // Header separator line
+    const sepLine = new fabric.Line([60, 115, W - 60, 115], {
+      stroke: acento, strokeWidth: 1,
+      opacity: 0.5, selectable: false,
+    } as any);
+    (sepLine as any)._customName = "Separador header";
+    (sepLine as any)._layerId = nextId();
+    fc.add(sepLine);
+
+    // COLUMNS
+    const secciones = p.secciones || [];
+    const colIzq = secciones.slice(0, Math.ceil(secciones.length / 2));
+    const colDer = secciones.slice(Math.ceil(secciones.length / 2));
+
+    let yIzq = 130;
+    let yDer = 130;
+    const xIzq = 60;
+    const xDer = W / 2 + 20;
+    const colWidth = W / 2 - 80;
+
+    const renderSeccion = (seccion: any, x: number, yStart: number): number => {
+      let y = yStart;
+
+      // Section name
+      const secTitle = new fabric.IText(seccion.nombre.toUpperCase(), {
+        left: x, top: y,
+        fontSize: 13, fontFamily: fuenteBody,
+        fontWeight: "700", fill: acento,
+        selectable: true, editable: true,
+      } as any);
+      (secTitle as any)._customName = `Sección ${seccion.nombre}`;
+      (secTitle as any)._layerId = nextId();
+      fc.add(secTitle);
+      y += 22;
+
+      // Items
+      (seccion.items || []).forEach((item: any) => {
+        if (y > H - 80) return;
+
+        // Dish name
+        const platoObj = new fabric.IText(item.plato, {
+          left: x, top: y,
+          fontSize: 15, fontFamily: fuenteBody,
+          fontWeight: "600", fill: blanco,
+          selectable: true, editable: true,
+        } as any);
+        (platoObj as any)._customName = `Plato ${item.plato}`;
+        (platoObj as any)._layerId = nextId();
+        fc.add(platoObj);
+
+        // Price
+        const precioObj = new fabric.IText(item.precio, {
+          left: x + colWidth, top: y,
+          originX: "right",
+          fontSize: 15, fontFamily: fuenteBody,
+          fontWeight: "700", fill: acento,
+          selectable: true, editable: true,
+        } as any);
+        (precioObj as any)._customName = `Precio ${item.plato}`;
+        (precioObj as any)._layerId = nextId();
+        fc.add(precioObj);
+        y += 20;
+
+        // Description
+        if (item.descripcion) {
+          const descObj = new fabric.IText(item.descripcion, {
+            left: x, top: y,
+            fontSize: 11, fontFamily: fuenteBody,
+            fontStyle: "italic",
+            fill: "rgba(255,255,255,0.55)",
+            selectable: true, editable: true,
+          } as any);
+          (descObj as any)._customName = `Desc ${item.plato}`;
+          (descObj as any)._layerId = nextId();
+          fc.add(descObj);
+          y += 18;
+        }
+        y += 6;
+      });
+      return y + 10;
+    };
+
+    colIzq.forEach((sec) => { yIzq = renderSeccion(sec, xIzq, yIzq); });
+    colDer.forEach((sec) => { yDer = renderSeccion(sec, xDer, yDer); });
+
+    // Vertical divider between columns
+    const divider = new fabric.Line([W / 2, 120, W / 2, H - 60], {
+      stroke: acento, strokeWidth: 0.5,
+      opacity: 0.25, selectable: false,
+    } as any);
+    (divider as any)._customName = "Divisor columnas";
+    (divider as any)._layerId = nextId();
+    fc.add(divider);
+
+    // FOOTER
+    const footerText = p.footer_texto || p.texto_cta || "";
+    if (footerText) {
+      const footerObj = new fabric.IText(footerText.toUpperCase(), {
+        left: W / 2, top: H - 35, originX: "center",
+        fontSize: 14, fontFamily: fuenteBody,
+        fontWeight: "500", fill: acento,
+        selectable: true, editable: true,
+      } as any);
+      (footerObj as any)._customName = "Footer";
+      (footerObj as any)._layerId = nextId();
+      fc.add(footerObj);
+    }
+  }, [size, nextId]);
+
   // Initialize canvas
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -453,43 +595,49 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
       renderDecorativeElements(fc, proposal);
 
-      const align = proposal.layout;
-      const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
-      const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
-      const textAlign = align === "centrado" ? "center" : align === "izquierda" ? "left" : "right";
+      // Check if this is a menu layout
+      if (proposal.tipo_layout === "menu_dos_columnas") {
+        renderMenuDosColumnas(fc, proposal);
+      } else {
+        // Generic text layout
+        const align = proposal.layout;
+        const originX = align === "izquierda" ? "left" : align === "derecha" ? "right" : "center";
+        const textX = align === "izquierda" ? size.w * 0.1 : align === "derecha" ? size.w * 0.9 : size.w / 2;
+        const textAlign = align === "centrado" ? "center" : align === "izquierda" ? "left" : "right";
 
-      const tSize = proposal.titulo_size ?? 84;
-      const sSize = proposal.subtitulo_size ?? 28;
+        const tSize = proposal.titulo_size ?? 84;
+        const sSize = proposal.subtitulo_size ?? 28;
 
-      const mainText = new fabric.IText(proposal.texto_principal, {
-        left: textX, top: size.h * 0.38, originX, originY: "center",
-        fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
-        fill: proposal.color_texto, textAlign,
-        editable: true, lineHeight: 1.05,
-      } as any);
-      (mainText as any)._customName = "Título";
-      (mainText as any)._layerId = nextId();
-      fc.add(mainText);
-
-      const subText = new fabric.IText(proposal.texto_secundario, {
-        left: textX, top: size.h * 0.55, originX, originY: "center",
-        fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
-        fill: proposal.color_texto, opacity: 0.85,
-        textAlign, editable: true,
-      } as any);
-      (subText as any)._customName = "Subtítulo";
-      (subText as any)._layerId = nextId();
-      fc.add(subText);
-
-      if (proposal.texto_cta) {
-        const cta = new fabric.IText(proposal.texto_cta, {
-          left: textX, top: size.h * 0.72, originX, originY: "center",
-          fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
-          fill: proposal.color_acento, editable: true,
+        const mainText = new fabric.IText(proposal.texto_principal, {
+          left: textX, top: size.h * 0.38, originX, originY: "center",
+          fontSize: tSize, fontWeight: "800", fontFamily: proposal.fuente_titulo,
+          fill: proposal.color_texto, textAlign,
+          editable: true, lineHeight: 1.05,
         } as any);
-        (cta as any)._customName = "CTA";
-        (cta as any)._layerId = nextId();
-        fc.add(cta);
+        (mainText as any)._customName = "Título";
+        (mainText as any)._layerId = nextId();
+        fc.add(mainText);
+
+        const subText = new fabric.IText(proposal.texto_secundario, {
+          left: textX, top: size.h * 0.55, originX, originY: "center",
+          fontSize: sSize, fontWeight: "300", fontFamily: proposal.fuente_cuerpo,
+          fill: proposal.color_texto, opacity: 0.85,
+          textAlign, editable: true,
+        } as any);
+        (subText as any)._customName = "Subtítulo";
+        (subText as any)._layerId = nextId();
+        fc.add(subText);
+
+        if (proposal.texto_cta) {
+          const cta = new fabric.IText(proposal.texto_cta, {
+            left: textX, top: size.h * 0.72, originX, originY: "center",
+            fontSize: 18, fontFamily: proposal.fuente_cuerpo, fontWeight: "bold",
+            fill: proposal.color_acento, editable: true,
+          } as any);
+          (cta as any)._customName = "CTA";
+          (cta as any)._layerId = nextId();
+          fc.add(cta);
+        }
       }
 
       fc.renderAll();

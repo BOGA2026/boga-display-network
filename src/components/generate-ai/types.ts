@@ -5,10 +5,28 @@ export interface DecorativeElement {
   posicion: string;
 }
 
+export interface MenuItemData {
+  plato: string;
+  descripcion: string;
+  precio: string;
+}
+
+export interface MenuSeccion {
+  nombre: string;
+  items: MenuItemData[];
+}
+
+export interface MenuHeader {
+  nombre_restaurante: string;
+  tagline: string;
+  size: number;
+}
+
 export interface Proposal {
   id: number;
   nombre: string;
   concepto: string;
+  tipo_layout?: string | null;
   background_color: string;
   background_image_query: string;
   image_url: string | null;
@@ -26,6 +44,10 @@ export interface Proposal {
   subtitulo_size: number;
   elementos: string[];
   elementos_decorativos: DecorativeElement[];
+  // Menu-specific fields
+  header?: MenuHeader | null;
+  secciones?: MenuSeccion[] | null;
+  footer_texto?: string | null;
 }
 
 export interface GenerateResponse {
