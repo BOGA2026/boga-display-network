@@ -132,7 +132,13 @@ Responde ÚNICAMENTE con JSON sin markdown:
 }
 
 Las 3 propuestas deben tener layouts DIFERENTES y paletas DIFERENTES.
-Cada propuesta debe tener mínimo 3 elementos_decorativos.`;
+Cada propuesta debe tener mínimo 3 elementos_decorativos.
+
+FIDELIDAD AL BRIEFING:
+- Usa únicamente descuentos, marcas, precios, fechas, horarios, sedes, beneficios y mensajes que aparezcan en el briefing.
+- Si el cliente menciona un porcentaje, precio, marca, ciudad o condición específica, no la cambies ni la reemplaces.
+- NO inventes artistas, marcas, horarios, beneficios, slogans, ubicaciones ni condiciones no mencionadas.
+- Si falta un dato, omítelo; no lo rellenes con imaginación.`;
 
 const PROMPT_BIENVENIDA = `Eres un diseñador especialista en pantallas de bienvenida para digital signage en lobbies, hoteles, oficinas y restaurantes.
 
@@ -183,7 +189,12 @@ Responde ÚNICAMENTE con JSON sin markdown:
 }
 
 Las 3 propuestas deben tener layouts DIFERENTES y paletas DIFERENTES.
-Cada propuesta debe tener mínimo 3 elementos_decorativos.`;
+Cada propuesta debe tener mínimo 3 elementos_decorativos.
+
+FIDELIDAD AL BRIEFING:
+- Usa únicamente nombres, lugares, horarios, servicios, beneficios o mensajes mencionados por el cliente.
+- NO inventes WiFi, clima, horarios, amenities ni indicaciones si el briefing no los trae.
+- Si falta información, mantén el copy sobrio y fiel.`;
 
 const PROMPT_EVENTO = `Eres un diseñador especialista en pantallas de eventos para digital signage.
 
@@ -235,7 +246,12 @@ Responde ÚNICAMENTE con JSON sin markdown:
 }
 
 Las 3 propuestas deben tener layouts DIFERENTES y paletas DIFERENTES.
-Cada propuesta debe tener mínimo 3 elementos_decorativos.`;
+Cada propuesta debe tener mínimo 3 elementos_decorativos.
+
+FIDELIDAD AL BRIEFING:
+- Usa únicamente nombre del evento, fechas, horas, lugar, artista, beneficios y CTA presentes en el briefing.
+- NO inventes patrocinadores, artistas, fechas, precios, zonas o promesas no mencionadas.
+- Si un dato no está en el briefing, no lo escribas.`;
 
 const PROMPT_GENERICO = `Eres un director de arte senior especializado en digital signage de alto impacto. Tu trabajo es generar especificaciones de diseño que se vean como obra de un diseñador profesional, NO como PowerPoint. Cada diseño debe ser visualmente impactante, moderno y memorable.
 
@@ -318,6 +334,97 @@ fuente_titulo debe ser una de: "Oswald" | "Montserrat" | "Playfair Display" | "S
 fuente_cuerpo debe ser una de: "Inter" | "Roboto" | "DM Sans" | "Source Sans Pro" | "Cormorant"
 Cada propuesta debe tener mínimo 3 elementos_decorativos diferentes.`;
 
+type DetectedType = "menu" | "promo" | "bienvenida" | "evento" | "generico";
+
+const normalizeText = (value: string = "") =>
+  value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+const extractBriefingFacts = (prompt: string, cliente: string) => {
+  const combined = `${cliente ? `Cliente: ${cliente}. ` : ""}${prompt}`.trim();
+  const unique = (values: string[]) => [...new Set(values.map((v) => v.trim()).filter(Boolean))];
+
+  const quoted = unique(Array.from(combined.matchAll(/["“”']([^"“”']{2,80})["“”']/g), (m) => m[1]));
+  const percentages = unique(Array.from(combined.matchAll(/\b\d{1,3}\s?%/g), (m) => m[0]));
+  const prices = unique(Array.from(combined.matchAll(/\$\s?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?/g), (m) => m[0].replace(/\s+/g, " ")));
+  const dates = unique(Array.from(combined.matchAll(/\b(?:lunes|martes|miercoles|miércoles|jueves|viernes|sabado|sábado|domingo|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|\d{1,2}\s+de\s+[a-záéíóú]+|\d{1,2}\s*(?:-|al)\s*\d{1,2}\s+de\s+[a-záéíóú]+)\b/gi), (m) => m[0]));
+  const times = unique(Array.from(combined.matchAll(/\b\d{1,2}(?::\d{2})?\s?(?:am|pm)\b/gi), (m) => m[0]));
+  const brands = unique(Array.from(combined.matchAll(/\b(?:nike|adidas|puma|reebok|sportzone|acqua(?:\s+centro\s+comercial)?|centro comercial acqua|ibague|ibagué)\b/gi), (m) => m[0]));
+  const benefits = unique(Array.from(combined.matchAll(/\b(?:entrada libre|parqueadero gratis(?: las primeras \d+ horas)?|delivery disponible|domicilio|solo hoy|solo fin de semana|solo sabado y domingo|solo sábado y domingo)\b/gi), (m) => m[0]));
+  const colors = unique(Array.from(combined.matchAll(/\b(?:rojo|azul|verde|negro|blanco|dorado|plateado|naranja|amarillo|morado|fucsia|rosa|gris|azul electrico|azul eléctrico)\b/gi), (m) => m[0]));
+  const sentences = combined
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((line) => line.trim())
+    .filter((line) => line.length >= 6)
+    .slice(0, 8);
+
+  return { quoted, percentages, prices, dates, times, brands, benefits, colors, sentences };
+};
+
+const buildFactsBlock = (facts: ReturnType<typeof extractBriefingFacts>) => {
+  const sections = [
+    ["Frases literales", facts.quoted],
+    ["Porcentajes", facts.percentages],
+    ["Precios", facts.prices],
+    ["Fechas", facts.dates],
+    ["Horas", facts.times],
+    ["Marcas / nombres propios", facts.brands],
+    ["Beneficios / condiciones", facts.benefits],
+    ["Colores mencionados", facts.colors],
+    ["Hechos del briefing", facts.sentences],
+  ].filter(([, values]) => Array.isArray(values) && values.length > 0);
+
+  if (sections.length === 0) return "- No se extrajeron hechos estructurados; usa solo el briefing literal.";
+
+  return sections
+    .map(([label, values]) => `- ${label}: ${(values as string[]).join(" | ")}`)
+    .join("\n");
+};
+
+const callAnthropicJson = async ({
+  apiKey,
+  system,
+  user,
+}: {
+  apiKey: string;
+  system: string;
+  user: string;
+}) => {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4096,
+      system,
+      messages: [{ role: "user", content: user }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error("Anthropic error:", response.status, errText);
+    throw new Error("Error al generar diseño");
+  }
+
+  const data = await response.json();
+  const text = data.content?.[0]?.text ?? "";
+  let cleaned = text.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    console.error("Failed to parse Claude JSON:", text.substring(0, 500));
+    throw new Error("Respuesta IA inválida");
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -328,17 +435,16 @@ serve(async (req) => {
     const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
     if (!UNSPLASH_ACCESS_KEY) throw new Error("UNSPLASH_ACCESS_KEY is not configured");
 
-    const normalizeText = (value: string = "") =>
-      value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
     const tipoNormalizado = normalizeText(tipo);
     const promptNormalizado = normalizeText(`${prompt} ${cliente}`);
+    const briefingFacts = extractBriefingFacts(prompt, cliente);
+    const factsBlock = buildFactsBlock(briefingFacts);
     const menuKeywords = /(menu|plato|platos|entradas|bebidas|postres|precio|precios|almuerzo ejecutivo|carta)/;
     const promoKeywords = /(promocion|promo|descuento|oferta|off|rebaja|solo hoy|ultimas unidades)/;
     const bienvenidaKeywords = /(bienvenida|bienvenido|welcome|recepcion|lobby)/;
     const eventoKeywords = /(evento|concierto|festival|conferencia|seminario|show|fecha|hora|lugar)/;
 
-    let detectedType: "menu" | "promo" | "bienvenida" | "evento" | "generico" = "generico";
+    let detectedType: DetectedType = "generico";
 
     const isGenericType = !tipoNormalizado || tipoNormalizado === "digital signage" || tipoNormalizado === "digitalsignage";
 
@@ -390,60 +496,46 @@ OBLIGATORIO:
 - Los 3 conceptos deben interpretar "${prompt}" de formas distintas
 - Si el cliente mencionó colores específicos, úsalos como color_acento
 - Si mencionó un negocio específico, el diseño debe evocar ESE negocio
+- Usa como fuente de verdad estos hechos extraídos del briefing:
+${factsBlock}
+- Si un dato no está en el briefing o en la lista de hechos, NO lo escribas
+- Conserva literalmente porcentajes, precios, fechas, horas, nombres de eventos, marcas y beneficios cuando existan
 
 PROHIBIDO:
 - Inventar un negocio diferente al descrito
 - Usar textos genéricos que no tengan relación con la descripción
 - Repetir el mismo concepto visual en las 3 propuestas
 - Usar placeholders literales como "TEXTO PRINCIPAL", "Subtítulo del diseño", "Ver más", "Lorem ipsum"
+- Alterar cifras, precios, porcentajes, fechas, horas o marcas del briefing
+- Añadir claims, promociones, artistas, zonas, slogans o condiciones que el cliente no mencionó
 
 Genera las 3 propuestas ahora.
 `;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      }),
+    const parsed = await callAnthropicJson({
+      apiKey: ANTHROPIC_API_KEY,
+      system: systemPrompt,
+      user: userPrompt,
     });
+    console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Anthropic error:", response.status, errText);
-      return new Response(JSON.stringify({ error: "Error al generar diseño" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const audited = await callAnthropicJson({
+      apiKey: ANTHROPIC_API_KEY,
+      system: `Eres un auditor de fidelidad de briefing para piezas de digital signage.
+Recibirás un briefing y un JSON de propuestas.
+Debes devolver JSON válido con la MISMA estructura, corrigiendo cualquier dato que no esté respaldado por el briefing.
 
-    const data = await response.json();
-    const text = data.content?.[0]?.text ?? "";
+REGLAS:
+- NO inventes nuevos hechos.
+- NO cambies cifras correctas del briefing.
+- Si una propuesta incluye marcas, beneficios, fechas, horas, precios, porcentajes o claims no respaldados, elimínalos o reescríbelos con información sí respaldada.
+- Mantén el tono creativo, pero prioriza la exactitud factual sobre el estilo.
+- Devuelve solo JSON.`,
+      user: `BRIEFING ORIGINAL:\n${prompt}\n\nCLIENTE: ${cliente || "Sin nombre"}\nTIPO: ${tipo}\nHECHOS EXTRAÍDOS:\n${factsBlock}\n\nJSON PROPUESTO A AUDITAR:\n${JSON.stringify(parsed)}`,
+    });
+    console.log("RESPUESTA AUDITADA (parsed OK):", JSON.stringify(audited).substring(0, 500));
 
-    let parsed;
-    try {
-      let cleaned = text.trim();
-      if (cleaned.startsWith("```")) {
-        cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
-      }
-      parsed = JSON.parse(cleaned);
-      console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
-    } catch {
-      console.error("Failed to parse Claude JSON:", text.substring(0, 500));
-      return new Response(JSON.stringify({ error: "Respuesta IA inválida" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const propuestas = parsed.propuestas ?? [parsed];
+    const propuestas = audited.propuestas ?? [audited];
     const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display", "Space Grotesk", "Bebas Neue"];
     const validBodyFonts = ["Inter", "Roboto", "DM Sans", "Source Sans Pro", "Cormorant"];
     const validLayouts = ["centrado", "izquierda", "derecha"];
