@@ -73,13 +73,14 @@ Genera el JSON con esta estructura EXACTA para menús:
   ]
 }
 
-IMPORTANTE: Si el cliente no especificó platos ni precios,
-INVENTA 6-8 platos coherentes con el tipo de restaurante descrito.
-Si dijo "restaurante italiano" → pasta, pizza, etc.
-Si dijo "comida rápida" → hamburguesas, papas, bebidas.
-Los precios deben ser realistas para Colombia (COP).
-Las 3 propuestas deben tener paletas y conceptos DIFERENTES.
-PROHIBIDO usar placeholders como "TEXTO PRINCIPAL", "Subtítulo del diseño" o "Ver más".`;
+IMPORTANTE:
+- Si el cliente ya especificó platos, precios, combos, bebidas, nombres o categorías, DEBES usar exclusivamente esa información como base.
+- NO cambies platos, NO agregues productos no mencionados, NO cambies precios y NO inventes secciones incompatibles cuando el prompt ya trae menú concreto.
+- Solo puedes completar con contenido coherente si el cliente NO incluyó platos o precios suficientes.
+- Si el prompt incluye una lista concreta, distribúyela en secciones sin alterar el contenido esencial.
+- Los precios deben ser realistas para Colombia (COP) únicamente cuando debas completar faltantes.
+- Las 3 propuestas deben tener paletas y conceptos DIFERENTES, pero conservar el mismo contenido del menú.
+- PROHIBIDO usar placeholders como "TEXTO PRINCIPAL", "Subtítulo del diseño" o "Ver más".`;
 
 const PROMPT_PROMO = `Eres un diseñador especialista en pantallas promocionales de alto impacto para retail y restaurantes.
 
@@ -339,14 +340,26 @@ serve(async (req) => {
 
     let detectedType: "menu" | "promo" | "bienvenida" | "evento" | "generico" = "generico";
 
-    if (tipoNormalizado === "menu" || tipoNormalizado === "menú" || tipoNormalizado.startsWith("menu") || menuKeywords.test(promptNormalizado)) {
+    const isGenericType = !tipoNormalizado || tipoNormalizado === "digital signage" || tipoNormalizado === "digitalsignage";
+
+    if (tipoNormalizado === "menu" || tipoNormalizado === "menú" || tipoNormalizado.startsWith("menu")) {
       detectedType = "menu";
-    } else if (tipoNormalizado.startsWith("promoc") || promoKeywords.test(promptNormalizado)) {
+    } else if (tipoNormalizado.startsWith("promoc")) {
       detectedType = "promo";
-    } else if (tipoNormalizado.startsWith("bienv") || bienvenidaKeywords.test(promptNormalizado)) {
+    } else if (tipoNormalizado.startsWith("bienv")) {
       detectedType = "bienvenida";
-    } else if (tipoNormalizado.startsWith("event") || eventoKeywords.test(promptNormalizado)) {
+    } else if (tipoNormalizado.startsWith("event")) {
       detectedType = "evento";
+    } else if (isGenericType) {
+      if (menuKeywords.test(promptNormalizado)) {
+        detectedType = "menu";
+      } else if (promoKeywords.test(promptNormalizado)) {
+        detectedType = "promo";
+      } else if (bienvenidaKeywords.test(promptNormalizado)) {
+        detectedType = "bienvenida";
+      } else if (eventoKeywords.test(promptNormalizado)) {
+        detectedType = "evento";
+      }
     }
 
     console.log("TIPO RECIBIDO:", tipo);
@@ -440,32 +453,6 @@ Genera las 3 propuestas ahora.
       return !normalized || ["texto principal", "subtitulo del diseno", "subtitulo del diseño", "ver mas", "ver más", "lorem ipsum"].includes(normalized);
     };
 
-    const defaultMenuSections = [
-      {
-        nombre: "Almuerzo Ejecutivo",
-        items: [
-          { plato: "Sopa del día", descripcion: "Receta de la casa", precio: "$15.000" },
-          { plato: "Bandeja Paisa", descripcion: "Frijoles, chicharrón, chorizo", precio: "$32.000" },
-          { plato: "Sancocho de Gallina", descripcion: "Receta tradicional tolimense", precio: "$28.000" },
-        ],
-      },
-      {
-        nombre: "Especialidades",
-        items: [
-          { plato: "Trucha al Ajillo", descripcion: "Con papas y ensalada fresca", precio: "$38.000" },
-          { plato: "Mojarra Frita", descripcion: "Acompañada de patacones", precio: "$35.000" },
-          { plato: "Cazuela de Mariscos", descripcion: "En salsa criolla", precio: "$45.000" },
-        ],
-      },
-      {
-        nombre: "Bebidas",
-        items: [
-          { plato: "Jugo Natural", descripcion: "Lulo, maracuyá o mora", precio: "$5.000" },
-          { plato: "Limonada de Coco", descripcion: "Refrescante y cremosa", precio: "$8.000" },
-        ],
-      },
-    ];
-
     const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => {
       const isMenuResponse = detectedType === "menu";
       const rawSections = Array.isArray(p.secciones)
@@ -481,20 +468,31 @@ Genera las 3 propuestas ahora.
           }))
         : null;
 
-      const shouldForceMenu = isMenuResponse && (!rawSections || rawSections.length === 0);
+      const hasValidSections = Array.isArray(rawSections)
+        && rawSections.length > 0
+        && rawSections.some((section) => Array.isArray(section.items)
+          && section.items.some((item) => !isPlaceholderText(item.plato) || !isPlaceholderText(item.precio)));
       const normalizedHeader = {
-        nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : "EL FOGÓN DEL RÍO"),
-        tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : "Sabor auténtico colombiano"),
+        nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : ""),
+        tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
         size: p.header?.size ?? 48,
       };
-      const normalizedSections = shouldForceMenu ? defaultMenuSections : (rawSections ?? []);
-      const normalizedFooter = p.footer_texto ?? (isPlaceholderText(p.texto_cta) ? "Almuerzo completo $15.000 · Lunes a Sábado" : p.texto_cta) ?? null;
+      const normalizedSections = hasValidSections ? rawSections : [];
+      const normalizedFooter = p.footer_texto ?? (isPlaceholderText(p.texto_cta) ? null : p.texto_cta) ?? null;
+
+      console.log("RESPUESTA CLAUDE:", JSON.stringify({
+        id: p.id ?? i + 1,
+        tipo_layout: p.tipo_layout ?? null,
+        header: normalizedHeader,
+        secciones_count: normalizedSections.length,
+        footer_texto: normalizedFooter,
+      }));
 
       return {
         id: i + 1,
         nombre: p.nombre ?? `Propuesta ${i + 1}`,
         concepto: p.concepto ?? "",
-        tipo_layout: isMenuResponse ? "menu_dos_columnas" : (p.tipo_layout ?? null),
+        tipo_layout: isMenuResponse && normalizedSections.length > 0 ? "menu_dos_columnas" : (p.tipo_layout ?? null),
         background_color: p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
