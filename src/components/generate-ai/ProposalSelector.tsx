@@ -19,6 +19,100 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
   const previewH = isVertical ? 300 : 170;
   const scale = previewW / size.w;
 
+  const renderMenuPreview = (p: Proposal) => {
+    const sections = p.secciones ?? [];
+    const halfway = Math.ceil(sections.length / 2);
+    const columns = [sections.slice(0, halfway), sections.slice(halfway)];
+
+    return (
+      <div className="absolute inset-0 flex flex-col px-[7%] py-[6%]" style={{ color: p.color_texto }}>
+        <div className="text-center">
+          <p
+            className="font-bold uppercase leading-none"
+            style={{
+              fontFamily: p.fuente_titulo,
+              fontSize: Math.max(((p.header?.size ?? 48) * scale), 12),
+            }}
+          >
+            {p.header?.nombre_restaurante || p.texto_principal}
+          </p>
+          <p
+            className="mt-1 italic"
+            style={{
+              fontFamily: p.fuente_cuerpo,
+              fontSize: Math.max(12 * scale, 6),
+              color: p.color_acento,
+            }}
+          >
+            {p.header?.tagline || p.texto_secundario}
+          </p>
+        </div>
+
+        <div className="mt-[5%] h-px" style={{ backgroundColor: p.color_acento, opacity: 0.45 }} />
+
+        <div className="mt-[4%] grid flex-1 grid-cols-2 gap-[6%] overflow-hidden">
+          {columns.map((column, colIndex) => (
+            <div key={colIndex} className={cn("space-y-[4%]", colIndex === 1 && "border-l pl-[8%]")} style={colIndex === 1 ? { borderColor: p.color_acento, opacity: 0.95 } : undefined}>
+              {column.map((section) => (
+                <div key={section.nombre} className="space-y-[2%]">
+                  <p
+                    className="font-bold uppercase"
+                    style={{
+                      fontFamily: p.fuente_cuerpo,
+                      fontSize: Math.max(12 * scale, 6),
+                      color: p.color_acento,
+                    }}
+                  >
+                    {section.nombre}
+                  </p>
+                  {(section.items ?? []).slice(0, 3).map((item) => (
+                    <div key={`${section.nombre}-${item.plato}`} className="space-y-[1%]">
+                      <div className="flex items-start justify-between gap-2">
+                        <span
+                          className="truncate font-semibold"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(13 * scale, 6.5) }}
+                        >
+                          {item.plato}
+                        </span>
+                        <span
+                          className="shrink-0 font-bold"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(13 * scale, 6.5), color: p.color_acento }}
+                        >
+                          {item.precio}
+                        </span>
+                      </div>
+                      {item.descripcion && (
+                        <p
+                          className="line-clamp-1 italic opacity-70"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(10 * scale, 5.5) }}
+                        >
+                          {item.descripcion}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {p.footer_texto && (
+          <p
+            className="mt-[3%] text-center uppercase"
+            style={{
+              fontFamily: p.fuente_cuerpo,
+              fontSize: Math.max(11 * scale, 6),
+              color: p.color_acento,
+            }}
+          >
+            {p.footer_texto}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -38,6 +132,7 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
           const pad = "10%";
           const tSize = Math.max((p.titulo_size ?? 84) * scale, 12);
           const sSize = Math.max((p.subtitulo_size ?? 28) * scale, 7);
+          const isMenu = p.tipo_layout === "menu_dos_columnas" || (p.secciones?.length ?? 0) > 0;
 
           return (
             <button
@@ -104,35 +199,37 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
                 })}
 
                 {/* Text content */}
-                <div
-                  className="absolute inset-0 flex flex-col justify-center"
-                  style={{ textAlign, padding: pad }}
-                >
-                  <p
-                    className="font-bold leading-tight"
-                    style={{
-                      fontFamily: p.fuente_titulo,
-                      fontSize: tSize,
-                      color: p.color_texto,
-                      fontWeight: 800,
-                    }}
+                {isMenu ? renderMenuPreview(p) : (
+                  <div
+                    className="absolute inset-0 flex flex-col justify-center"
+                    style={{ textAlign, padding: pad }}
                   >
-                    {p.texto_principal}
-                  </p>
+                    <p
+                      className="font-bold leading-tight"
+                      style={{
+                        fontFamily: p.fuente_titulo,
+                        fontSize: tSize,
+                        color: p.color_texto,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {p.texto_principal}
+                    </p>
 
-                  <p
-                    className="leading-snug opacity-85"
-                    style={{
-                      fontFamily: p.fuente_cuerpo,
-                      fontSize: sSize,
-                      color: p.color_texto,
-                      fontWeight: 300,
-                      marginTop: 4 * scale,
-                    }}
-                  >
-                    {p.texto_secundario}
-                  </p>
-                </div>
+                    <p
+                      className="leading-snug opacity-85"
+                      style={{
+                        fontFamily: p.fuente_cuerpo,
+                        fontSize: sSize,
+                        color: p.color_texto,
+                        fontWeight: 300,
+                        marginTop: 4 * scale,
+                      }}
+                    >
+                      {p.texto_secundario}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Label */}
