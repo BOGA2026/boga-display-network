@@ -380,6 +380,30 @@ const buildFactsBlock = (facts: ReturnType<typeof extractBriefingFacts>) => {
     .join("\n");
 };
 
+const parseModelJson = (text: string) => {
+  const trimmed = text.trim();
+  const candidates = [
+    trimmed,
+    trimmed.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, ""),
+  ];
+
+  const firstBrace = trimmed.indexOf("{");
+  const lastBrace = trimmed.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    candidates.push(trimmed.slice(firstBrace, lastBrace + 1));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error("Respuesta IA inválida");
+};
+
 const callAnthropicJson = async ({
   apiKey,
   system,
@@ -412,13 +436,9 @@ const callAnthropicJson = async ({
 
   const data = await response.json();
   const text = data.content?.[0]?.text ?? "";
-  let cleaned = text.trim();
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
-  }
 
   try {
-    return JSON.parse(cleaned);
+    return parseModelJson(text);
   } catch {
     console.error("Failed to parse Claude JSON:", text.substring(0, 500));
     throw new Error("Respuesta IA inválida");
@@ -519,9 +539,11 @@ Genera las 3 propuestas ahora.
     });
     console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
 
-    const audited = await callAnthropicJson({
-      apiKey: ANTHROPIC_API_KEY,
-      system: `Eres un auditor de fidelidad de briefing para piezas de digital signage.
+    let audited = parsed;
+    try {
+      audited = await callAnthropicJson({
+        apiKey: ANTHROPIC_API_KEY,
+        system: `Eres un auditor de fidelidad de briefing para piezas de digital signage.
 Recibirás un briefing y un JSON de propuestas.
 Debes devolver JSON válido con la MISMA estructura, corrigiendo cualquier dato que no esté respaldado por el briefing.
 
@@ -531,9 +553,12 @@ REGLAS:
 - Si una propuesta incluye marcas, beneficios, fechas, horas, precios, porcentajes o claims no respaldados, elimínalos o reescríbelos con información sí respaldada.
 - Mantén el tono creativo, pero prioriza la exactitud factual sobre el estilo.
 - Devuelve solo JSON.`,
-      user: `BRIEFING ORIGINAL:\n${prompt}\n\nCLIENTE: ${cliente || "Sin nombre"}\nTIPO: ${tipo}\nHECHOS EXTRAÍDOS:\n${factsBlock}\n\nJSON PROPUESTO A AUDITAR:\n${JSON.stringify(parsed)}`,
-    });
-    console.log("RESPUESTA AUDITADA (parsed OK):", JSON.stringify(audited).substring(0, 500));
+        user: `BRIEFING ORIGINAL:\n${prompt}\n\nCLIENTE: ${cliente || "Sin nombre"}\nTIPO: ${tipo}\nHECHOS EXTRAÍDOS:\n${factsBlock}\n\nJSON PROPUESTO A AUDITAR:\n${JSON.stringify(parsed)}`,
+      });
+      console.log("RESPUESTA AUDITADA (parsed OK):", JSON.stringify(audited).substring(0, 500));
+    } catch (auditError) {
+      console.error("Audit pass failed, using original parsed proposals:", auditError);
+    }
 
     const propuestas = audited.propuestas ?? [audited];
     const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display", "Space Grotesk", "Bebas Neue"];
