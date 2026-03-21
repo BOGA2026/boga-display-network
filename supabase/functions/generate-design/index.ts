@@ -78,7 +78,8 @@ INVENTA 6-8 platos coherentes con el tipo de restaurante descrito.
 Si dijo "restaurante italiano" → pasta, pizza, etc.
 Si dijo "comida rápida" → hamburguesas, papas, bebidas.
 Los precios deben ser realistas para Colombia (COP).
-Las 3 propuestas deben tener paletas y conceptos DIFERENTES.`;
+Las 3 propuestas deben tener paletas y conceptos DIFERENTES.
+PROHIBIDO usar placeholders como "TEXTO PRINCIPAL", "Subtítulo del diseño" o "Ver más".`;
 
 const PROMPT_PROMO = `Eres un diseñador especialista en pantallas promocionales de alto impacto para retail y restaurantes.
 
@@ -381,6 +382,7 @@ PROHIBIDO:
 - Inventar un negocio diferente al descrito
 - Usar textos genéricos que no tengan relación con la descripción
 - Repetir el mismo concepto visual en las 3 propuestas
+- Usar placeholders literales como "TEXTO PRINCIPAL", "Subtítulo del diseño", "Ver más", "Lorem ipsum"
 
 Genera las 3 propuestas ahora.
 `;
@@ -432,6 +434,11 @@ Genera las 3 propuestas ahora.
     const validTitleFonts = ["Oswald", "Montserrat", "Playfair Display", "Space Grotesk", "Bebas Neue"];
     const validBodyFonts = ["Inter", "Roboto", "DM Sans", "Source Sans Pro", "Cormorant"];
     const validLayouts = ["centrado", "izquierda", "derecha"];
+    const isPlaceholderText = (value: unknown) => {
+      if (typeof value !== "string") return true;
+      const normalized = normalizeText(value).trim();
+      return !normalized || ["texto principal", "subtitulo del diseno", "subtitulo del diseño", "ver mas", "ver más", "lorem ipsum"].includes(normalized);
+    };
 
     const defaultMenuSections = [
       {
@@ -460,6 +467,7 @@ Genera las 3 propuestas ahora.
     ];
 
     const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => {
+      const isMenuResponse = detectedType === "menu";
       const rawSections = Array.isArray(p.secciones)
         ? p.secciones.map((s: any) => ({
             nombre: s.nombre ?? "",
@@ -473,21 +481,34 @@ Genera las 3 propuestas ahora.
           }))
         : null;
 
-      const shouldForceMenu = detectedType === "menu" && (!rawSections || rawSections.length === 0);
+      const shouldForceMenu = isMenuResponse && (!rawSections || rawSections.length === 0);
+      const normalizedHeader = {
+        nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : "EL FOGÓN DEL RÍO"),
+        tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : "Sabor auténtico colombiano"),
+        size: p.header?.size ?? 48,
+      };
+      const normalizedSections = shouldForceMenu ? defaultMenuSections : (rawSections ?? []);
+      const normalizedFooter = p.footer_texto ?? (isPlaceholderText(p.texto_cta) ? "Almuerzo completo $15.000 · Lunes a Sábado" : p.texto_cta) ?? null;
 
       return {
         id: i + 1,
         nombre: p.nombre ?? `Propuesta ${i + 1}`,
         concepto: p.concepto ?? "",
-        tipo_layout: shouldForceMenu ? "menu_dos_columnas" : (p.tipo_layout ?? null),
+        tipo_layout: isMenuResponse ? "menu_dos_columnas" : (p.tipo_layout ?? null),
         background_color: p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
         overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
         layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
-        texto_principal: p.texto_principal ?? "TEXTO PRINCIPAL",
-        texto_secundario: p.texto_secundario ?? "Subtítulo del diseño",
-        texto_cta: p.texto_cta ?? "Ver más",
+        texto_principal: isMenuResponse
+          ? normalizedHeader.nombre_restaurante
+          : (isPlaceholderText(p.texto_principal) ? (cliente || `Propuesta ${i + 1}`) : p.texto_principal),
+        texto_secundario: isMenuResponse
+          ? normalizedHeader.tagline
+          : (isPlaceholderText(p.texto_secundario) ? (p.concepto ?? "Diseño personalizado") : p.texto_secundario),
+        texto_cta: isMenuResponse
+          ? (normalizedFooter ?? "")
+          : (isPlaceholderText(p.texto_cta) ? "Descubre más" : p.texto_cta),
         color_texto: p.color_texto ?? "#FFFFFF",
         color_acento: p.color_acento ?? "#00e5c4",
         fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
@@ -503,17 +524,9 @@ Genera las 3 propuestas ahora.
               posicion: ed.posicion ?? "",
             }))
           : [],
-        header: shouldForceMenu
-          ? {
-              nombre_restaurante: p.header?.nombre_restaurante ?? p.texto_principal ?? cliente ?? "EL FOGÓN DEL RÍO",
-              tagline: p.header?.tagline ?? p.texto_secundario ?? "Sabor auténtico colombiano",
-              size: p.header?.size ?? 48,
-            }
-          : (p.header ?? null),
-        secciones: shouldForceMenu ? defaultMenuSections : rawSections,
-        footer_texto: shouldForceMenu
-          ? (p.footer_texto ?? "Almuerzo completo $15.000 · Lunes a Sábado")
-          : (p.footer_texto ?? null),
+        header: isMenuResponse ? normalizedHeader : (p.header ?? null),
+        secciones: isMenuResponse ? normalizedSections : rawSections,
+        footer_texto: isMenuResponse ? normalizedFooter : (p.footer_texto ?? null),
       };
     });
 
