@@ -459,10 +459,13 @@ serve(async (req) => {
     const promptNormalizado = normalizeText(`${prompt} ${cliente}`);
     const briefingFacts = extractBriefingFacts(prompt, cliente);
     const factsBlock = buildFactsBlock(briefingFacts);
-    const menuKeywords = /(menu|plato|platos|entradas|bebidas|postres|precio|precios|almuerzo ejecutivo|carta)/;
-    const promoKeywords = /(promocion|promo|descuento|oferta|off|rebaja|solo hoy|ultimas unidades)/;
-    const bienvenidaKeywords = /(bienvenida|bienvenido|welcome|recepcion|lobby)/;
-    const eventoKeywords = /(evento|concierto|festival|conferencia|seminario|show|fecha|hora|lugar)/;
+    // Keywords for each type - scored by match count to pick best fit
+    const typePatterns: { type: DetectedType; regex: RegExp }[] = [
+      { type: "menu", regex: /\b(menu|plato|platos|entradas|postres|almuerzo ejecutivo|carta|restaurante|comida|cocina)\b/g },
+      { type: "promo", regex: /\b(promocion|promo|descuento|oferta|\d+%\s*off|rebaja|solo hoy|ultimas unidades)\b/g },
+      { type: "bienvenida", regex: /\b(bienvenida|bienvenido|welcome|recepcion|lobby)\b/g },
+      { type: "evento", regex: /\b(evento|concierto|festival|fest|conferencia|seminario|show en vivo|show|fecha|lugar|entrada libre|entrada|feria|inauguracion|aniversario)\b/g },
+    ];
 
     let detectedType: DetectedType = "generico";
 
@@ -477,15 +480,18 @@ serve(async (req) => {
     } else if (tipoNormalizado.startsWith("event")) {
       detectedType = "evento";
     } else if (isGenericType) {
-      if (menuKeywords.test(promptNormalizado)) {
-        detectedType = "menu";
-      } else if (promoKeywords.test(promptNormalizado)) {
-        detectedType = "promo";
-      } else if (bienvenidaKeywords.test(promptNormalizado)) {
-        detectedType = "bienvenida";
-      } else if (eventoKeywords.test(promptNormalizado)) {
-        detectedType = "evento";
+      // Score each type by keyword match count — highest wins
+      let bestType: DetectedType = "generico";
+      let bestScore = 0;
+      for (const { type, regex } of typePatterns) {
+        const matches = promptNormalizado.match(regex);
+        const score = matches ? matches.length : 0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestType = type;
+        }
       }
+      detectedType = bestType;
     }
 
     console.log("TIPO RECIBIDO:", tipo);
