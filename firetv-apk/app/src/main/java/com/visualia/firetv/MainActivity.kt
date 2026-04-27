@@ -127,6 +127,7 @@ class MainActivity : AppCompatActivity() {
                 if (code.isNotEmpty()) {
                     saveDeviceCode(code)
                     loadPlayer(code)
+                    heartbeat.start()
                 } else {
                     askForDeviceCode()
                 }
