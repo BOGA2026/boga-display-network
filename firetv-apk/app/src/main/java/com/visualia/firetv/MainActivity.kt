@@ -188,6 +188,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        heartbeat.stop()
         if (wakeLock?.isHeld == true) wakeLock?.release()
         binding.webview.destroy()
         super.onDestroy()
