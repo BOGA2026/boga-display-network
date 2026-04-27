@@ -123,7 +123,6 @@ class MainActivity : AppCompatActivity() {
                 if (code.isNotEmpty()) {
                     saveDeviceCode(code)
                     loadPlayer(code)
-                    heartbeat.start()
                 } else {
                     askForDeviceCode()
                 }
@@ -184,7 +183,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        heartbeat.stop()
         if (wakeLock?.isHeld == true) wakeLock?.release()
         binding.webview.destroy()
         super.onDestroy()
