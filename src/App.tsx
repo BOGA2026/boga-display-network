@@ -32,7 +32,6 @@ import AboutPage from "./pages/AboutPage";
 import TerminosPage from "./pages/TerminosPage";
 import PrivacidadPage from "./pages/PrivacidadPage";
 import DescargarApk from "./pages/DescargarApk";
-import AdminFleetPage from "./pages/AdminFleetPage";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +69,6 @@ const App = () => (
             <Route path="generar-ia" element={<GenerateAI />} />
             <Route path="editor" element={<EditorPage />} />
             <Route path="leads" element={<AdminLeadsPage />} />
-            <Route path="flota" element={<AdminFleetPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
