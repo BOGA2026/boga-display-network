@@ -1010,14 +1010,18 @@ export type Database = {
       screens: {
         Row: {
           activated_at: string | null
+          app_version: string | null
           created_at: string
+          device_model: string | null
           device_token: string | null
           id: string
+          ip_address: string | null
           last_seen_at: string | null
           last_sync_at: string | null
           license_status: string
           location_id: string
           name: string
+          os_version: string | null
           payment_expires_at: string | null
           schedule_version: number
           status: string
@@ -1026,14 +1030,18 @@ export type Database = {
         }
         Insert: {
           activated_at?: string | null
+          app_version?: string | null
           created_at?: string
+          device_model?: string | null
           device_token?: string | null
           id?: string
+          ip_address?: string | null
           last_seen_at?: string | null
           last_sync_at?: string | null
           license_status?: string
           location_id: string
           name: string
+          os_version?: string | null
           payment_expires_at?: string | null
           schedule_version?: number
           status?: string
@@ -1042,14 +1050,18 @@ export type Database = {
         }
         Update: {
           activated_at?: string | null
+          app_version?: string | null
           created_at?: string
+          device_model?: string | null
           device_token?: string | null
           id?: string
+          ip_address?: string | null
           last_seen_at?: string | null
           last_sync_at?: string | null
           license_status?: string
           location_id?: string
           name?: string
+          os_version?: string | null
           payment_expires_at?: string | null
           schedule_version?: number
           status?: string
@@ -1209,6 +1221,7 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
+      is_platform_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "manager" | "content_editor"
