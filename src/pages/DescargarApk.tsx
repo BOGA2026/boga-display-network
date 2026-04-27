@@ -32,15 +32,14 @@ const steps = [
 ];
 
 export default function DescargarApk() {
+  useEffect(() => {
+    document.title = "Descargar app Fire TV | Visualia";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", "Instala Visualia en tu Amazon Fire TV en 4 pasos. Descarga la APK oficial y conecta tu pantalla en minutos.");
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Helmet>
-        <title>Descargar app Fire TV | Visualia</title>
-        <meta
-          name="description"
-          content="Instala Visualia en tu Amazon Fire TV en 4 pasos. Descarga la APK oficial y conecta tu pantalla en minutos."
-        />
-      </Helmet>
 
       <main className="container mx-auto max-w-5xl px-4 py-16">
         <header className="text-center mb-12">
