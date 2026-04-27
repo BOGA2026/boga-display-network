@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Download, Tv, Smartphone, ShieldCheck, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 
-// URL pública directa de la APK. Reemplaza por tu link final cuando subas el archivo.
-const APK_URL = "https://visualiamedia.com/downloads/visualia-firetv.apk";
+// URL pública directa de la APK alojada en Supabase Storage (bucket: downloads)
+const APK_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co/storage/v1/object/public/downloads/visualia-firetv.apk";
 const APK_VERSION = "1.0.0";
 
 const steps = [
