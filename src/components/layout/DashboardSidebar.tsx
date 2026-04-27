@@ -11,7 +11,6 @@ import {
   LogOut,
   ChevronLeft,
   Sparkles,
-  Wifi,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -29,7 +28,6 @@ const navItems = [
   { icon: PenTool, label: "Editor", path: "/dashboard/editor" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
-  { icon: Wifi, label: "Flota Fire TV", path: "/dashboard/flota" },
 ];
 
 const DashboardSidebar = () => {
