@@ -28,7 +28,7 @@ const menuItems = [
 const directLinks = [
   { label: "Precios", href: "/precios" },
   { label: "Nosotros", href: "/acerca" },
-  { label: "Descargar APK", href: "/descargar-apk" },
+  { label: "Link your screen", href: "/descargar-apk" },
 ];
 
 const LandingHeader = () => {
