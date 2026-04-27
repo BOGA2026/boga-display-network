@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var wakeLock: PowerManager.WakeLock? = null
+    private lateinit var heartbeat: HeartbeatManager
 
     // Para combo de salida: MENU + REWIND mantenidos 5s
     private var menuPressedAt: Long = 0
@@ -46,11 +47,14 @@ class MainActivity : AppCompatActivity() {
 
         setupWebView()
 
+        heartbeat = HeartbeatManager(applicationContext) { getDeviceCode() }
+
         val code = getDeviceCode()
         if (code.isNullOrBlank()) {
             askForDeviceCode()
         } else {
             loadPlayer(code)
+            heartbeat.start()
         }
     }
 
