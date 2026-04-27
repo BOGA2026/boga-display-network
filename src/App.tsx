@@ -31,6 +31,7 @@ import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AboutPage from "./pages/AboutPage";
 import TerminosPage from "./pages/TerminosPage";
 import PrivacidadPage from "./pages/PrivacidadPage";
+import DescargarApk from "./pages/DescargarApk";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           {/* CORRECCIÓN 11 — Rutas para páginas legales */}
           <Route path="/terminos" element={<TerminosPage />} />
           <Route path="/privacidad" element={<PrivacidadPage />} />
+          <Route path="/descargar-apk" element={<DescargarApk />} />
           <Route path="/soluciones/restaurantes" element={<RestaurantSolutionPage />} />
           <Route path="/acerca" element={<AboutPage />} />
           <Route path="/studio" element={<Studio />} />

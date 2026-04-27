@@ -2,7 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, Tv, Smartphone, ShieldCheck, ArrowRight } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 // URL pública directa de la APK. Reemplaza por tu link final cuando subas el archivo.
 const APK_URL = "https://visualiamedia.com/downloads/visualia-firetv.apk";
