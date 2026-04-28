@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
         rotation = (screenRow as any)?.rotation ?? 0;
       }
 
-      return new Response(JSON.stringify({ status: device.status, config, rotation }), {
+      return new Response(JSON.stringify({ status: device.status, config, rotation, screen_id: device.screen_id ?? null }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
