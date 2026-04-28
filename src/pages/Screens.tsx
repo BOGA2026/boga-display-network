@@ -253,7 +253,12 @@ const Screens = () => {
       .single();
 
     if (screenError || !screen) {
-      toast({ title: "Error al crear pantalla", description: screenError?.message, variant: "destructive" });
+      console.error("[Screens] Error creating screen:", screenError);
+      toast({
+        title: "Error al crear pantalla",
+        description: screenError?.message ?? "No se pudo crear la pantalla. Verifica tus permisos.",
+        variant: "destructive",
+      });
       setSaving(false);
       return;
     }
@@ -271,11 +276,17 @@ const Screens = () => {
     setSaving(false);
 
     if (deviceError) {
+      console.error("[Screens] Error creating device:", deviceError);
       await supabase.from("screens").delete().eq("id", screen.id);
-      toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
+      toast({
+        title: "Error al vincular dispositivo",
+        description: deviceError.message,
+        variant: "destructive",
+      });
       return;
     }
 
+    console.log("[Screens] Pairing code generated:", code);
     setGeneratedCode(code);
     fetchData();
   };
