@@ -274,6 +274,26 @@ const Player = () => {
     );
   }
 
+  if (status === "pending") {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+        <div className="relative mb-6">
+          <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
+          <img src={simboloVisualia} alt="Visualia" className="relative h-24 w-auto" />
+        </div>
+        <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
+          Esperando contenido
+        </p>
+        <h1 className="mb-4 text-2xl font-bold text-center" style={{ color: "#fff" }}>
+          Pantalla vinculada
+        </h1>
+        <p className="max-w-md text-center text-sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+          Asigna una playlist desde el panel Visualia y aparecerá aquí en segundos.
+        </p>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#0a0812", color: "rgba(255,255,255,0.5)" }}>
