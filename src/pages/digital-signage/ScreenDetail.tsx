@@ -144,12 +144,26 @@ export default function ScreenDetail() {
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Rotación guardada",
-          description: "La pantalla aplicará el cambio en su próximo chequeo (hasta 60s).",
-        });
+        return;
       }
+
+      // Force the Fire TV to reload immediately so the new rotation is visible
+      // without waiting for the next 60s heartbeat.
+      const { error: cmdErr } = await supabase
+        .from("screen_commands")
+        .insert({
+          screen_id: screenId,
+          command: "RELOAD",
+          payload: { rotation: patch.rotation },
+          status: "pending",
+        });
+
+      toast({
+        title: "Rotación guardada",
+        description: cmdErr
+          ? "Guardada. El Fire TV la aplicará en su próximo chequeo (hasta 60s)."
+          : "El Fire TV se recargará en pocos segundos para aplicar el cambio.",
+      });
     }
   };
 

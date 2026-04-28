@@ -6,7 +6,7 @@ import PlayerSplash from "@/components/player/PlayerSplash";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
-const HEARTBEAT_INTERVAL = 60_000;
+const HEARTBEAT_INTERVAL = 10_000;
 const CHECKIN_URL = `${SUPABASE_URL}/functions/v1/pair-device/checkin`;
 const DEVICE_CODE_STORAGE_KEY = "visualia_device_code";
 
@@ -126,6 +126,12 @@ const Player = () => {
 
       if (typeof data.rotation === "number" && [0, 90, 180, 270].includes(data.rotation)) {
         setRotation(data.rotation as 0 | 90 | 180 | 270);
+      }
+
+      // Process remote commands sent from the dashboard
+      if (data.pending_command?.command === "RELOAD") {
+        console.log("[Player] RELOAD command received — refreshing");
+        setTimeout(() => window.location.reload(), 300);
       }
 
       return data;
