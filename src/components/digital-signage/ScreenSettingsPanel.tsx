@@ -231,24 +231,11 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete, onSync
         </Select>
       </fieldset>
 
-      <fieldset className="space-y-1.5">
-        <label className="text-xs text-muted-foreground">Rotación de video</label>
-        <Select
-          value={String(screen.rotation ?? 0)}
-          onValueChange={(v) => onChange({ rotation: Number(v) as 0 | 90 | 180 | 270 })}
-        >
-          <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="0">0° (Normal)</SelectItem>
-            <SelectItem value="90">90° (Derecha)</SelectItem>
-            <SelectItem value="180">180° (Invertido)</SelectItem>
-            <SelectItem value="270">270° (Izquierda)</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-[10px] text-muted-foreground">
-          Rota el contenido en pantalla. Útil para TV instaladas en vertical.
-        </p>
-      </fieldset>
+      <RotationControl
+        currentRotation={(screen.rotation ?? 0) as 0 | 90 | 180 | 270}
+        onApply={(r) => onChange({ rotation: r })}
+      />
+
 
       <fieldset className="flex items-center justify-between">
         <label className="text-xs text-muted-foreground">Reinicio automático</label>
@@ -359,5 +346,53 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete, onSync
         </AlertDialog>
       </div>
     </aside>
+  );
+}
+
+function RotationControl({
+  currentRotation,
+  onApply,
+}: {
+  currentRotation: 0 | 90 | 180 | 270;
+  onApply: (r: 0 | 90 | 180 | 270) => void;
+}) {
+  const [pending, setPending] = useState<0 | 90 | 180 | 270>(currentRotation);
+
+  // Sync if the saved value changes from outside (e.g. reload)
+  useEffect(() => {
+    setPending(currentRotation);
+  }, [currentRotation]);
+
+  const dirty = pending !== currentRotation;
+
+  return (
+    <fieldset className="space-y-1.5">
+      <label className="text-xs text-muted-foreground">
+        Rotación de video <span className="text-foreground font-medium">(actual: {currentRotation}°)</span>
+      </label>
+      <Select
+        value={String(pending)}
+        onValueChange={(v) => setPending(Number(v) as 0 | 90 | 180 | 270)}
+      >
+        <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="0">0° (Normal)</SelectItem>
+          <SelectItem value="90">90° (Derecha)</SelectItem>
+          <SelectItem value="180">180° (Invertido)</SelectItem>
+          <SelectItem value="270">270° (Izquierda)</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button
+        size="sm"
+        className="w-full gradient-primary"
+        disabled={!dirty}
+        onClick={() => onApply(pending)}
+      >
+        {dirty ? `Aplicar ${pending}°` : "Sin cambios"}
+      </Button>
+      <p className="text-[10px] text-muted-foreground">
+        El Fire TV aplicará la nueva rotación en su próximo chequeo (hasta 60s).
+      </p>
+    </fieldset>
   );
 }
