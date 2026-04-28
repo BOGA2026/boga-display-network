@@ -43,6 +43,7 @@ const Player = () => {
   const [checkinDone, setCheckinDone] = useState(false);
   const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "pending" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
+  const [rotation, setRotation] = useState<0 | 90 | 180 | 270>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -121,6 +122,10 @@ const Player = () => {
         if (data.config) setConfig(data.config);
       } else if (data.status === "pending") {
         setStatus("pending");
+      }
+
+      if (typeof data.rotation === "number" && [0, 90, 180, 270].includes(data.rotation)) {
+        setRotation(data.rotation as 0 | 90 | 180 | 270);
       }
 
       return data;
@@ -424,7 +429,7 @@ const Player = () => {
           playsInline
           preload="metadata"
           loop={items.length === 1}
-          className="fixed inset-0 h-full w-full object-contain"
+          className="h-full w-full object-contain"
           style={{ background: "#000" }}
           onLoadedData={() => {
             void attemptVideoPlayback();
@@ -449,7 +454,7 @@ const Player = () => {
         <iframe
           key={url}
           src={url}
-          className="fixed inset-0 h-full w-full border-0"
+          className="h-full w-full border-0"
           sandbox="allow-scripts allow-same-origin"
           title={currentItem.name}
         />
@@ -461,13 +466,33 @@ const Player = () => {
         key={url}
         src={url}
         alt={currentItem.name}
-        className="fixed inset-0 h-full w-full object-contain"
+        className="h-full w-full object-contain"
         style={{ background: "#000" }}
       />
     );
   };
 
-  return <>{renderContent()}</>;
+  const swap = rotation === 90 || rotation === 270;
+  return (
+    <div
+      className="fixed inset-0 overflow-hidden"
+      style={{ background: "#000" }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: swap ? "100vh" : "100vw",
+          height: swap ? "100vw" : "100vh",
+          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+          transformOrigin: "center center",
+        }}
+      >
+        {renderContent()}
+      </div>
+    </div>
+  );
 };
 
 export default Player;

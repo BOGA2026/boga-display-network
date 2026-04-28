@@ -47,6 +47,7 @@ function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; 
     timezone: "America/Bogota",
     orientation: "landscape",
     displayMode: "fill",
+    rotation: ((dbScreen.rotation ?? 0) as 0 | 90 | 180 | 270),
     tags: [],
     currentContent: {
       assetName: "Sin contenido",
@@ -128,8 +129,28 @@ export default function ScreenDetail() {
   const StatusIcon = st.icon;
   const backPath = fromDashboard ? "/dashboard/pantallas" : "/digital-signage/screens";
 
-  const handleChange = (patch: Partial<ScreenData>) => {
+  const handleChange = async (patch: Partial<ScreenData>) => {
     setScreen((prev) => (prev ? { ...prev, ...patch } : prev));
+
+    // Persist rotation to DB so the Fire TV player picks it up on next checkin
+    if (patch.rotation !== undefined && fromDashboard && screenId) {
+      const { error } = await supabase
+        .from("screens")
+        .update({ rotation: patch.rotation })
+        .eq("id", screenId);
+      if (error) {
+        toast({
+          title: "No se pudo guardar la rotación",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Rotación guardada",
+          description: "La pantalla aplicará el cambio en su próximo chequeo (hasta 60s).",
+        });
+      }
+    }
   };
 
   const handleDelete = () => {

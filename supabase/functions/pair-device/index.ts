@@ -95,8 +95,9 @@ Deno.serve(async (req) => {
           .eq("id", device.screen_id);
       }
 
-      // Fetch assigned playlist config if paired
+      // Fetch assigned playlist config + screen settings if paired
       let config = null;
+      let rotation = 0;
       if (device.status === "paired" && device.screen_id) {
         const { data: schedule } = await supabase
           .from("schedules")
@@ -108,9 +109,16 @@ Deno.serve(async (req) => {
           .maybeSingle();
 
         config = schedule;
+
+        const { data: screenRow } = await supabase
+          .from("screens")
+          .select("rotation")
+          .eq("id", device.screen_id)
+          .maybeSingle();
+        rotation = (screenRow as any)?.rotation ?? 0;
       }
 
-      return new Response(JSON.stringify({ status: device.status, config }), {
+      return new Response(JSON.stringify({ status: device.status, config, rotation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
