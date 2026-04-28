@@ -8,6 +8,23 @@ const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
 const HEARTBEAT_INTERVAL = 60_000;
 const CHECKIN_URL = `${SUPABASE_URL}/functions/v1/pair-device/checkin`;
+const DEVICE_CODE_STORAGE_KEY = "visualia_device_code";
+
+const normalizeDeviceCode = (value?: string | null) =>
+  (value ?? "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 6);
+
+const generateDeviceCode = () => {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const randomValues = globalThis.crypto?.getRandomValues?.(new Uint32Array(6));
+
+  return Array.from({ length: 6 }, (_, index) => {
+    const value = randomValues?.[index] ?? Math.floor(Math.random() * alphabet.length);
+    return alphabet[value % alphabet.length];
+  }).join("");
+};
 
 interface ContentItem {
   id: string;
@@ -39,8 +56,29 @@ const Player = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [resolvedDeviceCode, setResolvedDeviceCode] = useState("");
 
-  const deviceCode = deviceId?.toUpperCase() ?? "";
+  useEffect(() => {
+    const routeCode = normalizeDeviceCode(deviceId);
+
+    if (routeCode) {
+      setResolvedDeviceCode(routeCode);
+      window.localStorage.setItem(DEVICE_CODE_STORAGE_KEY, routeCode);
+      return;
+    }
+
+    const storedCode = normalizeDeviceCode(window.localStorage.getItem(DEVICE_CODE_STORAGE_KEY));
+    if (storedCode) {
+      setResolvedDeviceCode(storedCode);
+      return;
+    }
+
+    const newCode = generateDeviceCode();
+    window.localStorage.setItem(DEVICE_CODE_STORAGE_KEY, newCode);
+    setResolvedDeviceCode(newCode);
+  }, [deviceId]);
+
+  const deviceCode = resolvedDeviceCode;
 
   const doCheckin = useCallback(async () => {
     try {
@@ -83,9 +121,6 @@ const Player = () => {
   // Initial checkin (runs during splash)
   useEffect(() => {
     if (!deviceCode) {
-      setStatus("error");
-      setErrorMsg("No device ID provided");
-      setCheckinDone(true);
       return;
     }
 
