@@ -97,6 +97,21 @@ const Player = () => {
     const code = codeOverride ?? deviceCode;
     if (!code) return null;
 
+    // Detect device info (best-effort)
+    const ua = navigator.userAgent || "";
+    const isFireTV = /AFT|Fire TV|FireOS|Silk/i.test(ua);
+    const androidMatch = ua.match(/Android\s+([\d.]+)/);
+    const deviceModel = (() => {
+      if (isFireTV) {
+        const m = ua.match(/AFT\w*/);
+        return m ? `Fire TV (${m[0]})` : "Fire TV";
+      }
+      const m = ua.match(/\(([^)]+)\)/);
+      return m ? m[1].split(";").pop()?.trim() ?? "Web" : "Web";
+    })();
+    const osVersion = androidMatch ? `Android ${androidMatch[1]}` : navigator.platform || "web";
+    const appVersion = (window as any).__VISUALIA_APP_VERSION__ || "web-1.0.0";
+
     try {
       const res = await fetch(CHECKIN_URL, {
         method: "POST",
@@ -104,7 +119,13 @@ const Player = () => {
           "Content-Type": "application/json",
           apikey: SUPABASE_KEY,
         },
-        body: JSON.stringify({ device_code: code }),
+        body: JSON.stringify({
+          device_code: code,
+          app_version: appVersion,
+          device_model: deviceModel,
+          os_version: osVersion,
+          user_agent: ua,
+        }),
       });
 
       if (!res.ok) {
@@ -132,6 +153,23 @@ const Player = () => {
       if (data.pending_command?.command === "RELOAD") {
         console.log("[Player] RELOAD command received — refreshing");
         setTimeout(() => window.location.reload(), 300);
+      } else if (data.pending_command?.command === "RESTART_APP") {
+        console.log("[Player] RESTART_APP command received");
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+        } catch (e) {
+          console.warn("[Player] cache clear failed", e);
+        }
+        // If running inside Android WebView with native bridge, use it
+        const native = (window as any).VisualiaNative;
+        if (native?.restartApp) {
+          native.restartApp();
+        } else {
+          setTimeout(() => window.location.reload(), 300);
+        }
       }
 
       return data;

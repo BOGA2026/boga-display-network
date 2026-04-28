@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
 
     // POST /pair-device/checkin — device heartbeat
     if (req.method === "POST" && path === "checkin") {
-      const { device_code, app_version } = await req.json();
+      const body = await req.json();
+      const { device_code, app_version, device_model, os_version, user_agent } = body;
       if (!device_code) {
         return new Response(JSON.stringify({ error: "Missing device_code" }), {
           status: 400,
@@ -87,12 +88,24 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Also update screen status
+      // Also update screen status + technical info
       if (device.screen_id) {
-        await supabase
-          .from("screens")
-          .update({ last_seen_at: new Date().toISOString(), status: "online" })
-          .eq("id", device.screen_id);
+        const screenUpdate: Record<string, unknown> = {
+          last_seen_at: nowIso,
+          status: "online",
+        };
+        if (app_version) screenUpdate.app_version = app_version;
+        if (device_model) screenUpdate.device_model = device_model;
+        if (os_version) screenUpdate.os_version = os_version;
+
+        // Capture client IP for approximate geo when no GPS
+        const ip =
+          req.headers.get("cf-connecting-ip") ||
+          req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+          null;
+        if (ip) screenUpdate.ip_address = ip;
+
+        await supabase.from("screens").update(screenUpdate).eq("id", device.screen_id);
       }
 
       // Fetch assigned playlist config + screen settings if paired
