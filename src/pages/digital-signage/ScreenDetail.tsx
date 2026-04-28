@@ -47,6 +47,7 @@ function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; 
     timezone: "America/Bogota",
     orientation: "landscape",
     displayMode: "fill",
+    rotation: ((dbScreen.rotation ?? 0) as 0 | 90 | 180 | 270),
     tags: [],
     currentContent: {
       assetName: "Sin contenido",
