@@ -31,6 +31,8 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
