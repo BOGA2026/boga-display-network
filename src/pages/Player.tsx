@@ -48,6 +48,7 @@ const Player = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const wakeLockRef = useRef<any>(null);
   const [resolvedDeviceCode, setResolvedDeviceCode] = useState("");
   const [codeInput, setCodeInput] = useState("");
   const [inputError, setInputError] = useState("");
@@ -73,6 +74,23 @@ const Player = () => {
   }, [deviceId]);
 
   const deviceCode = resolvedDeviceCode;
+
+  const acquireWakeLock = useCallback(async () => {
+    try {
+      if (document.visibilityState !== "visible") return;
+      const nav = navigator as Navigator & {
+        wakeLock?: {
+          request: (type: "screen") => Promise<any>;
+        };
+      };
+
+      if (!nav.wakeLock?.request) return;
+      wakeLockRef.current = await nav.wakeLock.request("screen");
+      console.log("[Player] Wake lock activa");
+    } catch (error) {
+      console.warn("[Player] No se pudo activar wake lock", error);
+    }
+  }, []);
 
   const doCheckin = useCallback(async (codeOverride?: string) => {
     const code = codeOverride ?? deviceCode;
@@ -219,12 +237,31 @@ const Player = () => {
     document.body.style.overflow = "hidden";
     document.body.style.margin = "0";
     document.body.style.background = "#0a0812";
+
+    void acquireWakeLock();
+
+    const recoverPlayer = () => {
+      if (document.visibilityState === "visible") {
+        void acquireWakeLock();
+        void attemptVideoPlayback();
+        void doCheckin();
+      }
+    };
+
+    document.addEventListener("visibilitychange", recoverPlayer);
+    window.addEventListener("focus", recoverPlayer);
+    window.addEventListener("pageshow", recoverPlayer);
+
     return () => {
+      document.removeEventListener("visibilitychange", recoverPlayer);
+      window.removeEventListener("focus", recoverPlayer);
+      window.removeEventListener("pageshow", recoverPlayer);
+      void wakeLockRef.current?.release?.();
       document.body.style.overflow = "";
       document.body.style.margin = "";
       document.body.style.background = "";
     };
-  }, []);
+  }, [acquireWakeLock, attemptVideoPlayback, doCheckin]);
 
   // Splash screen — shown on every load/restart
   if (showSplash) {
