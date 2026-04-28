@@ -85,12 +85,14 @@ export default function ScreenDetail() {
       setFromDashboard(true);
       const { data: dbScreen } = await supabase
         .from("screens")
-        .select("*, locations(name, latitude, longitude)")
+        .select("*, locations(id, name, address, latitude, longitude)")
         .eq("id", screenId!)
         .maybeSingle();
 
       if (dbScreen) {
         const loc = (dbScreen as any).locations;
+        setLocationId(loc?.id ?? null);
+        setLocationAddress(loc?.address ?? "");
         setScreen(mapDbScreenToScreenData(dbScreen, {
           name: loc?.name,
           latitude: loc?.latitude,
