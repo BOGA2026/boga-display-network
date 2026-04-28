@@ -1023,6 +1023,7 @@ export type Database = {
           name: string
           os_version: string | null
           payment_expires_at: string | null
+          rotation: number
           schedule_version: number
           status: string
           subscription_id: string | null
@@ -1043,6 +1044,7 @@ export type Database = {
           name: string
           os_version?: string | null
           payment_expires_at?: string | null
+          rotation?: number
           schedule_version?: number
           status?: string
           subscription_id?: string | null
@@ -1063,6 +1065,7 @@ export type Database = {
           name?: string
           os_version?: string | null
           payment_expires_at?: string | null
+          rotation?: number
           schedule_version?: number
           status?: string
           subscription_id?: string | null
