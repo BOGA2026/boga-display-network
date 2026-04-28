@@ -43,6 +43,7 @@ const Player = () => {
   const [checkinDone, setCheckinDone] = useState(false);
   const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "pending" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
+  const [rotation, setRotation] = useState<0 | 90 | 180 | 270>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [isReconnecting, setIsReconnecting] = useState(false);
