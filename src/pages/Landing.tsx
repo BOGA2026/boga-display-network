@@ -29,7 +29,19 @@ const testimonials = [
   { name: "Diana Duarte", role: "Gerente de Mercadeo", business: "Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
 ];
 
+// Detecta navegadores de Amazon Fire TV / Silk para redirigir a una página liviana
+const isFireTvBrowser = () => {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /AFT|Silk|Fire TV|AmazonWebAppPlatform/i.test(ua);
+};
+
 const Landing = () => {
+  // Redirección temprana para Fire TV (antes de cargar videos / animaciones pesadas)
+  if (isFireTvBrowser()) {
+    return <Navigate to="/tv" replace />;
+  }
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
