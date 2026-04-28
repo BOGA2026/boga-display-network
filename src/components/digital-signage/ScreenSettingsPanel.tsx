@@ -231,6 +231,25 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete, onSync
         </Select>
       </fieldset>
 
+      <fieldset className="space-y-1.5">
+        <label className="text-xs text-muted-foreground">Rotación de video</label>
+        <Select
+          value={String(screen.rotation ?? 0)}
+          onValueChange={(v) => onChange({ rotation: Number(v) as 0 | 90 | 180 | 270 })}
+        >
+          <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">0° (Normal)</SelectItem>
+            <SelectItem value="90">90° (Derecha)</SelectItem>
+            <SelectItem value="180">180° (Invertido)</SelectItem>
+            <SelectItem value="270">270° (Izquierda)</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-[10px] text-muted-foreground">
+          Rota el contenido en pantalla. Útil para TV instaladas en vertical.
+        </p>
+      </fieldset>
+
       <fieldset className="flex items-center justify-between">
         <label className="text-xs text-muted-foreground">Reinicio automático</label>
         <Switch checked={screen.autoReboot} onCheckedChange={(v) => onChange({ autoReboot: v })} />
