@@ -59,9 +59,10 @@ Deno.serve(async (req) => {
         });
       }
 
+      const nowIso = new Date().toISOString();
       const { data: device, error } = await supabase
         .from("devices")
-        .update({ last_seen_at: new Date().toISOString(), app_version: app_version || null })
+        .update({ last_seen_at: nowIso, app_version: app_version || null })
         .eq("device_code", device_code.toUpperCase())
         .select("id, status, screen_id")
         .maybeSingle();
@@ -71,6 +72,19 @@ Deno.serve(async (req) => {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      }
+
+      // Auto-pair: if device was pending and has a screen assigned, mark as paired
+      if (device.status === "pending" && device.screen_id) {
+        const { data: paired } = await supabase
+          .from("devices")
+          .update({ status: "paired", paired_at: nowIso })
+          .eq("id", device.id)
+          .select("id, status, screen_id")
+          .maybeSingle();
+        if (paired) {
+          device.status = paired.status;
+        }
       }
 
       // Also update screen status
