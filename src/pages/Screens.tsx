@@ -165,24 +165,15 @@ const Screens = () => {
   };
 
   const resetForm = () => {
-    setDeviceCode("");
     setScreenName("");
     setTimezone("America/Bogota");
-    setCodeError("");
     setNameError("");
+    setGeneratedCode(null);
+    setCodeCopied(false);
   };
 
   const validateForm = () => {
     let valid = true;
-    if (!deviceCode.trim()) {
-      setCodeError("El código es requerido");
-      valid = false;
-    } else if (!isValidCode(deviceCode)) {
-      setCodeError("Solo letras y números, entre 4 y 12 caracteres");
-      valid = false;
-    } else {
-      setCodeError("");
-    }
     if (!screenName.trim()) {
       setNameError("El nombre es requerido");
       valid = false;
@@ -196,15 +187,24 @@ const Screens = () => {
   };
 
   const isFormValid = () => {
-    return (
-      deviceCode.trim().length >= 4 &&
-      isValidCode(deviceCode) &&
-      screenName.trim().length > 0 &&
-      screenName.trim().length <= 40
-    );
+    return screenName.trim().length > 0 && screenName.trim().length <= 40;
   };
 
-  const handleAddScreen = async () => {
+  // Generate a unique pairing code (retries on rare collision)
+  const generateUniqueCode = async (): Promise<string | null> => {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = generatePairingCode();
+      const { data: existing } = await supabase
+        .from("devices")
+        .select("id")
+        .eq("device_code", candidate)
+        .maybeSingle();
+      if (!existing) return candidate;
+    }
+    return null;
+  };
+
+  const handleGenerateCode = async () => {
     if (!validateForm()) return;
     setSaving(true);
 
@@ -222,7 +222,6 @@ const Screens = () => {
       return;
     }
 
-    // Use first location or create a default one
     let locationId = locations[0]?.id;
     if (!locationId) {
       const { data: newLoc } = await supabase
@@ -235,6 +234,13 @@ const Screens = () => {
 
     if (!locationId) {
       toast({ title: "Error al crear ubicación", variant: "destructive" });
+      setSaving(false);
+      return;
+    }
+
+    const code = await generateUniqueCode();
+    if (!code) {
+      toast({ title: "No fue posible generar un código único, intenta de nuevo", variant: "destructive" });
       setSaving(false);
       return;
     }
@@ -252,33 +258,43 @@ const Screens = () => {
       return;
     }
 
-    // Create device record linked to screen
+    // Create device in 'pending' state, waiting for the TV to claim this code
     const { error: deviceError } = await supabase.from("devices").insert({
-      device_code: deviceCode.trim().toUpperCase(),
-      status: "paired",
+      device_code: code,
+      status: "pending",
       business_id: businessId,
       location_id: locationId,
       screen_id: screen.id,
       screen_name: screenName.trim(),
-      paired_at: new Date().toISOString(),
     });
 
     setSaving(false);
 
     if (deviceError) {
       await supabase.from("screens").delete().eq("id", screen.id);
-      if (deviceError.message.includes("unique")) {
-        setCodeError("Código inválido o no encontrado");
-      } else {
-        toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
-      }
+      toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
       return;
     }
 
+    setGeneratedCode(code);
+    fetchData();
+  };
+
+  const handleCopyCode = async () => {
+    if (!generatedCode) return;
+    try {
+      await navigator.clipboard.writeText(generatedCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    } catch {
+      toast({ title: "No se pudo copiar", variant: "destructive" });
+    }
+  };
+
+  const handleFinishPairing = () => {
     setSuccessScreen(screenName.trim());
     setDialogOpen(false);
     resetForm();
-    fetchData();
   };
 
   const handleAddDemoScreen = async () => {
