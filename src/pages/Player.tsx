@@ -128,6 +128,12 @@ const Player = () => {
         setRotation(data.rotation as 0 | 90 | 180 | 270);
       }
 
+      // Process remote commands sent from the dashboard
+      if (data.pending_command?.command === "RELOAD") {
+        console.log("[Player] RELOAD command received — refreshing");
+        setTimeout(() => window.location.reload(), 300);
+      }
+
       return data;
     } catch (err: any) {
       setIsReconnecting(true);
