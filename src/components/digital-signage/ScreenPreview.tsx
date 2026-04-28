@@ -36,24 +36,14 @@ export default function ScreenPreview({ screen }: { screen: ScreenData }) {
       </div>
       <div className="relative aspect-video w-full overflow-hidden bg-black">
         {deviceCode ? (
-          (() => {
-            const rot = screen.rotation ?? 0;
-            const swap = rot === 90 || rot === 270;
-            return (
-              <iframe
-                src={`/player/${deviceCode}`}
-                title="Vista en vivo"
-                sandbox="allow-scripts allow-same-origin"
-                className="absolute left-1/2 top-1/2 border-0"
-                style={{
-                  width: swap ? "56.25%" : "100%",
-                  height: swap ? "177.78%" : "100%",
-                  transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-                  transformOrigin: "center center",
-                }}
-              />
-            );
-          })()
+          // The player itself already applies the rotation transform — render iframe flat
+          // so the dashboard preview matches exactly what the Fire TV displays.
+          <iframe
+            src={`/player/${deviceCode}`}
+            title="Vista en vivo"
+            sandbox="allow-scripts allow-same-origin"
+            className="absolute inset-0 h-full w-full border-0"
+          />
         ) : (
           <>
             <img
