@@ -124,6 +124,10 @@ const Player = () => {
         setStatus("pending");
       }
 
+      if (typeof data.rotation === "number" && [0, 90, 180, 270].includes(data.rotation)) {
+        setRotation(data.rotation as 0 | 90 | 180 | 270);
+      }
+
       return data;
     } catch (err: any) {
       setIsReconnecting(true);
