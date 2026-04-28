@@ -532,7 +532,7 @@ const Content = () => {
                         Arrastra un archivo aquí o <span className="text-primary font-medium">haz clic para seleccionar</span>
                       </p>
                       <p className="text-[11px] text-muted-foreground/60 mt-1">
-                        Máximo 50MB
+                        Máximo 100 MB
                       </p>
                     </>
                   )}
