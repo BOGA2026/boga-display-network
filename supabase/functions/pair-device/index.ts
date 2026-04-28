@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
       // Fetch assigned playlist config + screen settings if paired
       let config = null;
       let rotation = 0;
+      let pending_command: { id: string; command: string; payload: any } | null = null;
       if (device.status === "paired" && device.screen_id) {
         const { data: schedule } = await supabase
           .from("schedules")
@@ -116,9 +117,34 @@ Deno.serve(async (req) => {
           .eq("id", device.screen_id)
           .maybeSingle();
         rotation = (screenRow as any)?.rotation ?? 0;
+
+        // Pull the latest pending command for this screen, mark it as executed
+        const { data: cmd } = await supabase
+          .from("screen_commands")
+          .select("id, command, payload")
+          .eq("screen_id", device.screen_id)
+          .eq("status", "pending")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (cmd) {
+          pending_command = cmd as any;
+          await supabase
+            .from("screen_commands")
+            .update({ status: "executed", executed_at: new Date().toISOString() })
+            .eq("id", cmd.id);
+        }
       }
 
-      return new Response(JSON.stringify({ status: device.status, config, rotation, screen_id: device.screen_id ?? null }), {
+      return new Response(JSON.stringify({
+        status: device.status,
+        config,
+        rotation,
+        screen_id: device.screen_id ?? null,
+        pending_command,
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
