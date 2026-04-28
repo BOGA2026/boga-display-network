@@ -212,9 +212,22 @@ export default function ScreenDetail() {
         <div className="space-y-6">
           {/* Location */}
           <div className="glass-card rounded-xl overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-              <MapPin className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+            <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+              </div>
+              {fromDashboard && locationId && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 gap-1.5 text-xs"
+                  onClick={() => setLocationEditOpen(true)}
+                >
+                  <Pencil className="h-3 w-3" />
+                  Editar ubicación
+                </Button>
+              )}
             </div>
             {screen.location.lat !== 0 && screen.location.lng !== 0 ? (
               <div className="relative h-48 w-full">
@@ -232,12 +245,16 @@ export default function ScreenDetail() {
                 </div>
               </div>
             ) : (
-              <div className="flex h-40 items-center justify-center bg-muted/30 text-sm text-muted-foreground">
-                <div className="text-center">
-                  <MapPin className="mx-auto mb-1 h-6 w-6 text-primary/60" />
-                  <p>{screen.location.label}</p>
-                  <p className="text-xs text-muted-foreground/70">Coordenadas no configuradas</p>
-                </div>
+              <div className="flex h-40 flex-col items-center justify-center gap-2 bg-muted/30 text-sm text-muted-foreground">
+                <MapPin className="h-6 w-6 text-primary/60" />
+                <p>{screen.location.label}</p>
+                <p className="text-xs text-muted-foreground/70">Coordenadas no configuradas</p>
+                {fromDashboard && locationId && (
+                  <Button size="sm" variant="outline" onClick={() => setLocationEditOpen(true)}>
+                    <Pencil className="mr-1.5 h-3 w-3" />
+                    Configurar ubicación
+                  </Button>
+                )}
               </div>
             )}
           </div>
