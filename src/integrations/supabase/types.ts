@@ -200,6 +200,7 @@ export type Database = {
           business_id: string
           created_at: string
           device_code: string
+          heartbeat_token: string | null
           id: string
           last_seen_at: string | null
           location_id: string | null
@@ -214,6 +215,7 @@ export type Database = {
           business_id: string
           created_at?: string
           device_code: string
+          heartbeat_token?: string | null
           id?: string
           last_seen_at?: string | null
           location_id?: string | null
@@ -228,6 +230,7 @@ export type Database = {
           business_id?: string
           created_at?: string
           device_code?: string
+          heartbeat_token?: string | null
           id?: string
           last_seen_at?: string | null
           location_id?: string | null
