@@ -56,6 +56,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route path="/recuperar" element={<ForgotPassword />} />
+          <Route path="/player" element={<Player />} />
           <Route path="/player/:deviceId" element={<Player />} />
           <Route path="/digital-signage/screens" element={<ScreensList />} />
           <Route path="/digital-signage/screens/:screenId" element={<ScreenDetail />} />
