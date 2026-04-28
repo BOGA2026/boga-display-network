@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import heroVideo from "@/assets/hero-video.mp4";
 import benefitsVideo from "@/assets/benefits-video.mp4";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, Navigate } from "react-router-dom";
 import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
 import GrowthBenefits from "@/components/landing/GrowthBenefits";
 import logoVisualia from "@/assets/logo-visualia.png";
