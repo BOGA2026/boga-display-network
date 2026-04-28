@@ -290,6 +290,34 @@ export default function ScreenDetail() {
         screenId={screen.id}
         screenName={screen.name}
       />
+
+      {/* Location Editor Dialog */}
+      {locationId && (
+        <LocationEditorDialog
+          open={locationEditOpen}
+          onOpenChange={setLocationEditOpen}
+          locationId={locationId}
+          initialName={screen.location.label}
+          initialAddress={locationAddress}
+          initialLat={screen.location.lat || undefined}
+          initialLng={screen.location.lng || undefined}
+          onSaved={(data) => {
+            setLocationAddress(data.address);
+            setScreen((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    location: {
+                      lat: data.latitude,
+                      lng: data.longitude,
+                      label: data.name,
+                    },
+                  }
+                : prev
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
