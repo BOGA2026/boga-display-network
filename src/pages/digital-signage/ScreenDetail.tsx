@@ -20,6 +20,7 @@ import ScreenPreview from "@/components/digital-signage/ScreenPreview";
 import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
 import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPanel";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
+import LocationEditorDialog from "@/components/digital-signage/LocationEditorDialog";
 
 const statusBadge = {
   online: { icon: Wifi, label: "Online", cls: "text-emerald-400 bg-emerald-400/10" },
