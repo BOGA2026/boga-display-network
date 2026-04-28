@@ -31,6 +31,8 @@ import {
   Trash2,
   CheckCircle2,
   AlertTriangle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -76,8 +78,15 @@ interface Subscription {
   grace_period_ends_at: string | null;
 }
 
-// Validation helpers
-const isValidCode = (code: string) => /^[A-Za-z0-9]{4,12}$/.test(code);
+// Generate a 6-character pairing code (avoids ambiguous 0/O/1/I)
+const PAIRING_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const generatePairingCode = () => {
+  const values = globalThis.crypto?.getRandomValues?.(new Uint32Array(6));
+  return Array.from({ length: 6 }, (_, i) => {
+    const v = values?.[i] ?? Math.floor(Math.random() * PAIRING_ALPHABET.length);
+    return PAIRING_ALPHABET[v % PAIRING_ALPHABET.length];
+  }).join("");
+};
 
 const Screens = () => {
   const [screens, setScreens] = useState<Screen[]>([]);
@@ -93,12 +102,12 @@ const Screens = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Form state
-  const [deviceCode, setDeviceCode] = useState("");
+  // Form state — new flow: panel generates the code
   const [screenName, setScreenName] = useState("");
   const [timezone, setTimezone] = useState("America/Bogota");
-  const [codeError, setCodeError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   // Edit state
   const [editingScreen, setEditingScreen] = useState<Screen | null>(null);
@@ -156,24 +165,15 @@ const Screens = () => {
   };
 
   const resetForm = () => {
-    setDeviceCode("");
     setScreenName("");
     setTimezone("America/Bogota");
-    setCodeError("");
     setNameError("");
+    setGeneratedCode(null);
+    setCodeCopied(false);
   };
 
   const validateForm = () => {
     let valid = true;
-    if (!deviceCode.trim()) {
-      setCodeError("El código es requerido");
-      valid = false;
-    } else if (!isValidCode(deviceCode)) {
-      setCodeError("Solo letras y números, entre 4 y 12 caracteres");
-      valid = false;
-    } else {
-      setCodeError("");
-    }
     if (!screenName.trim()) {
       setNameError("El nombre es requerido");
       valid = false;
@@ -187,15 +187,24 @@ const Screens = () => {
   };
 
   const isFormValid = () => {
-    return (
-      deviceCode.trim().length >= 4 &&
-      isValidCode(deviceCode) &&
-      screenName.trim().length > 0 &&
-      screenName.trim().length <= 40
-    );
+    return screenName.trim().length > 0 && screenName.trim().length <= 40;
   };
 
-  const handleAddScreen = async () => {
+  // Generate a unique pairing code (retries on rare collision)
+  const generateUniqueCode = async (): Promise<string | null> => {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = generatePairingCode();
+      const { data: existing } = await supabase
+        .from("devices")
+        .select("id")
+        .eq("device_code", candidate)
+        .maybeSingle();
+      if (!existing) return candidate;
+    }
+    return null;
+  };
+
+  const handleGenerateCode = async () => {
     if (!validateForm()) return;
     setSaving(true);
 
@@ -213,7 +222,6 @@ const Screens = () => {
       return;
     }
 
-    // Use first location or create a default one
     let locationId = locations[0]?.id;
     if (!locationId) {
       const { data: newLoc } = await supabase
@@ -226,6 +234,13 @@ const Screens = () => {
 
     if (!locationId) {
       toast({ title: "Error al crear ubicación", variant: "destructive" });
+      setSaving(false);
+      return;
+    }
+
+    const code = await generateUniqueCode();
+    if (!code) {
+      toast({ title: "No fue posible generar un código único, intenta de nuevo", variant: "destructive" });
       setSaving(false);
       return;
     }
@@ -243,33 +258,43 @@ const Screens = () => {
       return;
     }
 
-    // Create device record linked to screen
+    // Create device in 'pending' state, waiting for the TV to claim this code
     const { error: deviceError } = await supabase.from("devices").insert({
-      device_code: deviceCode.trim().toUpperCase(),
-      status: "paired",
+      device_code: code,
+      status: "pending",
       business_id: businessId,
       location_id: locationId,
       screen_id: screen.id,
       screen_name: screenName.trim(),
-      paired_at: new Date().toISOString(),
     });
 
     setSaving(false);
 
     if (deviceError) {
       await supabase.from("screens").delete().eq("id", screen.id);
-      if (deviceError.message.includes("unique")) {
-        setCodeError("Código inválido o no encontrado");
-      } else {
-        toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
-      }
+      toast({ title: "Error al vincular dispositivo", description: deviceError.message, variant: "destructive" });
       return;
     }
 
+    setGeneratedCode(code);
+    fetchData();
+  };
+
+  const handleCopyCode = async () => {
+    if (!generatedCode) return;
+    try {
+      await navigator.clipboard.writeText(generatedCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    } catch {
+      toast({ title: "No se pudo copiar", variant: "destructive" });
+    }
+  };
+
+  const handleFinishPairing = () => {
     setSuccessScreen(screenName.trim());
     setDialogOpen(false);
     resetForm();
-    fetchData();
   };
 
   const handleAddDemoScreen = async () => {
@@ -471,119 +496,160 @@ const Screens = () => {
       {/* ─── ADD SCREEN DIALOG ─── */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
         <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
-          <DialogHeader className="pb-1">
-            <DialogTitle className="font-display text-lg">Agregar pantalla</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              Conecta una pantalla física o prueba con una pantalla demo en tu navegador.
-            </DialogDescription>
-          </DialogHeader>
+          {!generatedCode ? (
+            <>
+              <DialogHeader className="pb-1">
+                <DialogTitle className="font-display text-lg">Agregar pantalla</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Dale un nombre a tu pantalla y te generaremos un código para conectarla desde el dispositivo.
+                </DialogDescription>
+              </DialogHeader>
 
-          <div className="space-y-5 py-2">
-            {/* Field 1 — Code */}
-            <div className="space-y-1.5">
-              <Label htmlFor="device-code" className="text-sm font-medium">
-                Código de pantalla <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="device-code"
-                placeholder="Ingresa el código de vinculación"
-                value={deviceCode}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-                  setDeviceCode(val);
-                  if (codeError && isValidCode(val)) setCodeError("");
-                }}
-                maxLength={12}
-                className={`font-mono tracking-widest text-center text-base ${codeError ? "border-destructive focus-visible:ring-destructive" : ""}`}
-              />
-              {codeError ? (
-                <p className="text-xs text-destructive">{codeError}</p>
-              ) : (
-                <p className="text-xs text-muted-foreground">Este código aparece en la pantalla que deseas conectar</p>
-              )}
-            </div>
+              <div className="space-y-5 py-2">
+                {/* Field — Name */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="screen-name" className="text-sm font-medium">
+                    Nombre de la pantalla <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="screen-name"
+                    placeholder="Ejemplo: Pantalla Caja Principal"
+                    value={screenName}
+                    onChange={(e) => {
+                      setScreenName(e.target.value);
+                      if (nameError && e.target.value.trim()) setNameError("");
+                    }}
+                    maxLength={40}
+                    className={nameError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  />
+                  <div className="flex items-center justify-between">
+                    {nameError ? (
+                      <p className="text-xs text-destructive">{nameError}</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Este nombre te ayudará a identificar la pantalla</p>
+                    )}
+                    <span className="text-xs text-muted-foreground ml-auto">{screenName.length}/40</span>
+                  </div>
+                </div>
 
-            {/* Field 2 — Name */}
-            <div className="space-y-1.5">
-              <Label htmlFor="screen-name" className="text-sm font-medium">
-                Nombre de la pantalla <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="screen-name"
-                placeholder="Ejemplo: Pantalla Caja Principal"
-                value={screenName}
-                onChange={(e) => {
-                  setScreenName(e.target.value);
-                  if (nameError && e.target.value.trim()) setNameError("");
-                }}
-                maxLength={40}
-                className={nameError ? "border-destructive focus-visible:ring-destructive" : ""}
-              />
-              <div className="flex items-center justify-between">
-                {nameError ? (
-                  <p className="text-xs text-destructive">{nameError}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Este nombre te ayudará a identificar la pantalla</p>
-                )}
-                <span className="text-xs text-muted-foreground ml-auto">{screenName.length}/40</span>
+                {/* Field — Timezone */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium">Zona horaria</Label>
+                  <Select value={timezone} onValueChange={setTimezone}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONES.map((tz) => (
+                        <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Asegura la programación correcta de contenido</p>
+                </div>
               </div>
-            </div>
 
-            {/* Field 3 — Timezone */}
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">Zona horaria</Label>
-              <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMEZONES.map((tz) => (
-                    <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Asegura la programación correcta de contenido</p>
-            </div>
-          </div>
+              {/* Actions */}
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="flex gap-3">
+                  <Button
+                    variant="ghost"
+                    onClick={() => { setDialogOpen(false); resetForm(); }}
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleGenerateCode}
+                    disabled={saving || !isFormValid()}
+                    className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
+                  >
+                    {saving ? (
+                      <span className="flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Generando...</span>
+                    ) : "Generar código"}
+                  </Button>
+                </div>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-3 pt-2">
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => { setDialogOpen(false); resetForm(); }}
-                className="flex-1"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleAddScreen}
-                disabled={saving || !isFormValid()}
-                className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
-              >
-                {saving ? (
-                  <span className="flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Conectando...</span>
-                ) : "Agregar pantalla"}
-              </Button>
-            </div>
+                {/* Demo divider */}
+                <div className="relative flex items-center gap-3">
+                  <div className="flex-1 border-t border-border/30" />
+                  <span className="text-xs text-muted-foreground">O prueba Visualia en tu navegador</span>
+                  <div className="flex-1 border-t border-border/30" />
+                </div>
 
-            {/* Demo divider */}
-            <div className="relative flex items-center gap-3">
-              <div className="flex-1 border-t border-border/30" />
-              <span className="text-xs text-muted-foreground">O prueba Visualia en tu navegador</span>
-              <div className="flex-1 border-t border-border/30" />
-            </div>
+                <Button
+                  variant="outline"
+                  onClick={handleAddDemoScreen}
+                  disabled={saving}
+                  className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 font-medium"
+                >
+                  <MonitorSmartphone className="h-4 w-4" />
+                  Agregar pantalla demo
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <DialogHeader className="pb-1">
+                <DialogTitle className="font-display text-lg">Tu código de vinculación</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Ingresa este código en la app de Visualia instalada en tu pantalla o TV para conectarla.
+                </DialogDescription>
+              </DialogHeader>
 
-            <Button
-              variant="outline"
-              onClick={handleAddDemoScreen}
-              disabled={saving}
-              className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 font-medium"
-            >
-              <MonitorSmartphone className="h-4 w-4" />
-              Agregar pantalla demo
-            </Button>
-          </div>
+              <div className="space-y-5 py-4">
+                {/* Code display */}
+                <div className="flex flex-col items-center gap-3">
+                  <div
+                    className="rounded-2xl px-10 py-6 font-mono text-4xl font-bold tracking-[0.4em] text-center"
+                    style={{
+                      background: "rgba(138,0,255,0.08)",
+                      border: "1px solid rgba(138,0,255,0.25)",
+                      color: "hsl(var(--primary))",
+                      textShadow: "0 0 20px rgba(192,0,255,0.4)",
+                    }}
+                  >
+                    {generatedCode}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyCode}
+                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {codeCopied ? (
+                      <><Check className="h-3.5 w-3.5" /> Copiado</>
+                    ) : (
+                      <><Copy className="h-3.5 w-3.5" /> Copiar código</>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Steps */}
+                <div className="rounded-lg border border-border/30 bg-secondary/20 p-4 space-y-2 text-sm">
+                  <p className="font-medium text-foreground">Cómo conectar tu pantalla:</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
+                    <li>Abre la app de Visualia en tu pantalla, TV o Fire TV.</li>
+                    <li>Ingresa este código de 6 caracteres con el control remoto.</li>
+                    <li>La pantalla se vinculará automáticamente en unos segundos.</li>
+                  </ol>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Esta pantalla aparecerá como <span className="font-medium text-foreground">"{screenName}"</span> en tu lista.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <Button
+                  onClick={handleFinishPairing}
+                  className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Listo
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

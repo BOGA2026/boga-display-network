@@ -16,16 +16,6 @@ const normalizeDeviceCode = (value?: string | null) =>
     .replace(/[^A-Z0-9]/g, "")
     .slice(0, 6);
 
-const generateDeviceCode = () => {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const randomValues = globalThis.crypto?.getRandomValues?.(new Uint32Array(6));
-
-  return Array.from({ length: 6 }, (_, index) => {
-    const value = randomValues?.[index] ?? Math.floor(Math.random() * alphabet.length);
-    return alphabet[value % alphabet.length];
-  }).join("");
-};
-
 interface ContentItem {
   id: string;
   name: string;
@@ -51,36 +41,41 @@ const Player = () => {
   const { deviceId } = useParams<{ deviceId: string }>();
   const [showSplash, setShowSplash] = useState(true);
   const [checkinDone, setCheckinDone] = useState(false);
-  const [status, setStatus] = useState<"loading" | "unpaired" | "paired" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [resolvedDeviceCode, setResolvedDeviceCode] = useState("");
+  const [codeInput, setCodeInput] = useState("");
+  const [inputError, setInputError] = useState("");
 
+  // On mount: try URL param, then localStorage. If neither, ask for code.
   useEffect(() => {
     const routeCode = normalizeDeviceCode(deviceId);
-
-    if (routeCode) {
+    if (routeCode.length === 6) {
       setResolvedDeviceCode(routeCode);
       window.localStorage.setItem(DEVICE_CODE_STORAGE_KEY, routeCode);
       return;
     }
 
     const storedCode = normalizeDeviceCode(window.localStorage.getItem(DEVICE_CODE_STORAGE_KEY));
-    if (storedCode) {
+    if (storedCode.length === 6) {
       setResolvedDeviceCode(storedCode);
       return;
     }
 
-    const newCode = generateDeviceCode();
-    window.localStorage.setItem(DEVICE_CODE_STORAGE_KEY, newCode);
-    setResolvedDeviceCode(newCode);
+    // No code yet — ask the user to enter the one shown in the panel
+    setStatus("needs-code");
+    setCheckinDone(true);
   }, [deviceId]);
 
   const deviceCode = resolvedDeviceCode;
 
-  const doCheckin = useCallback(async () => {
+  const doCheckin = useCallback(async (codeOverride?: string) => {
+    const code = codeOverride ?? deviceCode;
+    if (!code) return null;
+
     try {
       const res = await fetch(CHECKIN_URL, {
         method: "POST",
@@ -88,13 +83,12 @@ const Player = () => {
           "Content-Type": "application/json",
           apikey: SUPABASE_KEY,
         },
-        body: JSON.stringify({ device_code: deviceCode }),
+        body: JSON.stringify({ device_code: code }),
       });
 
       if (!res.ok) {
         if (res.status === 404) {
-          setStatus("unpaired");
-          return null;
+          return { status: "not-found" as const };
         }
         throw new Error(`HTTP ${res.status}`);
       }
@@ -104,35 +98,60 @@ const Player = () => {
       if (data.status === "paired" && data.config) {
         setStatus("paired");
         setConfig(data.config);
-      } else {
-        setStatus("unpaired");
       }
 
       return data;
     } catch (err: any) {
       console.error("Checkin error:", err);
-      if (status !== "paired") {
-        setStatus("unpaired");
-      }
       return null;
     }
-  }, [deviceCode, status]);
+  }, [deviceCode]);
 
-  // Initial checkin (runs during splash)
+  // Initial checkin when we already have a code
   useEffect(() => {
-    if (!deviceCode) {
+    if (!deviceCode) return;
+
+    doCheckin().then((data) => {
+      setCheckinDone(true);
+      // If the stored code is no longer valid, clear it and ask for a new one
+      if (data?.status === "not-found") {
+        window.localStorage.removeItem(DEVICE_CODE_STORAGE_KEY);
+        setResolvedDeviceCode("");
+        setStatus("needs-code");
+      }
+    });
+  }, [deviceCode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Heartbeat
+  useEffect(() => {
+    if (showSplash || !deviceCode || status !== "paired") return;
+    const interval = setInterval(() => doCheckin(), HEARTBEAT_INTERVAL);
+    return () => clearInterval(interval);
+  }, [showSplash, deviceCode, status, doCheckin]);
+
+  const handleSubmitCode = async () => {
+    const code = normalizeDeviceCode(codeInput);
+    if (code.length !== 6) {
+      setInputError("El código debe tener 6 caracteres");
       return;
     }
+    setInputError("");
+    setStatus("verifying");
 
-    doCheckin().then(() => setCheckinDone(true));
-  }, [deviceCode]); // intentionally omit doCheckin to run only once
+    const data = await doCheckin(code);
 
-  // Heartbeat interval (starts after splash)
-  useEffect(() => {
-    if (showSplash || !deviceCode) return;
-    const interval = setInterval(doCheckin, HEARTBEAT_INTERVAL);
-    return () => clearInterval(interval);
-  }, [showSplash, deviceCode, doCheckin]);
+    if (data?.status === "paired") {
+      window.localStorage.setItem(DEVICE_CODE_STORAGE_KEY, code);
+      setResolvedDeviceCode(code);
+      // status already set to 'paired' inside doCheckin
+    } else if (data?.status === "not-found") {
+      setStatus("needs-code");
+      setInputError("Código no encontrado. Verifícalo en el panel Visualia.");
+    } else {
+      setStatus("needs-code");
+      setInputError("No pudimos verificar el código. Revisa tu conexión.");
+    }
+  };
 
   const items = config?.playlists?.playlist_items
     ?.sort((a, b) => a.sort_order - b.sort_order) ?? [];
@@ -181,33 +200,66 @@ const Player = () => {
     );
   }
 
-  if (status === "unpaired") {
+  if (status === "needs-code" || status === "verifying") {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+      <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
         {/* Brand */}
         <div className="relative mb-8">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={simboloVisualia} alt="Visualia" className="relative h-48 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" className="relative h-32 w-auto" />
         </div>
 
-        {/* Code */}
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
-          Código de vinculación
+          Vincular pantalla
         </p>
-        <div
-          className="mb-6 rounded-2xl px-12 py-6 font-mono text-5xl font-bold tracking-[0.4em]"
+        <h1 className="mb-6 text-2xl font-bold text-center" style={{ color: "#fff" }}>
+          Ingresa el código del panel
+        </h1>
+
+        <input
+          type="text"
+          value={codeInput}
+          autoFocus
+          onChange={(e) => {
+            setCodeInput(normalizeDeviceCode(e.target.value));
+            if (inputError) setInputError("");
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSubmitCode();
+          }}
+          maxLength={6}
+          placeholder="ABC123"
+          disabled={status === "verifying"}
+          className="mb-4 w-full max-w-md rounded-2xl px-8 py-5 text-center font-mono text-4xl font-bold tracking-[0.4em] outline-none disabled:opacity-50"
           style={{
             background: "rgba(138,0,255,0.08)",
-            border: "1px solid rgba(138,0,255,0.25)",
+            border: `1px solid ${inputError ? "rgba(255,80,80,0.5)" : "rgba(138,0,255,0.35)"}`,
             color: "#C000FF",
             textShadow: "0 0 20px rgba(192,0,255,0.5)",
           }}
+        />
+
+        {inputError && (
+          <p className="mb-4 text-sm" style={{ color: "rgba(255,120,120,0.9)" }}>
+            {inputError}
+          </p>
+        )}
+
+        <button
+          onClick={handleSubmitCode}
+          disabled={status === "verifying" || codeInput.length !== 6}
+          className="mb-6 rounded-xl px-10 py-3 text-base font-semibold transition-all disabled:opacity-40"
+          style={{
+            background: "linear-gradient(135deg, #8A00FF 0%, #C000FF 100%)",
+            color: "#fff",
+            boxShadow: "0 0 30px rgba(138,0,255,0.4)",
+          }}
         >
-          {deviceCode}
-        </div>
+          {status === "verifying" ? "Verificando..." : "Vincular pantalla"}
+        </button>
 
         <p className="max-w-md text-center text-sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
-          Ingresa este código en el panel <strong style={{ color: "rgba(255,255,255,0.7)" }}>Visualia</strong> para conectar esta pantalla.
+          Genera tu código desde <strong style={{ color: "rgba(255,255,255,0.7)" }}>visualiamedia.com</strong> → Pantallas → Agregar pantalla.
         </p>
 
         {/* Bottom branding */}
