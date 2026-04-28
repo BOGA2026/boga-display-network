@@ -34,20 +34,33 @@ export default function ScreenPreview({ screen }: { screen: ScreenData }) {
           {deviceCode ? `Dispositivo: ${deviceCode}` : "16:9"}
         </span>
       </div>
-      <div className="relative aspect-video w-full bg-black">
+      <div className="relative aspect-video w-full overflow-hidden bg-black">
         {deviceCode ? (
-          <iframe
-            src={`/player/${deviceCode}`}
-            className="h-full w-full border-0"
-            title="Vista en vivo"
-            sandbox="allow-scripts allow-same-origin"
-          />
+          (() => {
+            const rot = screen.rotation ?? 0;
+            const swap = rot === 90 || rot === 270;
+            return (
+              <iframe
+                src={`/player/${deviceCode}`}
+                title="Vista en vivo"
+                sandbox="allow-scripts allow-same-origin"
+                className="absolute left-1/2 top-1/2 border-0"
+                style={{
+                  width: swap ? "56.25%" : "100%",
+                  height: swap ? "177.78%" : "100%",
+                  transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+                  transformOrigin: "center center",
+                }}
+              />
+            );
+          })()
         ) : (
           <>
             <img
               src={screen.currentContent.thumbnailUrl}
               alt={screen.currentContent.assetName}
               className="h-full w-full object-cover"
+              style={{ transform: `rotate(${screen.rotation ?? 0}deg)` }}
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/80 to-transparent p-4">
               <p className="text-sm font-semibold text-foreground">{screen.currentContent.assetName}</p>
