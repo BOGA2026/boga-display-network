@@ -34,6 +34,7 @@ export interface ScreenData {
   timezone: string;
   orientation: "landscape" | "portrait";
   displayMode: "fill" | "fit" | "stretch";
+  rotation?: 0 | 90 | 180 | 270;
   tags: string[];
   currentContent: ScreenContent;
   schedule: ScreenScheduleItem[];
