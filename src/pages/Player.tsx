@@ -178,6 +178,7 @@ const Player = () => {
 
   const items = config?.playlists?.playlist_items
     ?.sort((a, b) => a.sort_order - b.sort_order) ?? [];
+  const currentItem = items[currentIndex]?.content;
 
   const attemptVideoPlayback = useCallback(async () => {
     const video = videoRef.current;
@@ -363,8 +364,6 @@ const Player = () => {
     );
   }
 
-  const currentItem = items[currentIndex]?.content;
-
   if (!currentItem?.file_url) {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812", color: "rgba(255,255,255,0.5)" }}>
@@ -385,7 +384,6 @@ const Player = () => {
           src={url}
           autoPlay
           muted
-          defaultMuted
           playsInline
           preload="metadata"
           loop={items.length === 1}
