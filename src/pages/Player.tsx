@@ -41,7 +41,7 @@ const Player = () => {
   const { deviceId } = useParams<{ deviceId: string }>();
   const [showSplash, setShowSplash] = useState(true);
   const [checkinDone, setCheckinDone] = useState(false);
-  const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "paired" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "pending" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
@@ -95,9 +95,11 @@ const Player = () => {
 
       const data = await res.json();
 
-      if (data.status === "paired" && data.config) {
+      if (data.status === "paired") {
         setStatus("paired");
-        setConfig(data.config);
+        if (data.config) setConfig(data.config);
+      } else if (data.status === "pending") {
+        setStatus("pending");
       }
 
       return data;
@@ -122,10 +124,12 @@ const Player = () => {
     });
   }, [deviceCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Heartbeat
+  // Heartbeat — keep polling while paired OR pending (waiting for panel pairing)
   useEffect(() => {
-    if (showSplash || !deviceCode || status !== "paired") return;
-    const interval = setInterval(() => doCheckin(), HEARTBEAT_INTERVAL);
+    if (showSplash || !deviceCode) return;
+    if (status !== "paired" && status !== "pending") return;
+    // Faster polling while pending so pairing feels instant
+    const interval = setInterval(() => doCheckin(), status === "pending" ? 5000 : HEARTBEAT_INTERVAL);
     return () => clearInterval(interval);
   }, [showSplash, deviceCode, status, doCheckin]);
 
