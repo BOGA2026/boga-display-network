@@ -102,12 +102,12 @@ const Screens = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Form state
-  const [deviceCode, setDeviceCode] = useState("");
+  // Form state — new flow: panel generates the code
   const [screenName, setScreenName] = useState("");
   const [timezone, setTimezone] = useState("America/Bogota");
-  const [codeError, setCodeError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   // Edit state
   const [editingScreen, setEditingScreen] = useState<Screen | null>(null);
