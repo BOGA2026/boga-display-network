@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Replace,
   MapPin,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ import ScreenPreview from "@/components/digital-signage/ScreenPreview";
 import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
 import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPanel";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
+import LocationEditorDialog from "@/components/digital-signage/LocationEditorDialog";
 
 const statusBadge = {
   online: { icon: Wifi, label: "Online", cls: "text-emerald-400 bg-emerald-400/10" },
@@ -65,6 +67,9 @@ export default function ScreenDetail() {
   const [screen, setScreen] = useState<ScreenData | null>(null);
   const [fromDashboard, setFromDashboard] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [locationEditOpen, setLocationEditOpen] = useState(false);
+  const [locationId, setLocationId] = useState<string | null>(null);
+  const [locationAddress, setLocationAddress] = useState<string>("");
 
   useEffect(() => {
     async function load() {
@@ -80,12 +85,14 @@ export default function ScreenDetail() {
       setFromDashboard(true);
       const { data: dbScreen } = await supabase
         .from("screens")
-        .select("*, locations(name, latitude, longitude)")
+        .select("*, locations(id, name, address, latitude, longitude)")
         .eq("id", screenId!)
         .maybeSingle();
 
       if (dbScreen) {
         const loc = (dbScreen as any).locations;
+        setLocationId(loc?.id ?? null);
+        setLocationAddress(loc?.address ?? "");
         setScreen(mapDbScreenToScreenData(dbScreen, {
           name: loc?.name,
           latitude: loc?.latitude,
@@ -205,9 +212,22 @@ export default function ScreenDetail() {
         <div className="space-y-6">
           {/* Location */}
           <div className="glass-card rounded-xl overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-              <MapPin className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+            <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+              </div>
+              {fromDashboard && locationId && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 gap-1.5 text-xs"
+                  onClick={() => setLocationEditOpen(true)}
+                >
+                  <Pencil className="h-3 w-3" />
+                  Editar ubicación
+                </Button>
+              )}
             </div>
             {screen.location.lat !== 0 && screen.location.lng !== 0 ? (
               <div className="relative h-48 w-full">
@@ -225,12 +245,16 @@ export default function ScreenDetail() {
                 </div>
               </div>
             ) : (
-              <div className="flex h-40 items-center justify-center bg-muted/30 text-sm text-muted-foreground">
-                <div className="text-center">
-                  <MapPin className="mx-auto mb-1 h-6 w-6 text-primary/60" />
-                  <p>{screen.location.label}</p>
-                  <p className="text-xs text-muted-foreground/70">Coordenadas no configuradas</p>
-                </div>
+              <div className="flex h-40 flex-col items-center justify-center gap-2 bg-muted/30 text-sm text-muted-foreground">
+                <MapPin className="h-6 w-6 text-primary/60" />
+                <p>{screen.location.label}</p>
+                <p className="text-xs text-muted-foreground/70">Coordenadas no configuradas</p>
+                {fromDashboard && locationId && (
+                  <Button size="sm" variant="outline" onClick={() => setLocationEditOpen(true)}>
+                    <Pencil className="mr-1.5 h-3 w-3" />
+                    Configurar ubicación
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -266,6 +290,34 @@ export default function ScreenDetail() {
         screenId={screen.id}
         screenName={screen.name}
       />
+
+      {/* Location Editor Dialog */}
+      {locationId && (
+        <LocationEditorDialog
+          open={locationEditOpen}
+          onOpenChange={setLocationEditOpen}
+          locationId={locationId}
+          initialName={screen.location.label}
+          initialAddress={locationAddress}
+          initialLat={screen.location.lat || undefined}
+          initialLng={screen.location.lng || undefined}
+          onSaved={(data) => {
+            setLocationAddress(data.address);
+            setScreen((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    location: {
+                      lat: data.latitude,
+                      lng: data.longitude,
+                      label: data.name,
+                    },
+                  }
+                : prev
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
