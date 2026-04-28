@@ -45,6 +45,7 @@ const Player = () => {
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [resolvedDeviceCode, setResolvedDeviceCode] = useState("");
   const [codeInput, setCodeInput] = useState("");
@@ -94,6 +95,7 @@ const Player = () => {
       }
 
       const data = await res.json();
+      setIsReconnecting(false);
 
       if (data.status === "paired") {
         setStatus("paired");
@@ -104,34 +106,50 @@ const Player = () => {
 
       return data;
     } catch (err: any) {
+      setIsReconnecting(true);
       console.error("Checkin error:", err);
       return null;
     }
   }, [deviceCode]);
 
-  // Initial checkin when we already have a code
+  // Self-healing sync: keeps retrying automatically, even if the first check-in fails
   useEffect(() => {
     if (!deviceCode) return;
 
-    doCheckin().then((data) => {
+    let cancelled = false;
+
+    const syncDevice = async () => {
+      const data = await doCheckin();
+      if (cancelled) return;
+
       setCheckinDone(true);
+
       // If the stored code is no longer valid, clear it and ask for a new one
       if (data?.status === "not-found") {
         window.localStorage.removeItem(DEVICE_CODE_STORAGE_KEY);
         setResolvedDeviceCode("");
         setStatus("needs-code");
       }
-    });
-  }, [deviceCode]); // eslint-disable-line react-hooks/exhaustive-deps
+    };
 
-  // Heartbeat — keep polling while paired OR pending (waiting for panel pairing)
-  useEffect(() => {
-    if (showSplash || !deviceCode) return;
-    if (status !== "paired" && status !== "pending") return;
-    // Faster polling while pending so pairing feels instant
-    const interval = setInterval(() => doCheckin(), status === "pending" ? 5000 : HEARTBEAT_INTERVAL);
-    return () => clearInterval(interval);
-  }, [showSplash, deviceCode, status, doCheckin]);
+    void syncDevice();
+
+    const interval = window.setInterval(() => {
+      void syncDevice();
+    }, status === "paired" ? HEARTBEAT_INTERVAL : 5000);
+
+    const handleOnline = () => {
+      void syncDevice();
+    };
+
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [deviceCode, status, doCheckin]);
 
   const handleSubmitCode = async () => {
     const code = normalizeDeviceCode(codeInput);
@@ -200,6 +218,26 @@ const Player = () => {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812", color: "#fff" }}>
         <p className="text-lg">{errorMsg}</p>
+      </div>
+    );
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+        <div className="relative mb-6">
+          <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
+          <img src={simboloVisualia} alt="Visualia" className="relative h-24 w-auto" />
+        </div>
+        <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
+          {isReconnecting ? "Reconectando" : "Conectando"}
+        </p>
+        <h1 className="mb-4 text-2xl font-bold text-center" style={{ color: "#fff" }}>
+          {isReconnecting ? "La pantalla se está recuperando sola" : "Estamos preparando tu pantalla"}
+        </h1>
+        <p className="max-w-md text-center text-sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+          No necesitas salir al menú del Fire TV. Visualia seguirá intentando reconectar automáticamente.
+        </p>
       </div>
     );
   }
