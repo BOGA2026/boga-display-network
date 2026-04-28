@@ -78,8 +78,15 @@ interface Subscription {
   grace_period_ends_at: string | null;
 }
 
-// Validation helpers
-const isValidCode = (code: string) => /^[A-Za-z0-9]{4,12}$/.test(code);
+// Generate a 6-character pairing code (avoids ambiguous 0/O/1/I)
+const PAIRING_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const generatePairingCode = () => {
+  const values = globalThis.crypto?.getRandomValues?.(new Uint32Array(6));
+  return Array.from({ length: 6 }, (_, i) => {
+    const v = values?.[i] ?? Math.floor(Math.random() * PAIRING_ALPHABET.length);
+    return PAIRING_ALPHABET[v % PAIRING_ALPHABET.length];
+  }).join("");
+};
 
 const Screens = () => {
   const [screens, setScreens] = useState<Screen[]>([]);
