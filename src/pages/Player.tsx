@@ -41,7 +41,7 @@ const Player = () => {
   const { deviceId } = useParams<{ deviceId: string }>();
   const [showSplash, setShowSplash] = useState(true);
   const [checkinDone, setCheckinDone] = useState(false);
-  const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "paired" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "needs-code" | "verifying" | "pending" | "paired" | "error">("loading");
   const [config, setConfig] = useState<PlaylistConfig | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
@@ -95,9 +95,11 @@ const Player = () => {
 
       const data = await res.json();
 
-      if (data.status === "paired" && data.config) {
+      if (data.status === "paired") {
         setStatus("paired");
-        setConfig(data.config);
+        if (data.config) setConfig(data.config);
+      } else if (data.status === "pending") {
+        setStatus("pending");
       }
 
       return data;
@@ -122,10 +124,12 @@ const Player = () => {
     });
   }, [deviceCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Heartbeat
+  // Heartbeat — keep polling while paired OR pending (waiting for panel pairing)
   useEffect(() => {
-    if (showSplash || !deviceCode || status !== "paired") return;
-    const interval = setInterval(() => doCheckin(), HEARTBEAT_INTERVAL);
+    if (showSplash || !deviceCode) return;
+    if (status !== "paired" && status !== "pending") return;
+    // Faster polling while pending so pairing feels instant
+    const interval = setInterval(() => doCheckin(), status === "pending" ? 5000 : HEARTBEAT_INTERVAL);
     return () => clearInterval(interval);
   }, [showSplash, deviceCode, status, doCheckin]);
 
@@ -266,6 +270,26 @@ const Player = () => {
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
           <img src={simboloVisualia} alt="Visualia" className="h-5 w-auto" />
         </div>
+      </div>
+    );
+  }
+
+  if (status === "pending") {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
+        <div className="relative mb-6">
+          <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
+          <img src={simboloVisualia} alt="Visualia" className="relative h-24 w-auto" />
+        </div>
+        <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
+          Esperando contenido
+        </p>
+        <h1 className="mb-4 text-2xl font-bold text-center" style={{ color: "#fff" }}>
+          Pantalla vinculada
+        </h1>
+        <p className="max-w-md text-center text-sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
+          Asigna una playlist desde el panel Visualia y aparecerá aquí en segundos.
+        </p>
       </div>
     );
   }
