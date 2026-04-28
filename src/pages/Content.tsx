@@ -192,7 +192,18 @@ const Content = () => {
     setSelectedFile(null);
   };
 
+  const MAX_FILE_MB = 100;
+
   const handleFileSelect = (file: File) => {
+    const sizeMb = file.size / 1024 / 1024;
+    if (sizeMb > MAX_FILE_MB) {
+      toast({
+        title: "Archivo demasiado pesado",
+        description: `Tu archivo pesa ${sizeMb.toFixed(1)} MB. El máximo permitido es ${MAX_FILE_MB} MB. Comprime el video o reduce su calidad antes de subirlo.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setSelectedFile(file);
     if (!contentName) {
       setContentName(file.name.replace(/\.[^/.]+$/, ""));
