@@ -47,6 +47,7 @@ const Player = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [isReconnecting, setIsReconnecting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [resolvedDeviceCode, setResolvedDeviceCode] = useState("");
   const [codeInput, setCodeInput] = useState("");
   const [inputError, setInputError] = useState("");
@@ -177,6 +178,22 @@ const Player = () => {
 
   const items = config?.playlists?.playlist_items
     ?.sort((a, b) => a.sort_order - b.sort_order) ?? [];
+  const currentItem = items[currentIndex]?.content;
+
+  const attemptVideoPlayback = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      await video.play();
+      console.log("[Player] Video playback started", { src: video.currentSrc || video.src });
+    } catch (err) {
+      console.error("[Player] Video playback failed", err);
+    }
+  }, []);
 
   useEffect(() => {
     if (status !== "paired" || items.length === 0) return;
@@ -192,6 +209,11 @@ const Player = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [status, currentIndex, items]);
+
+  useEffect(() => {
+    if (currentItem?.type !== "video") return;
+    void attemptVideoPlayback();
+  }, [currentItem?.file_url, currentItem?.type, attemptVideoPlayback]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -342,8 +364,6 @@ const Player = () => {
     );
   }
 
-  const currentItem = items[currentIndex]?.content;
-
   if (!currentItem?.file_url) {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a0812", color: "rgba(255,255,255,0.5)" }}>
@@ -360,12 +380,29 @@ const Player = () => {
       return (
         <video
           key={url}
+          ref={videoRef}
           src={url}
           autoPlay
           muted
+          playsInline
+          preload="metadata"
+          loop={items.length === 1}
           className="fixed inset-0 h-full w-full object-contain"
           style={{ background: "#000" }}
-          onEnded={() => setCurrentIndex((prev) => (prev + 1) % items.length)}
+          onLoadedData={() => {
+            void attemptVideoPlayback();
+          }}
+          onCanPlay={() => {
+            void attemptVideoPlayback();
+          }}
+          onEnded={() => {
+            if (items.length > 1) {
+              setCurrentIndex((prev) => (prev + 1) % items.length);
+            }
+          }}
+          onError={(event) => {
+            console.error("[Player] Video element error", event.currentTarget.error);
+          }}
         />
       );
     }
