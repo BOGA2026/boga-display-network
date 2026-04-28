@@ -67,6 +67,9 @@ export default function ScreenDetail() {
   const [screen, setScreen] = useState<ScreenData | null>(null);
   const [fromDashboard, setFromDashboard] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [locationEditOpen, setLocationEditOpen] = useState(false);
+  const [locationId, setLocationId] = useState<string | null>(null);
+  const [locationAddress, setLocationAddress] = useState<string>("");
 
   useEffect(() => {
     async function load() {
