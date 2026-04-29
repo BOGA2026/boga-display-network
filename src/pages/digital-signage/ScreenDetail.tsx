@@ -268,21 +268,58 @@ export default function ScreenDetail() {
         </div>
 
         {/* Sidebar */}
-        <ScreenSettingsPanel
-          screen={screen}
-          onChange={handleChange}
-          onDelete={handleDelete}
-          onSyncComplete={(data) => {
-            if (data.current_playlist) {
-              handleChange({
-                currentContent: {
-                  ...screen.currentContent,
-                  assetName: data.current_playlist.name,
-                },
-              });
-            }
-          }}
-        />
+        <div className="space-y-6">
+          {fromDashboard && (
+            <RemoteActionsPanel screenId={screen.id} screenName={screen.name} />
+          )}
+
+          {fromDashboard && (
+            <div className="glass-card rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+                <Smartphone className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Información del dispositivo</h3>
+              </div>
+              <dl className="divide-y divide-border text-sm">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Modelo</dt>
+                  <dd className="font-medium text-foreground">{deviceInfo.deviceModel ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Sistema</dt>
+                  <dd className="font-medium text-foreground">{deviceInfo.osVersion ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Versión app</dt>
+                  <dd className="font-mono text-xs font-medium text-foreground">{deviceInfo.appVersion ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">IP pública</dt>
+                  <dd className="font-mono text-xs font-medium text-foreground">{deviceInfo.ipAddress ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Última señal</dt>
+                  <dd className="font-medium text-foreground">{formatLastSeen(screen.lastSyncAt)}</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
+          <ScreenSettingsPanel
+            screen={screen}
+            onChange={handleChange}
+            onDelete={handleDelete}
+            onSyncComplete={(data) => {
+              if (data.current_playlist) {
+                handleChange({
+                  currentContent: {
+                    ...screen.currentContent,
+                    assetName: data.current_playlist.name,
+                  },
+                });
+              }
+            }}
+          />
+        </div>
       </div>
       {/* Assign Playlist Dialog */}
       <AssignPlaylistDialog
