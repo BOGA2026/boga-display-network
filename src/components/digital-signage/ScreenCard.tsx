@@ -1,14 +1,9 @@
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { MoreVertical, Wifi, WifiOff, AlertTriangle } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import type { ScreenData } from "@/data/mockScreens";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const statusConfig = {
-  online: { icon: Wifi, label: "En línea", className: "text-emerald-400 bg-emerald-400/10" },
-  offline: { icon: WifiOff, label: "Desconectada", className: "text-muted-foreground bg-muted" },
-  warning: { icon: AlertTriangle, label: "Advertencia", className: "text-amber-400 bg-amber-400/10" },
-} as const;
+import { getScreenHealth } from "@/lib/screen-health";
 
 interface ScreenCardProps {
   screen: ScreenData;
@@ -16,8 +11,8 @@ interface ScreenCardProps {
 }
 
 export function ScreenCard({ screen, onClick }: ScreenCardProps) {
-  const st = statusConfig[screen.status];
-  const StatusIcon = st.icon;
+  // Use real-time health based on lastSyncAt (which mirrors last_seen_at from DB)
+  const health = getScreenHealth(screen.lastSyncAt);
 
   return (
     <button
@@ -26,9 +21,9 @@ export function ScreenCard({ screen, onClick }: ScreenCardProps) {
     >
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
         <img src={screen.currentContent.thumbnailUrl} alt={screen.currentContent.assetName} className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" loading="lazy" />
-        <span className={`absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${st.className}`}>
-          <StatusIcon className="h-3 w-3" />
-          {st.label}
+        <span className={`absolute right-2 top-2 flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${health.className}`}>
+          <span className={`h-2 w-2 rounded-full ${health.dotClass} ${health.status === "online" ? "animate-pulse" : ""}`} />
+          {health.label}
         </span>
       </div>
 
@@ -36,7 +31,7 @@ export function ScreenCard({ screen, onClick }: ScreenCardProps) {
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-foreground">{screen.name}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Sincronizado {formatDistanceToNow(new Date(screen.lastSyncAt), { addSuffix: true, locale: es })}
+            Última señal {formatDistanceToNow(new Date(screen.lastSyncAt), { addSuffix: true, locale: es })}
           </p>
         </div>
         <span className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={(e) => e.stopPropagation()} role="button" aria-label="Opciones de pantalla">
