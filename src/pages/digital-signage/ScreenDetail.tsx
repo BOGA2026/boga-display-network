@@ -133,8 +133,7 @@ export default function ScreenDetail() {
     );
   }
 
-  const st = statusBadge[screen.status];
-  const StatusIcon = st.icon;
+  const health = getScreenHealth(screen.lastSyncAt);
   const backPath = fromDashboard ? "/dashboard/pantallas" : "/digital-signage/screens";
 
   const handleChange = async (patch: Partial<ScreenData>) => {
@@ -193,10 +192,11 @@ export default function ScreenDetail() {
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground truncate max-w-[200px]">{screen.name}</span>
-          <span className={`ml-1 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${st.cls}`}>
-            <StatusIcon className="h-3 w-3" />
-            {st.label}
+          <span className={`ml-1 flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${health.className}`}>
+            <span className={`h-2 w-2 rounded-full ${health.dotClass} ${health.status === "online" ? "animate-pulse" : ""}`} />
+            {health.label}
           </span>
+          <span className="ml-1 text-xs text-muted-foreground">· {formatLastSeen(screen.lastSyncAt)}</span>
         </div>
 
         <Button size="sm" className="gap-1.5 gradient-primary" onClick={() => setAssignOpen(true)}>
