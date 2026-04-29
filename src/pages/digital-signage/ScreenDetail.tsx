@@ -3,12 +3,10 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   ChevronRight,
   ArrowLeft,
-  Wifi,
-  WifiOff,
-  AlertTriangle,
   Replace,
   MapPin,
   Pencil,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,12 +19,15 @@ import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
 import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPanel";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 import LocationEditorDialog from "@/components/digital-signage/LocationEditorDialog";
+import RemoteActionsPanel from "@/components/digital-signage/RemoteActionsPanel";
+import { getScreenHealth, formatLastSeen } from "@/lib/screen-health";
 
-const statusBadge = {
-  online: { icon: Wifi, label: "Online", cls: "text-emerald-400 bg-emerald-400/10" },
-  offline: { icon: WifiOff, label: "Offline", cls: "text-muted-foreground bg-muted" },
-  warning: { icon: AlertTriangle, label: "Warning", cls: "text-amber-400 bg-amber-400/10" },
-} as const;
+interface DeviceInfo {
+  appVersion: string | null;
+  deviceModel: string | null;
+  osVersion: string | null;
+  ipAddress: string | null;
+}
 
 function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; latitude?: number; longitude?: number }): ScreenData {
   return {
@@ -70,6 +71,12 @@ export default function ScreenDetail() {
   const [locationEditOpen, setLocationEditOpen] = useState(false);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationAddress, setLocationAddress] = useState<string>("");
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
+    appVersion: null,
+    deviceModel: null,
+    osVersion: null,
+    ipAddress: null,
+  });
 
   useEffect(() => {
     async function load() {
@@ -93,6 +100,12 @@ export default function ScreenDetail() {
         const loc = (dbScreen as any).locations;
         setLocationId(loc?.id ?? null);
         setLocationAddress(loc?.address ?? "");
+        setDeviceInfo({
+          appVersion: (dbScreen as any).app_version ?? null,
+          deviceModel: (dbScreen as any).device_model ?? null,
+          osVersion: (dbScreen as any).os_version ?? null,
+          ipAddress: (dbScreen as any).ip_address ?? null,
+        });
         setScreen(mapDbScreenToScreenData(dbScreen, {
           name: loc?.name,
           latitude: loc?.latitude,
@@ -102,6 +115,26 @@ export default function ScreenDetail() {
       setIsLoading(false);
     }
     load();
+
+    // Auto-refresh every 30s to keep health badge and device info fresh
+    const interval = window.setInterval(async () => {
+      if (!screenId) return;
+      const { data } = await supabase
+        .from("screens")
+        .select("last_seen_at, status, app_version, device_model, os_version, ip_address")
+        .eq("id", screenId)
+        .maybeSingle();
+      if (!data) return;
+      setScreen((prev) => prev ? { ...prev, lastSyncAt: (data as any).last_seen_at || prev.lastSyncAt } : prev);
+      setDeviceInfo({
+        appVersion: (data as any).app_version ?? null,
+        deviceModel: (data as any).device_model ?? null,
+        osVersion: (data as any).os_version ?? null,
+        ipAddress: (data as any).ip_address ?? null,
+      });
+    }, 30_000);
+
+    return () => window.clearInterval(interval);
   }, [screenId]);
 
   if (isLoading) {
@@ -132,8 +165,7 @@ export default function ScreenDetail() {
     );
   }
 
-  const st = statusBadge[screen.status];
-  const StatusIcon = st.icon;
+  const health = getScreenHealth(screen.lastSyncAt);
   const backPath = fromDashboard ? "/dashboard/pantallas" : "/digital-signage/screens";
 
   const handleChange = async (patch: Partial<ScreenData>) => {
@@ -192,10 +224,11 @@ export default function ScreenDetail() {
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground truncate max-w-[200px]">{screen.name}</span>
-          <span className={`ml-1 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${st.cls}`}>
-            <StatusIcon className="h-3 w-3" />
-            {st.label}
+          <span className={`ml-1 flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${health.className}`}>
+            <span className={`h-2 w-2 rounded-full ${health.dotClass} ${health.status === "online" ? "animate-pulse" : ""}`} />
+            {health.label}
           </span>
+          <span className="ml-1 text-xs text-muted-foreground">· {formatLastSeen(screen.lastSyncAt)}</span>
         </div>
 
         <Button size="sm" className="gap-1.5 gradient-primary" onClick={() => setAssignOpen(true)}>
@@ -267,21 +300,58 @@ export default function ScreenDetail() {
         </div>
 
         {/* Sidebar */}
-        <ScreenSettingsPanel
-          screen={screen}
-          onChange={handleChange}
-          onDelete={handleDelete}
-          onSyncComplete={(data) => {
-            if (data.current_playlist) {
-              handleChange({
-                currentContent: {
-                  ...screen.currentContent,
-                  assetName: data.current_playlist.name,
-                },
-              });
-            }
-          }}
-        />
+        <div className="space-y-6">
+          {fromDashboard && (
+            <RemoteActionsPanel screenId={screen.id} screenName={screen.name} />
+          )}
+
+          {fromDashboard && (
+            <div className="glass-card rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+                <Smartphone className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Información del dispositivo</h3>
+              </div>
+              <dl className="divide-y divide-border text-sm">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Modelo</dt>
+                  <dd className="font-medium text-foreground">{deviceInfo.deviceModel ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Sistema</dt>
+                  <dd className="font-medium text-foreground">{deviceInfo.osVersion ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Versión app</dt>
+                  <dd className="font-mono text-xs font-medium text-foreground">{deviceInfo.appVersion ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">IP pública</dt>
+                  <dd className="font-mono text-xs font-medium text-foreground">{deviceInfo.ipAddress ?? "—"}</dd>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <dt className="text-muted-foreground">Última señal</dt>
+                  <dd className="font-medium text-foreground">{formatLastSeen(screen.lastSyncAt)}</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
+          <ScreenSettingsPanel
+            screen={screen}
+            onChange={handleChange}
+            onDelete={handleDelete}
+            onSyncComplete={(data) => {
+              if (data.current_playlist) {
+                handleChange({
+                  currentContent: {
+                    ...screen.currentContent,
+                    assetName: data.current_playlist.name,
+                  },
+                });
+              }
+            }}
+          />
+        </div>
       </div>
       {/* Assign Playlist Dialog */}
       <AssignPlaylistDialog
