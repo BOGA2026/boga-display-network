@@ -3,12 +3,10 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   ChevronRight,
   ArrowLeft,
-  Wifi,
-  WifiOff,
-  AlertTriangle,
   Replace,
   MapPin,
   Pencil,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,12 +19,15 @@ import ScreenTimeline from "@/components/digital-signage/ScreenTimeline";
 import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPanel";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 import LocationEditorDialog from "@/components/digital-signage/LocationEditorDialog";
+import RemoteActionsPanel from "@/components/digital-signage/RemoteActionsPanel";
+import { getScreenHealth, formatLastSeen } from "@/lib/screen-health";
 
-const statusBadge = {
-  online: { icon: Wifi, label: "Online", cls: "text-emerald-400 bg-emerald-400/10" },
-  offline: { icon: WifiOff, label: "Offline", cls: "text-muted-foreground bg-muted" },
-  warning: { icon: AlertTriangle, label: "Warning", cls: "text-amber-400 bg-amber-400/10" },
-} as const;
+interface DeviceInfo {
+  appVersion: string | null;
+  deviceModel: string | null;
+  osVersion: string | null;
+  ipAddress: string | null;
+}
 
 function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; latitude?: number; longitude?: number }): ScreenData {
   return {
