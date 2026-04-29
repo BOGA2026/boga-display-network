@@ -71,6 +71,12 @@ export default function ScreenDetail() {
   const [locationEditOpen, setLocationEditOpen] = useState(false);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationAddress, setLocationAddress] = useState<string>("");
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
+    appVersion: null,
+    deviceModel: null,
+    osVersion: null,
+    ipAddress: null,
+  });
 
   useEffect(() => {
     async function load() {
@@ -94,6 +100,12 @@ export default function ScreenDetail() {
         const loc = (dbScreen as any).locations;
         setLocationId(loc?.id ?? null);
         setLocationAddress(loc?.address ?? "");
+        setDeviceInfo({
+          appVersion: (dbScreen as any).app_version ?? null,
+          deviceModel: (dbScreen as any).device_model ?? null,
+          osVersion: (dbScreen as any).os_version ?? null,
+          ipAddress: (dbScreen as any).ip_address ?? null,
+        });
         setScreen(mapDbScreenToScreenData(dbScreen, {
           name: loc?.name,
           latitude: loc?.latitude,
@@ -103,6 +115,26 @@ export default function ScreenDetail() {
       setIsLoading(false);
     }
     load();
+
+    // Auto-refresh every 30s to keep health badge and device info fresh
+    const interval = window.setInterval(async () => {
+      if (!screenId) return;
+      const { data } = await supabase
+        .from("screens")
+        .select("last_seen_at, status, app_version, device_model, os_version, ip_address")
+        .eq("id", screenId)
+        .maybeSingle();
+      if (!data) return;
+      setScreen((prev) => prev ? { ...prev, lastSyncAt: (data as any).last_seen_at || prev.lastSyncAt } : prev);
+      setDeviceInfo({
+        appVersion: (data as any).app_version ?? null,
+        deviceModel: (data as any).device_model ?? null,
+        osVersion: (data as any).os_version ?? null,
+        ipAddress: (data as any).ip_address ?? null,
+      });
+    }, 30_000);
+
+    return () => window.clearInterval(interval);
   }, [screenId]);
 
   if (isLoading) {
