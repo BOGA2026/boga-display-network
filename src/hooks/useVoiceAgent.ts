@@ -220,6 +220,18 @@ export function useVoiceAgent(businessId: string | null) {
         if (error) throw error;
         return { ok: true, item: data };
       }
+      case "crear_contenido": {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data, error } = await supabase.from("content").insert({
+          business_id: businessId,
+          name: args.name,
+          type: args.type || "menu",
+          duration_seconds: args.duration_seconds ?? 10,
+          created_by: user?.id ?? null,
+        }).select("id, name, type").maybeSingle();
+        if (error) throw error;
+        return { ok: true, content: data };
+      }
       default:
         throw new Error(`Tool desconocida: ${name}`);
     }
