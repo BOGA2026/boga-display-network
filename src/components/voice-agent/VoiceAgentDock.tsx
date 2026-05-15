@@ -130,20 +130,32 @@ export const VoiceAgentDock = () => {
               </div>
             )}
 
-            {messages.filter((m) => m.role !== "tool").map((m, i) => (
-              <div
-                key={i}
-                className={`text-sm rounded-lg px-3 py-2 max-w-[85%] ${
-                  m.role === "user"
-                    ? "ml-auto bg-primary/20 text-foreground"
-                    : "mr-auto bg-muted/50 text-foreground"
-                }`}
-              >
-                {m.content || (m.role === "assistant" && (m as any).tool_calls?.length ? (
-                  <span className="text-muted-foreground italic">Trabajando…</span>
-                ) : null)}
-              </div>
-            ))}
+            {messages.filter((m) => m.role !== "tool").map((m, i) => {
+              const imgs = (m as any).images as string[] | undefined;
+              return (
+                <div
+                  key={i}
+                  className={`text-sm rounded-lg px-3 py-2 max-w-[85%] space-y-2 ${
+                    m.role === "user"
+                      ? "ml-auto bg-primary/20 text-foreground"
+                      : "mr-auto bg-muted/50 text-foreground"
+                  }`}
+                >
+                  {imgs && imgs.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {imgs.map((src, idx) => (
+                        <img key={idx} src={src} alt="" className="h-16 w-16 object-cover rounded border border-border/50" />
+                      ))}
+                    </div>
+                  )}
+                  {m.content && m.content !== "(imagen adjunta)" ? (
+                    <div>{m.content}</div>
+                  ) : !imgs?.length && m.role === "assistant" && (m as any).tool_calls?.length ? (
+                    <span className="text-muted-foreground italic">Trabajando…</span>
+                  ) : null}
+                </div>
+              );
+            })}
 
             {pendingActions.map((a) => (
               <ActionPreviewCard
