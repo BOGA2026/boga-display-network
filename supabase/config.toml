@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.mark-offline-screens]
 verify_jwt = false
+
+[functions.voice-transcribe]
+verify_jwt = false
+
+[functions.voice-agent]
+verify_jwt = false
