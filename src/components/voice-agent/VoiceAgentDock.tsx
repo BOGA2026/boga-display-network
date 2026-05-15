@@ -16,6 +16,8 @@ export const VoiceAgentDock = () => {
   const [open, setOpen] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -33,11 +35,35 @@ export const VoiceAgentDock = () => {
     startRecording, stopRecording, sendText, confirmAction, rejectAction, reset, stopSpeaking,
   } = useVoiceAgent(businessId);
 
-  const handleSendText = () => {
-    if (textInput.trim()) {
-      sendText(textInput.trim());
-      setTextInput("");
+  const fileToDataUrl = (file: File): Promise<string> => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result as string);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !files.length) return;
+    const valid = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (!valid.length) { toast.error("Sólo imágenes"); return; }
+    if (attachedImages.length + valid.length > 4) { toast.error("Máximo 4 imágenes"); return; }
+    try {
+      const urls = await Promise.all(valid.map(async (f) => {
+        if (f.size > 8 * 1024 * 1024) throw new Error(`${f.name} pesa más de 8MB`);
+        return fileToDataUrl(f);
+      }));
+      setAttachedImages((p) => [...p, ...urls]);
+    } catch (e: any) {
+      toast.error(e?.message || "No se pudo cargar la imagen");
     }
+  };
+
+  const handleSendText = () => {
+    const t = textInput.trim();
+    if (!t && !attachedImages.length) return;
+    sendText(t, attachedImages.length ? attachedImages : undefined);
+    setTextInput("");
+    setAttachedImages([]);
   };
 
   return (
