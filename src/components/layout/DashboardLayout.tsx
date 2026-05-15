@@ -3,6 +3,7 @@ import DashboardSidebar from "./DashboardSidebar";
 import { Separator } from "@/components/ui/separator";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { useAuth } from "@/hooks/useAuth";
+import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
 
 const DashboardLayout = () => {
   const { loading } = useAuth("/login");
@@ -33,6 +34,7 @@ const DashboardLayout = () => {
           </main>
         </div>
       </div>
+      <VoiceAgentDock />
     </div>
   );
 };
