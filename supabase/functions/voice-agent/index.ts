@@ -135,6 +135,35 @@ const TOOLS = [
       parameters: { type: "object", properties: {}, additionalProperties: false },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "crear_playlist",
+      description: "Crea una nueva playlist (lista de contenidos) vacía en el negocio. REQUIERE confirmación.",
+      parameters: {
+        type: "object",
+        properties: { name: { type: "string", description: "Nombre de la playlist" } },
+        required: ["name"], additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "crear_item",
+      description: "Crea un nuevo item (producto/plato/promo) dentro de un contenido existente. Llamá list_content_items antes para ubicar el content_id correcto. REQUIERE confirmación.",
+      parameters: {
+        type: "object",
+        properties: {
+          content_id: { type: "string" },
+          name: { type: "string" },
+          price: { type: "number" },
+          description: { type: "string" },
+        },
+        required: ["content_id", "name"], additionalProperties: false,
+      },
+    },
+  },
 ];
 
 const SYSTEM_PROMPT = `Eres el agente de voz de Visualia, asistente del dueño de un negocio en Colombia que maneja pantallas digitales (menús, promos, contenido).
