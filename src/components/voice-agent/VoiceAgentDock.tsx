@@ -175,18 +175,46 @@ export const VoiceAgentDock = () => {
 
           {/* Controles: input texto + botón micrófono */}
           <div className="border-t border-border/50 p-3 space-y-2">
+            {attachedImages.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {attachedImages.map((src, idx) => (
+                  <div key={idx} className="relative h-14 w-14 rounded-md overflow-hidden border border-primary/30 group">
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <button
+                      onClick={() => setAttachedImages((p) => p.filter((_, i) => i !== idx))}
+                      className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+              onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
+            />
+
             <div className="flex gap-2">
+              <Button
+                size="sm" variant="ghost" onClick={() => fileInputRef.current?.click()}
+                disabled={isProcessing || attachedImages.length >= 4}
+                className="h-9 w-9 p-0 shrink-0" title="Adjuntar imagen"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
               <Input
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendText()}
-                placeholder="O escribí acá…"
+                placeholder={attachedImages.length ? "Describí qué hacer con la imagen…" : "O escribí acá…"}
                 className="h-9 text-sm"
                 disabled={isProcessing}
               />
               <Button
                 size="sm" variant="ghost" onClick={handleSendText}
-                disabled={!textInput.trim() || isProcessing} className="h-9 w-9 p-0"
+                disabled={(!textInput.trim() && !attachedImages.length) || isProcessing} className="h-9 w-9 p-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
