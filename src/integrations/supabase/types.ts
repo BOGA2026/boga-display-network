@@ -155,6 +155,56 @@ export type Database = {
           },
         ]
       }
+      content_items: {
+        Row: {
+          business_id: string
+          content_id: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          content_id: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          content_id?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           business_name: string
@@ -1200,6 +1250,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      voice_agent_actions: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          parameters: Json
+          result: Json | null
+          status: string
+          tool_name: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          parameters?: Json
+          result?: Json | null
+          status?: string
+          tool_name: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          parameters?: Json
+          result?: Json | null
+          status?: string
+          tool_name?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
