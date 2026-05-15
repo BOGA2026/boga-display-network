@@ -51,7 +51,7 @@ function describeAction(name: string, args: any): string {
     case "crear_item":
       return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
     case "crear_contenido":
-      return `Crear ${args.type || "menú"} "${args.name}"`;
+      return `Crear ${args.type || "menú"} "${args.name}" (${args.aspect_ratio || "?"})`;
     default:
       return name;
   }
@@ -222,15 +222,16 @@ export function useVoiceAgent(businessId: string | null) {
       }
       case "crear_contenido": {
         const { data: { user } } = await supabase.auth.getUser();
+        const ratio = args.aspect_ratio ? ` [${args.aspect_ratio}]` : "";
         const { data, error } = await supabase.from("content").insert({
           business_id: businessId,
-          name: args.name,
+          name: `${args.name}${ratio}`,
           type: args.type || "menu",
           duration_seconds: args.duration_seconds ?? 10,
           created_by: user?.id ?? null,
         }).select("id, name, type").maybeSingle();
         if (error) throw error;
-        return { ok: true, content: data };
+        return { ok: true, content: data, aspect_ratio: args.aspect_ratio };
       }
       default:
         throw new Error(`Tool desconocida: ${name}`);
