@@ -223,14 +223,21 @@ export function useVoiceAgent(businessId: string | null) {
       case "crear_contenido": {
         const { data: { user } } = await supabase.auth.getUser();
         const ratio = args.aspect_ratio ? ` [${args.aspect_ratio}]` : "";
+        // Guardamos como "layout" para que la card abra el editor al hacer click
         const { data, error } = await supabase.from("content").insert({
           business_id: businessId,
           name: `${args.name}${ratio}`,
-          type: args.type || "menu",
+          type: "layout",
           duration_seconds: args.duration_seconds ?? 10,
           created_by: user?.id ?? null,
         }).select("id, name, type").maybeSingle();
         if (error) throw error;
+        // Abrimos el editor automáticamente con la plantilla recién creada
+        if (data?.id) {
+          const url = `/dashboard/editor?contentId=${data.id}&aspect=${encodeURIComponent(args.aspect_ratio || "16:9")}`;
+          setTimeout(() => window.open(url, "_blank"), 200);
+          return { ok: true, content: data, aspect_ratio: args.aspect_ratio, editor_url: url, message: "Plantilla creada. Abrí el editor en una pestaña nueva." };
+        }
         return { ok: true, content: data, aspect_ratio: args.aspect_ratio };
       }
       default:

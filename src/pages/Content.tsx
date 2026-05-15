@@ -333,7 +333,7 @@ const Content = () => {
                   // Don't navigate if clicking on dropdown menu area
                   const target = e.target as HTMLElement;
                   if (target.closest('[data-radix-collection-item]') || target.closest('[role="menu"]')) return;
-                  if (item.type === "layout") openInEditor(item.id);
+                  if (item.type === "layout" || item.type === "menu") openInEditor(item.id);
                 }}
               >
                 {/* Thumbnail area */}
@@ -375,7 +375,7 @@ const Content = () => {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      {item.type === "layout" && (
+                      {(item.type === "layout" || item.type === "menu") && (
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openInEditor(item.id); }}>
                           <LayoutGrid className="mr-2 h-4 w-4" />
                           Editar en canvas
