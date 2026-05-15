@@ -1,6 +1,4 @@
 // Cerebro del agente de voz Visualia.
-// Recibe historial + contexto del negocio, llama a Lovable AI con tool calling,
-// y devuelve o un mensaje de texto o una lista de tool_calls que el cliente ejecuta.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -11,7 +9,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "list_locations_screens",
-      description: "Lista todas las sedes y pantallas del negocio. Úsala cuando necesites saber qué pantallas existen antes de actuar.",
+      description: "Lista todas las sedes y pantallas del negocio. Úsala para saber qué pantallas existen.",
       parameters: { type: "object", properties: {}, additionalProperties: false },
     },
   },
@@ -19,10 +17,10 @@ const TOOLS = [
     type: "function",
     function: {
       name: "query_screen_status",
-      description: "Consulta el estado actual de una pantalla (online/offline, qué playlist tiene asignada).",
+      description: "Consulta el estado actual de una pantalla (online/offline, última vez vista).",
       parameters: {
         type: "object",
-        properties: { screen_id: { type: "string", description: "UUID de la pantalla" } },
+        properties: { screen_id: { type: "string" } },
         required: ["screen_id"], additionalProperties: false,
       },
     },
@@ -31,12 +29,10 @@ const TOOLS = [
     type: "function",
     function: {
       name: "reload_screens",
-      description: "Manda comando de recarga (RELOAD) a una o varias pantallas para que descarguen contenido nuevo.",
+      description: "Manda RELOAD a una o varias pantallas para que descarguen contenido nuevo.",
       parameters: {
         type: "object",
-        properties: {
-          screen_ids: { type: "array", items: { type: "string" }, description: "UUIDs de las pantallas a recargar" },
-        },
+        properties: { screen_ids: { type: "array", items: { type: "string" } } },
         required: ["screen_ids"], additionalProperties: false,
       },
     },
@@ -48,7 +44,7 @@ const TOOLS = [
       description: "Lista los items (productos/platos/promos) del negocio con sus precios. Úsala antes de cambiar precios.",
       parameters: {
         type: "object",
-        properties: { search: { type: "string", description: "Texto opcional para filtrar por nombre" } },
+        properties: { search: { type: "string" } },
         additionalProperties: false,
       },
     },
@@ -57,13 +53,13 @@ const TOOLS = [
     type: "function",
     function: {
       name: "update_content_item_price",
-      description: "Cambia el precio de un item de contenido (plato, producto). REQUIERE confirmación visual del usuario antes de ejecutar.",
+      description: "Cambia el precio de un item. REQUIERE confirmación visual del usuario.",
       parameters: {
         type: "object",
         properties: {
-          item_id: { type: "string", description: "UUID del item" },
-          item_name: { type: "string", description: "Nombre del item para mostrar al usuario" },
-          new_price: { type: "number", description: "Nuevo precio en pesos colombianos" },
+          item_id: { type: "string" },
+          item_name: { type: "string" },
+          new_price: { type: "number", description: "Precio en pesos colombianos" },
         },
         required: ["item_id", "item_name", "new_price"], additionalProperties: false,
       },
@@ -73,7 +69,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "toggle_content_item_active",
-      description: "Activa o desactiva un item (ej: 'quitar la hamburguesa BBQ del menú'). REQUIERE confirmación.",
+      description: "Activa o desactiva un item del menú. REQUIERE confirmación.",
       parameters: {
         type: "object",
         properties: {
@@ -85,18 +81,75 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_playlists",
+      description: "Lista las playlists/contenidos disponibles para programar en pantalla.",
+      parameters: { type: "object", properties: {}, additionalProperties: false },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "cambiar_horario",
+      description: "Crea un bloque de programación (ej: 'happy hour de 5 a 7 lunes a viernes'). REQUIERE confirmación. Antes llamá list_playlists y list_locations_screens si no tenés los IDs.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Nombre del bloque, ej: 'Happy Hour'" },
+          screen_id: { type: "string" },
+          playlist_id: { type: "string" },
+          start_time: { type: "string", description: "HH:MM 24h, ej: '17:00'" },
+          end_time: { type: "string", description: "HH:MM 24h, ej: '19:00'" },
+          days_of_week: {
+            type: "array", items: { type: "integer", minimum: 0, maximum: 6 },
+            description: "0=Dom, 1=Lun ... 6=Sáb",
+          },
+        },
+        required: ["name", "screen_id", "playlist_id", "start_time", "end_time", "days_of_week"],
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "pausar_contenido",
+      description: "Pausa la pantalla por X minutos (manda comando PAUSE). REQUIERE confirmación.",
+      parameters: {
+        type: "object",
+        properties: {
+          screen_ids: { type: "array", items: { type: "string" } },
+          duration_minutes: { type: "number", description: "Duración de la pausa en minutos" },
+        },
+        required: ["screen_ids", "duration_minutes"], additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "restaurar_ultima_accion",
+      description: "Deshace la última acción reversible (cambio de precio, toggle, pausa). REQUIERE confirmación.",
+      parameters: { type: "object", properties: {}, additionalProperties: false },
+    },
+  },
 ];
 
 const SYSTEM_PROMPT = `Eres el agente de voz de Visualia, asistente del dueño de un negocio en Colombia que maneja pantallas digitales (menús, promos, contenido).
 
+PERSONALIDAD: Vendedor digital colombiano. Cálido, directo, decidido. Tuteás natural ("vos"/"tú" según el dueño). Cero jerga técnica.
+
 REGLAS CRÍTICAS:
-- Habla SIEMPRE en español colombiano, casual y directo. Ej: "Listo", "Dale", "¿Confirmás?".
-- Sé MUY breve. Máximo 2 frases. El dueño está ocupado.
-- Usa las herramientas disponibles para responder. NO inventes datos.
-- Si necesitas info (qué pantallas hay, qué items existen), llama a list_locations_screens o list_content_items PRIMERO.
-- Para acciones destructivas (cambiar precio, desactivar item) llama a la herramienta correspondiente — el cliente pedirá confirmación antes de ejecutar.
-- Si el usuario es ambiguo ("cambia el precio del menú"), pide aclaración corta: "¿Cuál menú? Tenés Ejecutivo y Desayuno."
-- Para precios en pesos colombianos: "25 mil" = 25000, "veinticinco" = 25000.
+- Respondé SIEMPRE en español colombiano. Máximo 2 frases. El dueño está apurado.
+- Tu respuesta se va a leer en voz alta — escribí natural para escuchar, sin emojis ni markdown.
+- Usá las herramientas. NO inventes datos (pantallas, precios, items).
+- Si necesitás info, llamá list_locations_screens / list_content_items / list_playlists PRIMERO.
+- Acciones destructivas (precio, desactivar, programar, pausar, restaurar) → llamá la herramienta; el cliente pide confirmación antes.
+- Ambigüedad → preguntá corto: "¿Cuál menú? Tenés Ejecutivo y Desayuno."
+- Precios COP: "25 mil"=25000, "veinticinco"=25000.
+- Días: "lunes a viernes"=[1,2,3,4,5], "fin de semana"=[0,6].
 
 Negocio actual: {{BUSINESS_CONTEXT}}`;
 
@@ -121,10 +174,7 @@ Deno.serve(async (req) => {
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [{ role: "system", content: systemContent }, ...messages],
