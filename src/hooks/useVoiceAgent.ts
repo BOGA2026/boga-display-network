@@ -27,6 +27,8 @@ const NEEDS_CONFIRM = new Set([
   "cambiar_horario",
   "pausar_contenido",
   "restaurar_ultima_accion",
+  "crear_playlist",
+  "crear_item",
 ]);
 
 function describeAction(name: string, args: any): string {
@@ -43,6 +45,10 @@ function describeAction(name: string, args: any): string {
       return `Pausar ${args.screen_ids?.length || 0} pantalla(s) por ${args.duration_minutes} min`;
     case "restaurar_ultima_accion":
       return `Deshacer la última acción aplicada`;
+    case "crear_playlist":
+      return `Crear playlist "${args.name}"`;
+    case "crear_item":
+      return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
     default:
       return name;
   }
@@ -191,6 +197,25 @@ export function useVoiceAgent(businessId: string | null) {
           return { ok: true, undid: "pausa", count: rows.length };
         }
         return { ok: false, error: "Última acción no reversible" };
+      }
+      case "crear_playlist": {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data, error } = await supabase.from("playlists").insert({
+          business_id: businessId, name: args.name, created_by: user?.id ?? null,
+        }).select("id, name").maybeSingle();
+        if (error) throw error;
+        return { ok: true, playlist: data };
+      }
+      case "crear_item": {
+        const { data, error } = await supabase.from("content_items").insert({
+          business_id: businessId,
+          content_id: args.content_id,
+          name: args.name,
+          price: args.price ?? null,
+          description: args.description ?? null,
+        }).select("id, name, price").maybeSingle();
+        if (error) throw error;
+        return { ok: true, item: data };
       }
       default:
         throw new Error(`Tool desconocida: ${name}`);
