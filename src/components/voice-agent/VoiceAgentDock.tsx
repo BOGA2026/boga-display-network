@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Mic, MicOff, X, Sparkles, Send } from "lucide-react";
+import { Mic, MicOff, X, Sparkles, Send, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -28,8 +28,8 @@ export const VoiceAgentDock = () => {
   }, []);
 
   const {
-    messages, pendingActions, isProcessing, isRecording,
-    startRecording, stopRecording, sendText, confirmAction, rejectAction, reset,
+    messages, pendingActions, isProcessing, isRecording, isSpeaking,
+    startRecording, stopRecording, sendText, confirmAction, rejectAction, reset, stopSpeaking,
   } = useVoiceAgent(businessId);
 
   const handleSendText = () => {
@@ -64,6 +64,14 @@ export const VoiceAgentDock = () => {
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">BETA</span>
             </div>
             <div className="flex items-center gap-1">
+              {isSpeaking && (
+                <button onClick={stopSpeaking} className="p-1 hover:bg-muted/50 rounded text-primary" title="Silenciar">
+                  <VolumeX className="h-4 w-4" />
+                </button>
+              )}
+              {!isSpeaking && messages.some((m) => m.role === "assistant" && m.content) && (
+                <Volume2 className="h-3.5 w-3.5 text-muted-foreground/50" />
+              )}
               {messages.length > 0 && (
                 <button onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground px-2">
                   Limpiar
