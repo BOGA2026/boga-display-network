@@ -45,6 +45,10 @@ function describeAction(name: string, args: any): string {
       return `Pausar ${args.screen_ids?.length || 0} pantalla(s) por ${args.duration_minutes} min`;
     case "restaurar_ultima_accion":
       return `Deshacer la última acción aplicada`;
+    case "crear_playlist":
+      return `Crear playlist "${args.name}"`;
+    case "crear_item":
+      return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
     default:
       return name;
   }
