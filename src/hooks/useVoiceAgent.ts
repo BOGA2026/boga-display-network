@@ -198,6 +198,25 @@ export function useVoiceAgent(businessId: string | null) {
         }
         return { ok: false, error: "Última acción no reversible" };
       }
+      case "crear_playlist": {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data, error } = await supabase.from("playlists").insert({
+          business_id: businessId, name: args.name, created_by: user?.id ?? null,
+        }).select("id, name").maybeSingle();
+        if (error) throw error;
+        return { ok: true, playlist: data };
+      }
+      case "crear_item": {
+        const { data, error } = await supabase.from("content_items").insert({
+          business_id: businessId,
+          content_id: args.content_id,
+          name: args.name,
+          price: args.price ?? null,
+          description: args.description ?? null,
+        }).select("id, name, price").maybeSingle();
+        if (error) throw error;
+        return { ok: true, item: data };
+      }
       default:
         throw new Error(`Tool desconocida: ${name}`);
     }
