@@ -50,6 +50,8 @@ function describeAction(name: string, args: any): string {
       return `Crear playlist "${args.name}"`;
     case "crear_item":
       return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
+    case "crear_contenido":
+      return `Crear ${args.type || "menú"} "${args.name}"`;
     default:
       return name;
   }
