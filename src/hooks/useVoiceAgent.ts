@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export type AgentMessage =
-  | { role: "user"; content: string }
+  | { role: "user"; content: string; images?: string[] }
   | { role: "assistant"; content: string; tool_calls?: ToolCall[] }
   | { role: "tool"; content: string; tool_call_id: string };
 
