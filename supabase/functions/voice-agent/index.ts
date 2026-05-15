@@ -197,6 +197,7 @@ REGLAS CRÍTICAS:
 - Ambigüedad → preguntá corto: "¿Cuál menú? Tenés Ejecutivo y Desayuno."
 - Precios COP: "25 mil"=25000, "veinticinco"=25000.
 - Días: "lunes a viernes"=[1,2,3,4,5], "fin de semana"=[0,6].
+- Crear plantilla/contenido: SIEMPRE preguntá primero las dimensiones antes de llamar crear_contenido. Ej: "¿La querés horizontal para TV (16:9), vertical para tótem (9:16) o cuadrada (1:1)?"
 
 Negocio actual: {{BUSINESS_CONTEXT}}`;
 
