@@ -24,6 +24,9 @@ export interface PendingAction {
 const NEEDS_CONFIRM = new Set([
   "update_content_item_price",
   "toggle_content_item_active",
+  "cambiar_horario",
+  "pausar_contenido",
+  "restaurar_ultima_accion",
 ]);
 
 function describeAction(name: string, args: any): string {
@@ -34,12 +37,12 @@ function describeAction(name: string, args: any): string {
       return `${args.is_active ? "Activar" : "Desactivar"} "${args.item_name}"`;
     case "reload_screens":
       return `Recargar ${args.screen_ids?.length || 0} pantalla(s)`;
-    case "list_locations_screens":
-      return "Consultar pantallas y sedes";
-    case "list_content_items":
-      return "Consultar items del menú";
-    case "query_screen_status":
-      return "Consultar estado de pantalla";
+    case "cambiar_horario":
+      return `Programar "${args.name}" de ${args.start_time} a ${args.end_time}`;
+    case "pausar_contenido":
+      return `Pausar ${args.screen_ids?.length || 0} pantalla(s) por ${args.duration_minutes} min`;
+    case "restaurar_ultima_accion":
+      return `Deshacer la última acción aplicada`;
     default:
       return name;
   }
@@ -50,8 +53,34 @@ export function useVoiceAgent(businessId: string | null) {
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  /** Reproduce texto vía ElevenLabs TTS. */
+  const speak = useCallback(async (text: string) => {
+    const clean = (text || "").trim();
+    if (!clean) return;
+    try {
+      setIsSpeaking(true);
+      const { data, error } = await supabase.functions.invoke("voice-tts", { body: { text: clean } });
+      if (error || !data?.audio) return;
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      const audio = new Audio(`data:${data.mime || "audio/mpeg"};base64,${data.audio}`);
+      audioRef.current = audio;
+      audio.onended = () => setIsSpeaking(false);
+      audio.onerror = () => setIsSpeaking(false);
+      await audio.play().catch(() => setIsSpeaking(false));
+    } catch {
+      setIsSpeaking(false);
+    }
+  }, []);
+
+  const stopSpeaking = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    setIsSpeaking(false);
+  }, []);
 
   /** Ejecuta una herramienta usando la sesión del usuario (RLS aplica). */
   const executeTool = useCallback(async (name: string, args: any): Promise<any> => {
@@ -86,17 +115,82 @@ export function useVoiceAgent(businessId: string | null) {
         const { data } = await q;
         return { items: data || [] };
       }
+      case "list_playlists": {
+        const { data } = await supabase
+          .from("playlists").select("id, name").eq("business_id", businessId).order("name");
+        return { playlists: data || [] };
+      }
       case "update_content_item_price": {
+        // Leer precio anterior para poder restaurar
+        const { data: prev } = await supabase.from("content_items")
+          .select("price").eq("id", args.item_id).maybeSingle();
         const { error } = await supabase.from("content_items")
           .update({ price: args.new_price }).eq("id", args.item_id);
         if (error) throw error;
-        return { ok: true };
+        return { ok: true, previous_price: prev?.price ?? null };
       }
       case "toggle_content_item_active": {
+        const { data: prev } = await supabase.from("content_items")
+          .select("is_active").eq("id", args.item_id).maybeSingle();
         const { error } = await supabase.from("content_items")
           .update({ is_active: args.is_active }).eq("id", args.item_id);
         if (error) throw error;
-        return { ok: true };
+        return { ok: true, previous_is_active: prev?.is_active ?? null };
+      }
+      case "cambiar_horario": {
+        const { data, error } = await supabase.from("schedule_blocks").insert({
+          business_id: businessId,
+          screen_id: args.screen_id,
+          playlist_id: args.playlist_id,
+          name: args.name,
+          start_time: args.start_time,
+          end_time: args.end_time,
+          days_of_week: args.days_of_week,
+          // layer_id es NOT NULL — usamos el primer layer del negocio o creamos uno
+          layer_id: await ensureDefaultLayer(businessId),
+        }).select("id").maybeSingle();
+        if (error) throw error;
+        return { ok: true, schedule_block_id: data?.id };
+      }
+      case "pausar_contenido": {
+        const expiresAt = new Date(Date.now() + (args.duration_minutes || 5) * 60_000).toISOString();
+        const rows = (args.screen_ids || []).map((sid: string) => ({
+          screen_id: sid, command: "PAUSE",
+          payload: { duration_minutes: args.duration_minutes },
+          expires_at: expiresAt,
+        }));
+        const { error } = await supabase.from("screen_commands").insert(rows);
+        if (error) throw error;
+        return { ok: true, count: rows.length, resume_at: expiresAt };
+      }
+      case "restaurar_ultima_accion": {
+        // Buscar última acción reversible
+        const { data: actions } = await supabase
+          .from("voice_agent_actions")
+          .select("id, tool_name, parameters, result")
+          .eq("business_id", businessId)
+          .in("tool_name", ["update_content_item_price", "toggle_content_item_active", "pausar_contenido"])
+          .order("created_at", { ascending: false }).limit(1);
+        const last = actions?.[0];
+        if (!last) return { ok: false, error: "No hay acciones reversibles recientes" };
+        const params: any = last.parameters || {};
+        const result: any = last.result || {};
+        if (last.tool_name === "update_content_item_price" && result.previous_price != null) {
+          await supabase.from("content_items").update({ price: result.previous_price }).eq("id", params.item_id);
+          return { ok: true, undid: "precio", item: params.item_name, restored_to: result.previous_price };
+        }
+        if (last.tool_name === "toggle_content_item_active" && result.previous_is_active != null) {
+          await supabase.from("content_items").update({ is_active: result.previous_is_active }).eq("id", params.item_id);
+          return { ok: true, undid: "estado", item: params.item_name };
+        }
+        if (last.tool_name === "pausar_contenido") {
+          const rows = (params.screen_ids || []).map((sid: string) => ({
+            screen_id: sid, command: "RESUME", payload: {},
+          }));
+          await supabase.from("screen_commands").insert(rows);
+          return { ok: true, undid: "pausa", count: rows.length };
+        }
+        return { ok: false, error: "Última acción no reversible" };
       }
       default:
         throw new Error(`Tool desconocida: ${name}`);
@@ -121,7 +215,11 @@ export function useVoiceAgent(businessId: string | null) {
       const updated = [...newMessages, assistantMsg];
       setMessages(updated);
 
-      // Separar tool_calls: ejecutar las que no requieren confirmación, encolar las que sí
+      // Hablar la respuesta si hay texto y no hay tool_calls pendientes (evitamos hablar "Ok voy a hacer…")
+      if (assistantMsg.content && !(data.tool_calls && data.tool_calls.length)) {
+        speak(assistantMsg.content);
+      }
+
       const toExecute: ToolCall[] = [];
       const toConfirm: PendingAction[] = [];
       for (const tc of (data.tool_calls || []) as ToolCall[]) {
@@ -139,7 +237,6 @@ export function useVoiceAgent(businessId: string | null) {
       if (toConfirm.length) setPendingActions((p) => [...p, ...toConfirm]);
 
       if (toExecute.length) {
-        // Ejecutar inmediatamente y mandar resultado de vuelta
         const toolResults: AgentMessage[] = [];
         for (const tc of toExecute) {
           try {
@@ -148,7 +245,6 @@ export function useVoiceAgent(businessId: string | null) {
             toolResults.push({
               role: "tool", tool_call_id: tc.id, content: JSON.stringify(result),
             });
-            // log audit
             if (businessId) {
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
@@ -165,7 +261,6 @@ export function useVoiceAgent(businessId: string | null) {
             });
           }
         }
-        // Re-llamar al agente con los resultados
         await sendToAgent([...updated, ...toolResults]);
       }
     } catch (err: any) {
@@ -174,9 +269,8 @@ export function useVoiceAgent(businessId: string | null) {
     } finally {
       setIsProcessing(false);
     }
-  }, [businessId, executeTool]);
+  }, [businessId, executeTool, speak]);
 
-  /** Confirma una acción pendiente y la ejecuta. */
   const confirmAction = useCallback(async (toolCallId: string) => {
     const action = pendingActions.find((a) => a.toolCallId === toolCallId);
     if (!action) return;
@@ -207,7 +301,6 @@ export function useVoiceAgent(businessId: string | null) {
     }
   }, [pendingActions, executeTool, businessId, messages, sendToAgent]);
 
-  /** Rechaza una acción pendiente. */
   const rejectAction = useCallback((toolCallId: string) => {
     const action = pendingActions.find((a) => a.toolCallId === toolCallId);
     setPendingActions((p) => p.filter((a) => a.toolCallId !== toolCallId));
@@ -221,7 +314,6 @@ export function useVoiceAgent(businessId: string | null) {
     sendToAgent(updated);
   }, [pendingActions, messages, sendToAgent]);
 
-  /** Envía texto directo (sin grabar). */
   const sendText = useCallback(async (text: string) => {
     if (!text.trim()) return;
     const updated: AgentMessage[] = [...messages, { role: "user", content: text }];
@@ -229,9 +321,9 @@ export function useVoiceAgent(businessId: string | null) {
     await sendToAgent(updated);
   }, [messages, sendToAgent]);
 
-  /** Comienza a grabar audio. */
   const startRecording = useCallback(async () => {
     try {
+      stopSpeaking();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mr = new MediaRecorder(stream, { mimeType: "audio/webm" });
       chunksRef.current = [];
@@ -243,7 +335,6 @@ export function useVoiceAgent(businessId: string | null) {
           toast.error("Grabación muy corta");
           return;
         }
-        // Convertir a base64
         const buf = await blob.arrayBuffer();
         const bytes = new Uint8Array(buf);
         let bin = "";
@@ -276,7 +367,7 @@ export function useVoiceAgent(businessId: string | null) {
       toast.error("No se pudo acceder al micrófono");
       console.error(e);
     }
-  }, [sendText]);
+  }, [sendText, stopSpeaking]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -286,11 +377,24 @@ export function useVoiceAgent(businessId: string | null) {
   }, []);
 
   const reset = useCallback(() => {
-    setMessages([]); setPendingActions([]);
-  }, []);
+    setMessages([]); setPendingActions([]); stopSpeaking();
+  }, [stopSpeaking]);
 
   return {
-    messages, pendingActions, isProcessing, isRecording,
-    startRecording, stopRecording, sendText, confirmAction, rejectAction, reset,
+    messages, pendingActions, isProcessing, isRecording, isSpeaking,
+    startRecording, stopRecording, sendText, confirmAction, rejectAction, reset, stopSpeaking,
   };
+}
+
+/** Devuelve un layer_id válido del negocio; crea uno si no existe. */
+async function ensureDefaultLayer(businessId: string): Promise<string> {
+  const { data } = await supabase
+    .from("schedule_layers").select("id").eq("business_id", businessId)
+    .order("priority", { ascending: false }).limit(1).maybeSingle();
+  if (data?.id) return data.id;
+  const { data: created, error } = await supabase
+    .from("schedule_layers").insert({ business_id: businessId, name: "Principal", color: "#8A00FF", priority: 0 })
+    .select("id").maybeSingle();
+  if (error || !created) throw new Error("No se pudo crear capa de programación");
+  return created.id;
 }
