@@ -1,110 +1,125 @@
+# Agente Visualia de Voz
 
-# Heartbeat + Reload remoto + Estado real online/offline
+Convertimos a Visualia en un asistente conversacional al que el dueño del negocio le habla y él ejecuta cambios reales en las pantallas: precios, promos, horarios, contenido y consultas.
 
-Objetivo: que cada Fire TV reporte "estoy vivo" cada 60s, que el dashboard muestre el estado real (verde/ámbar/rojo), y que puedas mandar **Recargar** o **Reiniciar app** con un clic sin ir físicamente al sitio.
+## Recomendación de tipo de voz
 
----
+**Push-to-talk con confirmación visual** (no conversación continua tipo Alexa).
 
-## Lo que ya tienes (no se toca)
-- Tabla `screens` con `last_seen_at`, `status`, `app_version`, `device_model`, `os_version`.
-- Tabla `screen_commands` con realtime habilitado.
-- Edge function `screen-commands` con endpoints `/sync` y `/send`.
-- APK Fire TV con WebView en kiosko.
+Razones para un restaurante:
+- Cocinas y barras son **ruidosos** → un mic siempre abierto capta interrupciones, ruido y cambia cosas sin querer.
+- Cambiar precios es **irreversible para el cliente** → siempre debe haber una tarjeta de "¿Confirmás?" antes de aplicar.
+- Mucho más **barato** (~10x menos que conversación continua tipo ElevenLabs).
+- El dueño puede **ver** el cambio antes de confirmarlo, no solo oírlo.
 
-## Lo que falta y se va a construir
+Flujo: presionar 🎤 → hablar → soltar → ver tarjeta de preview → confirmar con voz ("sí") o tap.
 
-### 1. Endpoint público de heartbeat (edge function nueva)
-Nueva edge function `device-heartbeat` (sin JWT, validada por `device_code`):
-- **POST** recibe `{ device_code, app_version, device_model, os_version, ip }`.
-- Resuelve `screen_id` desde `devices.device_code`.
-- Actualiza `screens.last_seen_at = now()`, `status = 'online'`, `app_version`, `device_model`, `os_version`, `ip_address`.
-- Devuelve la lista de **comandos pendientes** para esa pantalla (`screen_commands` con `status='pending'` y no expirados).
-- La APK marca cada comando como `executed` enviando un `result` de vuelta.
+Stack:
+- Transcripción: **ElevenLabs Scribe v2** (español, baja latencia)
+- Cerebro: **Lovable AI Gateway** con `google/gemini-3-flash-preview` + tool calling
+- Respuesta hablada (opcional, corta): **ElevenLabs TTS** para confirmaciones tipo "Listo, precio actualizado"
 
-Por qué público: el Fire TV no tiene sesión Supabase. Se autentica con su `device_code` único + un token corto que le emite el pairing.
+## Fase 1 — Web (esta semana)
 
-### 2. Cron de "marcar offline" (edge function programada)
-Edge function `mark-offline-screens` que corre cada 2 minutos:
-- `UPDATE screens SET status='offline' WHERE last_seen_at < now() - interval '3 minutes' AND status != 'offline'`.
-- Se programa vía `supabase/config.toml` con `schedule = "*/2 * * * *"`.
+Botón flotante 🎤 en el dashboard (`/screens`, `/content`, `/schedule`) que abre un panel lateral con el agente.
 
-### 3. Player web (`/player/:deviceId`) con heartbeat
-Modificar `src/pages/Player.tsx`:
-- Al cargar, hace `POST` a `device-heartbeat` cada 60s.
-- Procesa los comandos que devuelve:
-  - `reload` → `window.location.reload()`
-  - `restart_app` → recarga + limpia cache (`caches.delete`)
-  - `screenshot` → `html2canvas` y sube a storage (opcional, fase 2)
-- Marca comandos como ejecutados.
+### Herramientas que entiende el agente (tool calling)
 
-### 4. APK Fire TV — receptor de comandos nativos
-En `MainActivity.kt`:
-- Inyectar un `JavascriptInterface` `VisualiaNative` con métodos `restartApp()`, `clearCache()`, `getDeviceInfo()`.
-- Para `restart_app`, el WebView llama `VisualiaNative.restartApp()` que reinicia la Activity (más fuerte que `location.reload`).
-- Watchdog ligero: si la WebView no dispara `onPageFinished` en 30s, reload automático.
+| Tool | Qué hace |
+|---|---|
+| `update_content_price` | Cambia precio de un item dentro de un contenido tipo menú |
+| `toggle_content_active` | Activa/pausa un contenido o promoción |
+| `create_promo_from_template` | Crea contenido nuevo desde plantilla (`menu_templates`) con datos dictados |
+| `assign_playlist_to_screen` | Cambia qué playlist corre en qué pantalla |
+| `schedule_block_create` | Crea bloque horario ("happy hour de 5 a 7") |
+| `query_screen_status` | "¿Qué está mostrando ahora la pantalla X?" |
+| `reload_screens` | Inserta comando `RELOAD` en `screen_commands` |
+| `list_locations_screens` | Para que el agente sepa qué pantallas/sedes existen |
 
-### 5. UI en el dashboard
+### Componentes nuevos
 
-**`ScreenCard.tsx`** y **`ScreenDetail.tsx`**:
-- Estado real con 3 niveles:
-  - 🟢 **En línea** — `last_seen_at` < 2 min
-  - 🟡 **Inestable** — entre 2 y 5 min
-  - 🔴 **Desconectada** — > 5 min o nunca
-- Mostrar `app_version` y `device_model` en el detalle.
-- Mostrar "Última señal: hace X min".
+- `src/components/voice-agent/VoiceAgentDock.tsx` — botón flotante + panel
+- `src/components/voice-agent/VoiceRecorder.tsx` — push-to-talk con MediaRecorder
+- `src/components/voice-agent/ActionPreviewCard.tsx` — tarjeta de confirmación antes de ejecutar
+- `src/components/voice-agent/ConversationLog.tsx` — historial de la sesión actual
+- `src/hooks/useVoiceAgent.ts` — orquestación de grabar → transcribir → llamar al agente → confirmar → ejecutar
 
-**Nuevo botón "Acciones remotas"** en `ScreenDetail.tsx`:
-- Recargar contenido
-- Reiniciar app
-- Forzar resincronización
+### Edge functions nuevas
 
-Cada acción inserta una fila en `screen_commands` y muestra toast "Enviado, se ejecutará en <60s".
+- `supabase/functions/voice-transcribe/index.ts` — recibe audio (base64), llama a ElevenLabs Scribe, devuelve texto.
+- `supabase/functions/voice-agent/index.ts` — recibe `{messages, business_id}`, llama a Gemini con las herramientas, devuelve `tool_calls` o respuesta. **No ejecuta cambios** — solo propone. La ejecución vive en el cliente para que la RLS del usuario aplique naturalmente.
+- `supabase/functions/voice-tts/index.ts` (opcional) — confirmación hablada corta.
 
-### 6. Cambios de schema (migración)
-Solo una columna nueva, todo lo demás ya existe:
-```sql
-ALTER TABLE devices ADD COLUMN IF NOT EXISTS heartbeat_token text;
-CREATE INDEX IF NOT EXISTS idx_screens_last_seen ON screens(last_seen_at);
-CREATE INDEX IF NOT EXISTS idx_screen_commands_pending 
-  ON screen_commands(screen_id, status) WHERE status='pending';
-```
+### Cambios de DB
 
----
+Una tabla nueva para auditar lo que el agente hace (importante para deshacer y para confianza):
+
+- `voice_agent_actions` — guarda cada acción ejecutada (tool, parámetros, resultado, usuario, timestamp). RLS por business.
+
+Una tabla para "items dentro de un contenido tipo menú" si vamos a cambiar precios individuales por voz. Hoy `content` es un blob; necesitamos estructura para que el agente pueda decir "cambiá el precio del menú ejecutivo". Propuesta: `content_items` (content_id, name, price, is_active, sort_order).
+
+## Fase 2 — App móvil (PWA, después de validar Fase 1)
+
+- PWA instalable desde `visualiamedia.com/agente` con icono en el home screen del celular
+- Optimizada para uso vertical y manos ocupadas (botón gigante, vibración háptica al confirmar)
+- Acceso al micrófono nativo, funciona offline para la grabación (sincroniza al recuperar señal)
+- Notificaciones push cuando una pantalla pierde conexión ("Pantalla del comedor se desconectó")
 
 ## Detalles técnicos
 
-**Seguridad heartbeat**: el endpoint es público pero valida `device_code` contra `devices`. Si el código no existe → 404. Sin RLS porque la APK no tiene sesión, pero solo puede actualizar SU propia pantalla (la edge function fija el `screen_id` server-side).
+```text
+[Dueño] --hold mic--> [VoiceRecorder]
+            |
+            v
+   audio blob (webm/opus)
+            |
+            v
+[voice-transcribe edge fn] --> ElevenLabs Scribe --> texto
+            |
+            v
+[voice-agent edge fn] --> Gemini Flash + tools --> tool_call JSON
+            |
+            v
+[ActionPreviewCard]  ← muestra: "Cambiar precio Menú Ejecutivo $22k → $25k"
+            |
+       confirma sí
+            v
+[ejecutor en cliente] --> supabase.from(...).update(...)  (RLS aplica)
+            |
+            v
+[voice_agent_actions] log + screen_commands RELOAD
+            |
+            v
+[ElevenLabs TTS] "Listo, 3 pantallas actualizadas"
+```
 
-**Sin breaking changes**: las pantallas existentes que no manden heartbeat simplemente quedarán como 🔴 desconectadas hasta que actualices la APK. La APK vieja sigue funcionando (solo no reporta estado real).
+### Seguridad
+- El agente **nunca** ejecuta directamente; siempre devuelve una *intención*.
+- El cliente ejecuta usando la sesión del usuario → RLS bloquea cambios fuera de su business.
+- Confirmación obligatoria para: cambios de precio, eliminar contenido, pausar pantallas. No requiere confirmación para: consultas, recargar pantalla.
 
-**APK update**: requiere recompilar y resubir el APK al bucket `downloads`. Los Fire TV existentes pueden seguir con la versión vieja; el nuevo heartbeat es opt-in por versión.
+### Secrets necesarios
+- `ELEVENLABS_API_KEY` (te lo pediré con el tool de secrets cuando aprobés el plan)
+- `LOVABLE_API_KEY` ya está configurado.
 
-**Costo realtime**: 0. Usamos polling cada 60s (HTTP), no Supabase Realtime. Esto escala mejor que websockets para >100 pantallas.
+### Costos estimados por sesión de 1 minuto
+- Transcripción Scribe: ~$0.005
+- Gemini Flash: ~$0.002
+- TTS confirmación: ~$0.003
+- **Total: ~$0.01 por interacción** (1000 cambios al mes = $10 USD)
 
----
+## Lo que NO incluye este plan (para después)
+- Reconocimiento de quién habla (multi-usuario por voz)
+- Comandos en inglés (solo español Colombia)
+- Generación de imágenes nuevas por voz (eso queda para el editor visual)
+- Integración con WhatsApp para mandar comandos por audio (Fase 3)
 
-## Archivos a crear/modificar
-
-**Nuevos:**
-- `supabase/functions/device-heartbeat/index.ts`
-- `supabase/functions/mark-offline-screens/index.ts`
-- `src/components/digital-signage/RemoteActionsPanel.tsx`
-- Migración SQL (índices + columna)
-
-**Modificados:**
-- `src/pages/Player.tsx` — añadir loop de heartbeat
-- `src/components/digital-signage/ScreenCard.tsx` — 3 estados de salud
-- `src/pages/digital-signage/ScreenDetail.tsx` — panel de acciones remotas + info técnica
-- `supabase/config.toml` — registrar funciones públicas y cron
-- `firetv-apk/app/src/main/java/com/visualia/firetv/MainActivity.kt` — JavascriptInterface + watchdog
-- `firetv-apk/README.md` — bump de versión a 1.1.0
-
----
-
-## Lo que NO incluye (queda para fase 2)
-- Captura de screenshot remota (necesita más trabajo)
-- OTA auto-update del APK
-- Lock Task Mode (modo device-owner)
-- Migración a CDN externo para videos
-
-¿Aprobás y arrancamos?
+## Orden de implementación
+1. Tabla `content_items` + tabla `voice_agent_actions` (migración)
+2. Pedir `ELEVENLABS_API_KEY`
+3. Edge functions `voice-transcribe` y `voice-agent`
+4. Componentes UI del dock + recorder + preview card
+5. Integrar herramientas una por una, empezando por las **lectoras** (`query_screen_status`, `list_locations_screens`) para validar el ciclo sin riesgo
+6. Agregar herramientas de escritura con confirmación obligatoria
+7. TTS de confirmación
+8. PWA mobile (Fase 2)
