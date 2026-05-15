@@ -50,8 +50,15 @@ function describeAction(name: string, args: any): string {
       return `Crear playlist "${args.name}"`;
     case "crear_item":
       return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
-    case "crear_contenido":
-      return `Crear ${args.type || "menú"} "${args.name}" (${args.aspect_ratio || "?"})`;
+    case "crear_contenido": {
+      const k = args.kind || "menu";
+      const extra =
+        k === "menu" ? ` con ${args.menu?.items?.length || 0} items`
+        : k === "promo" ? ` "${args.promo?.title || ""}"`
+        : k === "product" ? ` "${args.product?.title || ""}"`
+        : "";
+      return `Crear ${k} "${args.name}" (${args.aspect_ratio || "?"})${extra}`;
+    }
     default:
       return name;
   }
@@ -222,23 +229,99 @@ export function useVoiceAgent(businessId: string | null) {
       }
       case "crear_contenido": {
         const { data: { user } } = await supabase.auth.getUser();
-        const ratio = args.aspect_ratio ? ` [${args.aspect_ratio}]` : "";
-        // Guardamos como "layout" para que la card abra el editor al hacer click
+        const ratio = args.aspect_ratio || "16:9";
+        const ratioTag = ` [${ratio}]`;
+        const dims =
+          ratio === "9:16" ? { w: 1080, h: 1920, orientation: "portrait" as const }
+          : ratio === "1:1" ? { w: 1080, h: 1080, orientation: "landscape" as const }
+          : { w: 1920, h: 1080, orientation: "landscape" as const };
+        const background = args.background_color || "#FFFFFF";
+        const accent = args.accent_color || "#7C3AED";
+
+        const layers: any[] = [];
+        const cx = (w: number) => Math.round((dims.w - w) / 2);
+        const cy = (h: number) => Math.round((dims.h - h) / 2);
+
+        if (args.kind === "menu" && args.menu) {
+          const w = Math.min(dims.w - 160, dims.h > dims.w ? 900 : 1400);
+          const h = Math.min(dims.h - 160, 200 + (args.menu.items?.length || 0) * 110);
+          layers.push({
+            id: crypto.randomUUID(),
+            name: "Menú",
+            type: "widget",
+            x: cx(w), y: cy(h), w, h,
+            color: "transparent",
+            widgetType: "menu_board",
+            widgetData: {
+              header: args.menu.header || "MENÚ",
+              items: args.menu.items || [],
+              accent,
+            },
+          });
+        } else if (args.kind === "promo" && args.promo) {
+          const w = Math.min(dims.w - 160, 1200);
+          const h = Math.min(dims.h - 160, 500);
+          layers.push({
+            id: crypto.randomUUID(),
+            name: "Promo",
+            type: "widget",
+            x: cx(w), y: cy(h), w, h,
+            color: "transparent",
+            widgetType: "promo",
+            widgetData: {
+              title: args.promo.title,
+              message: args.promo.message,
+              cta: args.promo.cta,
+              accent,
+              bg: background === "#FFFFFF" ? "#111827" : background,
+            },
+          });
+        } else if (args.kind === "product" && args.product) {
+          const w = Math.min(dims.w - 160, 800);
+          const h = Math.min(dims.h - 160, 500);
+          layers.push({
+            id: crypto.randomUUID(),
+            name: "Producto",
+            type: "widget",
+            x: cx(w), y: cy(h), w, h,
+            color: "transparent",
+            widgetType: "product_card",
+            widgetData: {
+              title: args.product.title,
+              subtitle: args.product.subtitle || "",
+              price: args.product.price,
+              image: args.product.image_url || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=400&fit=crop",
+              accent,
+            },
+          });
+        }
+
+        const layoutPayload = {
+          name: `${args.name}${ratioTag}`,
+          orientation: dims.orientation,
+          width: dims.w,
+          height: dims.h,
+          background,
+          layers,
+        };
+        const fileUrl = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(layoutPayload))))}`;
+
         const { data, error } = await supabase.from("content").insert({
           business_id: businessId,
-          name: `${args.name}${ratio}`,
+          name: `${args.name}${ratioTag}`,
           type: "layout",
+          file_url: fileUrl,
           duration_seconds: args.duration_seconds ?? 10,
           created_by: user?.id ?? null,
         }).select("id, name, type").maybeSingle();
         if (error) throw error;
-        // Abrimos el editor automáticamente con la plantilla recién creada
+
         if (data?.id) {
-          const url = `/dashboard/editor?contentId=${data.id}&aspect=${encodeURIComponent(args.aspect_ratio || "16:9")}`;
+          const url = `/dashboard/editor?contentId=${data.id}&aspect=${encodeURIComponent(ratio)}`;
           setTimeout(() => window.open(url, "_blank"), 200);
-          return { ok: true, content: data, aspect_ratio: args.aspect_ratio, editor_url: url, message: "Plantilla creada. Abrí el editor en una pestaña nueva." };
+          return { ok: true, content: data, aspect_ratio: ratio, kind: args.kind, items_count: args.menu?.items?.length, editor_url: url, message: "Plantilla creada con el contenido. Abrí el editor." };
         }
-        return { ok: true, content: data, aspect_ratio: args.aspect_ratio };
+        return { ok: true, content: data, aspect_ratio: ratio };
       }
       default:
         throw new Error(`Tool desconocida: ${name}`);
