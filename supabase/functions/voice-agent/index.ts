@@ -151,15 +151,16 @@ const TOOLS = [
     type: "function",
     function: {
       name: "crear_contenido",
-      description: "Crea un contenido nuevo (ej: una plantilla de menú, una promo, un cartel). Sirve como contenedor para items. REQUIERE confirmación. Usá type='menu' para menús de productos, 'image' para piezas visuales sueltas.",
+      description: "Crea un contenido/plantilla nuevo (menú, promo, cartel). REQUIERE confirmación. ANTES de llamar esta tool DEBÉS preguntarle al usuario las dimensiones (aspect_ratio): horizontal 16:9, vertical 9:16 o cuadrado 1:1. Nunca asumas, siempre preguntá.",
       parameters: {
         type: "object",
         properties: {
           name: { type: "string", description: "Nombre del contenido, ej: 'Menú Hamburguesas'" },
           type: { type: "string", enum: ["menu", "image", "video"], description: "Tipo de contenido. Default: 'menu'" },
+          aspect_ratio: { type: "string", enum: ["16:9", "9:16", "1:1"], description: "Dimensiones: 16:9 horizontal (TV), 9:16 vertical (tótem), 1:1 cuadrado. OBLIGATORIO preguntar al usuario." },
           duration_seconds: { type: "number", description: "Duración en segundos al mostrarse en pantalla. Default: 10" },
         },
-        required: ["name"], additionalProperties: false,
+        required: ["name", "aspect_ratio"], additionalProperties: false,
       },
     },
   },
