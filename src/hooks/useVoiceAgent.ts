@@ -29,6 +29,7 @@ const NEEDS_CONFIRM = new Set([
   "restaurar_ultima_accion",
   "crear_playlist",
   "crear_item",
+  "crear_contenido",
 ]);
 
 function describeAction(name: string, args: any): string {
