@@ -151,16 +151,59 @@ const TOOLS = [
     type: "function",
     function: {
       name: "crear_contenido",
-      description: "Crea un contenido/plantilla nuevo (menú, promo, cartel). REQUIERE confirmación. ANTES de llamar esta tool DEBÉS preguntarle al usuario las dimensiones (aspect_ratio): horizontal 16:9, vertical 9:16 o cuadrado 1:1. Nunca asumas, siempre preguntá.",
+      description: "Crea una plantilla YA POBLADA con el contenido que el usuario te dictó. REQUIERE confirmación. NO la llames hasta haber preguntado y recibido: (1) tipo de pieza (menu/promo/producto), (2) dimensiones (aspect_ratio), (3) los datos concretos según el tipo. Nunca inventes items, precios ni textos: si te falta algo, preguntá.",
       parameters: {
         type: "object",
         properties: {
-          name: { type: "string", description: "Nombre del contenido, ej: 'Menú Hamburguesas'" },
-          type: { type: "string", enum: ["menu", "image", "video"], description: "Tipo de contenido. Default: 'menu'" },
-          aspect_ratio: { type: "string", enum: ["16:9", "9:16", "1:1"], description: "Dimensiones: 16:9 horizontal (TV), 9:16 vertical (tótem), 1:1 cuadrado. OBLIGATORIO preguntar al usuario." },
-          duration_seconds: { type: "number", description: "Duración en segundos al mostrarse en pantalla. Default: 10" },
+          name: { type: "string", description: "Nombre interno de la plantilla, ej: 'Menú Hamburguesas Sábado'" },
+          kind: { type: "string", enum: ["menu", "promo", "product"], description: "Qué clase de pieza: 'menu' carta de varios items, 'promo' banner con mensaje y CTA, 'product' tarjeta de un solo producto." },
+          aspect_ratio: { type: "string", enum: ["16:9", "9:16", "1:1"], description: "Dimensiones: 16:9 horizontal (TV), 9:16 vertical (tótem), 1:1 cuadrado." },
+          duration_seconds: { type: "number", description: "Duración en pantalla (segundos). Default: 10" },
+          background_color: { type: "string", description: "Color de fondo del lienzo en HEX, ej: '#0f172a'. Default: '#FFFFFF'." },
+          accent_color: { type: "string", description: "Color de acento en HEX para títulos/precios. Default: '#7C3AED'." },
+          menu: {
+            type: "object",
+            description: "Obligatorio si kind='menu'. Contenido de la carta.",
+            properties: {
+              header: { type: "string", description: "Título de la carta, ej: 'MENÚ DEL DÍA'" },
+              items: {
+                type: "array",
+                description: "Lista de items recolectados al usuario.",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    price: { type: "string", description: "Precio formateado, ej: '$24.900'" },
+                  },
+                  required: ["name", "price"], additionalProperties: false,
+                },
+              },
+            },
+            required: ["header", "items"], additionalProperties: false,
+          },
+          promo: {
+            type: "object",
+            description: "Obligatorio si kind='promo'.",
+            properties: {
+              title: { type: "string", description: "Ej: 'PROMO DEL DÍA'" },
+              message: { type: "string", description: "Mensaje principal" },
+              cta: { type: "string", description: "Llamado a acción, ej: '¡Solo hoy!'" },
+            },
+            required: ["title", "message", "cta"], additionalProperties: false,
+          },
+          product: {
+            type: "object",
+            description: "Obligatorio si kind='product'.",
+            properties: {
+              title: { type: "string" },
+              subtitle: { type: "string" },
+              price: { type: "string", description: "Ej: '$24.900'" },
+              image_url: { type: "string", description: "URL pública opcional de la foto del producto" },
+            },
+            required: ["title", "price"], additionalProperties: false,
+          },
         },
-        required: ["name", "aspect_ratio"], additionalProperties: false,
+        required: ["name", "kind", "aspect_ratio"], additionalProperties: false,
       },
     },
   },
@@ -197,7 +240,14 @@ REGLAS CRÍTICAS:
 - Ambigüedad → preguntá corto: "¿Cuál menú? Tenés Ejecutivo y Desayuno."
 - Precios COP: "25 mil"=25000, "veinticinco"=25000.
 - Días: "lunes a viernes"=[1,2,3,4,5], "fin de semana"=[0,6].
-- Crear plantilla/contenido: SIEMPRE preguntá primero las dimensiones antes de llamar crear_contenido. Ej: "¿La querés horizontal para TV (16:9), vertical para tótem (9:16) o cuadrada (1:1)?"
+- Crear plantilla/contenido: NUNCA llames crear_contenido de una. Hacé una mini entrevista (una pregunta a la vez, máx 2 frases) para recolectar todo lo necesario:
+  1) "¿Qué querés armar: una carta/menú, una promo o una tarjeta de producto?"
+  2) "¿La querés horizontal para TV (16:9), vertical para tótem (9:16) o cuadrada (1:1)?"
+  3) Si es MENÚ: pedí el título de la carta y luego los items uno por uno con su precio ("Decime el primer plato y su precio" / "¿Otro? Si ya está, decime listo"). NO inventes platos ni precios.
+  4) Si es PROMO: pedí título, mensaje y llamado a acción.
+  5) Si es PRODUCTO: pedí nombre, descripción corta, precio y si tiene foto.
+  6) Opcional: "¿Algún color de acento o lo dejo morado Visualia?"
+  Cuando tengas todo, llamá crear_contenido con kind, aspect_ratio y el bloque correspondiente (menu/promo/product) ya completo. El cliente pide confirmación visual antes de guardar.
 
 Negocio actual: {{BUSINESS_CONTEXT}}`;
 
