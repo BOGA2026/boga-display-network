@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export type AgentMessage =
-  | { role: "user"; content: string }
+  | { role: "user"; content: string; images?: string[] }
   | { role: "assistant"; content: string; tool_calls?: ToolCall[] }
   | { role: "tool"; content: string; tool_call_id: string };
 
@@ -339,9 +339,11 @@ export function useVoiceAgent(businessId: string | null) {
     sendToAgent(updated);
   }, [pendingActions, messages, sendToAgent]);
 
-  const sendText = useCallback(async (text: string) => {
-    if (!text.trim()) return;
-    const updated: AgentMessage[] = [...messages, { role: "user", content: text }];
+  const sendText = useCallback(async (text: string, images?: string[]) => {
+    if (!text.trim() && !(images && images.length)) return;
+    const userMsg: AgentMessage = { role: "user", content: text || "(imagen adjunta)" };
+    if (images && images.length) userMsg.images = images;
+    const updated: AgentMessage[] = [...messages, userMsg];
     setMessages(updated);
     await sendToAgent(updated);
   }, [messages, sendToAgent]);

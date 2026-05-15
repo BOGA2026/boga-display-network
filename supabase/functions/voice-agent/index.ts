@@ -202,12 +202,24 @@ Deno.serve(async (req) => {
       business_context || "(sin contexto)",
     );
 
+    // Transformar mensajes user con `images` al formato multimodal OpenAI-compat.
+    const normalized = (messages as any[]).map((m) => {
+      if (m.role === "user" && Array.isArray(m.images) && m.images.length) {
+        const parts: any[] = [{ type: "text", text: m.content || "" }];
+        for (const url of m.images) parts.push({ type: "image_url", image_url: { url } });
+        return { role: "user", content: parts };
+      }
+      // Limpiar campos no estándar
+      const { images: _i, ...rest } = m;
+      return rest;
+    });
+
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        messages: [{ role: "system", content: systemContent }, ...messages],
+        messages: [{ role: "system", content: systemContent }, ...normalized],
         tools: TOOLS,
         tool_choice: "auto",
       }),

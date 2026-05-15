@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { Mic, MicOff, X, Sparkles, Send, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, X, Sparkles, Send, Volume2, VolumeX, Paperclip, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceAgent } from "@/hooks/useVoiceAgent";
 import { ActionPreviewCard } from "./ActionPreviewCard";
+import { toast } from "sonner";
 
 /**
  * Dock flotante con el agente de voz Visualia.
@@ -15,6 +16,8 @@ export const VoiceAgentDock = () => {
   const [open, setOpen] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -32,11 +35,35 @@ export const VoiceAgentDock = () => {
     startRecording, stopRecording, sendText, confirmAction, rejectAction, reset, stopSpeaking,
   } = useVoiceAgent(businessId);
 
-  const handleSendText = () => {
-    if (textInput.trim()) {
-      sendText(textInput.trim());
-      setTextInput("");
+  const fileToDataUrl = (file: File): Promise<string> => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result as string);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !files.length) return;
+    const valid = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (!valid.length) { toast.error("Sólo imágenes"); return; }
+    if (attachedImages.length + valid.length > 4) { toast.error("Máximo 4 imágenes"); return; }
+    try {
+      const urls = await Promise.all(valid.map(async (f) => {
+        if (f.size > 8 * 1024 * 1024) throw new Error(`${f.name} pesa más de 8MB`);
+        return fileToDataUrl(f);
+      }));
+      setAttachedImages((p) => [...p, ...urls]);
+    } catch (e: any) {
+      toast.error(e?.message || "No se pudo cargar la imagen");
     }
+  };
+
+  const handleSendText = () => {
+    const t = textInput.trim();
+    if (!t && !attachedImages.length) return;
+    sendText(t, attachedImages.length ? attachedImages : undefined);
+    setTextInput("");
+    setAttachedImages([]);
   };
 
   return (
@@ -103,20 +130,32 @@ export const VoiceAgentDock = () => {
               </div>
             )}
 
-            {messages.filter((m) => m.role !== "tool").map((m, i) => (
-              <div
-                key={i}
-                className={`text-sm rounded-lg px-3 py-2 max-w-[85%] ${
-                  m.role === "user"
-                    ? "ml-auto bg-primary/20 text-foreground"
-                    : "mr-auto bg-muted/50 text-foreground"
-                }`}
-              >
-                {m.content || (m.role === "assistant" && (m as any).tool_calls?.length ? (
-                  <span className="text-muted-foreground italic">Trabajando…</span>
-                ) : null)}
-              </div>
-            ))}
+            {messages.filter((m) => m.role !== "tool").map((m, i) => {
+              const imgs = (m as any).images as string[] | undefined;
+              return (
+                <div
+                  key={i}
+                  className={`text-sm rounded-lg px-3 py-2 max-w-[85%] space-y-2 ${
+                    m.role === "user"
+                      ? "ml-auto bg-primary/20 text-foreground"
+                      : "mr-auto bg-muted/50 text-foreground"
+                  }`}
+                >
+                  {imgs && imgs.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {imgs.map((src, idx) => (
+                        <img key={idx} src={src} alt="" className="h-16 w-16 object-cover rounded border border-border/50" />
+                      ))}
+                    </div>
+                  )}
+                  {m.content && m.content !== "(imagen adjunta)" ? (
+                    <div>{m.content}</div>
+                  ) : !imgs?.length && m.role === "assistant" && (m as any).tool_calls?.length ? (
+                    <span className="text-muted-foreground italic">Trabajando…</span>
+                  ) : null}
+                </div>
+              );
+            })}
 
             {pendingActions.map((a) => (
               <ActionPreviewCard
@@ -136,18 +175,46 @@ export const VoiceAgentDock = () => {
 
           {/* Controles: input texto + botón micrófono */}
           <div className="border-t border-border/50 p-3 space-y-2">
+            {attachedImages.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {attachedImages.map((src, idx) => (
+                  <div key={idx} className="relative h-14 w-14 rounded-md overflow-hidden border border-primary/30 group">
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <button
+                      onClick={() => setAttachedImages((p) => p.filter((_, i) => i !== idx))}
+                      className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+              onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
+            />
+
             <div className="flex gap-2">
+              <Button
+                size="sm" variant="ghost" onClick={() => fileInputRef.current?.click()}
+                disabled={isProcessing || attachedImages.length >= 4}
+                className="h-9 w-9 p-0 shrink-0" title="Adjuntar imagen"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
               <Input
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendText()}
-                placeholder="O escribí acá…"
+                placeholder={attachedImages.length ? "Describí qué hacer con la imagen…" : "O escribí acá…"}
                 className="h-9 text-sm"
                 disabled={isProcessing}
               />
               <Button
                 size="sm" variant="ghost" onClick={handleSendText}
-                disabled={!textInput.trim() || isProcessing} className="h-9 w-9 p-0"
+                disabled={(!textInput.trim() && !attachedImages.length) || isProcessing} className="h-9 w-9 p-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
