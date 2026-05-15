@@ -29,6 +29,7 @@ const NEEDS_CONFIRM = new Set([
   "restaurar_ultima_accion",
   "crear_playlist",
   "crear_item",
+  "crear_contenido",
 ]);
 
 function describeAction(name: string, args: any): string {
@@ -49,6 +50,8 @@ function describeAction(name: string, args: any): string {
       return `Crear playlist "${args.name}"`;
     case "crear_item":
       return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
+    case "crear_contenido":
+      return `Crear ${args.type || "menú"} "${args.name}"`;
     default:
       return name;
   }
@@ -216,6 +219,18 @@ export function useVoiceAgent(businessId: string | null) {
         }).select("id, name, price").maybeSingle();
         if (error) throw error;
         return { ok: true, item: data };
+      }
+      case "crear_contenido": {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data, error } = await supabase.from("content").insert({
+          business_id: businessId,
+          name: args.name,
+          type: args.type || "menu",
+          duration_seconds: args.duration_seconds ?? 10,
+          created_by: user?.id ?? null,
+        }).select("id, name, type").maybeSingle();
+        if (error) throw error;
+        return { ok: true, content: data };
       }
       default:
         throw new Error(`Tool desconocida: ${name}`);
