@@ -27,6 +27,8 @@ const NEEDS_CONFIRM = new Set([
   "cambiar_horario",
   "pausar_contenido",
   "restaurar_ultima_accion",
+  "crear_playlist",
+  "crear_item",
 ]);
 
 function describeAction(name: string, args: any): string {
