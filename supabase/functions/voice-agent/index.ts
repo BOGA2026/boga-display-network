@@ -150,6 +150,22 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "crear_contenido",
+      description: "Crea un contenido nuevo (ej: una plantilla de menú, una promo, un cartel). Sirve como contenedor para items. REQUIERE confirmación. Usá type='menu' para menús de productos, 'image' para piezas visuales sueltas.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Nombre del contenido, ej: 'Menú Hamburguesas'" },
+          type: { type: "string", enum: ["menu", "image", "video"], description: "Tipo de contenido. Default: 'menu'" },
+          duration_seconds: { type: "number", description: "Duración en segundos al mostrarse en pantalla. Default: 10" },
+        },
+        required: ["name"], additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "crear_item",
       description: "Crea un nuevo item (producto/plato/promo) dentro de un contenido existente. Llamá list_content_items antes para ubicar el content_id correcto. REQUIERE confirmación.",
       parameters: {
