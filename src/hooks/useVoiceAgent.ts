@@ -51,7 +51,7 @@ function describeAction(name: string, args: any): string {
     case "crear_item":
       return `Crear item "${args.name}"${args.price ? ` ($${Number(args.price).toLocaleString("es-CO")})` : ""}`;
     case "crear_contenido":
-      return `Crear ${args.type || "menú"} "${args.name}"`;
+      return `Crear ${args.type || "menú"} "${args.name}" (${args.aspect_ratio || "?"})`;
     default:
       return name;
   }
