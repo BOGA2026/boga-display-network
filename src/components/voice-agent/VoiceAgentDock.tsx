@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { Mic, MicOff, X, Sparkles, Send, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, X, Sparkles, Send, Volume2, VolumeX, Paperclip, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceAgent } from "@/hooks/useVoiceAgent";
 import { ActionPreviewCard } from "./ActionPreviewCard";
+import { toast } from "sonner";
 
 /**
  * Dock flotante con el agente de voz Visualia.
