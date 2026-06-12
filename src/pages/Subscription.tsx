@@ -8,7 +8,7 @@ import { ProrationSimulator } from "@/components/subscription/ProrationSimulator
 import { ImmediateChargeModal } from "@/components/subscription/ImmediateChargeModal";
 import { InvoicesList } from "@/components/subscription/InvoicesList";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
-import { getUnitPrice } from "@/lib/proration";
+import { calculateMonthlyTotal } from "@/lib/proration";
 
 const Subscription = () => {
   const { toast } = useToast();
@@ -53,7 +53,7 @@ const Subscription = () => {
     setSaving(true);
 
     try {
-      const unitPrice = getUnitPrice(pendingChange.newCount);
+      const unitPrice = Math.round(calculateMonthlyTotal(pendingChange.newCount) / Math.max(1, pendingChange.newCount));
 
       if (subscription) {
         const { error } = await supabase

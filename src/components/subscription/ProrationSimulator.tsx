@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Calculator, Plus, Minus, ArrowRight, Info } from "lucide-react";
-import { fmtCOP, calculateProration, getUnitPrice, daysRemaining, nextBillingDate } from "@/lib/proration";
+import { fmtCOP, calculateProration, calculateMonthlyTotal, marginalPrice, daysRemaining, nextBillingDate } from "@/lib/proration";
 import type { SubscriptionRow } from "@/hooks/useSubscriptionData";
 
 interface Props {
@@ -24,40 +24,54 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
   const simulation = useMemo(() => {
     if (delta === 0) return null;
 
-    const newUnitPrice = getUnitPrice(targetScreens);
-    const currentUnitPrice = getUnitPrice(currentScreens);
+    const nextCycleTotal = calculateMonthlyTotal(targetScreens);
+    const currentCycleTotal = calculateMonthlyTotal(currentScreens);
 
     if (delta > 0) {
-      // Adding screens
+      // Adding screens: each new screen pays its tier price (graduated brackets)
       const screensToAdd = delta;
-      const proration = calculateProration(newUnitPrice, anchor, today);
-      const immediateCharge = Math.round(proration.amount * screensToAdd * 100) / 100;
-      const nextCycleTotal = newUnitPrice * targetScreens;
+      const breakdown = Array.from({ length: screensToAdd }).map((_, i) => {
+        const screenIndex = currentScreens + i + 1;
+        const price = marginalPrice(screenIndex);
+        const proration = calculateProration(price, anchor, today);
+        return {
+          screenIndex,
+          unitPrice: price,
+          dailyRate: proration.dailyRate,
+          daysLeft: proration.daysLeft,
+          amount: proration.amount,
+        };
+      });
+      const immediateCharge = Math.round(breakdown.reduce((s, b) => s + b.amount, 0) * 100) / 100;
 
       return {
         type: "add" as const,
         screensToAdd,
-        unitPrice: newUnitPrice,
-        dailyRate: proration.dailyRate,
-        daysLeft: proration.daysLeft,
-        totalDays: proration.totalDays,
+        breakdown,
         immediateCharge,
         nextCycleTotal,
-        perScreenProration: proration.amount,
       };
     } else {
-      // Removing screens
+      // Removing screens: refund the marginal price of each removed (top-tier first)
       const screensToRemove = Math.abs(delta);
-      const credit = calculateProration(currentUnitPrice, anchor, today);
-      const creditAmount = Math.round(credit.amount * screensToRemove * 100) / 100;
-      const nextCycleTotal = newUnitPrice * targetScreens;
+      let creditAmount = 0;
+      let daysLeft = 0;
+      for (let i = 0; i < screensToRemove; i++) {
+        const screenIndex = currentScreens - i; // remove from the top
+        const price = marginalPrice(screenIndex);
+        const credit = calculateProration(price, anchor, today);
+        creditAmount += credit.amount;
+        daysLeft = credit.daysLeft;
+      }
+      creditAmount = Math.round(creditAmount * 100) / 100;
 
       return {
         type: "remove" as const,
         screensToRemove,
         creditAmount,
         nextCycleTotal,
-        daysLeft: credit.daysLeft,
+        daysLeft,
+        savings: currentCycleTotal - nextCycleTotal,
       };
     }
   }, [targetScreens, currentScreens, anchor, delta]);
@@ -119,10 +133,10 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
                 Cobro inmediato prorrateado
               </p>
               <div className="grid gap-2 text-sm">
-                {Array.from({ length: simulation.screensToAdd }).map((_, i) => (
+                {simulation.breakdown.map((b, i) => (
                   <div key={i} className="flex justify-between text-muted-foreground">
-                    <span>Pantalla nueva #{i + 1} · {simulation.daysLeft} días × {fmtCOP(Math.round(simulation.dailyRate))}/día</span>
-                    <span className="text-foreground font-medium">{fmtCOP(simulation.perScreenProration)}</span>
+                    <span>Pantalla nueva #{b.screenIndex} · {b.daysLeft} días × {fmtCOP(Math.round(b.dailyRate))}/día <span className="opacity-70">({fmtCOP(b.unitPrice)}/mes)</span></span>
+                    <span className="text-foreground font-medium">{fmtCOP(b.amount)}</span>
                   </div>
                 ))}
                 <div className="flex justify-between pt-2 border-t border-border/30 font-bold text-base">
@@ -135,7 +149,7 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
             <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-2">
               <p className="text-sm font-semibold">Próximo ciclo completo</p>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{targetScreens} pantallas × {fmtCOP(simulation.unitPrice)}</span>
+                <span className="text-muted-foreground">{targetScreens} pantallas (precio graduado por tramos)</span>
                 <span className="font-bold">{fmtCOP(simulation.nextCycleTotal)} /mes</span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -170,7 +184,7 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
             <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-2">
               <p className="text-sm font-semibold">Próximo ciclo</p>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{targetScreens} pantallas × {fmtCOP(getUnitPrice(targetScreens))}</span>
+                <span className="text-muted-foreground">{targetScreens} pantallas (precio graduado por tramos)</span>
                 <span className="font-bold">{fmtCOP(simulation.nextCycleTotal)} /mes</span>
               </div>
             </div>

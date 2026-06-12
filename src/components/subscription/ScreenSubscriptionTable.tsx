@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Monitor, Plus, Pause, Play, Trash2 } from "lucide-react";
-import { fmtCOP, fmtDate, calculateProration, getUnitPrice } from "@/lib/proration";
+import { fmtCOP, fmtDate, calculateProration, calculateMonthlyTotal } from "@/lib/proration";
 import type { ScreenItem, SubscriptionRow } from "@/hooks/useSubscriptionData";
 
 interface Props {
@@ -32,7 +32,8 @@ function licenseStatusBadge(status: string) {
 
 export function ScreenSubscriptionTable({ screens, subscription, onAddScreen, onSuspend, onReactivate, onRemove }: Props) {
   const anchor = subscription ? new Date(subscription.billing_anchor) : new Date();
-  const unitPrice = getUnitPrice(screens.length || 1);
+  const count = screens.length || 1;
+  const unitPrice = Math.round(calculateMonthlyTotal(count) / count); // avg blended price for proration display
 
   return (
     <Card className="surface-elevated border-border/30">
