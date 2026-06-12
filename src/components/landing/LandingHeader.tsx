@@ -193,6 +193,14 @@ const LandingHeader = () => {
         <div className="hidden items-center gap-3 lg:flex">
           <Button
             size="sm"
+            variant="outline"
+            className="border-primary/50 px-4 text-sm font-bold uppercase tracking-wider text-primary hover:bg-primary/10 hover:text-primary"
+            asChild
+          >
+            <Link to="/descargar-apk">Descargar app para TV</Link>
+          </Button>
+          <Button
+            size="sm"
             className="gradient-primary glow-primary-sm border-0 px-6 text-sm font-bold uppercase tracking-wider text-primary-foreground"
             asChild
           >
@@ -287,6 +295,13 @@ const LandingHeader = () => {
             </Link>
           ))}
           <div className="flex flex-col gap-3 pt-4">
+            <Button
+              className="w-full border-primary/50 text-sm font-bold uppercase tracking-wider text-primary hover:bg-primary/10"
+              variant="outline"
+              asChild
+            >
+              <Link to="/descargar-apk" onClick={() => setMobileOpen(false)}>Descargar app para TV</Link>
+            </Button>
             <Button
               className="w-full gradient-primary glow-primary-sm border-0 text-primary-foreground"
               asChild
