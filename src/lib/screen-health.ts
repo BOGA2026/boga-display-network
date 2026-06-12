@@ -54,7 +54,7 @@ export function getScreenHealth(lastSeenAt: string | null | undefined): ScreenHe
 }
 
 export function formatLastSeen(lastSeenAt: string | null | undefined): string {
-  if (!lastSeenAt) return "Sin señal";
+  if (!lastSeenAt) return "Sin conectar";
   const minutes = (Date.now() - new Date(lastSeenAt).getTime()) / 60_000;
   if (minutes < 1) return "Hace un momento";
   if (minutes < 60) return `Hace ${Math.round(minutes)} min`;
