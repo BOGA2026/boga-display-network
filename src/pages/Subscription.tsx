@@ -53,7 +53,7 @@ const Subscription = () => {
     setSaving(true);
 
     try {
-      const unitPrice = getUnitPrice(pendingChange.newCount);
+      const unitPrice = Math.round(calculateMonthlyTotal(pendingChange.newCount) / Math.max(1, pendingChange.newCount));
 
       if (subscription) {
         const { error } = await supabase
