@@ -184,7 +184,7 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
             <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-2">
               <p className="text-sm font-semibold">Próximo ciclo</p>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{targetScreens} pantallas × {fmtCOP(getUnitPrice(targetScreens))}</span>
+                <span className="text-muted-foreground">{targetScreens} pantallas (precio graduado por tramos)</span>
                 <span className="font-bold">{fmtCOP(simulation.nextCycleTotal)} /mes</span>
               </div>
             </div>
