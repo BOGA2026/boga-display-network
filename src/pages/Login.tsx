@@ -165,6 +165,25 @@ const Login = () => {
     setCooldown(0);
   };
 
+  // ─── Google login ───
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) {
+      toast({
+        title: "Error al iniciar con Google",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setLoading(false);
+  };
+
   // ─── Render helpers ───
   const renderMethodSwitcher = () => (
     <div className="grid grid-cols-2 gap-2 rounded-lg border border-border/40 bg-muted/30 p-1">

@@ -31,6 +31,25 @@ const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // ─── Google login ───
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) {
+      toast({
+        title: "Error al iniciar con Google",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setLoading(false);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!businessName.trim() || !email.trim() || !password.trim()) return;
