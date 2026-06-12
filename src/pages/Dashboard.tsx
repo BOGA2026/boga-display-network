@@ -23,13 +23,14 @@ function useDashboardStats() {
       const businessId = bizRes.data as string | null;
       if (!businessId) return null;
 
-      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes] = await Promise.all([
+      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes, scheduleRes] = await Promise.all([
         supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(name)").order("name"),
         supabase.from("locations").select("id, name", { count: "exact", head: true }),
         supabase.from("content").select("id", { count: "exact", head: true }),
         supabase.from("playlists").select("id", { count: "exact", head: true }),
         supabase.from("devices").select("id, status, last_seen_at, screen_name, paired_at").order("last_seen_at", { ascending: false }).limit(10),
         supabase.from("subscriptions").select("status, expires_at, grace_period_ends_at").limit(1).maybeSingle(),
+        supabase.from("schedule_blocks").select("id", { count: "exact", head: true }).eq("is_enabled", true),
       ]);
 
       const screens = screensRes.data || [];
