@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,11 +33,14 @@ import {
   AlertTriangle,
   Copy,
   Check,
+  Download,
+  Smartphone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
+import { QRCodeSVG } from "qrcode.react";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -600,66 +603,114 @@ const Screens = () => {
               </div>
             </>
           ) : (
-            <>
-              <DialogHeader className="pb-1">
-                <DialogTitle className="font-display text-lg">Tu código de vinculación</DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
-                  Ingresa este código en la app de Visualia instalada en tu pantalla o TV para conectarla.
-                </DialogDescription>
-              </DialogHeader>
+          <>
+            <DialogHeader className="pb-1">
+              <DialogTitle className="font-display text-lg">Tu código de vinculación</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Ingresa este código en la app de Visualia instalada en tu pantalla o TV para conectarla.
+              </DialogDescription>
+            </DialogHeader>
 
-              <div className="space-y-5 py-4">
-                {/* Code display */}
-                <div className="flex flex-col items-center gap-3">
-                  <div
-                    className="rounded-2xl px-10 py-6 font-mono text-4xl font-bold tracking-[0.4em] text-center"
-                    style={{
-                      background: "rgba(138,0,255,0.08)",
-                      border: "1px solid rgba(138,0,255,0.25)",
-                      color: "hsl(var(--primary))",
-                      textShadow: "0 0 20px rgba(192,0,255,0.4)",
-                    }}
-                  >
-                    {generatedCode}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyCode}
-                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    {codeCopied ? (
-                      <><Check className="h-3.5 w-3.5" /> Copiado</>
-                    ) : (
-                      <><Copy className="h-3.5 w-3.5" /> Copiar código</>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Steps */}
-                <div className="rounded-lg border border-border/30 bg-secondary/20 p-4 space-y-2 text-sm">
-                  <p className="font-medium text-foreground">Cómo conectar tu pantalla:</p>
-                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
-                    <li>Abre la app de Visualia en tu pantalla, TV o Fire TV.</li>
-                    <li>Ingresa este código de 6 caracteres con el control remoto.</li>
-                    <li>La pantalla se vinculará automáticamente en unos segundos.</li>
-                  </ol>
-                </div>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  Esta pantalla aparecerá como <span className="font-medium text-foreground">"{screenName}"</span> en tu lista.
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <Button
-                  onClick={handleFinishPairing}
-                  className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+            <div className="space-y-6 py-2">
+              {/* Code display */}
+              <div className="flex flex-col items-center gap-4">
+                <div
+                  className="rounded-2xl px-12 py-8 font-mono text-5xl md:text-6xl font-bold tracking-[0.3em] text-center select-all"
+                  style={{
+                    background: "rgba(138,0,255,0.08)",
+                    border: "1px solid rgba(138,0,255,0.25)",
+                    color: "hsl(var(--primary))",
+                    textShadow: "0 0 24px rgba(192,0,255,0.5)",
+                  }}
                 >
-                  Listo
+                  {generatedCode}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyCode}
+                  className="gap-2 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {codeCopied ? (
+                    <><Check className="h-4 w-4" /> Copiado</>
+                  ) : (
+                    <><Copy className="h-4 w-4" /> Copiar código</>
+                  )}
                 </Button>
               </div>
-            </>
+
+              {/* Instructions */}
+              <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-3">
+                <p className="font-semibold text-sm text-foreground">Cómo conectar tu pantalla:</p>
+                <ol className="space-y-3">
+                  <li className="flex items-start gap-3 text-sm">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
+                      1
+                    </span>
+                    <span className="text-muted-foreground">
+                      Abre la app Visualia en tu TV.{" "}
+                      <span className="text-muted-foreground">
+                        (¿No la tienes?{" "}
+                        <Link
+                          to="/descargar-apk"
+                          className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                          onClick={() => setDialogOpen(false)}
+                        >
+                          <Download className="h-3 w-3" />
+                          Descárgala aquí
+                        </Link>
+                        )
+                      </span>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3 text-sm">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
+                      2
+                    </span>
+                    <span className="text-muted-foreground">
+                      Ingresa este código de <span className="font-semibold text-foreground">6 caracteres</span> con el control remoto.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3 text-sm">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
+                      3
+                    </span>
+                    <span className="text-muted-foreground">
+                      ¡Listo! Tu pantalla quedará vinculada en segundos.
+                    </span>
+                  </li>
+                </ol>
+              </div>
+
+              {/* QR code */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="bg-white p-4 rounded-xl">
+                  <QRCodeSVG
+                    value={`${window.location.origin}/descargar-apk`}
+                    size={160}
+                    level="H"
+                  />
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Smartphone className="h-3.5 w-3.5" />
+                  <span>Escanea con tu celular para descargar la app</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                Esta pantalla aparecerá como <span className="font-medium text-foreground">"{screenName}"</span> en tu lista.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <Button
+                onClick={handleFinishPairing}
+                className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+              >
+                Listo
+              </Button>
+            </div>
+          </>
           )}
         </DialogContent>
       </Dialog>
