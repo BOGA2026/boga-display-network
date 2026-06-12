@@ -294,6 +294,30 @@ export default function ScreenDetail() {
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+                {locationSource !== "none" && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                      locationSource === "gps"
+                        ? "bg-emerald-400/15 text-emerald-300"
+                        : locationSource === "manual"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-amber-400/15 text-amber-300"
+                    }`}
+                    title={
+                      locationSource === "gps"
+                        ? "Coordenadas reportadas por el dispositivo"
+                        : locationSource === "manual"
+                        ? "Coordenadas asignadas manualmente desde el panel"
+                        : "Aproximada por la IP del dispositivo (puede ser imprecisa)"
+                    }
+                  >
+                    {locationSource === "gps"
+                      ? "GPS del dispositivo"
+                      : locationSource === "manual"
+                      ? "Asignada manualmente"
+                      : "Aproximada por IP"}
+                  </span>
+                )}
               </div>
               {fromDashboard && locationId && (
                 <Button
@@ -307,6 +331,7 @@ export default function ScreenDetail() {
                 </Button>
               )}
             </div>
+
             {screen.location.lat !== 0 && screen.location.lng !== 0 ? (
               <div className="relative h-48 w-full">
                 <iframe
