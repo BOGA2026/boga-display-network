@@ -81,7 +81,7 @@ export function SubscriptionOverview({ subscription, screens, onManageScreens, o
           icon={CreditCard}
           label="Valor mensual"
           value={fmtCOP(monthlyTotal)}
-          subtitle={`${fmtCOP(unitPrice)} / pantalla`}
+          subtitle={`prom. ${fmtCOP(avgPerScreen)} / pantalla · próxima ${fmtCOP(nextScreenPrice)}`}
         />
         <KpiCard
           icon={Calendar}
