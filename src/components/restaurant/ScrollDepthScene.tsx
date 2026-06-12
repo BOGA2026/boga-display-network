@@ -1,8 +1,8 @@
 import { MonitorPlay, Sparkles, TrendingUp } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import muestraPlatos from "@/assets/muestra-platos.gif";
-import destacaPromociones from "@/assets/destaca-promociones.gif";
+import muestraPlatos from "@/assets/muestra-platos.mp4";
+import destacaPromociones from "@/assets/destaca-promociones.mp4";
 import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
 
 const steps = [

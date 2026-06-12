@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import introGif from "@/assets/intro-animation.gif";
+import introVideo from "@/assets/intro-animation.mp4";
 
 const STORAGE_KEY = "visualia_intro_seen";
 
@@ -54,9 +54,12 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
         pointerEvents: fadeOut ? "none" : "auto",
       }}
     >
-      <img
-        src={introGif}
-        alt="Visualia intro"
+      <video
+        src={introVideo}
+        autoPlay
+        muted
+        playsInline
+        preload="metadata"
         className="h-full w-full object-cover"
         style={{
           transform: scaleUp ? "scale(1.15)" : "scale(1)",
