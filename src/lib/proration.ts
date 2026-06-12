@@ -3,18 +3,52 @@
  * All amounts in COP. Proration by day.
  */
 
-/** Pricing tiers (same as /precios) */
+/** Pricing tiers with min/max boundaries (same as /precios) */
 const TIERS = [
-  { max: 5, price: 50000 },
-  { max: 20, price: 42000 },
-  { max: 50, price: 35000 },
-  { max: 100, price: 28000 },
-  { max: 300, price: 22000 },
+  { min: 1, max: 5, price: 50000 },
+  { min: 6, max: 20, price: 42000 },
+  { min: 21, max: 50, price: 35000 },
+  { min: 51, max: 100, price: 28000 },
+  { min: 101, max: 300, price: 22000 },
 ];
 
+/**
+ * @deprecated Use calculateMonthlyTotal instead.
+ * This returns the marginal price of the LAST tier, not the blended average.
+ * getUnitPrice(n) * n is no longer the correct total.
+ */
 export function getUnitPrice(totalScreens: number): number {
   for (const t of TIERS) {
     if (totalScreens <= t.max) return t.price;
+  }
+  return TIERS[TIERS.length - 1].price;
+}
+
+/** Calculate total monthly cost with graduated tier pricing (like tax brackets).
+ * Each screen pays the price of the tier it falls into. */
+export function calculateMonthlyTotal(screens: number): number {
+  if (screens <= 0) return 0;
+  let remaining = screens;
+  let total = 0;
+
+  for (const tier of TIERS) {
+    if (remaining <= 0) break;
+    const countInTier = Math.min(remaining, tier.max - tier.min + 1);
+    total += countInTier * tier.price;
+    remaining -= countInTier;
+  }
+
+  return total;
+}
+
+/** Price of the NEXT screen to be added (1-indexed).
+ * marginalPrice(20) = 35000 because screen #21 falls in the 21-50 tier. */
+export function marginalPrice(nextScreenIndex: number): number {
+  if (nextScreenIndex <= 0) return TIERS[0].price;
+  for (const tier of TIERS) {
+    if (nextScreenIndex >= tier.min && nextScreenIndex <= tier.max) {
+      return tier.price;
+    }
   }
   return TIERS[TIERS.length - 1].price;
 }
