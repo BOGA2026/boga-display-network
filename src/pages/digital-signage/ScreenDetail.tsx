@@ -150,11 +150,10 @@ export default function ScreenDetail() {
           osVersion: (dbScreen as any).os_version ?? null,
           ipAddress: (dbScreen as any).ip_address ?? null,
         });
-        setScreen(mapDbScreenToScreenData(dbScreen, {
-          name: loc?.name,
-          latitude: loc?.latitude,
-          longitude: loc?.longitude,
-        }));
+        const effective = resolveLocation(dbScreen, loc);
+        setLocationSource(effective.source);
+        setScreen(mapDbScreenToScreenData(dbScreen, effective));
+
       }
       setIsLoading(false);
     }
