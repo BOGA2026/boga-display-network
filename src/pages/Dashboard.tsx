@@ -604,11 +604,12 @@ const Dashboard = () => {
 };
 
 // ─── Empty state component ──────────────────────────────
-function EmptyState({ icon: Icon, title, description, action }: {
+function EmptyState({ icon: Icon, title, description, action, secondaryAction }: {
   icon: React.ElementType;
   title: string;
   description: string;
   action?: { label: string; path: string };
+  secondaryAction?: { label: string; onClick: () => void };
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -623,6 +624,17 @@ function EmptyState({ icon: Icon, title, description, action }: {
             <Plus className="h-3.5 w-3.5 mr-1" />
             {action.label}
           </Link>
+        </Button>
+      )}
+      {secondaryAction && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-2 border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+          onClick={secondaryAction.onClick}
+        >
+          <MonitorSmartphone className="h-3.5 w-3.5 mr-1.5" />
+          {secondaryAction.label}
         </Button>
       )}
     </div>
