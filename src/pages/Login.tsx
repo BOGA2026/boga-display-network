@@ -390,6 +390,24 @@ const Login = () => {
                 ? "Ingresa tu correo para recibir un código de acceso"
                 : "Ingresa el código que enviamos a tu correo"}
             </CardDescription>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full bg-background/50 border-border/40 hover:bg-background/80 text-foreground"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+            >
+              <GoogleIcon />
+              Continuar con Google
+            </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/40" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-card px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
             {renderMethodSwitcher()}
           </CardHeader>
 

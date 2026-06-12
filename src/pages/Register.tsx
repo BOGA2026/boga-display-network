@@ -118,9 +118,27 @@ const Register = () => {
         </div>
 
         <Card className="surface-elevated border-border/30 backdrop-blur">
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-3">
             <CardTitle className="text-xl">Registra tu negocio</CardTitle>
             <CardDescription>Crea una cuenta para gestionar tus pantallas digitales</CardDescription>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full bg-background/50 border-border/40 hover:bg-background/80 text-foreground"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+            >
+              <GoogleIcon />
+              Continuar con Google
+            </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/40" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-card px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
           </CardHeader>
           <form onSubmit={handleRegister}>
             <CardContent className="space-y-4">
