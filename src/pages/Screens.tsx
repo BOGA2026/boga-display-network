@@ -496,14 +496,26 @@ const Screens = () => {
           <p className="text-sm text-muted-foreground mb-8 max-w-sm">
             Conecta tu primera pantalla para comenzar a gestionar tu red de señalización digital.
           </p>
-          <Button
-            onClick={handleAddScreenClick}
-            className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
-            size="lg"
-          >
-            <Plus className="h-5 w-5" />
-            Agregar pantalla
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              onClick={handleAddScreenClick}
+              className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
+              size="lg"
+            >
+              <Plus className="h-5 w-5" />
+              Agregar pantalla
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleAddDemoScreen}
+              disabled={saving}
+              className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 px-8 py-3 text-base font-medium"
+              size="lg"
+            >
+              <MonitorSmartphone className="h-5 w-5" />
+              Agregar pantalla demo
+            </Button>
+          </div>
         </div>
       )}
 
