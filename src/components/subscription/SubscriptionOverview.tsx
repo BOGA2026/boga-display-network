@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Monitor, Calendar, CreditCard, TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
-import { fmtCOP, fmtDate, daysRemaining, getUnitPrice, getStorage } from "@/lib/proration";
+import { fmtCOP, fmtDate, daysRemaining, calculateMonthlyTotal, marginalPrice, getStorage } from "@/lib/proration";
 import type { SubscriptionRow, ScreenItem } from "@/hooks/useSubscriptionData";
 
 interface Props {
