@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import introGif from "@/assets/intro-animation.gif";
+import introVideo from "@/assets/intro-animation.mp4";
 
 interface PlayerSplashProps {
   minDuration?: number;
