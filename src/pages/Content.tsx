@@ -28,6 +28,8 @@ import {
   MoreVertical,
   Trash2,
   ListPlus,
+  Sparkles,
+  PenTool,
 } from "lucide-react";
 import {
   DropdownMenu,
