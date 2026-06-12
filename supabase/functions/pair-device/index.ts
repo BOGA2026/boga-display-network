@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     // POST /pair-device/checkin — device heartbeat
     if (req.method === "POST" && path === "checkin") {
       const body = await req.json();
-      const { device_code, app_version, device_model, os_version, user_agent } = body;
+      const { device_code, app_version, device_model, os_version, user_agent, gps } = body;
       if (!device_code) {
         return new Response(JSON.stringify({ error: "Missing device_code" }), {
           status: 400,
@@ -98,6 +98,20 @@ Deno.serve(async (req) => {
         if (device_model) screenUpdate.device_model = device_model;
         if (os_version) screenUpdate.os_version = os_version;
 
+        // GPS from the device — highest priority location source
+        if (
+          gps &&
+          typeof gps.lat === "number" &&
+          typeof gps.lng === "number" &&
+          Math.abs(gps.lat) <= 90 &&
+          Math.abs(gps.lng) <= 180
+        ) {
+          screenUpdate.gps_lat = gps.lat;
+          screenUpdate.gps_lng = gps.lng;
+          screenUpdate.gps_accuracy = typeof gps.accuracy === "number" ? gps.accuracy : null;
+          screenUpdate.gps_updated_at = nowIso;
+        }
+
         // Capture client IP for approximate geo when no GPS
         const ip =
           req.headers.get("cf-connecting-ip") ||
@@ -105,8 +119,39 @@ Deno.serve(async (req) => {
           null;
         if (ip) screenUpdate.ip_address = ip;
 
+        // Lookup approximate geo when the IP changed (or never resolved before)
+        if (ip) {
+          const { data: prev } = await supabase
+            .from("screens")
+            .select("ip_geo_for")
+            .eq("id", device.screen_id)
+            .maybeSingle();
+          if (!prev?.ip_geo_for || prev.ip_geo_for !== ip) {
+            try {
+              const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+                headers: { "User-Agent": "visualia-checkin/1.0" },
+              });
+              if (geoRes.ok) {
+                const geo = await geoRes.json();
+                if (typeof geo.latitude === "number" && typeof geo.longitude === "number") {
+                  screenUpdate.ip_lat = geo.latitude;
+                  screenUpdate.ip_lng = geo.longitude;
+                  screenUpdate.ip_city = geo.city ?? null;
+                  screenUpdate.ip_region = geo.region ?? null;
+                  screenUpdate.ip_country = geo.country_name ?? geo.country ?? null;
+                  screenUpdate.ip_geo_updated_at = nowIso;
+                  screenUpdate.ip_geo_for = ip;
+                }
+              }
+            } catch (geoErr) {
+              console.warn("ipapi lookup failed:", geoErr);
+            }
+          }
+        }
+
         await supabase.from("screens").update(screenUpdate).eq("id", device.screen_id);
       }
+
 
       // Fetch assigned playlist config + screen settings if paired
       let config = null;
