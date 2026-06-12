@@ -27,6 +27,7 @@ const menuItems = [
 
 const directLinks = [
   { label: "Precios", href: "/precios" },
+  { label: "Acerca de Visualia", href: "/acerca" },
   { label: "Nosotros", href: "/acerca" },
   { label: "Link your screen", href: "/descargar-apk" },
 ];
