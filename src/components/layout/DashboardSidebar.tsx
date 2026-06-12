@@ -7,10 +7,8 @@ import {
   Calendar,
   BarChart3,
   CreditCard,
-  PenTool,
   LogOut,
   ChevronLeft,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -22,8 +20,6 @@ const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
   { icon: Monitor, label: "Pantallas", path: "/dashboard/pantallas" },
   { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
-  { icon: Sparkles, label: "Generar con IA", path: "/dashboard/generar-ia" },
-  { icon: PenTool, label: "Editor", path: "/dashboard/editor" },
   { icon: ListVideo, label: "Listas", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },

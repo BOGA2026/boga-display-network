@@ -28,6 +28,8 @@ import {
   MoreVertical,
   Trash2,
   ListPlus,
+  Sparkles,
+  PenTool,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -289,31 +291,47 @@ const Content = () => {
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Contenido</h1>
           <p className="text-sm text-muted-foreground">Gestiona el contenido multimedia de tus pantallas</p>
         </div>
-        {hasContent && (
-          <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+          <Button
+            onClick={() => { resetUploadForm(); setUploadOpen(true); }}
+            className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2 px-5 font-semibold"
+          >
+            <Upload className="h-4 w-4" />
+            Subir archivo
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/dashboard/generar-ia")}
+            className="gap-2 border-primary/40 hover:bg-primary/10"
+          >
+            <Sparkles className="h-4 w-4" />
+            Crear con IA
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/dashboard/editor")}
+            className="gap-2 border-accent/40 hover:bg-accent/10"
+          >
+            <PenTool className="h-4 w-4" />
+            Diseñar en editor
+          </Button>
+          {hasContent && (
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleAddSampleContent}
               disabled={loadingSamples}
-              className="gap-2 border-accent/40 text-accent-foreground hover:bg-accent/10"
+              className="gap-2 text-muted-foreground hover:text-foreground"
             >
               <Layers className="h-4 w-4" />
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
-            <Button
-              onClick={() => { resetUploadForm(); setUploadOpen(true); }}
-              className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2 px-5 font-semibold"
-            >
-              <Plus className="h-4 w-4" />
-              Agregar contenido
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Main area */}
