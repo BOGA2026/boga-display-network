@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Calculator, Plus, Minus, ArrowRight, Info } from "lucide-react";
-import { fmtCOP, calculateProration, getUnitPrice, daysRemaining, nextBillingDate } from "@/lib/proration";
+import { fmtCOP, calculateProration, calculateMonthlyTotal, marginalPrice, daysRemaining, nextBillingDate } from "@/lib/proration";
 import type { SubscriptionRow } from "@/hooks/useSubscriptionData";
 
 interface Props {
