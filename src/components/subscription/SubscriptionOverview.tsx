@@ -28,8 +28,10 @@ export function SubscriptionOverview({ subscription, screens, onManageScreens, o
   const sc = subscription ? statusConfig(subscription.status) : null;
   const anchor = subscription ? new Date(subscription.billing_anchor) : new Date();
   const remaining = daysRemaining(anchor);
-  const unitPrice = getUnitPrice(activeScreens || 1);
-  const monthlyTotal = unitPrice * activeScreens;
+  const count = activeScreens || 1;
+  const monthlyTotal = calculateMonthlyTotal(count);
+  const avgPerScreen = Math.round(monthlyTotal / count);
+  const nextScreenPrice = marginalPrice(count + 1);
 
   return (
     <div className="space-y-6">
