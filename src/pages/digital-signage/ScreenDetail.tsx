@@ -115,6 +115,8 @@ export default function ScreenDetail() {
   const [locationEditOpen, setLocationEditOpen] = useState(false);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationAddress, setLocationAddress] = useState<string>("");
+  const [locationSource, setLocationSource] = useState<LocationSource>("none");
+
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
     appVersion: null,
     deviceModel: null,
