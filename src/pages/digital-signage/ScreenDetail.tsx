@@ -29,16 +29,59 @@ interface DeviceInfo {
   ipAddress: string | null;
 }
 
-function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; latitude?: number; longitude?: number }): ScreenData {
+type LocationSource = "gps" | "manual" | "ip" | "none";
+
+interface EffectiveLocation {
+  lat: number;
+  lng: number;
+  label: string;
+  source: LocationSource;
+  accuracy?: number | null;
+}
+
+function resolveLocation(dbScreen: any, loc: any): EffectiveLocation {
+  // 1. GPS from device (highest priority)
+  if (typeof dbScreen?.gps_lat === "number" && typeof dbScreen?.gps_lng === "number") {
+    return {
+      lat: dbScreen.gps_lat,
+      lng: dbScreen.gps_lng,
+      label: loc?.name || "Ubicación del dispositivo",
+      source: "gps",
+      accuracy: dbScreen.gps_accuracy ?? null,
+    };
+  }
+  // 2. Manual location
+  if (typeof loc?.latitude === "number" && typeof loc?.longitude === "number") {
+    return {
+      lat: loc.latitude,
+      lng: loc.longitude,
+      label: loc.name || "Ubicación asignada",
+      source: "manual",
+    };
+  }
+  // 3. Approximate by IP
+  if (typeof dbScreen?.ip_lat === "number" && typeof dbScreen?.ip_lng === "number") {
+    const parts = [dbScreen.ip_city, dbScreen.ip_region, dbScreen.ip_country].filter(Boolean);
+    return {
+      lat: dbScreen.ip_lat,
+      lng: dbScreen.ip_lng,
+      label: parts.join(", ") || "Aproximada por IP",
+      source: "ip",
+    };
+  }
+  return { lat: 0, lng: 0, label: loc?.name || "Sin ubicación", source: "none" };
+}
+
+function mapDbScreenToScreenData(dbScreen: any, effective: EffectiveLocation): ScreenData {
   return {
     id: dbScreen.id,
     name: dbScreen.name,
     status: (dbScreen.status === "online" ? "online" : "offline") as ScreenData["status"],
     lastSyncAt: dbScreen.last_seen_at || dbScreen.created_at,
     location: {
-      lat: locationData?.latitude ?? 0,
-      lng: locationData?.longitude ?? 0,
-      label: locationData?.name || "Sin ubicación",
+      lat: effective.lat,
+      lng: effective.lng,
+      label: effective.label,
     },
     storageUsedGb: 0,
     storageTotalGb: 8,
@@ -61,6 +104,7 @@ function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; 
   };
 }
 
+
 export default function ScreenDetail() {
   const { screenId } = useParams<{ screenId: string }>();
   const navigate = useNavigate();
@@ -71,6 +115,8 @@ export default function ScreenDetail() {
   const [locationEditOpen, setLocationEditOpen] = useState(false);
   const [locationId, setLocationId] = useState<string | null>(null);
   const [locationAddress, setLocationAddress] = useState<string>("");
+  const [locationSource, setLocationSource] = useState<LocationSource>("none");
+
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
     appVersion: null,
     deviceModel: null,
@@ -106,11 +152,10 @@ export default function ScreenDetail() {
           osVersion: (dbScreen as any).os_version ?? null,
           ipAddress: (dbScreen as any).ip_address ?? null,
         });
-        setScreen(mapDbScreenToScreenData(dbScreen, {
-          name: loc?.name,
-          latitude: loc?.latitude,
-          longitude: loc?.longitude,
-        }));
+        const effective = resolveLocation(dbScreen, loc);
+        setLocationSource(effective.source);
+        setScreen(mapDbScreenToScreenData(dbScreen, effective));
+
       }
       setIsLoading(false);
     }
@@ -249,6 +294,30 @@ export default function ScreenDetail() {
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
+                {locationSource !== "none" && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                      locationSource === "gps"
+                        ? "bg-emerald-400/15 text-emerald-300"
+                        : locationSource === "manual"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-amber-400/15 text-amber-300"
+                    }`}
+                    title={
+                      locationSource === "gps"
+                        ? "Coordenadas reportadas por el dispositivo"
+                        : locationSource === "manual"
+                        ? "Coordenadas asignadas manualmente desde el panel"
+                        : "Aproximada por la IP del dispositivo (puede ser imprecisa)"
+                    }
+                  >
+                    {locationSource === "gps"
+                      ? "GPS del dispositivo"
+                      : locationSource === "manual"
+                      ? "Asignada manualmente"
+                      : "Aproximada por IP"}
+                  </span>
+                )}
               </div>
               {fromDashboard && locationId && (
                 <Button
@@ -262,6 +331,7 @@ export default function ScreenDetail() {
                 </Button>
               )}
             </div>
+
             {screen.location.lat !== 0 && screen.location.lng !== 0 ? (
               <div className="relative h-48 w-full">
                 <iframe

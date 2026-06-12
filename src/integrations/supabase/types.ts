@@ -1067,8 +1067,19 @@ export type Database = {
           created_at: string
           device_model: string | null
           device_token: string | null
+          gps_accuracy: number | null
+          gps_lat: number | null
+          gps_lng: number | null
+          gps_updated_at: string | null
           id: string
           ip_address: string | null
+          ip_city: string | null
+          ip_country: string | null
+          ip_geo_for: string | null
+          ip_geo_updated_at: string | null
+          ip_lat: number | null
+          ip_lng: number | null
+          ip_region: string | null
           last_seen_at: string | null
           last_sync_at: string | null
           license_status: string
@@ -1088,8 +1099,19 @@ export type Database = {
           created_at?: string
           device_model?: string | null
           device_token?: string | null
+          gps_accuracy?: number | null
+          gps_lat?: number | null
+          gps_lng?: number | null
+          gps_updated_at?: string | null
           id?: string
           ip_address?: string | null
+          ip_city?: string | null
+          ip_country?: string | null
+          ip_geo_for?: string | null
+          ip_geo_updated_at?: string | null
+          ip_lat?: number | null
+          ip_lng?: number | null
+          ip_region?: string | null
           last_seen_at?: string | null
           last_sync_at?: string | null
           license_status?: string
@@ -1109,8 +1131,19 @@ export type Database = {
           created_at?: string
           device_model?: string | null
           device_token?: string | null
+          gps_accuracy?: number | null
+          gps_lat?: number | null
+          gps_lng?: number | null
+          gps_updated_at?: string | null
           id?: string
           ip_address?: string | null
+          ip_city?: string | null
+          ip_country?: string | null
+          ip_geo_for?: string | null
+          ip_geo_updated_at?: string | null
+          ip_lat?: number | null
+          ip_lng?: number | null
+          ip_region?: string | null
           last_seen_at?: string | null
           last_sync_at?: string | null
           license_status?: string
