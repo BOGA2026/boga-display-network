@@ -1,7 +1,7 @@
 // Helper to compute the real health status of a screen based on last_seen_at.
 // Used by cards, badges and detail page so the dashboard reflects the live state.
 
-export type ScreenHealth = "online" | "unstable" | "offline";
+export type ScreenHealth = "online" | "unstable" | "offline" | "unpaired";
 
 export interface ScreenHealthInfo {
   status: ScreenHealth;
@@ -14,13 +14,14 @@ export interface ScreenHealthInfo {
 export function getScreenHealth(lastSeenAt: string | null | undefined): ScreenHealthInfo {
   if (!lastSeenAt) {
     return {
-      status: "offline",
-      label: "Desconectada",
-      className: "text-rose-400 bg-rose-400/10",
-      dotClass: "bg-rose-400",
+      status: "unpaired",
+      label: "Sin conectar",
+      className: "text-slate-400 bg-slate-400/10",
+      dotClass: "bg-slate-400",
       minutesSince: null,
     };
   }
+
 
   const diffMs = Date.now() - new Date(lastSeenAt).getTime();
   const minutes = diffMs / 60_000;
@@ -53,7 +54,7 @@ export function getScreenHealth(lastSeenAt: string | null | undefined): ScreenHe
 }
 
 export function formatLastSeen(lastSeenAt: string | null | undefined): string {
-  if (!lastSeenAt) return "Sin señal";
+  if (!lastSeenAt) return "Sin conectar";
   const minutes = (Date.now() - new Date(lastSeenAt).getTime()) / 60_000;
   if (minutes < 1) return "Hace un momento";
   if (minutes < 60) return `Hace ${Math.round(minutes)} min`;
