@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Monitor, MonitorOff, MapPin, Image, Zap, TrendingUp, TrendingDown,
   Clock, Plus, Upload, ListVideo, Calendar, Activity, Wifi, WifiOff,
-  RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User,
+  RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User, Circle, ArrowRight,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,13 +23,14 @@ function useDashboardStats() {
       const businessId = bizRes.data as string | null;
       if (!businessId) return null;
 
-      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes] = await Promise.all([
+      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes, scheduleRes] = await Promise.all([
         supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(name)").order("name"),
         supabase.from("locations").select("id, name", { count: "exact", head: true }),
         supabase.from("content").select("id", { count: "exact", head: true }),
         supabase.from("playlists").select("id", { count: "exact", head: true }),
         supabase.from("devices").select("id, status, last_seen_at, screen_name, paired_at").order("last_seen_at", { ascending: false }).limit(10),
         supabase.from("subscriptions").select("status, expires_at, grace_period_ends_at").limit(1).maybeSingle(),
+        supabase.from("schedule_blocks").select("id", { count: "exact", head: true }).eq("is_enabled", true),
       ]);
 
       const screens = screensRes.data || [];
@@ -50,6 +51,7 @@ function useDashboardStats() {
         locations: locationsRes.count || 0,
         content: contentRes.count || 0,
         playlists: playlistsRes.count || 0,
+        schedules: scheduleRes.count || 0,
         devices: devicesRes.data || [],
         lastSync,
         subscription: subRes.data || null,
@@ -200,9 +202,108 @@ function timeAgo(iso: string) {
   return `hace ${days}d`;
 }
 
+// ─── Primeros pasos card ────────────────────────────────
+interface Step {
+  label: string;
+  path: string;
+  done: boolean;
+}
+
+function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: () => void }) {
+  const allDone = steps.every((s) => s.done);
+  const completedCount = steps.filter((s) => s.done).length;
+
+  if (allDone && onDismiss) {
+    onDismiss();
+    return null;
+  }
+
+  return (
+    <Card className="surface-elevated border-border/30 overflow-hidden">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="font-display text-base">Primeros pasos</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Completa estos pasos para poner tu cartelería digital en marcha
+            </p>
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary glow-primary-sm">
+            <CheckCircle2 className="h-5 w-5 text-primary-foreground" />
+          </div>
+        </div>
+      </CardHeader>
+      <Separator className="mx-4 bg-border/30" />
+      <CardContent className="pt-3">
+        <div className="space-y-2">
+          {steps.map((step, i) => (
+            <div
+              key={step.label}
+              className={cn(
+                "flex items-center gap-3 rounded-lg border p-3 transition-all duration-300",
+                step.done
+                  ? "border-primary/20 bg-primary/5"
+                  : "border-border/30 bg-secondary/30 hover:border-primary/30"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors",
+                  step.done ? "bg-primary" : "border border-muted-foreground/30"
+                )}
+              >
+                {step.done ? (
+                  <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
+                ) : (
+                  <span className="text-[11px] font-semibold text-muted-foreground">{i + 1}</span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className={cn(
+                    "text-sm font-medium",
+                    step.done && "text-muted-foreground line-through"
+                  )}
+                >
+                  {step.label}
+                </p>
+              </div>
+              {!step.done && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 gap-1 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary text-xs"
+                  asChild
+                >
+                  <Link to={step.path}>
+                    Ir
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <div className="h-1.5 flex-1 rounded-full bg-secondary overflow-hidden">
+            <div
+              className="h-full rounded-full gradient-primary transition-all duration-500"
+              style={{ width: `${(completedCount / steps.length) * 100}%` }}
+            />
+          </div>
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {completedCount}/{steps.length}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Dashboard ──────────────────────────────────────────
 const Dashboard = () => {
   const { data: stats, isLoading } = useDashboardStats();
+  const [primerosPasosDismissed, setPrimerosPasosDismissed] = useState(false);
 
   const activity = stats ? generateActivity(stats.devices, stats.screens) : [];
   const systemStatus = stats
@@ -212,6 +313,20 @@ const Dashboard = () => {
       ? "warn"
       : undefined
     : undefined;
+
+  const steps: Step[] = stats
+    ? [
+        { label: "Conecta tu primera pantalla", path: "/dashboard/pantallas", done: stats.totalScreens > 0 },
+        { label: "Agrega tu primer contenido", path: "/dashboard/contenido", done: stats.content > 0 },
+        { label: "Programa qué mostrar", path: "/dashboard/programacion", done: stats.schedules > 0 },
+      ]
+    : [];
+
+  const showPrimerosPasos =
+    !isLoading &&
+    !primerosPasosDismissed &&
+    stats &&
+    (stats.totalScreens === 0 || stats.content === 0 || stats.schedules === 0);
 
   return (
     <div className="p-5 lg:p-6 space-y-5">
@@ -232,6 +347,14 @@ const Dashboard = () => {
       </div>
 
       <Separator className="bg-border/40" />
+
+      {/* Primeros pasos */}
+      {showPrimerosPasos && (
+        <PrimerosPasosCard
+          steps={steps}
+          onDismiss={() => setPrimerosPasosDismissed(true)}
+        />
+      )}
 
       {/* Subscription Alerts */}
       {stats?.subscription && (
