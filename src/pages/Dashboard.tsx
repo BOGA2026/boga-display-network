@@ -303,6 +303,7 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
 // ─── Dashboard ──────────────────────────────────────────
 const Dashboard = () => {
   const { data: stats, isLoading } = useDashboardStats();
+  const [primerosPasosDismissed, setPrimerosPasosDismissed] = useState(false);
 
   const activity = stats ? generateActivity(stats.devices, stats.screens) : [];
   const systemStatus = stats
@@ -312,6 +313,20 @@ const Dashboard = () => {
       ? "warn"
       : undefined
     : undefined;
+
+  const steps: Step[] = stats
+    ? [
+        { label: "Conecta tu primera pantalla", path: "/dashboard/pantallas", done: stats.totalScreens > 0 },
+        { label: "Agrega tu primer contenido", path: "/dashboard/contenido", done: stats.content > 0 },
+        { label: "Programa qué mostrar", path: "/dashboard/programacion", done: stats.schedules > 0 },
+      ]
+    : [];
+
+  const showPrimerosPasos =
+    !isLoading &&
+    !primerosPasosDismissed &&
+    stats &&
+    (stats.totalScreens === 0 || stats.content === 0 || stats.schedules === 0);
 
   return (
     <div className="p-5 lg:p-6 space-y-5">
