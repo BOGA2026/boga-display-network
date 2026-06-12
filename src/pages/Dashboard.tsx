@@ -306,6 +306,58 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
 const Dashboard = () => {
   const { data: stats, isLoading } = useDashboardStats();
   const [primerosPasosDismissed, setPrimerosPasosDismissed] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddDemoScreen = async () => {
+    const { data: user } = await supabase.auth.getUser();
+    const profileRes = await supabase
+      .from("profiles")
+      .select("business_id")
+      .eq("id", user.user?.id ?? "")
+      .maybeSingle();
+    const businessId = profileRes.data?.business_id;
+    if (!businessId) {
+      toast({ title: "No se encontró tu negocio", variant: "destructive" });
+      return;
+    }
+
+    // Get or create default location
+    const { data: existingLoc } = await supabase
+      .from("locations")
+      .select("id")
+      .eq("business_id", businessId)
+      .limit(1)
+      .maybeSingle();
+
+    let locationId = existingLoc?.id;
+    if (!locationId) {
+      const { data: newLoc } = await supabase
+        .from("locations")
+        .insert({ name: "Principal", business_id: businessId })
+        .select("id")
+        .single();
+      locationId = newLoc?.id;
+    }
+
+    if (!locationId) {
+      toast({ title: "Error al crear ubicación", variant: "destructive" });
+      return;
+    }
+
+    const { error } = await supabase.from("screens").insert({
+      name: "Pantalla Demo",
+      location_id: locationId,
+      status: "online",
+    });
+
+    if (error) {
+      toast({ title: "Error al crear pantalla demo", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Pantalla demo creada", description: "Ya puedes probar Visualia sin hardware." });
+    window.location.reload();
+  };
 
   const activity = stats ? generateActivity(stats.devices, stats.screens) : [];
   const systemStatus = stats
