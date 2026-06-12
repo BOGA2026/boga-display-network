@@ -133,10 +133,10 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
                 Cobro inmediato prorrateado
               </p>
               <div className="grid gap-2 text-sm">
-                {Array.from({ length: simulation.screensToAdd }).map((_, i) => (
+                {simulation.breakdown.map((b, i) => (
                   <div key={i} className="flex justify-between text-muted-foreground">
-                    <span>Pantalla nueva #{i + 1} · {simulation.daysLeft} días × {fmtCOP(Math.round(simulation.dailyRate))}/día</span>
-                    <span className="text-foreground font-medium">{fmtCOP(simulation.perScreenProration)}</span>
+                    <span>Pantalla nueva #{b.screenIndex} · {b.daysLeft} días × {fmtCOP(Math.round(b.dailyRate))}/día <span className="opacity-70">({fmtCOP(b.unitPrice)}/mes)</span></span>
+                    <span className="text-foreground font-medium">{fmtCOP(b.amount)}</span>
                   </div>
                 ))}
                 <div className="flex justify-between pt-2 border-t border-border/30 font-bold text-base">
@@ -149,7 +149,7 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
             <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-2">
               <p className="text-sm font-semibold">Próximo ciclo completo</p>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{targetScreens} pantallas × {fmtCOP(simulation.unitPrice)}</span>
+                <span className="text-muted-foreground">{targetScreens} pantallas (precio graduado por tramos)</span>
                 <span className="font-bold">{fmtCOP(simulation.nextCycleTotal)} /mes</span>
               </div>
               <p className="text-xs text-muted-foreground">
