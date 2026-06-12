@@ -29,16 +29,59 @@ interface DeviceInfo {
   ipAddress: string | null;
 }
 
-function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; latitude?: number; longitude?: number }): ScreenData {
+type LocationSource = "gps" | "manual" | "ip" | "none";
+
+interface EffectiveLocation {
+  lat: number;
+  lng: number;
+  label: string;
+  source: LocationSource;
+  accuracy?: number | null;
+}
+
+function resolveLocation(dbScreen: any, loc: any): EffectiveLocation {
+  // 1. GPS from device (highest priority)
+  if (typeof dbScreen?.gps_lat === "number" && typeof dbScreen?.gps_lng === "number") {
+    return {
+      lat: dbScreen.gps_lat,
+      lng: dbScreen.gps_lng,
+      label: loc?.name || "Ubicación del dispositivo",
+      source: "gps",
+      accuracy: dbScreen.gps_accuracy ?? null,
+    };
+  }
+  // 2. Manual location
+  if (typeof loc?.latitude === "number" && typeof loc?.longitude === "number") {
+    return {
+      lat: loc.latitude,
+      lng: loc.longitude,
+      label: loc.name || "Ubicación asignada",
+      source: "manual",
+    };
+  }
+  // 3. Approximate by IP
+  if (typeof dbScreen?.ip_lat === "number" && typeof dbScreen?.ip_lng === "number") {
+    const parts = [dbScreen.ip_city, dbScreen.ip_region, dbScreen.ip_country].filter(Boolean);
+    return {
+      lat: dbScreen.ip_lat,
+      lng: dbScreen.ip_lng,
+      label: parts.join(", ") || "Aproximada por IP",
+      source: "ip",
+    };
+  }
+  return { lat: 0, lng: 0, label: loc?.name || "Sin ubicación", source: "none" };
+}
+
+function mapDbScreenToScreenData(dbScreen: any, effective: EffectiveLocation): ScreenData {
   return {
     id: dbScreen.id,
     name: dbScreen.name,
     status: (dbScreen.status === "online" ? "online" : "offline") as ScreenData["status"],
     lastSyncAt: dbScreen.last_seen_at || dbScreen.created_at,
     location: {
-      lat: locationData?.latitude ?? 0,
-      lng: locationData?.longitude ?? 0,
-      label: locationData?.name || "Sin ubicación",
+      lat: effective.lat,
+      lng: effective.lng,
+      label: effective.label,
     },
     storageUsedGb: 0,
     storageTotalGb: 8,
@@ -60,6 +103,7 @@ function mapDbScreenToScreenData(dbScreen: any, locationData?: { name?: string; 
     schedule: [],
   };
 }
+
 
 export default function ScreenDetail() {
   const { screenId } = useParams<{ screenId: string }>();
