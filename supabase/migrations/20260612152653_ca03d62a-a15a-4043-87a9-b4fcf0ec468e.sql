@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Devices can update own status by code" ON public.devices;
