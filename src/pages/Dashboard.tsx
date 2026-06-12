@@ -8,11 +8,13 @@ import {
   Monitor, MonitorOff, MapPin, Image, Zap, TrendingUp, TrendingDown,
   Clock, Plus, Upload, ListVideo, Calendar, Activity, Wifi, WifiOff,
   RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User, Circle, ArrowRight,
+  MonitorSmartphone,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
+import { useToast } from "@/hooks/use-toast";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -304,6 +306,58 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
 const Dashboard = () => {
   const { data: stats, isLoading } = useDashboardStats();
   const [primerosPasosDismissed, setPrimerosPasosDismissed] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddDemoScreen = async () => {
+    const { data: user } = await supabase.auth.getUser();
+    const profileRes = await supabase
+      .from("profiles")
+      .select("business_id")
+      .eq("id", user.user?.id ?? "")
+      .maybeSingle();
+    const businessId = profileRes.data?.business_id;
+    if (!businessId) {
+      toast({ title: "No se encontró tu negocio", variant: "destructive" });
+      return;
+    }
+
+    // Get or create default location
+    const { data: existingLoc } = await supabase
+      .from("locations")
+      .select("id")
+      .eq("business_id", businessId)
+      .limit(1)
+      .maybeSingle();
+
+    let locationId = existingLoc?.id;
+    if (!locationId) {
+      const { data: newLoc } = await supabase
+        .from("locations")
+        .insert({ name: "Principal", business_id: businessId })
+        .select("id")
+        .single();
+      locationId = newLoc?.id;
+    }
+
+    if (!locationId) {
+      toast({ title: "Error al crear ubicación", variant: "destructive" });
+      return;
+    }
+
+    const { error } = await supabase.from("screens").insert({
+      name: "Pantalla Demo",
+      location_id: locationId,
+      status: "online",
+    });
+
+    if (error) {
+      toast({ title: "Error al crear pantalla demo", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Pantalla demo creada", description: "Ya puedes probar Visualia sin hardware." });
+    window.location.reload();
+  };
 
   const activity = stats ? generateActivity(stats.devices, stats.screens) : [];
   const systemStatus = stats
@@ -484,6 +538,7 @@ const Dashboard = () => {
                 title="No hay pantallas registradas"
                 description="Conecta tu primera pantalla para comenzar a mostrar contenido."
                 action={{ label: "Agregar primera pantalla", path: "/dashboard/pantallas" }}
+                secondaryAction={{ label: "Probar con pantalla demo", onClick: handleAddDemoScreen }}
               />
             ) : (
               <div className="grid gap-2 sm:grid-cols-2">
@@ -550,11 +605,12 @@ const Dashboard = () => {
 };
 
 // ─── Empty state component ──────────────────────────────
-function EmptyState({ icon: Icon, title, description, action }: {
+function EmptyState({ icon: Icon, title, description, action, secondaryAction }: {
   icon: React.ElementType;
   title: string;
   description: string;
   action?: { label: string; path: string };
+  secondaryAction?: { label: string; onClick: () => void };
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -569,6 +625,17 @@ function EmptyState({ icon: Icon, title, description, action }: {
             <Plus className="h-3.5 w-3.5 mr-1" />
             {action.label}
           </Link>
+        </Button>
+      )}
+      {secondaryAction && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="mt-2 border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+          onClick={secondaryAction.onClick}
+        >
+          <MonitorSmartphone className="h-3.5 w-3.5 mr-1.5" />
+          {secondaryAction.label}
         </Button>
       )}
     </div>
