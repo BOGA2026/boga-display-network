@@ -538,6 +538,7 @@ const Dashboard = () => {
                 title="No hay pantallas registradas"
                 description="Conecta tu primera pantalla para comenzar a mostrar contenido."
                 action={{ label: "Agregar primera pantalla", path: "/dashboard/pantallas" }}
+                secondaryAction={{ label: "Probar con pantalla demo", onClick: handleAddDemoScreen }}
               />
             ) : (
               <div className="grid gap-2 sm:grid-cols-2">
