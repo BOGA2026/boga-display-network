@@ -8,11 +8,13 @@ import {
   Monitor, MonitorOff, MapPin, Image, Zap, TrendingUp, TrendingDown,
   Clock, Plus, Upload, ListVideo, Calendar, Activity, Wifi, WifiOff,
   RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User, Circle, ArrowRight,
+  MonitorSmartphone,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
+import { useToast } from "@/hooks/use-toast";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
