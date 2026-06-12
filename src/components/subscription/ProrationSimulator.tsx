@@ -24,40 +24,54 @@ export function ProrationSimulator({ subscription, currentScreens, onConfirmChan
   const simulation = useMemo(() => {
     if (delta === 0) return null;
 
-    const newUnitPrice = getUnitPrice(targetScreens);
-    const currentUnitPrice = getUnitPrice(currentScreens);
+    const nextCycleTotal = calculateMonthlyTotal(targetScreens);
+    const currentCycleTotal = calculateMonthlyTotal(currentScreens);
 
     if (delta > 0) {
-      // Adding screens
+      // Adding screens: each new screen pays its tier price (graduated brackets)
       const screensToAdd = delta;
-      const proration = calculateProration(newUnitPrice, anchor, today);
-      const immediateCharge = Math.round(proration.amount * screensToAdd * 100) / 100;
-      const nextCycleTotal = newUnitPrice * targetScreens;
+      const breakdown = Array.from({ length: screensToAdd }).map((_, i) => {
+        const screenIndex = currentScreens + i + 1;
+        const price = marginalPrice(screenIndex);
+        const proration = calculateProration(price, anchor, today);
+        return {
+          screenIndex,
+          unitPrice: price,
+          dailyRate: proration.dailyRate,
+          daysLeft: proration.daysLeft,
+          amount: proration.amount,
+        };
+      });
+      const immediateCharge = Math.round(breakdown.reduce((s, b) => s + b.amount, 0) * 100) / 100;
 
       return {
         type: "add" as const,
         screensToAdd,
-        unitPrice: newUnitPrice,
-        dailyRate: proration.dailyRate,
-        daysLeft: proration.daysLeft,
-        totalDays: proration.totalDays,
+        breakdown,
         immediateCharge,
         nextCycleTotal,
-        perScreenProration: proration.amount,
       };
     } else {
-      // Removing screens
+      // Removing screens: refund the marginal price of each removed (top-tier first)
       const screensToRemove = Math.abs(delta);
-      const credit = calculateProration(currentUnitPrice, anchor, today);
-      const creditAmount = Math.round(credit.amount * screensToRemove * 100) / 100;
-      const nextCycleTotal = newUnitPrice * targetScreens;
+      let creditAmount = 0;
+      let daysLeft = 0;
+      for (let i = 0; i < screensToRemove; i++) {
+        const screenIndex = currentScreens - i; // remove from the top
+        const price = marginalPrice(screenIndex);
+        const credit = calculateProration(price, anchor, today);
+        creditAmount += credit.amount;
+        daysLeft = credit.daysLeft;
+      }
+      creditAmount = Math.round(creditAmount * 100) / 100;
 
       return {
         type: "remove" as const,
         screensToRemove,
         creditAmount,
         nextCycleTotal,
-        daysLeft: credit.daysLeft,
+        daysLeft,
+        savings: currentCycleTotal - nextCycleTotal,
       };
     }
   }, [targetScreens, currentScreens, anchor, delta]);
