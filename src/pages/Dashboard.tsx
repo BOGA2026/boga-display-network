@@ -51,6 +51,7 @@ function useDashboardStats() {
         locations: locationsRes.count || 0,
         content: contentRes.count || 0,
         playlists: playlistsRes.count || 0,
+        schedules: scheduleRes.count || 0,
         devices: devicesRes.data || [],
         lastSync,
         subscription: subRes.data || null,
