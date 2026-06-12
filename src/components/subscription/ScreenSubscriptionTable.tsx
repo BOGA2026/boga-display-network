@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Monitor, Plus, Pause, Play, Trash2 } from "lucide-react";
-import { fmtCOP, fmtDate, calculateProration, getUnitPrice } from "@/lib/proration";
+import { fmtCOP, fmtDate, calculateProration, calculateMonthlyTotal } from "@/lib/proration";
 import type { ScreenItem, SubscriptionRow } from "@/hooks/useSubscriptionData";
 
 interface Props {
