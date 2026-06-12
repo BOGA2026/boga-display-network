@@ -348,6 +348,14 @@ const Dashboard = () => {
 
       <Separator className="bg-border/40" />
 
+      {/* Primeros pasos */}
+      {showPrimerosPasos && (
+        <PrimerosPasosCard
+          steps={steps}
+          onDismiss={() => setPrimerosPasosDismissed(true)}
+        />
+      )}
+
       {/* Subscription Alerts */}
       {stats?.subscription && (
         <SubscriptionAlerts
