@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
     }
 
     // Save payment source if Wompi included one (for future recurring charges)
-    const paymentSourceId = tx.payment_source_id ?? tx.payment_method?.installments != null ? tx.payment_method?.token : null;
+    const paymentSourceId = tx.payment_source_id ?? null;
     const cardInfo = tx.payment_method?.extra;
     if (paymentSourceId && cardInfo) {
       const { data: existing } = await admin

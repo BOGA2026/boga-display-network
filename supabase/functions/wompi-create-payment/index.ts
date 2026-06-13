@@ -92,19 +92,45 @@ Deno.serve(async (req) => {
       email = userData?.user?.email ?? undefined;
     }
 
-    // Get subscription id for FK on payments
-    const { data: sub } = await admin
+    // Get or create a pending subscription (invoices.subscription_id is NOT NULL)
+    let { data: sub } = await admin
       .from("subscriptions")
-      .select("id")
+      .select("id, screens_count")
       .eq("business_id", business_id)
       .maybeSingle();
+
+    if (!sub) {
+      const initialCount = target_screen_count ?? 1;
+      const { data: newSub, error: subErr } = await admin
+        .from("subscriptions")
+        .insert({
+          business_id,
+          plan: "visualia",
+          screens_count: initialCount,
+          billing_cycle: "monthly",
+          price_per_screen: 0, // will be recomputed
+          total_amount: amount_cop,
+          status: "pending",
+          next_billing_date: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+        })
+        .select("id, screens_count")
+        .single();
+      if (subErr) {
+        console.error("Subscription insert error:", subErr);
+        return new Response(JSON.stringify({ error: "No se pudo crear suscripción", details: subErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      sub = newSub;
+    }
 
     // Create pending invoice
     const invoiceNumber = `INV-${reference}`;
     const { data: invoice, error: invErr } = await admin
       .from("invoices")
       .insert({
-        subscription_id: sub?.id ?? null, // may need a placeholder; invoices.subscription_id is NOT NULL
+        subscription_id: sub.id,
         business_id,
         invoice_number: invoiceNumber,
         subtotal: amount_cop,
