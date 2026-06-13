@@ -97,18 +97,19 @@ Deno.serve(async (req) => {
     });
   }
 
-  if (payment.status === "paid" && status === "APPROVED") {
+  if (payment.status === "completed" && status === "APPROVED") {
     return new Response(JSON.stringify({ ok: true, already_paid: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  // Map Wompi status to ours
+  // Map Wompi status to our payments check constraint:
+  // ('pending', 'completed', 'failed', 'refunded')
   const mappedStatus =
-    status === "APPROVED" ? "paid" :
+    status === "APPROVED" ? "completed" :
     status === "DECLINED" ? "failed" :
-    status === "VOIDED" ? "voided" :
+    status === "VOIDED" ? "refunded" :
     status === "ERROR" ? "failed" : "pending";
 
   // Update payment
@@ -121,48 +122,49 @@ Deno.serve(async (req) => {
     })
     .eq("id", payment.id);
 
-  // Update invoice
+  // Update invoice (invoices check allows 'pending'|'paid'|'failed'|'void')
   if (payment.invoice_id) {
+    const invStatus =
+      mappedStatus === "completed" ? "paid" :
+      mappedStatus === "refunded" ? "void" :
+      mappedStatus === "failed" ? "failed" : "pending";
     await admin
       .from("invoices")
       .update({
-        status: mappedStatus === "paid" ? "paid" : (mappedStatus === "pending" ? "pending" : "failed"),
-        paid_at: mappedStatus === "paid" ? new Date().toISOString() : null,
+        status: invStatus,
+        paid_at: mappedStatus === "completed" ? new Date().toISOString() : null,
       })
       .eq("id", payment.invoice_id);
   }
 
   // On APPROVED: apply subscription change and activate screens
   if (status === "APPROVED") {
-    const meta = payment.metadata ?? {};
+    const meta = (payment.metadata as any) ?? {};
     const targetCount: number | null = meta.target_screen_count ?? null;
 
-    if (targetCount != null) {
-      // Compute new total via stored proration formula on server isn't trivial without sharing code;
-      // we trust the breakdown sent and use simple rule: amount=payment.amount for the next cycle if it's a setup,
-      // otherwise we just update screens_count and let the next billing job recompute totals.
-      // For now: update screens_count; let the existing UI recompute on next render.
-      const { data: sub } = await admin
-        .from("subscriptions")
-        .select("id")
-        .eq("business_id", payment.business_id)
-        .maybeSingle();
+    const { data: sub } = await admin
+      .from("subscriptions")
+      .select("id")
+      .eq("business_id", payment.business_id)
+      .maybeSingle();
 
-      if (sub) {
-        await admin
-          .from("subscriptions")
-          .update({
-            screens_count: targetCount,
-            status: "active",
-          })
-          .eq("id", sub.id);
-      }
+    if (sub) {
+      const update: Record<string, any> = { status: "active" };
+      if (targetCount != null) update.screens_count = targetCount;
+      await admin.from("subscriptions").update(update).eq("id", sub.id);
+    }
 
-      // Activate all screens for this business
+    // Activate all screens belonging to this business (via locations)
+    const { data: locs } = await admin
+      .from("locations")
+      .select("id")
+      .eq("business_id", payment.business_id);
+    const locIds = (locs ?? []).map((l: any) => l.id);
+    if (locIds.length > 0) {
       await admin
         .from("screens")
         .update({ license_status: "active" })
-        .eq("business_id", payment.business_id);
+        .in("location_id", locIds);
     }
 
     // Save payment source if Wompi included one (for future recurring charges)

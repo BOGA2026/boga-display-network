@@ -105,12 +105,12 @@ Deno.serve(async (req) => {
         .from("subscriptions")
         .insert({
           business_id,
-          plan: "visualia",
+          plan: "pro",
           screens_count: initialCount,
           billing_cycle: "monthly",
           price_per_screen: 0, // will be recomputed
           total_amount: amount_cop,
-          status: "pending",
+          status: "inactive",
           next_billing_date: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
         })
         .select("id, screens_count")
