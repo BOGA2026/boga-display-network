@@ -8,7 +8,7 @@ import { ProrationSimulator } from "@/components/subscription/ProrationSimulator
 import { ImmediateChargeModal } from "@/components/subscription/ImmediateChargeModal";
 import { InvoicesList } from "@/components/subscription/InvoicesList";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
-import { calculateMonthlyTotal } from "@/lib/proration";
+
 
 const Subscription = () => {
   const { toast } = useToast();
@@ -53,60 +53,42 @@ const Subscription = () => {
     setSaving(true);
 
     try {
-      const unitPrice = Math.round(calculateMonthlyTotal(pendingChange.newCount) / Math.max(1, pendingChange.newCount));
+      // Determine amount to charge NOW (prorated for adds, 0 for reductions)
+      const amountToday = Math.max(0, Math.round(pendingChange.immediateCharge));
 
-      if (subscription) {
-        const { error } = await supabase
-          .from("subscriptions")
-          .update({
-            screens_count: pendingChange.newCount,
-            price_per_screen: unitPrice,
-            total_amount: pendingChange.nextCycleTotal,
-            status: "active",
-          })
-          .eq("id", subscription.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("subscriptions").insert({
-          business_id: businessId,
-          plan: "visualia",
-          screens_count: pendingChange.newCount,
-          billing_cycle: "monthly",
-          price_per_screen: unitPrice,
-          total_amount: pendingChange.nextCycleTotal,
-          status: "active",
+      if (amountToday === 0) {
+        // No charge needed (reduction). Just notify; the cycle change applies on next billing.
+        // We do NOT modify subscriptions client-side — that's done by the webhook after a paid event,
+        // or by a scheduled job for reductions. For now, surface a notice.
+        toast({
+          title: "Cambio agendado",
+          description: "Tu reducción aplicará en el próximo ciclo. No hay cobro hoy.",
         });
-        if (error) throw error;
+        setChargeModalOpen(false);
+        setPendingChange(null);
+        return;
       }
 
-      // Create invoice if there's an immediate charge
-      if (pendingChange.immediateCharge > 0) {
-        const subId = subscription?.id ?? (
-          await supabase.from("subscriptions").select("id").eq("business_id", businessId).single()
-        ).data?.id;
+      // Call edge function to create payment + get Wompi checkout URL.
+      // NO subscription/invoice writes from the client. The webhook activates everything.
+      const { data, error } = await supabase.functions.invoke("wompi-create-payment", {
+        body: {
+          business_id: businessId,
+          amount_cop: amountToday,
+          description: `Prorrateo por ${pendingChange.newCount - (subscription?.screens_count ?? 0)} pantalla(s) nueva(s)`,
+          payment_type: "one_time",
+          target_screen_count: pendingChange.newCount,
+          proration_breakdown: { next_cycle_total: pendingChange.nextCycleTotal },
+        },
+      });
 
-        if (subId) {
-          const invoiceNum = `VIS-${Date.now().toString(36).toUpperCase()}`;
-          await supabase.from("invoices").insert({
-            subscription_id: subId,
-            business_id: businessId,
-            invoice_number: invoiceNum,
-            subtotal: pendingChange.immediateCharge,
-            total: pendingChange.immediateCharge,
-            status: "paid",
-            paid_at: new Date().toISOString(),
-            notes: `Prorrateo por ${pendingChange.newCount - (subscription?.screens_count ?? 0)} pantalla(s) nueva(s)`,
-          });
-        }
-      }
+      if (error) throw error;
+      if (!data?.checkout_url) throw new Error("No se recibió URL de pago");
 
-      toast({ title: "¡Suscripción actualizada!", description: `${pendingChange.newCount} pantallas configuradas.` });
-      setChargeModalOpen(false);
-      setPendingChange(null);
-      refetch();
+      // Redirect to Wompi checkout (secure provider environment)
+      window.location.href = data.checkout_url;
     } catch (err: any) {
-      toast({ title: "Error al procesar", description: err.message, variant: "destructive" });
-    } finally {
+      toast({ title: "Error al iniciar pago", description: err.message, variant: "destructive" });
       setSaving(false);
     }
   };

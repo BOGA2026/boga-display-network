@@ -554,6 +554,7 @@ export type Database = {
           brand: string
           business_id: string
           created_at: string
+          customer_email: string | null
           exp_month: number
           exp_year: number
           id: string
@@ -561,12 +562,14 @@ export type Database = {
           last4: string
           provider: string
           provider_ref: string | null
+          token: string | null
           updated_at: string
         }
         Insert: {
           brand?: string
           business_id: string
           created_at?: string
+          customer_email?: string | null
           exp_month?: number
           exp_year?: number
           id?: string
@@ -574,12 +577,14 @@ export type Database = {
           last4?: string
           provider?: string
           provider_ref?: string | null
+          token?: string | null
           updated_at?: string
         }
         Update: {
           brand?: string
           business_id?: string
           created_at?: string
+          customer_email?: string | null
           exp_month?: number
           exp_year?: number
           id?: string
@@ -587,6 +592,7 @@ export type Database = {
           last4?: string
           provider?: string
           provider_ref?: string | null
+          token?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -605,39 +611,63 @@ export type Database = {
           billing_email: string | null
           billing_name: string | null
           business_id: string
+          checkout_url: string | null
           created_at: string
+          external_reference: string | null
           id: string
+          invoice_id: string | null
           invoice_number: string
+          metadata: Json
           payment_method: string | null
+          payment_type: string
+          provider: string
+          provider_ref: string | null
           status: string
           subscription_id: string
           tax_id: string | null
+          updated_at: string
         }
         Insert: {
           amount: number
           billing_email?: string | null
           billing_name?: string | null
           business_id: string
+          checkout_url?: string | null
           created_at?: string
+          external_reference?: string | null
           id?: string
+          invoice_id?: string | null
           invoice_number: string
+          metadata?: Json
           payment_method?: string | null
+          payment_type?: string
+          provider?: string
+          provider_ref?: string | null
           status?: string
           subscription_id: string
           tax_id?: string | null
+          updated_at?: string
         }
         Update: {
           amount?: number
           billing_email?: string | null
           billing_name?: string | null
           business_id?: string
+          checkout_url?: string | null
           created_at?: string
+          external_reference?: string | null
           id?: string
+          invoice_id?: string | null
           invoice_number?: string
+          metadata?: Json
           payment_method?: string | null
+          payment_type?: string
+          provider?: string
+          provider_ref?: string | null
           status?: string
           subscription_id?: string
           tax_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -645,6 +675,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
           {
@@ -1231,6 +1268,7 @@ export type Database = {
           billing_cycle: string
           business_id: string
           created_at: string
+          default_payment_method_id: string | null
           expires_at: string | null
           grace_period_ends_at: string | null
           id: string
@@ -1247,6 +1285,7 @@ export type Database = {
           billing_cycle?: string
           business_id: string
           created_at?: string
+          default_payment_method_id?: string | null
           expires_at?: string | null
           grace_period_ends_at?: string | null
           id?: string
@@ -1263,6 +1302,7 @@ export type Database = {
           billing_cycle?: string
           business_id?: string
           created_at?: string
+          default_payment_method_id?: string | null
           expires_at?: string | null
           grace_period_ends_at?: string | null
           id?: string
@@ -1280,6 +1320,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_default_payment_method_id_fkey"
+            columns: ["default_payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
             referencedColumns: ["id"]
           },
         ]

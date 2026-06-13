@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.voice-tts]
 verify_jwt = false
+
+[functions.wompi-webhook]
+verify_jwt = false
