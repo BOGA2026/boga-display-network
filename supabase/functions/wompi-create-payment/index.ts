@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
 
     // Create pending payment
     const { error: payErr } = await admin.from("payments").insert({
-      subscription_id: sub?.id ?? null,
+      subscription_id: sub.id,
       business_id,
       amount: amount_cop,
       status: "pending",
