@@ -193,6 +193,10 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const [selCircularClip, setSelCircularClip] = useState(false);
 
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
+  const [zoom, setZoom] = useState(1);
+  const zoomIn = () => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)));
+  const zoomOut = () => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)));
+  const zoomReset = () => setZoom(1);
 
   const nextId = () => ++idCounter.current;
 
