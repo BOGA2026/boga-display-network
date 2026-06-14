@@ -1360,8 +1360,18 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           </div>
 
           {/* ─── Canvas ─── */}
-          <div className="flex-1 relative bg-background/30 overflow-auto">
-            {/* Zoom controls */}
+          <div
+            ref={scrollRef}
+            className={cn(
+              "flex-1 relative bg-background/30 overflow-auto select-none",
+              panMode && (isPanning ? "cursor-grabbing" : "cursor-grab")
+            )}
+            onMouseDown={handlePanStart}
+            onMouseMove={handlePanMove}
+            onMouseUp={handlePanEnd}
+            onMouseLeave={handlePanEnd}
+          >
+            {/* Zoom + pan controls */}
             <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-lg border border-sidebar-border bg-sidebar/90 backdrop-blur px-1 py-1 shadow-lg">
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomOut} disabled={zoom <= 0.25} title="Alejar">
                 <ZoomOut className="h-3.5 w-3.5" />
@@ -1379,6 +1389,16 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
               <div className="w-px h-5 bg-sidebar-border mx-0.5" />
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomReset} title="Ajustar">
                 <Maximize2 className="h-3.5 w-3.5" />
+              </Button>
+              <div className="w-px h-5 bg-sidebar-border mx-0.5" />
+              <Button
+                variant={panMode ? "default" : "ghost"}
+                size="icon"
+                className={cn("h-7 w-7", panMode && "gradient-primary text-primary-foreground")}
+                onClick={() => setPanMode((v) => !v)}
+                title="Mano — arrastra para desplazarte (mantén Espacio)"
+              >
+                <Hand className="h-3.5 w-3.5" />
               </Button>
             </div>
 
@@ -1398,6 +1418,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                     transformOrigin: "top left",
                     border: "1px solid rgba(255,255,255,0.1)",
                     lineHeight: 0,
+                    pointerEvents: panMode ? "none" : "auto",
                   }}
                 >
                   <canvas ref={canvasRef} />
