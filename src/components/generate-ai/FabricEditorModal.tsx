@@ -5,6 +5,7 @@ import {
   Triangle, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Image,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Upload, DollarSign, Clock, Tag, MapPin, QrCode, Share2,
+  ZoomIn, ZoomOut, Maximize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -192,6 +193,10 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const [selCircularClip, setSelCircularClip] = useState(false);
 
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
+  const [zoom, setZoom] = useState(1);
+  const zoomIn = () => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)));
+  const zoomOut = () => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)));
+  const zoomReset = () => setZoom(1);
 
   const nextId = () => ++idCounter.current;
 
@@ -1309,9 +1314,49 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           </div>
 
           {/* ─── Canvas ─── */}
-          <div className="flex-1 flex items-center justify-center bg-background/30 overflow-auto p-4">
-            <div className="shrink-0" style={{ border: "1px solid rgba(255,255,255,0.1)", lineHeight: 0 }}>
-              <canvas ref={canvasRef} />
+          <div className="flex-1 relative bg-background/30 overflow-auto">
+            {/* Zoom controls */}
+            <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-lg border border-sidebar-border bg-sidebar/90 backdrop-blur px-1 py-1 shadow-lg">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomOut} disabled={zoom <= 0.25} title="Alejar">
+                <ZoomOut className="h-3.5 w-3.5" />
+              </Button>
+              <button
+                onClick={zoomReset}
+                className="text-[11px] font-medium w-12 text-center hover:text-primary transition-colors"
+                title="Restablecer zoom (100%)"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomIn} disabled={zoom >= 3} title="Ampliar">
+                <ZoomIn className="h-3.5 w-3.5" />
+              </Button>
+              <div className="w-px h-5 bg-sidebar-border mx-0.5" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomReset} title="Ajustar">
+                <Maximize2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            <div className="min-w-full min-h-full flex items-center justify-center p-4">
+              <div
+                style={{
+                  width: size.w * zoom,
+                  height: size.h * zoom,
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    width: size.w,
+                    height: size.h,
+                    transform: `scale(${zoom})`,
+                    transformOrigin: "top left",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    lineHeight: 0,
+                  }}
+                >
+                  <canvas ref={canvasRef} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
