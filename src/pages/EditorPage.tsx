@@ -98,6 +98,59 @@ export default function EditorPage() {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
 
+  // Pan / hand tool (drag to scroll when zoomed)
+  const [panMode, setPanMode] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const panState = useRef<{ x: number; y: number; sl: number; st: number } | null>(null);
+
+  useEffect(() => {
+    const isFormField = (el: EventTarget | null) => {
+      const tag = (el as HTMLElement)?.tagName;
+      const editable = (el as HTMLElement)?.isContentEditable;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || editable;
+    };
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !isFormField(e.target) && !e.repeat) {
+        e.preventDefault();
+        setPanMode(true);
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !isFormField(e.target)) setPanMode(false);
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
+  const onPanMouseDown = (e: React.MouseEvent) => {
+    if (!panMode || !scrollAreaRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    panState.current = {
+      x: e.clientX,
+      y: e.clientY,
+      sl: scrollAreaRef.current.scrollLeft,
+      st: scrollAreaRef.current.scrollTop,
+    };
+    setIsPanning(true);
+  };
+  const onPanMouseMove = (e: React.MouseEvent) => {
+    if (!panState.current || !scrollAreaRef.current) return;
+    scrollAreaRef.current.scrollLeft = panState.current.sl - (e.clientX - panState.current.x);
+    scrollAreaRef.current.scrollTop = panState.current.st - (e.clientY - panState.current.y);
+  };
+  const onPanMouseUp = () => {
+    panState.current = null;
+    setIsPanning(false);
+  };
+
+
+
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
   const futureRef = useRef<LayerItem[][]>([]);
