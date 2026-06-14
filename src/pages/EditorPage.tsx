@@ -24,6 +24,9 @@ import {
   BookmarkPlus,
   Film,
   Loader2,
+  Hand,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import {
   TextLayerPreview,
