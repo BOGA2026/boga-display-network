@@ -24,6 +24,9 @@ import {
   BookmarkPlus,
   Film,
   Loader2,
+  Hand,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import {
   TextLayerPreview,
@@ -43,6 +46,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -94,6 +98,59 @@ export default function EditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+
+  // Pan / hand tool (drag to scroll when zoomed)
+  const [panMode, setPanMode] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const panState = useRef<{ x: number; y: number; sl: number; st: number } | null>(null);
+
+  useEffect(() => {
+    const isFormField = (el: EventTarget | null) => {
+      const tag = (el as HTMLElement)?.tagName;
+      const editable = (el as HTMLElement)?.isContentEditable;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || editable;
+    };
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !isFormField(e.target) && !e.repeat) {
+        e.preventDefault();
+        setPanMode(true);
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !isFormField(e.target)) setPanMode(false);
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
+  const onPanMouseDown = (e: React.MouseEvent) => {
+    if (!panMode || !scrollAreaRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    panState.current = {
+      x: e.clientX,
+      y: e.clientY,
+      sl: scrollAreaRef.current.scrollLeft,
+      st: scrollAreaRef.current.scrollTop,
+    };
+    setIsPanning(true);
+  };
+  const onPanMouseMove = (e: React.MouseEvent) => {
+    if (!panState.current || !scrollAreaRef.current) return;
+    scrollAreaRef.current.scrollLeft = panState.current.sl - (e.clientX - panState.current.x);
+    scrollAreaRef.current.scrollTop = panState.current.st - (e.clientY - panState.current.y);
+  };
+  const onPanMouseUp = () => {
+    panState.current = null;
+    setIsPanning(false);
+  };
+
+
 
   // Undo / Redo history
   const historyRef = useRef<LayerItem[][]>([]);
@@ -837,22 +894,58 @@ export default function EditorPage() {
               <button onClick={redo} className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.35)] transition-all duration-200" title="Rehacer (Ctrl+Shift+Z)">
                 <Redo2 className="h-4 w-4" />
               </button>
+              <button
+                onClick={() => setZoom((z) => Math.max(25, z - 25))}
+                className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                title="Alejar"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
               <select
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
                 className="rounded-lg border border-border bg-card px-2 py-1 text-sm hover:border-primary/30 focus:border-primary/40 focus:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.3)] transition-all duration-200"
               >
-                {[25, 50, 75, 100, 125, 150].map((z) => (
+                {[25, 50, 75, 100, 125, 150, 200, 300].map((z) => (
                   <option key={z} value={z}>
                     {z}%
                   </option>
                 ))}
               </select>
+              <button
+                onClick={() => setZoom((z) => Math.min(300, z + 25))}
+                className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                title="Ampliar"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPanMode((v) => !v)}
+                className={cn(
+                  "rounded-lg border px-2 py-1 transition-all",
+                  panMode
+                    ? "border-primary bg-primary/20 text-primary shadow-[0_0_10px_-2px_hsl(var(--primary)/0.5)]"
+                    : "border-border bg-card hover:bg-primary/10 hover:border-primary/30"
+                )}
+                title="Mano — arrastra para desplazar el lienzo (mantén Espacio)"
+              >
+                <Hand className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
           {/* Scrollable canvas area */}
-          <div className="flex-1 overflow-auto p-6">
+          <div
+            ref={scrollAreaRef}
+            className={cn(
+              "flex-1 overflow-auto p-6",
+              panMode && (isPanning ? "cursor-grabbing" : "cursor-grab")
+            )}
+            onMouseDown={onPanMouseDown}
+            onMouseMove={onPanMouseMove}
+            onMouseUp={onPanMouseUp}
+            onMouseLeave={onPanMouseUp}
+          >
             <div
               ref={stageWrapRef}
               className="inline-block"
@@ -861,6 +954,7 @@ export default function EditorPage() {
                 height: baseResolution.h * scale,
                 minWidth: baseResolution.w * scale,
                 minHeight: baseResolution.h * scale,
+                pointerEvents: panMode ? "none" : "auto",
               }}
             >
               <div
