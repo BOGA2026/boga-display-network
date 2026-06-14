@@ -873,7 +873,7 @@ export default function EditorPage() {
         </aside>
 
         {/* Center canvas */}
-        <main className="relative flex flex-col bg-muted">
+        <main className="relative flex flex-col bg-muted min-w-0 overflow-hidden">
           {/* Canvas toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2 shrink-0">
             <div className="flex items-center gap-3">
