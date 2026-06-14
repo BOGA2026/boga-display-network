@@ -5,7 +5,7 @@ import {
   Triangle, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Image,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Upload, DollarSign, Clock, Tag, MapPin, QrCode, Share2,
-  ZoomIn, ZoomOut, Maximize2,
+  ZoomIn, ZoomOut, Maximize2, Hand,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
