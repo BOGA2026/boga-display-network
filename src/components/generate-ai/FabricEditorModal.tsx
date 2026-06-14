@@ -5,7 +5,7 @@ import {
   Triangle, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Image,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Upload, DollarSign, Clock, Tag, MapPin, QrCode, Share2,
-  ZoomIn, ZoomOut, Maximize2,
+  ZoomIn, ZoomOut, Maximize2, Hand,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -197,6 +197,52 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const zoomIn = () => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)));
   const zoomOut = () => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)));
   const zoomReset = () => setZoom(1);
+
+  // Pan mode (hand tool) — drag to scroll the canvas viewport
+  const [panMode, setPanMode] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const panState = useRef<{ x: number; y: number; sl: number; st: number } | null>(null);
+  const [isPanning, setIsPanning] = useState(false);
+
+  // Hold Space to temporarily activate pan
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !panMode && (e.target as HTMLElement)?.tagName !== "INPUT" && (e.target as HTMLElement)?.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        setPanMode(true);
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space") setPanMode(false);
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, [panMode]);
+
+  const handlePanStart = (e: React.MouseEvent) => {
+    if (!panMode || !scrollRef.current) return;
+    e.preventDefault();
+    panState.current = {
+      x: e.clientX,
+      y: e.clientY,
+      sl: scrollRef.current.scrollLeft,
+      st: scrollRef.current.scrollTop,
+    };
+    setIsPanning(true);
+  };
+  const handlePanMove = (e: React.MouseEvent) => {
+    if (!panMode || !panState.current || !scrollRef.current) return;
+    scrollRef.current.scrollLeft = panState.current.sl - (e.clientX - panState.current.x);
+    scrollRef.current.scrollTop = panState.current.st - (e.clientY - panState.current.y);
+  };
+  const handlePanEnd = () => {
+    panState.current = null;
+    setIsPanning(false);
+  };
 
   const nextId = () => ++idCounter.current;
 
@@ -1314,8 +1360,18 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
           </div>
 
           {/* ─── Canvas ─── */}
-          <div className="flex-1 relative bg-background/30 overflow-auto">
-            {/* Zoom controls */}
+          <div
+            ref={scrollRef}
+            className={cn(
+              "flex-1 relative bg-background/30 overflow-auto select-none",
+              panMode && (isPanning ? "cursor-grabbing" : "cursor-grab")
+            )}
+            onMouseDown={handlePanStart}
+            onMouseMove={handlePanMove}
+            onMouseUp={handlePanEnd}
+            onMouseLeave={handlePanEnd}
+          >
+            {/* Zoom + pan controls */}
             <div className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-lg border border-sidebar-border bg-sidebar/90 backdrop-blur px-1 py-1 shadow-lg">
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomOut} disabled={zoom <= 0.25} title="Alejar">
                 <ZoomOut className="h-3.5 w-3.5" />
@@ -1333,6 +1389,16 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
               <div className="w-px h-5 bg-sidebar-border mx-0.5" />
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={zoomReset} title="Ajustar">
                 <Maximize2 className="h-3.5 w-3.5" />
+              </Button>
+              <div className="w-px h-5 bg-sidebar-border mx-0.5" />
+              <Button
+                variant={panMode ? "default" : "ghost"}
+                size="icon"
+                className={cn("h-7 w-7", panMode && "gradient-primary text-primary-foreground")}
+                onClick={() => setPanMode((v) => !v)}
+                title="Mano — arrastra para desplazarte (mantén Espacio)"
+              >
+                <Hand className="h-3.5 w-3.5" />
               </Button>
             </div>
 
@@ -1352,6 +1418,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
                     transformOrigin: "top left",
                     border: "1px solid rgba(255,255,255,0.1)",
                     lineHeight: 0,
+                    pointerEvents: panMode ? "none" : "auto",
                   }}
                 >
                   <canvas ref={canvasRef} />
