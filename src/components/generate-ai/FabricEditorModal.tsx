@@ -198,6 +198,52 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
   const zoomOut = () => setZoom((z) => Math.max(0.25, +(z - 0.25).toFixed(2)));
   const zoomReset = () => setZoom(1);
 
+  // Pan mode (hand tool) — drag to scroll the canvas viewport
+  const [panMode, setPanMode] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const panState = useRef<{ x: number; y: number; sl: number; st: number } | null>(null);
+  const [isPanning, setIsPanning] = useState(false);
+
+  // Hold Space to temporarily activate pan
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !panMode && (e.target as HTMLElement)?.tagName !== "INPUT" && (e.target as HTMLElement)?.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        setPanMode(true);
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space") setPanMode(false);
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, [panMode]);
+
+  const handlePanStart = (e: React.MouseEvent) => {
+    if (!panMode || !scrollRef.current) return;
+    e.preventDefault();
+    panState.current = {
+      x: e.clientX,
+      y: e.clientY,
+      sl: scrollRef.current.scrollLeft,
+      st: scrollRef.current.scrollTop,
+    };
+    setIsPanning(true);
+  };
+  const handlePanMove = (e: React.MouseEvent) => {
+    if (!panMode || !panState.current || !scrollRef.current) return;
+    scrollRef.current.scrollLeft = panState.current.sl - (e.clientX - panState.current.x);
+    scrollRef.current.scrollTop = panState.current.st - (e.clientY - panState.current.y);
+  };
+  const handlePanEnd = () => {
+    panState.current = null;
+    setIsPanning(false);
+  };
+
   const nextId = () => ++idCounter.current;
 
   const refreshLayers = useCallback(() => {
