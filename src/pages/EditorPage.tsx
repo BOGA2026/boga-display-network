@@ -893,22 +893,58 @@ export default function EditorPage() {
               <button onClick={redo} className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.35)] transition-all duration-200" title="Rehacer (Ctrl+Shift+Z)">
                 <Redo2 className="h-4 w-4" />
               </button>
+              <button
+                onClick={() => setZoom((z) => Math.max(25, z - 25))}
+                className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                title="Alejar"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
               <select
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
                 className="rounded-lg border border-border bg-card px-2 py-1 text-sm hover:border-primary/30 focus:border-primary/40 focus:shadow-[0_0_10px_-2px_hsl(var(--primary)/0.3)] transition-all duration-200"
               >
-                {[25, 50, 75, 100, 125, 150].map((z) => (
+                {[25, 50, 75, 100, 125, 150, 200, 300].map((z) => (
                   <option key={z} value={z}>
                     {z}%
                   </option>
                 ))}
               </select>
+              <button
+                onClick={() => setZoom((z) => Math.min(300, z + 25))}
+                className="rounded-lg border border-border bg-card px-2 py-1 hover:bg-primary/10 hover:border-primary/30 transition-all"
+                title="Ampliar"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setPanMode((v) => !v)}
+                className={cn(
+                  "rounded-lg border px-2 py-1 transition-all",
+                  panMode
+                    ? "border-primary bg-primary/20 text-primary shadow-[0_0_10px_-2px_hsl(var(--primary)/0.5)]"
+                    : "border-border bg-card hover:bg-primary/10 hover:border-primary/30"
+                )}
+                title="Mano — arrastra para desplazar el lienzo (mantén Espacio)"
+              >
+                <Hand className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
           {/* Scrollable canvas area */}
-          <div className="flex-1 overflow-auto p-6">
+          <div
+            ref={scrollAreaRef}
+            className={cn(
+              "flex-1 overflow-auto p-6",
+              panMode && (isPanning ? "cursor-grabbing" : "cursor-grab")
+            )}
+            onMouseDown={onPanMouseDown}
+            onMouseMove={onPanMouseMove}
+            onMouseUp={onPanMouseUp}
+            onMouseLeave={onPanMouseUp}
+          >
             <div
               ref={stageWrapRef}
               className="inline-block"
@@ -917,6 +953,7 @@ export default function EditorPage() {
                 height: baseResolution.h * scale,
                 minWidth: baseResolution.w * scale,
                 minHeight: baseResolution.h * scale,
+                pointerEvents: panMode ? "none" : "auto",
               }}
             >
               <div
