@@ -8,6 +8,7 @@ import { ProrationSimulator } from "@/components/subscription/ProrationSimulator
 import { ImmediateChargeModal } from "@/components/subscription/ImmediateChargeModal";
 import { InvoicesList } from "@/components/subscription/InvoicesList";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
+import { AddCardModal } from "@/components/subscription/AddCardModal";
 
 
 const Subscription = () => {
@@ -17,6 +18,7 @@ const Subscription = () => {
 
   // Modal state
   const [chargeModalOpen, setChargeModalOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
   const [pendingChange, setPendingChange] = useState<{
     newCount: number;
     immediateCharge: number;
@@ -128,12 +130,7 @@ const Subscription = () => {
   };
 
   const handleAddPaymentMethod = () => {
-    toast({
-      title: "Tu tarjeta se guarda al pagar",
-      description:
-        "Wompi guarda automáticamente la tarjeta cuando realizas un pago. Agrega o ajusta pantallas en el simulador para iniciar un cobro y la tarjeta quedará registrada para los próximos ciclos.",
-    });
-    document.getElementById("proration-simulator")?.scrollIntoView({ behavior: "smooth" });
+    setAddCardOpen(true);
   };
 
   return (
@@ -192,6 +189,13 @@ const Subscription = () => {
           onConfirm={handleCheckout}
         />
       )}
+      {/* Add Card Modal */}
+      <AddCardModal
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        businessId={businessId ?? ""}
+        onSuccess={refetch}
+      />
     </div>
   );
 };
