@@ -130,12 +130,7 @@ const Subscription = () => {
   };
 
   const handleAddPaymentMethod = () => {
-    toast({
-      title: "Tu tarjeta se guarda al pagar",
-      description:
-        "Wompi guarda automáticamente la tarjeta cuando realizas un pago. Agrega o ajusta pantallas en el simulador para iniciar un cobro y la tarjeta quedará registrada para los próximos ciclos.",
-    });
-    document.getElementById("proration-simulator")?.scrollIntoView({ behavior: "smooth" });
+    setAddCardOpen(true);
   };
 
   return (
