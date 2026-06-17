@@ -18,6 +18,7 @@ const Subscription = () => {
 
   // Modal state
   const [chargeModalOpen, setChargeModalOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
   const [pendingChange, setPendingChange] = useState<{
     newCount: number;
     immediateCharge: number;
