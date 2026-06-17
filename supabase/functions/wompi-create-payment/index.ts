@@ -201,6 +201,7 @@ Deno.serve(async (req) => {
       "redirect-url": redirectUrl,
     });
     if (email) params.set("customer-data:email", email);
+    if (methodParam) params.set("payment-method-type", methodParam);
 
     const checkoutUrl = `${checkoutBase}?${params.toString()}`;
 
