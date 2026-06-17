@@ -189,6 +189,13 @@ const Subscription = () => {
           onConfirm={handleCheckout}
         />
       )}
+      {/* Add Card Modal */}
+      <AddCardModal
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        businessId={businessId ?? ""}
+        onSuccess={refetch}
+      />
     </div>
   );
 };
