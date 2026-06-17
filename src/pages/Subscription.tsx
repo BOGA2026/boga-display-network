@@ -9,6 +9,7 @@ import { ImmediateChargeModal } from "@/components/subscription/ImmediateChargeM
 import { InvoicesList } from "@/components/subscription/InvoicesList";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
 import { AddCardModal } from "@/components/subscription/AddCardModal";
+import { OneTimePaymentCard } from "@/components/subscription/OneTimePaymentCard";
 
 
 const Subscription = () => {
