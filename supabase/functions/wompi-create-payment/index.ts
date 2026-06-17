@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
       target_screen_count, // optional, for subscription changes
       proration_breakdown, // optional metadata
       customer_email,
+      payment_method, // optional: 'CARD' | 'PSE' | 'NEQUI' | 'BANCOLOMBIA_TRANSFER'
     } = body ?? {};
 
     if (!business_id || !amount_cop || amount_cop <= 0) {
@@ -66,6 +67,9 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const ALLOWED_METHODS = ["CARD", "PSE", "NEQUI", "BANCOLOMBIA_TRANSFER"];
+    const methodParam = payment_method && ALLOWED_METHODS.includes(payment_method) ? payment_method : null;
 
     // Verify user can manage this business
     const { data: canManage } = await supabase.rpc("can_manage_business", { _business_id: business_id });
