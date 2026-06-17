@@ -128,7 +128,12 @@ const Subscription = () => {
   };
 
   const handleAddPaymentMethod = () => {
-    toast({ title: "Próximamente", description: "La integración con pasarela de pago estará disponible pronto." });
+    toast({
+      title: "Tu tarjeta se guarda al pagar",
+      description:
+        "Wompi guarda automáticamente la tarjeta cuando realizas un pago. Agrega o ajusta pantallas en el simulador para iniciar un cobro y la tarjeta quedará registrada para los próximos ciclos.",
+    });
+    document.getElementById("proration-simulator")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
