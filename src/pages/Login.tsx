@@ -373,7 +373,9 @@ const Login = () => {
 
   return (
     <PremiumBackground className="flex items-center justify-center p-4">
+      <h1 className="sr-only">Iniciar sesión en Visualia</h1>
       <div className="w-full max-w-md animate-fade-in">
+
         {/* Branding */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <div className="relative">
