@@ -4,6 +4,7 @@ import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { prefetchRoute } from "@/lib/prefetch";
 
 const menuItems = [
   {
