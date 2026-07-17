@@ -198,6 +198,16 @@ const Landing = () => {
     vid.play().catch(() => {});
   }, []);
 
+  // Warm up likely-next public route chunks during idle time.
+  useEffect(() => {
+    prefetchPublicRoutes([
+      "/precios",
+      "/soluciones/restaurantes",
+      "/acerca",
+      "/descargar-apk",
+    ]);
+  }, []);
+
   const activateSound = useCallback(() => {
     if (heroRef.current) heroRef.current.muted = false;
     setMuted(false);
