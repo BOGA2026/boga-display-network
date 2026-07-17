@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

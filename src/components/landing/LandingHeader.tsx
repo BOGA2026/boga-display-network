@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import simboloVisualia from "@/assets/simbolo-visualia.png";
+import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";

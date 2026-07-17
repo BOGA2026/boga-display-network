@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2, ShieldCheck, AlertTriangle } from "lucide-react";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 
 // Typed shim for the beta supabase.auth.oauth namespace.
 type AuthOAuth = {

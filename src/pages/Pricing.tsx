@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import Seo from "@/components/Seo";
 
-import showcaseImg from "@/assets/signage-restaurant.jpeg";
-import showcaseImg2 from "@/assets/signage-icecream.jpeg";
+import showcaseImg from "@/assets/signage-restaurant.webp";
+import showcaseImg2 from "@/assets/signage-icecream.webp";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -159,17 +159,24 @@ const Pricing = () => {
               <img
                 src={showcaseImg}
                 alt="Pantallas digitales de menú en restaurante gestionadas con Visualia"
+                width={1600}
+                height={900}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="overflow-hidden rounded-2xl neon-border glow-primary-sm h-72 md:h-96">
               <img
                 src={showcaseImg2}
                 alt="Gestión de pantallas de señalización digital en heladería con Visualia"
+                width={1600}
+                height={900}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
+
             </div>
           </div>
         </div>

@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 import { signOut } from "@/hooks/useAuth";
 
 const navItems = [

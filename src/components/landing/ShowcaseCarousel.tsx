@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import albertVideo from "@/assets/albert-visualia-dos.mov";
-import img1 from "@/assets/showcase-icecream-mall.jpeg";
-import img2 from "@/assets/showcase-sandwich.jpeg";
-import img3 from "@/assets/showcase-arroz.jpeg";
-import img4 from "@/assets/showcase-mariscos.jpeg";
-import img5 from "@/assets/showcase-helado-premium.jpeg";
-import img6 from "@/assets/showcase-kiosk.jpeg";
+import img1 from "@/assets/showcase-icecream-mall.webp";
+import img2 from "@/assets/showcase-sandwich.webp";
+import img3 from "@/assets/showcase-arroz.webp";
+import img4 from "@/assets/showcase-mariscos.webp";
+import img5 from "@/assets/showcase-helado-premium.webp";
+import img6 from "@/assets/showcase-kiosk.webp";
 
 const slides = [
   { src: img1, label: "Heladería", caption: "Menú digital en punto de venta premium" },
@@ -145,6 +145,11 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                   key={i}
                   src={slide.src}
                   alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
+                  width={1600}
+                  height={700}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={i === 0 ? "high" : "low"}
                   className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
                   style={{
                     opacity: i === current ? 1 : 0,
@@ -152,6 +157,7 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                     transitionTimingFunction: "cubic-bezier(0.4,0,0.2,1)",
                   }}
                 />
+
               ))}
               {/* CORRECCIÓN 10 — CTA slide: "¿Tu negocio no está aquí?" */}
               <div
