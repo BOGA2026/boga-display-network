@@ -159,17 +159,24 @@ const Pricing = () => {
               <img
                 src={showcaseImg}
                 alt="Pantallas digitales de menú en restaurante gestionadas con Visualia"
+                width={1600}
+                height={900}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="overflow-hidden rounded-2xl neon-border glow-primary-sm h-72 md:h-96">
               <img
                 src={showcaseImg2}
                 alt="Gestión de pantallas de señalización digital en heladería con Visualia"
+                width={1600}
+                height={900}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
+
             </div>
           </div>
         </div>
