@@ -9,6 +9,7 @@ import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
+import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
 import {
   Accordion,
   AccordionContent,
