@@ -3,7 +3,7 @@ import { useParallax } from "@/hooks/useParallax";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import heroRestaurantBg from "@/assets/hero-restaurant-bg.webp";
-import heroRestaurantBgSrcSet from "@/assets/hero-restaurant-bg.webp?responsive&w=640;960;1280;1600;1920";
+import heroRestaurantBgSrcSet from "@/assets/hero-restaurant-bg.webp?responsive-hero";
 
 interface Props {
   onDemo: () => void;
