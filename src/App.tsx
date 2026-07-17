@@ -21,6 +21,7 @@ const RestaurantSolutionPage = lazy(() => import("./pages/RestaurantSolutionPage
 const Studio = lazy(() => import("./pages/Studio"));
 const Player = lazy(() => import("./pages/Player"));
 const VisualiaLunchTemplate = lazy(() => import("./templates/lunch-dual/VisualiaLunchTemplate"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
 // Dashboard (heavy)
 const DashboardLayout = lazy(() => import("./components/layout/DashboardLayout"));
