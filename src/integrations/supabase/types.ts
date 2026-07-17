@@ -800,6 +800,91 @@ export type Database = {
           },
         ]
       }
+      pqrs: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string
+          id: string
+          message: string
+          priority: string
+          read_by_admin: boolean
+          status: string
+          subject: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          message: string
+          priority?: string
+          read_by_admin?: boolean
+          status?: string
+          subject: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          message?: string
+          priority?: string
+          read_by_admin?: boolean
+          status?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pqrs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pqrs_responses: {
+        Row: {
+          author_id: string
+          author_role: string
+          created_at: string
+          id: string
+          message: string
+          pqrs_id: string
+        }
+        Insert: {
+          author_id: string
+          author_role: string
+          created_at?: string
+          id?: string
+          message: string
+          pqrs_id: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          created_at?: string
+          id?: string
+          message?: string
+          pqrs_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pqrs_responses_pqrs_id_fkey"
+            columns: ["pqrs_id"]
+            isOneToOne: false
+            referencedRelation: "pqrs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1360,6 +1445,79 @@ export type Database = {
             columns: ["default_payment_method_id"]
             isOneToOne: false
             referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_messages: {
+        Row: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at: string
+          id: string
+          thread_id: string
+        }
+        Insert: {
+          author_id: string
+          author_role: string
+          body: string
+          created_at?: string
+          id?: string
+          thread_id: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          body?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "support_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_threads: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          unread_by_admin: number
+          unread_by_user: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          unread_by_admin?: number
+          unread_by_user?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          unread_by_admin?: number
+          unread_by_user?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_threads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
