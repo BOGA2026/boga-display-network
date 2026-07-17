@@ -49,7 +49,6 @@ const PlayerSplash = ({ minDuration = 4000, ready, onComplete }: PlayerSplashPro
       }}
     >
       <video
-        src={introVideo}
         autoPlay
         muted
         playsInline
@@ -61,7 +60,10 @@ const PlayerSplash = ({ minDuration = 4000, ready, onComplete }: PlayerSplashPro
           transition:
             "transform 1.4s cubic-bezier(0.4, 0, 0.2, 1), filter 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
-      />
+      >
+        <source src={introVideoWebm} type="video/webm" />
+        <source src={introVideo} type="video/mp4" />
+      </video>
     </div>
   );
 };
