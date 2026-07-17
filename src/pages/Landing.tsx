@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Seo from "@/components/Seo";
+import { prefetchPublicRoutes } from "@/lib/prefetch";
 
 import heroVideo from "@/assets/hero-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
@@ -196,6 +197,16 @@ const Landing = () => {
     vid.muted = true;
     vid.playsInline = true;
     vid.play().catch(() => {});
+  }, []);
+
+  // Warm up likely-next public route chunks during idle time.
+  useEffect(() => {
+    prefetchPublicRoutes([
+      "/precios",
+      "/soluciones/restaurantes",
+      "/acerca",
+      "/descargar-apk",
+    ]);
   }, []);
 
   const activateSound = useCallback(() => {

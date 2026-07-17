@@ -50,7 +50,19 @@ const AdminPQRS = lazy(() => import("./pages/admin/AdminPQRS"));
 const AdminSupport = lazy(() => import("./pages/admin/AdminSupport"));
 const Soporte = lazy(() => import("./pages/Soporte"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Public pages are largely static; keep responses fresh for 5 min and in
+      // memory for 30 min so back/forward + repeated visits are instant.
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});
 
 const RouteFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">

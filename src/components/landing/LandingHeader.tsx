@@ -4,6 +4,7 @@ import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { prefetchRoute } from "@/lib/prefetch";
 
 const menuItems = [
   {
@@ -137,6 +138,8 @@ const LandingHeader = () => {
                       <Link
                         key={child.label}
                         to={child.href}
+                        onMouseEnter={() => prefetchRoute(child.href)}
+                        onFocus={() => prefetchRoute(child.href)}
                         className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       >
                         {child.label}
@@ -149,7 +152,13 @@ const LandingHeader = () => {
           ))}
 
           {directLinks.map((link) => (
-            <Link key={link.label} to={link.href} className={linkClass}>
+            <Link
+              key={link.label}
+              to={link.href}
+              onMouseEnter={() => prefetchRoute(link.href)}
+              onFocus={() => prefetchRoute(link.href)}
+              className={linkClass}
+            >
               {link.label}
             </Link>
           ))}
