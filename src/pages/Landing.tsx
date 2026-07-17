@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import Seo from "@/components/Seo";
+
 import heroVideo from "@/assets/hero-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.png";
