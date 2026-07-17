@@ -262,8 +262,9 @@ const Landing = () => {
 
           {/* Product mockup: hero video */}
           <div
-            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border/60 shadow-2xl"
+            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border shadow-lg"
           >
+
             {videoFailed && (
               <img src={logoVisualia} alt="Visualia" className="w-full h-auto block" />
             )}
