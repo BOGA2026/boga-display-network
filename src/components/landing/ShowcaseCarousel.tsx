@@ -144,7 +144,7 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                 <img
                   key={i}
                   src={slide.src}
-                  alt={slide.label}
+                  alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
                   className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
                   style={{
                     opacity: i === current ? 1 : 0,
