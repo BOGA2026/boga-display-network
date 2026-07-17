@@ -3,6 +3,7 @@ import { useParallax } from "@/hooks/useParallax";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import heroRestaurantBg from "@/assets/hero-restaurant-bg.webp";
+import heroRestaurantBgSrcSet from "@/assets/hero-restaurant-bg.webp?responsive-hero";
 
 interface Props {
   onDemo: () => void;
@@ -23,6 +24,8 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
       >
         <img
           src={heroRestaurantBg}
+          srcSet={heroRestaurantBgSrcSet}
+          sizes="100vw"
           alt="Interior de restaurante moderno con pantallas digitales"
           width={1920}
           height={1080}

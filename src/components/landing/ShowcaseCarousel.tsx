@@ -2,19 +2,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import albertVideo from "@/assets/albert-visualia-dos.mov";
 import img1 from "@/assets/showcase-icecream-mall.webp";
+import img1Set from "@/assets/showcase-icecream-mall.webp?responsive";
 import img2 from "@/assets/showcase-sandwich.webp";
+import img2Set from "@/assets/showcase-sandwich.webp?responsive";
 import img3 from "@/assets/showcase-arroz.webp";
+import img3Set from "@/assets/showcase-arroz.webp?responsive";
 import img4 from "@/assets/showcase-mariscos.webp";
+import img4Set from "@/assets/showcase-mariscos.webp?responsive";
 import img5 from "@/assets/showcase-helado-premium.webp";
+import img5Set from "@/assets/showcase-helado-premium.webp?responsive";
 import img6 from "@/assets/showcase-kiosk.webp";
+import img6Set from "@/assets/showcase-kiosk.webp?responsive";
 
 const slides = [
-  { src: img1, label: "Heladería", caption: "Menú digital en punto de venta premium" },
-  { src: img2, label: "Sándwichería", caption: "Combos y promociones en pantalla horizontal" },
-  { src: img3, label: "Food Court", caption: "Cartas digitales sincronizadas en múltiples pantallas" },
-  { src: img4, label: "Mariscos", caption: "Menú digital con precios actualizados en tiempo real" },
-  { src: img5, label: "Heladería Premium", caption: "Señalización vertical de alto impacto" },
-  { src: img6, label: "Kiosko Digital", caption: "Pantalla autónoma en pasillo comercial" },
+  { src: img1, srcSet: img1Set, label: "Heladería", caption: "Menú digital en punto de venta premium" },
+  { src: img2, srcSet: img2Set, label: "Sándwichería", caption: "Combos y promociones en pantalla horizontal" },
+  { src: img3, srcSet: img3Set, label: "Food Court", caption: "Cartas digitales sincronizadas en múltiples pantallas" },
+  { src: img4, srcSet: img4Set, label: "Mariscos", caption: "Menú digital con precios actualizados en tiempo real" },
+  { src: img5, srcSet: img5Set, label: "Heladería Premium", caption: "Señalización vertical de alto impacto" },
+  { src: img6, srcSet: img6Set, label: "Kiosko Digital", caption: "Pantalla autónoma en pasillo comercial" },
 ];
 
 // CORRECCIÓN 10 aplicada — Props para abrir chat desde slide CTA
@@ -144,6 +150,8 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                 <img
                   key={i}
                   src={slide.src}
+                  srcSet={slide.srcSet}
+                  sizes="(min-width: 1024px) 900px, 100vw"
                   alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
                   width={1600}
                   height={700}
