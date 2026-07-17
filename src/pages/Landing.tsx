@@ -186,17 +186,28 @@ const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [muted, setMuted] = useState(true);
-  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+  // Persisted audio prefs
+  const savedVolume = (() => {
+    const v = parseFloat(localStorage.getItem("visualia_hero_volume") || "");
+    return Number.isFinite(v) && v >= 0 && v <= 1 ? v : 0.8;
+  })();
+  const savedMuted = localStorage.getItem("visualia_hero_muted");
+  const initialMuted = savedMuted === null ? true : savedMuted === "true";
+
+  const [muted, setMuted] = useState(initialMuted);
+  const [volume, setVolume] = useState(savedVolume);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(initialMuted);
   const [videoFailed, setVideoFailed] = useState(false);
   const heroRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const vid = heroRef.current;
     if (!vid) return;
-    vid.muted = true;
+    vid.muted = true; // must start muted for autoplay
+    vid.volume = volume;
     vid.playsInline = true;
     vid.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Warm up likely-next public route chunks during idle time.
@@ -209,18 +220,43 @@ const Landing = () => {
     ]);
   }, []);
 
+  const persistMuted = (m: boolean) => localStorage.setItem("visualia_hero_muted", String(m));
+  const persistVolume = (v: number) => localStorage.setItem("visualia_hero_volume", String(v));
+
   const activateSound = useCallback(() => {
-    if (heroRef.current) heroRef.current.muted = false;
+    const vid = heroRef.current;
+    if (vid) {
+      vid.muted = false;
+      vid.volume = volume || 0.8;
+      vid.play().catch(() => {});
+    }
     setMuted(false);
     setShowSoundPrompt(false);
-  }, []);
+    persistMuted(false);
+  }, [volume]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
       if (heroRef.current) heroRef.current.muted = next;
+      persistMuted(next);
       return next;
     });
+  }, []);
+
+  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    persistVolume(v);
+    const vid = heroRef.current;
+    if (vid) {
+      vid.volume = v;
+      if (v > 0 && vid.muted) {
+        vid.muted = false;
+        setMuted(false);
+        persistMuted(false);
+      }
+    }
   }, []);
 
   const forceIntro = searchParams.get("intro") === "reset";
