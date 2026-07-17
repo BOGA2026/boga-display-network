@@ -469,16 +469,25 @@ const Landing = () => {
                 </ul>
 
                 <div className="mt-7">
-                  <Button
-                    className="w-full"
-                    variant={t.highlight ? "default" : "outline"}
-                    asChild
-                  >
-                    <Link to={t.price ? "/registro" : "#"} onClick={t.price ? undefined : () => setChatOpen(true)}>
+                  {t.price ? (
+                    <Button
+                      className="w-full"
+                      variant={t.highlight ? "default" : "outline"}
+                      asChild
+                    >
+                      <Link to="/registro">{t.cta}</Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => setChatOpen(true)}
+                    >
                       {t.cta}
-                    </Link>
-                  </Button>
+                    </Button>
+                  )}
                 </div>
+
               </div>
             ))}
           </div>
