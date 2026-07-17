@@ -518,7 +518,10 @@ const Landing = () => {
                     src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
                       t.name
                     )}&background=6d28d9&color=fff&size=96&bold=true`}
-                    alt={t.name}
+                    alt={`Foto de ${t.name}, ${t.role} en ${t.business}`}
+                    loading="lazy"
+                    width={40}
+                    height={40}
                     className="h-10 w-10 rounded-full"
                   />
                   <div>
