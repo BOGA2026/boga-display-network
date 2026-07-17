@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logoVisualia from "@/assets/logo-visualia.png";
-import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut, Activity, CreditCard, Monitor, CalendarClock, Map as MapIcon } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut, Activity, CreditCard, Monitor, CalendarClock, Map as MapIcon, MessageSquare, FileText } from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 
@@ -14,6 +14,8 @@ const nav = [
   { to: "/admin/pantallas", label: "Pantallas", icon: Monitor },
   { to: "/admin/pagos", label: "Vencimientos", icon: CalendarClock },
   { to: "/admin/mapa", label: "Mapa", icon: MapIcon },
+  { to: "/admin/pqrs", label: "PQRS", icon: FileText, badgeKey: "pqrs" as const },
+  { to: "/admin/soporte", label: "Soporte", icon: MessageSquare, badgeKey: "chat" as const },
   { to: "/admin/negocios", label: "Negocios", icon: Building2 },
   { to: "/admin/leads", label: "Leads", icon: Inbox },
   { to: "/admin/admins", label: "Administradores", icon: Users },
