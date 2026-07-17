@@ -1,4 +1,3 @@
-// CORRECCIÓN 7 aplicada — Nota de fuente debajo de estadísticas
 const cards = [
   {
     stat: "+60%",
@@ -27,79 +26,38 @@ const cards = [
 ];
 
 const GrowthBenefits = () => (
-<section className="px-4 py-8 md:px-6 md:py-10">
-    <style>{`
-      .stat-card {
-        background: hsl(260 20% 7%);
-        transition: background 0.3s ease, box-shadow 0.3s ease;
-      }
-      .stat-card:hover {
-        background: hsl(260 25% 10%);
-        box-shadow: inset 0 0 50px hsl(270 100% 50% / 0.07),
-                    0 0 40px hsl(270 100% 50% / 0.18);
-      }
-      .stat-card:hover .stat-number {
-        color: hsl(270 100% 78%);
-        text-shadow: 0 0 20px hsl(270 100% 65% / 1),
-                     0 0 45px hsl(270 100% 55% / 0.7),
-                     0 0 80px hsl(270 100% 50% / 0.4);
-      }
-      .stat-number {
-        color: hsl(0 0% 100%);
-        transition: color 0.3s ease, text-shadow 0.3s ease;
-      }
-    `}</style>
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-4">
-        <h2
-          className="text-4xl font-black md:text-5xl lg:text-6xl leading-tight"
-          style={{
-            color: "hsl(0 0% 100%)",
-            textShadow: "0 0 40px hsl(270 100% 60% / 0.25), 0 0 12px hsl(270 100% 60% / 0.1)",
-          }}
-        >
-          Tu negocio{" "}
-          <span
-            style={{
-              color: "hsl(270 100% 75%)",
-              textShadow:
-                "0 0 30px hsl(270 100% 60% / 0.9), 0 0 60px hsl(270 100% 50% / 0.6), 0 0 100px hsl(270 100% 50% / 0.3)",
-            }}
-          >
-            vende más
-          </span>{" "}
-          con pantallas digitales
+  <section className="section-pad px-6">
+    <div className="mx-auto max-w-[1200px]">
+      <div className="max-w-2xl">
+        <h2>
+          Tu negocio <span className="text-primary">vende más</span> con pantallas digitales
         </h2>
-          <p
-            className="mt-1 text-lg font-medium"
-          style={{
-            color: "hsl(0 0% 80%)",
-            textShadow: "0 0 20px hsl(270 100% 60% / 0.2)",
-          }}
-        >
+        <p className="mt-4 text-muted-foreground text-lg">
           Resultados reales para negocios como el tuyo.
         </p>
       </div>
 
-      {/* Cards */}
-      <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4" style={{ background: "hsl(270 15% 15%)" }}>
+      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.title} className="stat-card flex flex-col gap-3 p-8 cursor-default">
+          <div
+            key={card.title}
+            className="card-subtle flex flex-col gap-4 p-6 hover-lift"
+          >
             <div>
-              <p className="stat-number text-4xl font-black tabular-nums">{card.stat}</p>
-              <p className="mt-0.5 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>
+              <p className="text-3xl font-semibold tabular-nums text-primary">{card.stat}</p>
+              <p className="mt-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 {card.statLabel}
               </p>
             </div>
-            <div className="pt-2" style={{ borderTop: "1px solid hsl(270 15% 14%)" }}>
-              <h3 className="text-base font-semibold text-white leading-snug">{card.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed" style={{ color: "hsl(0 0% 45%)" }}>{card.desc}</p>
+            <div className="border-t border-border pt-4">
+              <h3 className="text-base font-semibold text-foreground">{card.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{card.desc}</p>
             </div>
           </div>
         ))}
       </div>
-      {/* CORRECCIÓN 7 — Nota de fuente */}
-      <p className="mt-3 text-center text-[10px]" style={{ color: "hsl(0 0% 35%)" }}>
+
+      <p className="mt-6 text-xs text-muted-foreground">
         * Promedio reportado por clientes activos de Visualia en sus primeros 3 meses de uso.
       </p>
     </div>
