@@ -353,7 +353,8 @@ const Landing = () => {
               onLoadedData={() => {
                 const vid = heroRef.current;
                 if (vid) {
-                  vid.muted = true;
+                  vid.volume = volume;
+                  vid.muted = muted;
                   vid.play().catch(() => {});
                 }
               }}
@@ -366,31 +367,48 @@ const Landing = () => {
             {showSoundPrompt && (
               <button
                 onClick={activateSound}
-                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-2 transition-opacity duration-500"
-                style={{ background: "hsl(0 0% 0% / 0.35)" }}
-                aria-label="Activar sonido"
+                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 transition-opacity duration-500"
+                style={{ background: "hsl(0 0% 0% / 0.4)" }}
+                aria-label="Activar sonido del video"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-lg">
-                  <Volume2 className="h-6 w-6" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl ring-4 ring-primary/30 animate-pulse">
+                  <Volume2 className="h-7 w-7" />
                 </div>
-                <span className="text-sm font-medium text-white">
+                <span className="rounded-full bg-background/90 px-4 py-1.5 text-sm font-semibold text-foreground shadow-md backdrop-blur">
                   Toca para activar sonido
                 </span>
               </button>
             )}
 
             {!showSoundPrompt && (
-              <button
-                onClick={toggleMute}
-                className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full bg-background/80 p-2.5 backdrop-blur border border-border"
-                aria-label={muted ? "Activar sonido" : "Silenciar"}
+              <div
+                className="absolute bottom-4 right-4 z-30 flex items-center gap-2 rounded-full bg-background/85 pl-1.5 pr-3 py-1.5 backdrop-blur border border-border shadow-sm"
+                role="group"
+                aria-label="Controles de sonido"
               >
-                {muted ? (
-                  <VolumeX className="h-4 w-4 text-foreground" />
-                ) : (
-                  <Volume2 className="h-4 w-4 text-primary" />
-                )}
-              </button>
+                <button
+                  onClick={toggleMute}
+                  className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted transition-colors"
+                  aria-label={muted ? "Activar sonido" : "Silenciar"}
+                  aria-pressed={!muted}
+                >
+                  {muted ? (
+                    <VolumeX className="h-4 w-4 text-foreground" />
+                  ) : (
+                    <Volume2 className="h-4 w-4 text-primary" />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={muted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  aria-label="Volumen"
+                  className="h-1 w-20 sm:w-24 cursor-pointer accent-primary"
+                />
+              </div>
             )}
           </div>
         </div>
