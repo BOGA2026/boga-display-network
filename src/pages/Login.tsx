@@ -46,7 +46,12 @@ const Login = () => {
   const [otpCode, setOtpCode] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Only allow same-origin relative paths as post-login redirect target.
+  const rawNext = searchParams.get("next") ?? "";
+  const nextTarget = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
 
   // Cooldown timer
   useEffect(() => {
