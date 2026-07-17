@@ -636,20 +636,20 @@ const Landing = () => {
             <div>
               <h4 className="mb-3 font-display text-sm font-semibold text-foreground">Producto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#beneficios" className="transition hover:text-foreground">Beneficios</a></li>
-                <li><a href="#como-funciona" className="transition hover:text-foreground">Cómo funciona</a></li>
-                <li><a href="#precios" className="transition hover:text-foreground">Precios</a></li>
-                <li><a href="#faq" className="transition hover:text-foreground">Preguntas frecuentes</a></li>
+                <li><a href="#beneficios" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Beneficios</a></li>
+                <li><a href="#como-funciona" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Cómo funciona</a></li>
+                <li><a href="#precios" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Precios</a></li>
+                <li><a href="#faq" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Preguntas frecuentes</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="mb-3 font-display text-sm font-semibold text-foreground">Contacto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">hola@visualiamedia.com</a></li>
-                <li><a href="https://wa.me/573163265696" target="_blank" rel="noopener noreferrer" className="transition hover:text-foreground">WhatsApp: +57 316 3265696</a></li>
+                <li><a href="mailto:hola@visualiamedia.com" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">hola@visualiamedia.com</a></li>
+                <li><a href="https://wa.me/573163265696" target="_blank" rel="noopener noreferrer" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">WhatsApp: +57 316 3265696</a></li>
                 <li>Bogotá, Colombia</li>
-                <li><Link to="/soporte" className="transition hover:text-foreground">Soporte</Link></li>
+                <li><Link to="/soporte" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Soporte</Link></li>
               </ul>
             </div>
           </div>
@@ -657,8 +657,8 @@ const Landing = () => {
           <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground md:flex-row">
             <p>© 2026 Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Visualia es una marca de Boga S.A.S. · Colombia</p>
             <div className="flex gap-4">
-              <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
-              <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
+              <Link to="/terminos" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Términos</Link>
+              <Link to="/privacidad" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Privacidad</Link>
             </div>
           </div>
         </div>
