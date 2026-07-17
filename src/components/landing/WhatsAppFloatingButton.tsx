@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "573001234567"; // Ajustar al número real
+const WHATSAPP_NUMBER = "573163265696";
 const DEFAULT_MSG = "Hola, quiero saber más sobre Visualia para mi negocio.";
 
 interface Props {

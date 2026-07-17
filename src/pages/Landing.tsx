@@ -637,7 +637,7 @@ const Landing = () => {
               <h4 className="mb-3 font-display text-sm font-semibold text-foreground">Contacto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">hola@visualiamedia.com</a></li>
-                <li><a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="transition hover:text-foreground">WhatsApp: +57 300 123 4567</a></li>
+                <li><a href="https://wa.me/573163265696" target="_blank" rel="noopener noreferrer" className="transition hover:text-foreground">WhatsApp: +57 316 3265696</a></li>
                 <li>Bogotá, Colombia</li>
                 <li><Link to="/soporte" className="transition hover:text-foreground">Soporte</Link></li>
               </ul>
@@ -645,7 +645,7 @@ const Landing = () => {
           </div>
 
           <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground md:flex-row">
-            <p>© 2026 Visualia Media S.A.S. · NIT 901.XXX.XXX-X · Colombia</p>
+            <p>© 2026 Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Visualia es una marca de Boga S.A.S. · Colombia</p>
             <div className="flex gap-4">
               <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
               <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
