@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Seo from "@/components/Seo";
+import { prefetchPublicRoutes } from "@/lib/prefetch";
 
 import heroVideo from "@/assets/hero-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
