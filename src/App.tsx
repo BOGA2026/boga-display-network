@@ -41,6 +41,11 @@ const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminBusinesses = lazy(() => import("./pages/admin/AdminBusinesses"));
 const AdminAdmins = lazy(() => import("./pages/admin/AdminAdmins"));
+const AdminTraffic = lazy(() => import("./pages/admin/AdminTraffic"));
+const AdminSubscriptions = lazy(() => import("./pages/admin/AdminSubscriptions"));
+const AdminScreens = lazy(() => import("./pages/admin/AdminScreens"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminMap = lazy(() => import("./pages/admin/AdminMap"));
 
 const queryClient = new QueryClient();
 
@@ -91,6 +96,11 @@ const App = () => (
             </Route>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
+              <Route path="trafico" element={<AdminTraffic />} />
+              <Route path="suscripciones" element={<AdminSubscriptions />} />
+              <Route path="pantallas" element={<AdminScreens />} />
+              <Route path="pagos" element={<AdminPayments />} />
+              <Route path="mapa" element={<AdminMap />} />
               <Route path="negocios" element={<AdminBusinesses />} />
               <Route path="leads" element={<AdminLeadsPage />} />
               <Route path="admins" element={<AdminAdmins />} />

@@ -3,11 +3,17 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logoVisualia from "@/assets/logo-visualia.png";
-import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut, Activity, CreditCard, Monitor, CalendarClock, Map as MapIcon } from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
+import { useSessionTracker } from "@/hooks/useSessionTracker";
 
 const nav = [
   { to: "/admin", label: "Resumen", icon: LayoutDashboard, end: true },
+  { to: "/admin/trafico", label: "Tráfico", icon: Activity },
+  { to: "/admin/suscripciones", label: "Suscripciones", icon: CreditCard },
+  { to: "/admin/pantallas", label: "Pantallas", icon: Monitor },
+  { to: "/admin/pagos", label: "Vencimientos", icon: CalendarClock },
+  { to: "/admin/mapa", label: "Mapa", icon: MapIcon },
   { to: "/admin/negocios", label: "Negocios", icon: Building2 },
   { to: "/admin/leads", label: "Leads", icon: Inbox },
   { to: "/admin/admins", label: "Administradores", icon: Users },
@@ -15,6 +21,7 @@ const nav = [
 
 export default function AdminLayout() {
   const { session, loading } = useAuth("/login");
+  useSessionTracker(session?.user?.id);
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
