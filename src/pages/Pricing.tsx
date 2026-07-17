@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import Seo from "@/components/Seo";
+
 import showcaseImg from "@/assets/signage-restaurant.jpeg";
 import showcaseImg2 from "@/assets/signage-icecream.jpeg";
 import { Link } from "react-router-dom";
