@@ -20,6 +20,7 @@ export default function OAuthConsent() {
   const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [authorizationExpired, setAuthorizationExpired] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -41,7 +42,17 @@ export default function OAuthConsent() {
       }
       const { data, error } = await authOAuth.getAuthorizationDetails(authorizationId);
       if (!active) return;
-      if (error) return setError(error.message);
+      if (error) {
+        const message = error.message?.toLowerCase() ?? "";
+        if (message.includes("authorization not found")) {
+          setAuthorizationExpired(true);
+          setError(
+            "Esta solicitud de conexión venció. Volvé a Claude, eliminá la conexión pendiente e intentá agregar Visualia otra vez. La nueva solicitud debe aprobarse dentro de 10 minutos."
+          );
+          return;
+        }
+        return setError(error.message);
+      }
       const immediate = data?.redirect_url ?? data?.redirect_to;
       if (immediate && !data?.client) {
         window.location.href = immediate;
@@ -88,6 +99,15 @@ export default function OAuthConsent() {
                 </div>
                 <CardDescription>{error}</CardDescription>
               </CardHeader>
+              {authorizationExpired && (
+                <CardContent>
+                  <Button asChild className="w-full">
+                    <a href="https://claude.ai/settings/connectors" target="_blank" rel="noreferrer">
+                      Volver a conexiones de Claude
+                    </a>
+                  </Button>
+                </CardContent>
+              )}
             </>
           ) : !details ? (
             <CardContent className="flex flex-col items-center gap-3 py-10">
