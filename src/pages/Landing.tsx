@@ -369,6 +369,7 @@ const Landing = () => {
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
             >
+              <source src={heroVideoWebm} type="video/webm" />
               <source src={heroVideo} type="video/mp4" />
             </video>
 
