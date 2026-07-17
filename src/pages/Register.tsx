@@ -113,9 +113,11 @@ const Register = () => {
   return (
     <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
+        <h1 className="sr-only">Crear cuenta en Visualia</h1>
         <div className="mb-8 flex flex-col items-center gap-3">
           <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
         </div>
+
 
         <Card className="surface-elevated border-border/30 backdrop-blur">
           <CardHeader className="space-y-3">
@@ -154,9 +156,10 @@ const Register = () => {
                 <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
                   <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={showPassword} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
+                    {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                   </button>
+
                 </div>
               </div>
             </CardContent>

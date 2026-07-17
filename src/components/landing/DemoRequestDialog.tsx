@@ -129,10 +129,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
 
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                <label htmlFor="demo-name" className="mb-1.5 block text-sm font-medium text-foreground">
                   Nombre completo <span className="text-destructive">*</span>
                 </label>
                 <Input
+                  id="demo-name"
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
                   placeholder="Tu nombre"
@@ -143,10 +144,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label htmlFor="demo-phone" className="mb-1.5 block text-sm font-medium text-foreground">
                     WhatsApp / Teléfono <span className="text-destructive">*</span>
                   </label>
                   <Input
+                    id="demo-phone"
                     value={form.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                     placeholder="+52 555 123 4567"
@@ -155,10 +157,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label htmlFor="demo-email" className="mb-1.5 block text-sm font-medium text-foreground">
                     Correo electrónico <span className="text-destructive">*</span>
                   </label>
                   <Input
+                    id="demo-email"
                     type="email"
                     value={form.email}
                     onChange={(e) => handleChange("email", e.target.value)}
@@ -171,10 +174,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label htmlFor="demo-business" className="mb-1.5 block text-sm font-medium text-foreground">
                     Nombre del negocio <span className="text-destructive">*</span>
                   </label>
                   <Input
+                    id="demo-business"
                     value={form.business_name}
                     onChange={(e) => handleChange("business_name", e.target.value)}
                     placeholder="Mi Negocio"
@@ -183,10 +187,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <label htmlFor="demo-city" className="mb-1.5 block text-sm font-medium text-foreground">
                     Ciudad <span className="text-destructive">*</span>
                   </label>
                   <Input
+                    id="demo-city"
                     value={form.city}
                     onChange={(e) => handleChange("city", e.target.value)}
                     placeholder="Ciudad de México"
@@ -197,11 +202,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                <label htmlFor="demo-screens" className="mb-1.5 block text-sm font-medium text-foreground">
                   Número de pantallas <span className="text-destructive">*</span>
                 </label>
                 <Select value={screensRange} onValueChange={setScreensRange}>
-                  <SelectTrigger className="h-11 border-border/30 bg-muted/30">
+                  <SelectTrigger id="demo-screens" aria-label="Número de pantallas" className="h-11 border-border/30 bg-muted/30">
                     <SelectValue placeholder="Selecciona un rango" />
                   </SelectTrigger>
                   <SelectContent>
@@ -215,10 +220,11 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                <label htmlFor="demo-message" className="mb-1.5 block text-sm font-medium text-foreground">
                   Mensaje <span className="text-muted-foreground text-xs">(opcional)</span>
                 </label>
                 <Textarea
+                  id="demo-message"
                   value={form.message}
                   onChange={(e) => handleChange("message", e.target.value)}
                   placeholder="Cuéntanos sobre tu proyecto..."
@@ -226,6 +232,7 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
                   className="border-border/30 bg-muted/30"
                 />
               </div>
+
 
               <div className="flex items-start gap-3 rounded-lg border border-border/20 bg-muted/20 p-3">
                 <Checkbox

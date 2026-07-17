@@ -251,10 +251,13 @@ const Login = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              aria-pressed={showPassword}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
             </button>
+
           </div>
         </div>
       </CardContent>
@@ -354,9 +357,10 @@ const Login = () => {
             disabled={cooldown > 0 || loading}
             className={`transition-colors ${
               cooldown > 0
-                ? "text-muted-foreground/50 cursor-not-allowed"
+                ? "text-muted-foreground cursor-not-allowed"
                 : "text-primary hover:underline"
             }`}
+
           >
             {cooldown > 0
               ? `Reenviar en ${cooldown}s`
@@ -369,7 +373,9 @@ const Login = () => {
 
   return (
     <PremiumBackground className="flex items-center justify-center p-4">
+      <h1 className="sr-only">Iniciar sesión en Visualia</h1>
       <div className="w-full max-w-md animate-fade-in">
+
         {/* Branding */}
         <div className="mb-8 flex flex-col items-center gap-2">
           <div className="relative">

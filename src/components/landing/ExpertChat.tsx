@@ -105,27 +105,35 @@ function InlineLeadForm({ onSubmitted }: { onSubmitted: () => void }) {
       </p>
 
       <div>
-        <input placeholder="Nombre completo *" value={form.name ?? ""} onChange={(e) => update({ name: e.target.value })} className={inputCls} style={inputSt(!!errors.name)} />
+        <label htmlFor="expert-name" className="sr-only">Nombre completo</label>
+        <input id="expert-name" placeholder="Nombre completo *" aria-label="Nombre completo" aria-required="true" value={form.name ?? ""} onChange={(e) => update({ name: e.target.value })} className={inputCls} style={inputSt(!!errors.name)} />
         {errors.name && <p className="mt-0.5 text-[11px]" style={{ color: "hsl(0 80% 60%)" }}>{errors.name}</p>}
       </div>
       <div>
-        <input placeholder="Correo electrónico *" type="email" value={form.email ?? ""} onChange={(e) => update({ email: e.target.value })} className={inputCls} style={inputSt(!!errors.email)} />
+        <label htmlFor="expert-email" className="sr-only">Correo electrónico</label>
+        <input id="expert-email" placeholder="Correo electrónico *" aria-label="Correo electrónico" aria-required="true" type="email" value={form.email ?? ""} onChange={(e) => update({ email: e.target.value })} className={inputCls} style={inputSt(!!errors.email)} />
         {errors.email && <p className="mt-0.5 text-[11px]" style={{ color: "hsl(0 80% 60%)" }}>{errors.email}</p>}
       </div>
       <div>
-        <input placeholder="Teléfono *" type="tel" value={form.phone ?? ""} onChange={(e) => update({ phone: e.target.value })} className={inputCls} style={inputSt(!!errors.phone)} />
+        <label htmlFor="expert-phone" className="sr-only">Teléfono</label>
+        <input id="expert-phone" placeholder="Teléfono *" aria-label="Teléfono" aria-required="true" type="tel" value={form.phone ?? ""} onChange={(e) => update({ phone: e.target.value })} className={inputCls} style={inputSt(!!errors.phone)} />
         {errors.phone && <p className="mt-0.5 text-[11px]" style={{ color: "hsl(0 80% 60%)" }}>{errors.phone}</p>}
       </div>
-      <input placeholder="Empresa (opcional)" value={form.company ?? ""} onChange={(e) => update({ company: e.target.value })} className={inputCls} style={inputSt(false)} />
-      <input placeholder="WhatsApp (opcional)" type="tel" value={form.whatsapp ?? ""} onChange={(e) => update({ whatsapp: e.target.value })} className={inputCls} style={inputSt(false)} />
+      <label htmlFor="expert-company" className="sr-only">Empresa</label>
+      <input id="expert-company" placeholder="Empresa (opcional)" aria-label="Empresa (opcional)" value={form.company ?? ""} onChange={(e) => update({ company: e.target.value })} className={inputCls} style={inputSt(false)} />
+      <label htmlFor="expert-whatsapp" className="sr-only">WhatsApp</label>
+      <input id="expert-whatsapp" placeholder="WhatsApp (opcional)" aria-label="WhatsApp (opcional)" type="tel" value={form.whatsapp ?? ""} onChange={(e) => update({ whatsapp: e.target.value })} className={inputCls} style={inputSt(false)} />
 
       <div className="flex items-center gap-2">
-        <label className="text-xs text-muted-foreground flex-1">Nº de pantallas</label>
-        <input type="number" min={1} max={999} value={form.screens ?? 1} onChange={(e) => update({ screens: Math.max(1, Number(e.target.value)) })} className="w-20 rounded-lg bg-transparent px-3 py-2 text-sm text-foreground text-center outline-none" style={inputSt(false)} />
+        <label htmlFor="expert-screens" className="text-xs text-muted-foreground flex-1">Nº de pantallas</label>
+        <input id="expert-screens" type="number" min={1} max={999} value={form.screens ?? 1} onChange={(e) => update({ screens: Math.max(1, Number(e.target.value)) })} className="w-20 rounded-lg bg-transparent px-3 py-2 text-sm text-foreground text-center outline-none" style={inputSt(false)} />
       </div>
 
+      <label htmlFor="expert-inquiry" className="sr-only">Inquietud o pregunta</label>
       <textarea
+        id="expert-inquiry"
         placeholder="¿Tienes alguna inquietud o pregunta? (opcional)"
+        aria-label="Inquietud o pregunta (opcional)"
         value={form.inquiry ?? ""}
         onChange={(e) => update({ inquiry: e.target.value })}
         rows={2}
@@ -134,8 +142,9 @@ function InlineLeadForm({ onSubmitted }: { onSubmitted: () => void }) {
       />
 
       <div>
-        <label className="text-[11px] text-muted-foreground mb-0.5 block">¿A qué hora prefieres ser contactado?</label>
+        <label htmlFor="expert-preferred-time" className="text-[11px] text-muted-foreground mb-0.5 block">¿A qué hora prefieres ser contactado?</label>
         <select
+          id="expert-preferred-time"
           value={form.preferred_time ?? ""}
           onChange={(e) => update({ preferred_time: e.target.value })}
           className="w-full rounded-lg px-3 py-2 text-sm text-foreground outline-none"
@@ -151,22 +160,31 @@ function InlineLeadForm({ onSubmitted }: { onSubmitted: () => void }) {
       </div>
 
       {/* Consent checkbox */}
-      <label className="flex items-start gap-2 cursor-pointer group">
-        <div className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors"
+      <label htmlFor="expert-consent" className="flex items-start gap-2 cursor-pointer group">
+        <span className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors"
           style={{
             borderColor: errors.consent ? "hsl(0 80% 50% / 0.6)" : form.consent ? "hsl(270 100% 60%)" : "hsl(270 25% 30%)",
             background: form.consent ? "hsl(270 80% 50%)" : "transparent",
           }}
-          onClick={() => update({ consent: !form.consent as any })}
         >
-          {form.consent && <Check className="h-3 w-3 text-white" />}
-        </div>
-        <span className="text-[11px] leading-tight text-muted-foreground" onClick={() => update({ consent: !form.consent as any })}>
+          <input
+            id="expert-consent"
+            type="checkbox"
+            checked={!!form.consent}
+            onChange={(e) => update({ consent: e.target.checked as any })}
+            aria-required="true"
+            aria-invalid={!!errors.consent}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+          {form.consent && <Check className="h-3 w-3 text-white" aria-hidden="true" />}
+        </span>
+        <span className="text-[11px] leading-tight text-muted-foreground">
           Autorizo el tratamiento de mis datos personales conforme a la{" "}
           <span style={{ color: "hsl(270 100% 75%)" }}>Ley 1581 de 2012</span> de protección de datos de Colombia.
         </span>
       </label>
       {errors.consent && <p className="text-[11px] -mt-1" style={{ color: "hsl(0 80% 60%)" }}>{errors.consent}</p>}
+
 
       <button onClick={submit} disabled={loading}
         className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
