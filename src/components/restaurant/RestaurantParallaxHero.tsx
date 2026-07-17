@@ -24,6 +24,8 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
       >
         <img
           src={heroRestaurantBg}
+          srcSet={heroRestaurantBgSrcSet}
+          sizes="100vw"
           alt="Interior de restaurante moderno con pantallas digitales"
           width={1920}
           height={1080}
