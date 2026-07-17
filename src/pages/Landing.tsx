@@ -499,7 +499,7 @@ const Landing = () => {
       </section>
 
       {/* Testimonials (extra social proof) */}
-      <section className="px-4 py-16 md:px-6 md:py-20 border-t border-border/40">
+      <section className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
             <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
