@@ -3,6 +3,7 @@ import Seo from "@/components/Seo";
 import { prefetchPublicRoutes } from "@/lib/prefetch";
 
 import heroVideo from "@/assets/hero-video.mp4";
+import heroVideoWebm from "@/assets/hero-video.webm";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
