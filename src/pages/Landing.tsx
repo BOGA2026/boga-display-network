@@ -186,17 +186,28 @@ const Landing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [muted, setMuted] = useState(true);
-  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+  // Persisted audio prefs
+  const savedVolume = (() => {
+    const v = parseFloat(localStorage.getItem("visualia_hero_volume") || "");
+    return Number.isFinite(v) && v >= 0 && v <= 1 ? v : 0.8;
+  })();
+  const savedMuted = localStorage.getItem("visualia_hero_muted");
+  const initialMuted = savedMuted === null ? true : savedMuted === "true";
+
+  const [muted, setMuted] = useState(initialMuted);
+  const [volume, setVolume] = useState(savedVolume);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(initialMuted);
   const [videoFailed, setVideoFailed] = useState(false);
   const heroRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const vid = heroRef.current;
     if (!vid) return;
-    vid.muted = true;
+    vid.muted = true; // must start muted for autoplay
+    vid.volume = volume;
     vid.playsInline = true;
     vid.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Warm up likely-next public route chunks during idle time.
@@ -209,18 +220,43 @@ const Landing = () => {
     ]);
   }, []);
 
+  const persistMuted = (m: boolean) => localStorage.setItem("visualia_hero_muted", String(m));
+  const persistVolume = (v: number) => localStorage.setItem("visualia_hero_volume", String(v));
+
   const activateSound = useCallback(() => {
-    if (heroRef.current) heroRef.current.muted = false;
+    const vid = heroRef.current;
+    if (vid) {
+      vid.muted = false;
+      vid.volume = volume || 0.8;
+      vid.play().catch(() => {});
+    }
     setMuted(false);
     setShowSoundPrompt(false);
-  }, []);
+    persistMuted(false);
+  }, [volume]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
       if (heroRef.current) heroRef.current.muted = next;
+      persistMuted(next);
       return next;
     });
+  }, []);
+
+  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    persistVolume(v);
+    const vid = heroRef.current;
+    if (vid) {
+      vid.volume = v;
+      if (v > 0 && vid.muted) {
+        vid.muted = false;
+        setMuted(false);
+        persistMuted(false);
+      }
+    }
   }, []);
 
   const forceIntro = searchParams.get("intro") === "reset";
@@ -317,7 +353,8 @@ const Landing = () => {
               onLoadedData={() => {
                 const vid = heroRef.current;
                 if (vid) {
-                  vid.muted = true;
+                  vid.volume = volume;
+                  vid.muted = muted;
                   vid.play().catch(() => {});
                 }
               }}
@@ -330,31 +367,48 @@ const Landing = () => {
             {showSoundPrompt && (
               <button
                 onClick={activateSound}
-                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-2 transition-opacity duration-500"
-                style={{ background: "hsl(0 0% 0% / 0.35)" }}
-                aria-label="Activar sonido"
+                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 transition-opacity duration-500"
+                style={{ background: "hsl(0 0% 0% / 0.4)" }}
+                aria-label="Activar sonido del video"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-lg">
-                  <Volume2 className="h-6 w-6" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl ring-4 ring-primary/30 animate-pulse">
+                  <Volume2 className="h-7 w-7" />
                 </div>
-                <span className="text-sm font-medium text-white">
+                <span className="rounded-full bg-background/90 px-4 py-1.5 text-sm font-semibold text-foreground shadow-md backdrop-blur">
                   Toca para activar sonido
                 </span>
               </button>
             )}
 
             {!showSoundPrompt && (
-              <button
-                onClick={toggleMute}
-                className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full bg-background/80 p-2.5 backdrop-blur border border-border"
-                aria-label={muted ? "Activar sonido" : "Silenciar"}
+              <div
+                className="absolute bottom-4 right-4 z-30 flex items-center gap-2 rounded-full bg-background/85 pl-1.5 pr-3 py-1.5 backdrop-blur border border-border shadow-sm"
+                role="group"
+                aria-label="Controles de sonido"
               >
-                {muted ? (
-                  <VolumeX className="h-4 w-4 text-foreground" />
-                ) : (
-                  <Volume2 className="h-4 w-4 text-primary" />
-                )}
-              </button>
+                <button
+                  onClick={toggleMute}
+                  className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted transition-colors"
+                  aria-label={muted ? "Activar sonido" : "Silenciar"}
+                  aria-pressed={!muted}
+                >
+                  {muted ? (
+                    <VolumeX className="h-4 w-4 text-foreground" />
+                  ) : (
+                    <Volume2 className="h-4 w-4 text-primary" />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={muted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  aria-label="Volumen"
+                  className="h-1 w-20 sm:w-24 cursor-pointer accent-primary"
+                />
+              </div>
             )}
           </div>
         </div>
