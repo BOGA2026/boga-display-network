@@ -464,13 +464,16 @@ const Landing = () => {
                     }`}
                   >
                     <video
-                      src={b.media}
                       autoPlay
                       loop
                       muted
                       playsInline
+                      preload="metadata"
                       className="w-full h-auto block"
-                    />
+                    >
+                      <source src={b.mediaWebm} type="video/webm" />
+                      <source src={b.media} type="video/mp4" />
+                    </video>
                   </div>
                 </div>
               );
