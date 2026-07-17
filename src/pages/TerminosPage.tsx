@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
+import Seo from "@/components/Seo";
 
 const TerminosPage = () => (
   <PremiumBackground>
+    <Seo
+      title="Términos y Condiciones | Visualia"
+      description="Términos y condiciones de uso de la plataforma Visualia de menús digitales y cartelería para restaurantes."
+      path="/terminos"
+    />
     <LandingHeader />
+
     <article className="mx-auto max-w-3xl px-6 pt-32 pb-20 text-foreground">
       <header className="text-center">
         <p className="text-sm font-semibold tracking-widest text-primary">EL CARNAL</p>
