@@ -113,9 +113,11 @@ const Register = () => {
   return (
     <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
+        <h1 className="sr-only">Crear cuenta en Visualia</h1>
         <div className="mb-8 flex flex-col items-center gap-3">
           <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
         </div>
+
 
         <Card className="surface-elevated border-border/30 backdrop-blur">
           <CardHeader className="space-y-3">
