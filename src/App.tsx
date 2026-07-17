@@ -21,6 +21,7 @@ const RestaurantSolutionPage = lazy(() => import("./pages/RestaurantSolutionPage
 const Studio = lazy(() => import("./pages/Studio"));
 const Player = lazy(() => import("./pages/Player"));
 const VisualiaLunchTemplate = lazy(() => import("./templates/lunch-dual/VisualiaLunchTemplate"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
 // Dashboard (heavy)
 const DashboardLayout = lazy(() => import("./components/layout/DashboardLayout"));
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/digital-signage/screens" element={<ScreensList />} />
             <Route path="/digital-signage/screens/:screenId" element={<ScreenDetail />} />
             <Route path="/templates/lunch" element={<VisualiaLunchTemplate />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="pantallas" element={<Screens />} />

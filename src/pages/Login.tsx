@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import logoVisualia from "@/assets/logo-visualia.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,12 @@ const Login = () => {
   const [otpCode, setOtpCode] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Only allow same-origin relative paths as post-login redirect target.
+  const rawNext = searchParams.get("next") ?? "";
+  const nextTarget = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
 
   // Cooldown timer
   useEffect(() => {
@@ -65,7 +70,7 @@ const Login = () => {
         password,
       });
       if (error) throw error;
-      navigate("/dashboard");
+      navigate(nextTarget);
     } catch (err: any) {
       toast({
         title: "Error al iniciar sesión",
@@ -118,7 +123,7 @@ const Login = () => {
         type: "email",
       });
       if (error) throw error;
-      navigate("/dashboard");
+      navigate(nextTarget);
     } catch (err: any) {
       toast({
         title: "Código inválido",
@@ -171,7 +176,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}${nextTarget}`,
       },
     });
     if (error) {
