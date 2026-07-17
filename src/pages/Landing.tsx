@@ -48,18 +48,21 @@ const benefits = [
     title: "Actualiza precios en segundos, no en semanas",
     desc: "Cambia menús, combos y promos desde el celular. Tus pantallas se actualizan al instante.",
     media: muestraPlatos,
+    mediaWebm: muestraPlatosWebm,
   },
   {
     icon: Clock,
     title: "Programa promos por hora del día",
     desc: "Desayuno, almuerzo, happy hour y cena. Cada pantalla muestra lo correcto en cada momento.",
     media: destacaPromociones,
+    mediaWebm: destacaPromocionesWebm,
   },
   {
     icon: Building2,
     title: "Controla todas tus sedes desde un panel",
     desc: "Una cuenta, todas tus tiendas. Envía contenido a una pantalla o a todas con un clic.",
     media: vendeMasRapido,
+    mediaWebm: vendeMasRapidoWebm,
   },
 ];
 
