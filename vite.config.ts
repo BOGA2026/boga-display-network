@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
+import { imagetools } from "vite-imagetools";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -16,6 +17,21 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mcpPlugin(),
+    imagetools({
+      defaultDirectives: (url) => {
+        // Only auto-generate responsive sets when the import explicitly asks
+        // for it via ?responsive (keeps existing plain imports untouched).
+        if (url.searchParams.has("responsive")) {
+          const widths = url.searchParams.get("w") ?? "480;768;1200;1920";
+          const params = new URLSearchParams();
+          params.set("w", widths);
+          params.set("format", "webp");
+          params.set("as", "srcset");
+          return params;
+        }
+        return new URLSearchParams();
+      },
+    }),
     mode === "development" && componentTagger(),
   ].filter(Boolean),
   resolve: {
