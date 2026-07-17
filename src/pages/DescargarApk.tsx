@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, Tv, Smartphone, ShieldCheck, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+import Seo from "@/components/Seo";
 
 // URL pública directa de la APK alojada en Supabase Storage (bucket: downloads)
 const APK_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co/storage/v1/object/public/downloads/visualia-firetv.apk";
