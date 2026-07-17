@@ -96,6 +96,7 @@ const App = () => (
               <Route path="generar-ia" element={<GenerateAI />} />
               <Route path="editor" element={<EditorPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="soporte" element={<Soporte />} />
             </Route>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
@@ -104,6 +105,8 @@ const App = () => (
               <Route path="pantallas" element={<AdminScreens />} />
               <Route path="pagos" element={<AdminPayments />} />
               <Route path="mapa" element={<AdminMap />} />
+              <Route path="pqrs" element={<AdminPQRS />} />
+              <Route path="soporte" element={<AdminSupport />} />
               <Route path="negocios" element={<AdminBusinesses />} />
               <Route path="leads" element={<AdminLeadsPage />} />
               <Route path="admins" element={<AdminAdmins />} />
