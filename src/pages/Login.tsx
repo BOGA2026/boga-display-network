@@ -357,9 +357,10 @@ const Login = () => {
             disabled={cooldown > 0 || loading}
             className={`transition-colors ${
               cooldown > 0
-                ? "text-muted-foreground/50 cursor-not-allowed"
+                ? "text-muted-foreground cursor-not-allowed"
                 : "text-primary hover:underline"
             }`}
+
           >
             {cooldown > 0
               ? `Reenviar en ${cooldown}s`
