@@ -356,8 +356,15 @@ const Landing = () => {
               playsInline
               // @ts-ignore
               webkit-playsinline="true"
-              preload="metadata"
+              preload="auto"
+              width={854}
+              height={480}
+              aria-label="Demostración de Visualia en una pantalla de menú digital"
               onError={() => setVideoFailed(true)}
+              onCanPlay={(event) => {
+                setVideoFailed(false);
+                event.currentTarget.play().catch(() => {});
+              }}
               onLoadedData={() => {
                 const vid = heroRef.current;
                 if (vid) {
@@ -369,8 +376,8 @@ const Landing = () => {
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
             >
-              <source src={heroVideoWebm} type="video/webm" />
               <source src={heroVideo} type="video/mp4" />
+              <source src={heroVideoWebm} type="video/webm" />
             </video>
 
             {showSoundPrompt && (
@@ -468,11 +475,15 @@ const Landing = () => {
                       loop
                       muted
                       playsInline
-                      preload="metadata"
+                      preload="auto"
+                      width={i === 1 ? 270 : i === 2 ? 1080 : 480}
+                      height={i === 1 ? 480 : i === 2 ? 608 : 270}
+                      aria-label={`Demostración: ${b.title}`}
+                      onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
                       className="w-full h-auto block"
                     >
-                      <source src={b.mediaWebm} type="video/webm" />
                       <source src={b.media} type="video/mp4" />
+                      <source src={b.mediaWebm} type="video/webm" />
                     </video>
                   </div>
                 </div>

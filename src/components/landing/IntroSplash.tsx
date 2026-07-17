@@ -59,7 +59,11 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
         autoPlay
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
+        width={960}
+        height={540}
+        aria-label="Bienvenida a Visualia"
+        onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
         className="h-full w-full object-cover"
         style={{
           transform: scaleUp ? "scale(1.15)" : "scale(1)",
@@ -68,8 +72,8 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
             "transform 1.4s cubic-bezier(0.4, 0, 0.2, 1), filter 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        <source src={introVideoWebm} type="video/webm" />
         <source src={introVideo} type="video/mp4" />
+        <source src={introVideoWebm} type="video/webm" />
       </video>
     </div>
   );
