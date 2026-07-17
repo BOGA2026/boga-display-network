@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Send, MessageCircle, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
-import logoVisualia from "@/assets/simbolo-visualia.png";
+import logoVisualia from "@/assets/simbolo-visualia.webp";
 
 type Msg = { role: "user" | "assistant"; content: string };
 

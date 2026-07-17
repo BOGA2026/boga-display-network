@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
-import simboloVisualia from "@/assets/simbolo-visualia.png";
+import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import PlayerSplash from "@/components/player/PlayerSplash";
 
 const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";

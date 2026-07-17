@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import DashboardSidebar from "./DashboardSidebar";
 import { Separator } from "@/components/ui/separator";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";

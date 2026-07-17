@@ -3,7 +3,7 @@ import Seo from "@/components/Seo";
 
 import heroVideo from "@/assets/hero-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";

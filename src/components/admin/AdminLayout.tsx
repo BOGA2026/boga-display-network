@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import logoVisualia from "@/assets/logo-visualia.png";
+import logoVisualia from "@/assets/logo-visualia.webp";
 import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut, Activity, CreditCard, Monitor, CalendarClock, Map as MapIcon, MessageSquare, FileText } from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
