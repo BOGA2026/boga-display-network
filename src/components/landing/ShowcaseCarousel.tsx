@@ -150,6 +150,8 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                 <img
                   key={i}
                   src={slide.src}
+                  srcSet={slide.srcSet}
+                  sizes="(min-width: 1024px) 900px, 100vw"
                   alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
                   width={1600}
                   height={700}
