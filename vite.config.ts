@@ -19,15 +19,20 @@ export default defineConfig(({ mode }) => ({
     mcpPlugin(),
     imagetools({
       defaultDirectives: (url) => {
-        // Only auto-generate responsive sets when the import explicitly asks
-        // for it via ?responsive (keeps existing plain imports untouched).
-        if (url.searchParams.has("responsive")) {
-          const widths = url.searchParams.get("w") ?? "480;768;1200;1920";
+        // Two responsive presets; use ?responsive-hero for above-the-fold
+        // hero images and ?responsive for the rest.
+        const buildSet = (widths: string) => {
           const params = new URLSearchParams();
           params.set("w", widths);
           params.set("format", "webp");
           params.set("as", "srcset");
           return params;
+        };
+        if (url.searchParams.has("responsive-hero")) {
+          return buildSet("640;960;1280;1600;1920");
+        }
+        if (url.searchParams.has("responsive")) {
+          return buildSet("480;768;1200;1600");
         }
         return new URLSearchParams();
       },
