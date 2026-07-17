@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import introVideo from "@/assets/intro-animation.mp4";
+import introVideoWebm from "@/assets/intro-animation.webm";
 
 interface PlayerSplashProps {
   minDuration?: number;
