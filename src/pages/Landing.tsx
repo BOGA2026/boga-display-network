@@ -589,47 +589,68 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 px-4 py-8 md:px-6">
-        <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <img src={logoVisualia} alt="Visualia" className="h-7 w-auto" />
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="text-muted-foreground transition hover:text-primary"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground transition hover:text-primary"
-              >
-                <Linkedin className="h-5 w-5" />
-              </a>
+      <footer className="border-t border-border/40 px-4 py-12 md:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 md:grid-cols-4">
+            <div className="md:col-span-2">
+              <img src={logoVisualia} alt="Logotipo de Visualia" className="h-7 w-auto" width={120} height={28} />
+              <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+                Pantallas que venden más para restaurantes y negocios físicos.
+              </p>
+              <div className="mt-4 flex gap-3">
+                <a
+                  href="https://www.instagram.com/visualiamedia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram de Visualia"
+                  className="text-muted-foreground transition hover:text-primary"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/visualiamedia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn de Visualia"
+                  className="text-muted-foreground transition hover:text-primary"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="mb-3 font-display text-sm font-semibold text-foreground">Producto</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#beneficios" className="transition hover:text-foreground">Beneficios</a></li>
+                <li><a href="#como-funciona" className="transition hover:text-foreground">Cómo funciona</a></li>
+                <li><a href="#precios" className="transition hover:text-foreground">Precios</a></li>
+                <li><a href="#faq" className="transition hover:text-foreground">Preguntas frecuentes</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="mb-3 font-display text-sm font-semibold text-foreground">Contacto</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">hola@visualiamedia.com</a></li>
+                <li><a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="transition hover:text-foreground">WhatsApp: +57 300 123 4567</a></li>
+                <li>Bogotá, Colombia</li>
+                <li><Link to="/soporte" className="transition hover:text-foreground">Soporte</Link></li>
+              </ul>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Link to="/terminos" className="transition hover:text-foreground">
-              Términos
-            </Link>
-            <span>·</span>
-            <Link to="/privacidad" className="transition hover:text-foreground">
-              Privacidad
-            </Link>
-            <span>·</span>
-            <a
-              href="mailto:hola@visualiamedia.com"
-              className="transition hover:text-foreground"
-            >
-              Contacto
-            </a>
+
+          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/40 pt-6 text-xs text-muted-foreground md:flex-row">
+            <p>© 2026 Visualia Media S.A.S. · NIT 901.XXX.XXX-X · Colombia</p>
+            <div className="flex gap-4">
+              <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
+              <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
+            </div>
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground/60">
-            © 2026 Visualia Media S.A.S. · Colombia
-          </p>
         </div>
       </footer>
 
+      <WhatsAppFloatingButton />
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
     </PremiumBackground>
