@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import logoVisualia from "@/assets/logo-visualia.png";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,6 @@ const Login = () => {
   const [otpStep, setOtpStep] = useState<OtpStep>("email");
   const [otpCode, setOtpCode] = useState("");
   const [cooldown, setCooldown] = useState(0);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
@@ -70,7 +69,7 @@ const Login = () => {
         password,
       });
       if (error) throw error;
-      navigate(nextTarget);
+      window.location.assign(nextTarget);
     } catch (err: any) {
       toast({
         title: "Error al iniciar sesión",
@@ -123,7 +122,7 @@ const Login = () => {
         type: "email",
       });
       if (error) throw error;
-      navigate(nextTarget);
+      window.location.assign(nextTarget);
     } catch (err: any) {
       toast({
         title: "Código inválido",
@@ -134,7 +133,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, navigate, toast]);
+  }, [email, nextTarget, toast]);
 
   // Auto-submit when 6 digits entered
   useEffect(() => {
