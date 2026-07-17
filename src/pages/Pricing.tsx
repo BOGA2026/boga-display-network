@@ -245,7 +245,7 @@ const Pricing = () => {
       <footer className="border-t border-border/20 px-6 py-12">
         <div className="mx-auto max-w-6xl text-center">
           <span className="font-display text-sm font-bold text-gradient-primary">Visualia</span>
-          <p className="mt-1 text-xs text-muted-foreground/50">© 2026 Visualia. Todos los derechos reservados.</p>
+          <p className="mt-1 text-xs text-muted-foreground">© 2026 Visualia. Todos los derechos reservados.</p>
         </div>
       </footer>
     </PremiumBackground>
