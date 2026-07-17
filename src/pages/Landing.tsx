@@ -249,9 +249,13 @@ const Landing = () => {
       {/* 1. HERO */}
       <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28">
         <div className="relative mx-auto max-w-5xl text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            Menús digitales para restaurantes
+          </p>
           <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
             Pantallas que venden más,{" "}
             <span className="text-gradient-primary">sin esfuerzo</span>
+            <span className="sr-only"> — plataforma de menús digitales para restaurantes en Colombia</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {SUBHEAD}
