@@ -26,12 +26,12 @@ const menuItems = [
 const directLinks = [
   { label: "Precios", href: "/precios" },
   { label: "Acerca de Visualia", href: "/acerca" },
-  { label: "Nosotros", href: "/acerca" },
   { label: "Link your screen", href: "/descargar-apk" },
 ];
 
 const linkClass =
-  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
+  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
 
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
