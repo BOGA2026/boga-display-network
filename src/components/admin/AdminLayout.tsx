@@ -46,6 +46,26 @@ export default function AdminLayout() {
     })();
   }, [session, loading, navigate]);
 
+  const [badges, setBadges] = useState<{ pqrs: number; chat: number }>({ pqrs: 0, chat: 0 });
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const load = async () => {
+      const [{ count: pqrs }, { data: threads }] = await Promise.all([
+        supabase.from("pqrs").select("id", { count: "exact", head: true }).eq("read_by_admin", false),
+        supabase.from("support_threads").select("unread_by_admin"),
+      ]);
+      const chat = (threads ?? []).reduce((a: number, t: any) => a + (t.unread_by_admin || 0), 0);
+      setBadges({ pqrs: pqrs ?? 0, chat });
+    };
+    load();
+    const ch = supabase.channel("admin-badges")
+      .on("postgres_changes", { event: "*", schema: "public", table: "pqrs" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "support_threads" }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [isAdmin]);
+
   if (loading || checking || !isAdmin) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
