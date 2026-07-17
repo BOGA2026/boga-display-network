@@ -9,6 +9,7 @@ import {
   CreditCard,
   LogOut,
   ChevronLeft,
+  LifeBuoy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -24,6 +25,7 @@ const navItems = [
   { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
+  { icon: LifeBuoy, label: "Soporte", path: "/dashboard/soporte" },
 ];
 
 const DashboardSidebar = () => {
