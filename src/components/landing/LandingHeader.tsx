@@ -152,7 +152,13 @@ const LandingHeader = () => {
           ))}
 
           {directLinks.map((link) => (
-            <Link key={link.label} to={link.href} className={linkClass}>
+            <Link
+              key={link.label}
+              to={link.href}
+              onMouseEnter={() => prefetchRoute(link.href)}
+              onFocus={() => prefetchRoute(link.href)}
+              className={linkClass}
+            >
               {link.label}
             </Link>
           ))}
