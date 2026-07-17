@@ -24,9 +24,14 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
         <img
           src={heroRestaurantBg}
           alt="Interior de restaurante moderno con pantallas digitales"
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
           loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
+
         <div
           className="absolute inset-0"
           style={{
