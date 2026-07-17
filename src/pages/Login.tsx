@@ -70,7 +70,7 @@ const Login = () => {
         password,
       });
       if (error) throw error;
-      navigate(nextTarget);
+      window.location.assign(nextTarget);
     } catch (err: any) {
       toast({
         title: "Error al iniciar sesión",
@@ -123,7 +123,7 @@ const Login = () => {
         type: "email",
       });
       if (error) throw error;
-      navigate(nextTarget);
+      window.location.assign(nextTarget);
     } catch (err: any) {
       toast({
         title: "Código inválido",
