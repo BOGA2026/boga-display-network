@@ -3,6 +3,7 @@ import Seo from "@/components/Seo";
 import { prefetchPublicRoutes } from "@/lib/prefetch";
 
 import heroVideo from "@/assets/hero-video.mp4";
+import heroVideoWebm from "@/assets/hero-video.webm";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -33,8 +34,12 @@ import {
   Building2,
 } from "lucide-react";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
+import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
+import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
 import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
+import vendeMasRapidoWebm from "@/assets/vende-mas-rapido.webm";
+
 
 // ---------- Content ----------
 const benefits = [
@@ -43,18 +48,21 @@ const benefits = [
     title: "Actualiza precios en segundos, no en semanas",
     desc: "Cambia menús, combos y promos desde el celular. Tus pantallas se actualizan al instante.",
     media: muestraPlatos,
+    mediaWebm: muestraPlatosWebm,
   },
   {
     icon: Clock,
     title: "Programa promos por hora del día",
     desc: "Desayuno, almuerzo, happy hour y cena. Cada pantalla muestra lo correcto en cada momento.",
     media: destacaPromociones,
+    mediaWebm: destacaPromocionesWebm,
   },
   {
     icon: Building2,
     title: "Controla todas tus sedes desde un panel",
     desc: "Una cuenta, todas tus tiendas. Envía contenido a una pantalla o a todas con un clic.",
     media: vendeMasRapido,
+    mediaWebm: vendeMasRapidoWebm,
   },
 ];
 
@@ -361,6 +369,7 @@ const Landing = () => {
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
             >
+              <source src={heroVideoWebm} type="video/webm" />
               <source src={heroVideo} type="video/mp4" />
             </video>
 
@@ -455,13 +464,16 @@ const Landing = () => {
                     }`}
                   >
                     <video
-                      src={b.media}
                       autoPlay
                       loop
                       muted
                       playsInline
+                      preload="metadata"
                       className="w-full h-auto block"
-                    />
+                    >
+                      <source src={b.mediaWebm} type="video/webm" />
+                      <source src={b.media} type="video/mp4" />
+                    </video>
                   </div>
                 </div>
               );
