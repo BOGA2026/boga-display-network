@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import Seo from "@/components/Seo";
+
 import showcaseImg from "@/assets/signage-restaurant.jpeg";
 import showcaseImg2 from "@/assets/signage-icecream.jpeg";
 import { Link } from "react-router-dom";
@@ -74,7 +76,13 @@ const Pricing = () => {
 
   return (
     <PremiumBackground>
+      <Seo
+        title="Precios de Visualia | Menús digitales desde $22.000 por pantalla"
+        description="Planes por volumen para menús digitales y cartelería en restaurantes. Desde $50.000 por pantalla al mes, hasta $22.000 con volumen. Prueba gratis 14 días."
+        path="/precios"
+      />
       <LandingHeader />
+
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-16 pt-32 md:pt-40">

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, Tv, Smartphone, ShieldCheck, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+import Seo from "@/components/Seo";
 
 // URL pública directa de la APK alojada en Supabase Storage (bucket: downloads)
 const APK_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co/storage/v1/object/public/downloads/visualia-firetv.apk";
@@ -40,8 +41,14 @@ export default function DescargarApk() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Seo
+        title="Descargar app Visualia para TV | Fire TV y Android TV"
+        description="Instala Visualia en tu Fire TV o Android TV en 3 pasos. Descarga la APK oficial y convierte tu televisor en un menú digital para tu restaurante."
+        path="/descargar-apk"
+      />
 
       <main className="container mx-auto max-w-5xl px-4 py-16">
+
         <header className="text-center mb-12">
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
             Fire TV · v{APK_VERSION}

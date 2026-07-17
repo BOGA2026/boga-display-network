@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import Seo from "@/components/Seo";
+
 import heroVideo from "@/assets/hero-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.png";
@@ -222,15 +224,38 @@ const Landing = () => {
 
   return (
     <PremiumBackground>
+      <Seo
+        title="Visualia | Menús digitales para restaurantes – Pantallas que venden"
+        description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos. Prueba gratis 14 días."
+        path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Visualia",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Android TV, Fire TV, Web",
+          description: "Plataforma de menús digitales y cartelería para restaurantes.",
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "COP",
+            price: "50000",
+          },
+        }}
+      />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
+
 
       {/* 1. HERO */}
       <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28">
         <div className="relative mx-auto max-w-5xl text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            Menús digitales para restaurantes
+          </p>
           <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
             Pantallas que venden más,{" "}
             <span className="text-gradient-primary">sin esfuerzo</span>
+            <span className="sr-only"> — plataforma de menús digitales para restaurantes en Colombia</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {SUBHEAD}

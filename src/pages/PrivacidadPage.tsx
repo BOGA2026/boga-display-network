@@ -2,9 +2,15 @@
 import { Link } from "react-router-dom";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
+import Seo from "@/components/Seo";
 
 const PrivacidadPage = () => (
   <PremiumBackground>
+    <Seo
+      title="Política de privacidad | Visualia"
+      description="Política de tratamiento de datos personales de Visualia conforme a la Ley 1581 de 2012 de Colombia."
+      path="/privacidad"
+    />
     <LandingHeader />
     <div className="mx-auto max-w-3xl px-6 pt-32 pb-20 text-center">
       <h1 className="font-display text-3xl font-bold text-foreground md:text-4xl">Política de privacidad</h1>
