@@ -46,6 +46,9 @@ const AdminSubscriptions = lazy(() => import("./pages/admin/AdminSubscriptions")
 const AdminScreens = lazy(() => import("./pages/admin/AdminScreens"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminMap = lazy(() => import("./pages/admin/AdminMap"));
+const AdminPQRS = lazy(() => import("./pages/admin/AdminPQRS"));
+const AdminSupport = lazy(() => import("./pages/admin/AdminSupport"));
+const Soporte = lazy(() => import("./pages/Soporte"));
 
 const queryClient = new QueryClient();
 
