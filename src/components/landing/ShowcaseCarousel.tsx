@@ -145,6 +145,11 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                   key={i}
                   src={slide.src}
                   alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
+                  width={1600}
+                  height={700}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={i === 0 ? "high" : "low"}
                   className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
                   style={{
                     opacity: i === current ? 1 : 0,
@@ -152,6 +157,7 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                     transitionTimingFunction: "cubic-bezier(0.4,0,0.2,1)",
                   }}
                 />
+
               ))}
               {/* CORRECCIÓN 10 — CTA slide: "¿Tu negocio no está aquí?" */}
               <div
