@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// CORRECCIÓN 3 aplicada — Menú reestructurado: "Productos" dropdown + "Precios" independiente
-// CORRECCIÓN 4 aplicada — Clínicas y Hoteles desactivados con badge "Próximamente"
 const menuItems = [
   {
     label: "Productos",
@@ -31,6 +29,9 @@ const directLinks = [
   { label: "Nosotros", href: "/acerca" },
   { label: "Link your screen", href: "/descargar-apk" },
 ];
+
+const linkClass =
+  "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
 
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -60,7 +61,6 @@ const LandingHeader = () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setActiveMenu(label), 80);
   };
-
   const handleLeave = () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setActiveMenu(null), 120);
@@ -70,25 +70,23 @@ const LandingHeader = () => {
     <header
       ref={headerRef}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled
-          ? "border-b border-border/30 shadow-lg shadow-black/20 backdrop-blur-2xl"
-          : "backdrop-blur-sm"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
+        scrolled ? "border-b border-border" : "border-b border-transparent"
       )}
       style={{
-        background: scrolled
-          ? "rgba(14,11,22,0.92)"
-          : "rgba(14,11,22,0.3)",
+        background: scrolled ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.6)",
+        backdropFilter: "saturate(180%) blur(12px)",
+        WebkitBackdropFilter: "saturate(180%) blur(12px)",
       }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 h-16">
         {/* Logo */}
-        <Link to="/" className="group flex items-center">
-          <img src={simboloVisualia} alt="Visualia" className="h-[4.5rem] w-auto" />
+        <Link to="/" className="flex items-center">
+          <img src={simboloVisualia} alt="Visualia" className="h-9 w-auto" />
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-2 lg:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {menuItems.map((item) => (
             <div
               key={item.label}
@@ -98,63 +96,40 @@ const LandingHeader = () => {
             >
               <button
                 className={cn(
-                  "relative flex items-center gap-2 rounded-lg px-6 py-3 text-lg font-semibold transition-colors",
+                  "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   activeMenu === item.label
-                    ? "text-[hsl(275,100%,50%)] drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
-                    : "text-[hsl(275,100%,65%)] hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.label}
                 <ChevronDown
                   className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-200",
+                    "h-3.5 w-3.5 transition-transform",
                     activeMenu === item.label && "rotate-180"
                   )}
                 />
-                <span
-                  className={cn(
-                    "absolute bottom-0 left-4 right-4 h-px transition-all duration-200",
-                    activeMenu === item.label
-                      ? "opacity-100 scale-x-100"
-                      : "opacity-0 scale-x-0"
-                  )}
-                  style={{ background: "linear-gradient(90deg, #8A00FF, #C000FF)" }}
-                />
               </button>
 
-              {/* Dropdown */}
               <div
                 className={cn(
-                  "absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200",
+                  "absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-opacity duration-200",
                   activeMenu === item.label
-                    ? "pointer-events-auto translate-y-0 opacity-100"
-                    : "pointer-events-none -translate-y-1 opacity-0"
+                    ? "pointer-events-auto opacity-100"
+                    : "pointer-events-none opacity-0"
                 )}
               >
                 <div
-                  className="min-w-[220px] rounded-xl border border-border/30 p-2 shadow-xl shadow-black/30 backdrop-blur-2xl"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, hsl(260 25% 13%) 0%, hsl(260 25% 10%) 100%)",
-                  }}
+                  className="min-w-[220px] rounded-[10px] border border-border bg-background p-2 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
                 >
                   {item.children.map((child) =>
                     child.disabled ? (
-                      // CORRECCIÓN 4 — Disabled link with "Próximamente" badge
                       <span
                         key={child.label}
-                        className="group/item flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm cursor-default select-none"
-                        style={{ color: "hsl(0 0% 35%)", pointerEvents: "none" }}
-                        title="Próximamente"
+                        className="flex items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground cursor-default"
                       >
-                        <span className="flex items-center gap-3">
-                          <span className="h-1 w-1 rounded-full" style={{ background: "hsl(0 0% 25%)" }} />
-                          {child.label}
-                        </span>
-                        <span
-                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
-                          style={{ background: "hsl(270 100% 50% / 0.1)", color: "hsl(270 60% 55%)", border: "1px solid hsl(270 100% 50% / 0.2)" }}
-                        >
+                        {child.label}
+                        <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                           Próximamente
                         </span>
                       </span>
@@ -162,12 +137,8 @@ const LandingHeader = () => {
                       <Link
                         key={child.label}
                         to={child.href}
-                        className="group/item flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                        className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       >
-                        <span
-                          className="h-1 w-1 rounded-full opacity-0 transition-opacity group-hover/item:opacity-100"
-                          style={{ background: "#C000FF" }}
-                        />
                         {child.label}
                       </Link>
                     )
@@ -177,41 +148,28 @@ const LandingHeader = () => {
             </div>
           ))}
 
-          {/* Direct links (no dropdown) — includes standalone "Precios" */}
           {directLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="relative rounded-lg px-6 py-3 text-lg font-semibold text-[hsl(275,100%,65%)] transition-colors hover:text-[hsl(275,100%,50%)] hover:drop-shadow-[0_0_8px_hsl(275,100%,50%)]"
-            >
+            <Link key={link.label} to={link.href} className={linkClass}>
               {link.label}
             </Link>
           ))}
         </nav>
 
         {/* Right — Actions */}
-        <div className="hidden items-center gap-3 lg:flex">
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-primary/50 px-4 text-sm font-bold uppercase tracking-wider text-primary hover:bg-primary/10 hover:text-primary"
-            asChild
-          >
-            <Link to="/descargar-apk">Descargar app para TV</Link>
+        <div className="hidden items-center gap-2 lg:flex">
+          <Button size="sm" variant="ghost" asChild>
+            <Link to="/descargar-apk">Descargar app</Link>
           </Button>
-          <Button
-            size="sm"
-            className="gradient-primary glow-primary-sm border-0 px-6 text-sm font-bold uppercase tracking-wider text-primary-foreground"
-            asChild
-          >
+          <Button size="sm" asChild>
             <Link to="/login">Entrar</Link>
           </Button>
         </div>
 
         {/* Mobile toggle */}
         <button
-          className="rounded-lg p-2 text-foreground lg:hidden"
+          className="rounded-md p-2 text-foreground lg:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Menú"
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -220,20 +178,17 @@ const LandingHeader = () => {
       {/* Mobile menu */}
       <div
         className={cn(
-          "overflow-hidden border-t border-border/20 transition-all duration-300 lg:hidden",
+          "overflow-hidden border-t border-border bg-background transition-all duration-200 lg:hidden",
           mobileOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0 border-t-0"
         )}
-        style={{ background: "rgba(14,11,22,0.97)" }}
       >
-        <div className="mx-auto max-w-7xl space-y-1 px-6 py-4">
+        <div className="mx-auto max-w-[1200px] space-y-1 px-6 py-4">
           {menuItems.map((item) => (
             <div key={item.label}>
               <button
-                className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-foreground"
+                className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-foreground"
                 onClick={() =>
-                  setMobileExpanded(
-                    mobileExpanded === item.label ? null : item.label
-                  )
+                  setMobileExpanded(mobileExpanded === item.label ? null : item.label)
                 }
               >
                 {item.label}
@@ -257,14 +212,10 @@ const LandingHeader = () => {
                     child.disabled ? (
                       <span
                         key={child.label}
-                        className="flex items-center justify-between rounded-lg px-3 py-2 text-sm cursor-default"
-                        style={{ color: "hsl(0 0% 35%)" }}
+                        className="flex items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground"
                       >
                         {child.label}
-                        <span
-                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
-                          style={{ background: "hsl(270 100% 50% / 0.1)", color: "hsl(270 60% 55%)" }}
-                        >
+                        <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider">
                           Próximamente
                         </span>
                       </span>
@@ -272,7 +223,7 @@ const LandingHeader = () => {
                       <Link
                         key={child.label}
                         to={child.href}
-                        className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        className="block rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
                         onClick={() => setMobileOpen(false)}
                       >
                         {child.label}
@@ -283,30 +234,26 @@ const LandingHeader = () => {
               </div>
             </div>
           ))}
-          {/* Direct links in mobile */}
           {directLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className="block rounded-lg px-3 py-3 text-sm font-medium text-foreground"
+              className="block rounded-md px-3 py-2.5 text-sm font-medium text-foreground"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
             </Link>
           ))}
-          <div className="flex flex-col gap-3 pt-4">
-            <Button
-              className="w-full border-primary/50 text-sm font-bold uppercase tracking-wider text-primary hover:bg-primary/10"
-              variant="outline"
-              asChild
-            >
-              <Link to="/descargar-apk" onClick={() => setMobileOpen(false)}>Descargar app para TV</Link>
+          <div className="flex flex-col gap-2 pt-3">
+            <Button variant="outline" asChild>
+              <Link to="/descargar-apk" onClick={() => setMobileOpen(false)}>
+                Descargar app
+              </Link>
             </Button>
-            <Button
-              className="w-full gradient-primary glow-primary-sm border-0 text-primary-foreground"
-              asChild
-            >
-              <Link to="/login" onClick={() => setMobileOpen(false)}>Entrar</Link>
+            <Button asChild>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                Entrar
+              </Link>
             </Button>
           </div>
         </div>
