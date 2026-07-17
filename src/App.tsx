@@ -41,6 +41,11 @@ const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminBusinesses = lazy(() => import("./pages/admin/AdminBusinesses"));
 const AdminAdmins = lazy(() => import("./pages/admin/AdminAdmins"));
+const AdminTraffic = lazy(() => import("./pages/admin/AdminTraffic"));
+const AdminSubscriptions = lazy(() => import("./pages/admin/AdminSubscriptions"));
+const AdminScreens = lazy(() => import("./pages/admin/AdminScreens"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminMap = lazy(() => import("./pages/admin/AdminMap"));
 
 const queryClient = new QueryClient();
 
