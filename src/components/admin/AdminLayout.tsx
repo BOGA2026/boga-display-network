@@ -21,6 +21,7 @@ const nav = [
 
 export default function AdminLayout() {
   const { session, loading } = useAuth("/login");
+  useSessionTracker(session?.user?.id);
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
