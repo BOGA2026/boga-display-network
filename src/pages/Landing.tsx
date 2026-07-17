@@ -1,9 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import heroVideo from "@/assets/hero-video.mp4";
-import benefitsVideo from "@/assets/benefits-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
-import ShowcaseCarousel from "@/components/landing/ShowcaseCarousel";
-import GrowthBenefits from "@/components/landing/GrowthBenefits";
 import logoVisualia from "@/assets/logo-visualia.png";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -11,25 +8,168 @@ import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import { ArrowRight, Star, Instagram, Linkedin, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
-import FeaturesSection from "@/components/landing/FeaturesSection";
 import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
-import VisualiaStudio from "@/components/landing/VisualiaStudio";
-import { useParallax } from "@/hooks/useParallax";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  ArrowRight,
+  Star,
+  Instagram,
+  Linkedin,
+  Volume2,
+  VolumeX,
+  Check,
+  Play,
+  RefreshCw,
+  Clock,
+  Building2,
+} from "lucide-react";
+import muestraPlatos from "@/assets/muestra-platos.mp4";
+import destacaPromociones from "@/assets/destaca-promociones.mp4";
+import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
 
-// CORRECCIÓN 6 aplicada — "Cómo funciona" copy reescrito en lenguaje accesible
+// ---------- Content ----------
+const benefits = [
+  {
+    icon: RefreshCw,
+    title: "Actualiza precios en segundos, no en semanas",
+    desc: "Cambia menús, combos y promos desde el celular. Tus pantallas se actualizan al instante.",
+    media: muestraPlatos,
+  },
+  {
+    icon: Clock,
+    title: "Programa promos por hora del día",
+    desc: "Desayuno, almuerzo, happy hour y cena. Cada pantalla muestra lo correcto en cada momento.",
+    media: destacaPromociones,
+  },
+  {
+    icon: Building2,
+    title: "Controla todas tus sedes desde un panel",
+    desc: "Una cuenta, todas tus tiendas. Envía contenido a una pantalla o a todas con un clic.",
+    media: vendeMasRapido,
+  },
+];
+
 const steps = [
-  { num: "01", title: "Crea tu cuenta y sube tu contenido", desc: "Entra a Visualia, sube tus imágenes, menús o promociones y organízalos como quieras. Sin saber de diseño." },
-  { num: "02", title: "Conecta tu pantalla en segundos", desc: "Ingresa un código corto en tu pantalla o TV y listo — ya está vinculada a tu cuenta." },
-  { num: "03", title: "Programa y olvídate", desc: "Define qué mostrar, a qué hora y en qué pantalla. Visualia lo hace funcionar solo." },
+  {
+    num: "01",
+    title: "Conecta tu pantalla",
+    desc: "Enchufa cualquier TV con Android o Fire TV. Ingresa un código y listo.",
+  },
+  {
+    num: "02",
+    title: "Sube tu contenido",
+    desc: "Fotos, videos, menús y promos. Desde tu celular o computador.",
+  },
+  {
+    num: "03",
+    title: "Vende más",
+    desc: "Programa qué mostrar y a qué hora. Tus clientes deciden más rápido.",
+  },
+];
+
+const pricingTiers = [
+  {
+    name: "1 pantalla",
+    price: 50000,
+    detail: "por pantalla / mes",
+    features: [
+      "Actualizaciones ilimitadas",
+      "Editor y plantillas listas",
+      "Soporte por chat",
+    ],
+    cta: "Empezar",
+    highlight: false,
+  },
+  {
+    name: "De 2 a 20 pantallas",
+    price: 42000,
+    detail: "por pantalla / mes",
+    features: [
+      "Todo lo anterior",
+      "Multi-sede en un solo panel",
+      "Programación por horario",
+      "Soporte prioritario",
+    ],
+    cta: "Prueba gratis 14 días",
+    highlight: true,
+  },
+  {
+    name: "Más de 20 pantallas",
+    price: null,
+    detail: "Precio a medida",
+    features: [
+      "Descuentos por volumen",
+      "Onboarding personalizado",
+      "Gerente de cuenta",
+    ],
+    cta: "Habla con ventas",
+    highlight: false,
+  },
+];
+
+const faqs = [
+  {
+    q: "¿Qué TV necesito?",
+    a: "Cualquier televisor con entrada HDMI. Le conectas un Amazon Fire TV Stick o un Android TV Box económico y ya funciona.",
+  },
+  {
+    q: "¿Necesito internet en el local?",
+    a: "Sí, WiFi básico es suficiente. Si se cae la red, la pantalla sigue mostrando el último contenido descargado.",
+  },
+  {
+    q: "¿Puedo cancelar cuando quiera?",
+    a: "Sí. No hay permanencia ni penalización. Cancelas desde el panel con un clic.",
+  },
+  {
+    q: "¿Cuánto tarda en estar funcionando?",
+    a: "Menos de 10 minutos. Creas cuenta, conectas la TV con un código y subes tu primer contenido.",
+  },
+  {
+    q: "¿Puedo manejar varias sedes?",
+    a: "Sí. Agrupa pantallas por local o zona y envía contenido a una o a todas desde el mismo panel.",
+  },
+  {
+    q: "¿Sirve para restaurantes, cafeterías y otros negocios?",
+    a: "Sí. Lo usan restaurantes, heladerías, panaderías, gimnasios y tiendas. Cualquier negocio con una TV a la vista.",
+  },
 ];
 
 const testimonials = [
-  { name: "Alba Sabogal", role: "Gerente de Operaciones", business: "El Carnal", quote: "Desde que implementamos Visualia en nuestras pantallas, comunicar promociones y combos del día se volvió mucho más dinámico. Podemos cambiar campañas en minutos y eso ha tenido un impacto directo en la rotación de productos y en las ventas del punto." },
-  { name: "Diana Duarte", role: "Gerente de Mercadeo", business: "Mochisand", quote: "Visualia nos permitió estandarizar la comunicación en nuestros puntos y destacar mejor nuestros productos. Las pantallas generan más interés en los clientes y ayudan a que los lanzamientos y promociones tengan mucha más visibilidad." },
+  {
+    name: "Alba Sabogal",
+    role: "Gerente de Operaciones",
+    business: "El Carnal",
+    quote:
+      "Cambiamos promociones y combos del día en minutos. Impactó directo en la rotación y en las ventas del punto.",
+  },
+  {
+    name: "Diana Duarte",
+    role: "Gerente de Mercadeo",
+    business: "Mochisand",
+    quote:
+      "Estandarizamos la comunicación en todos los puntos. Los lanzamientos ahora tienen mucha más visibilidad.",
+  },
 ];
 
-// Detecta navegadores de Amazon Fire TV / Silk para redirigir a una página liviana
+const HEADLINE = "Pantallas que venden más, sin esfuerzo";
+const SUBHEAD =
+  "Visualia convierte cualquier TV en un canal de ventas para tu restaurante. Sube tu menú, promos y videos desde el celular.";
+
+function formatCOP(value: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+// ---------- Fire TV redirect ----------
 const isFireTvBrowser = () => {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
@@ -37,49 +177,22 @@ const isFireTvBrowser = () => {
 };
 
 const Landing = () => {
-  // Redirección temprana para Fire TV (antes de cargar videos / animaciones pesadas)
-  if (isFireTvBrowser()) {
-    return <Navigate to="/tv" replace />;
-  }
+  if (isFireTvBrowser()) return <Navigate to="/tv" replace />;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  
   const [muted, setMuted] = useState(true);
   const [showSoundPrompt, setShowSoundPrompt] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
-  const [showBenefitsVideo, setShowBenefitsVideo] = useState(false);
-  const [benefitsMuted, setBenefitsMuted] = useState(true);
-  const [benefitsPaused, setBenefitsPaused] = useState(false);
   const heroRef = useRef<HTMLVideoElement>(null);
-  const benefitsVideoRef = useRef<HTMLVideoElement>(null);
-  const benefitsContainerRef = useRef<HTMLDivElement>(null);
-
-  // Parallax refs for each section
-  const heroParallax = useParallax({ speed: 0.6, direction: "up" });
-  const heroGlowParallax = useParallax({ speed: 1.0, direction: "up" });
-  const growthParallax = useParallax({ speed: 0.4, direction: "up", opacity: true });
-  const featuresParallax = useParallax({ speed: 0.3, direction: "up" });
-  const howParallax = useParallax({ speed: 0.45, direction: "up", opacity: true });
-  const showcaseParallax = useParallax({ speed: 0.25, direction: "down" });
-  const testimonialsParallax = useParallax({ speed: 0.4, direction: "up", opacity: true });
-  const ctaParallax = useParallax({ speed: 0.5, direction: "up", scale: true });
 
   useEffect(() => {
     const vid = heroRef.current;
     if (!vid) return;
     vid.muted = true;
     vid.playsInline = true;
-    vid.play().then(() => {
-      setMuted(true);
-      setShowSoundPrompt(true);
-    }).catch((err) => {
-      console.error("Video autoplay failed:", err);
-      vid.muted = true;
-      setMuted(true);
-      setShowSoundPrompt(true);
-    });
+    vid.play().catch(() => {});
   }, []);
 
   const activateSound = useCallback(() => {
@@ -111,71 +224,47 @@ const Landing = () => {
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
 
-      {/* CORRECCIÓN 1 aplicada — Hero con headline, subtítulo y logo reducido */}
-      <section className="relative overflow-hidden px-4 pb-6 pt-24 md:px-6 md:pt-28">
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2" style={{ width: 900, height: 700, ...heroGlowParallax.style }} ref={heroGlowParallax.ref as any}>
-          <div className="absolute left-1/2 top-16 h-80 w-80 -translate-x-1/2 rounded-full animate-neon-breathe blur-[120px]" style={{ background: "hsl(270 100% 50%)", opacity: 0.22 }} />
-          <div className="absolute left-1/3 top-40 h-56 w-56 rounded-full animate-neon-breathe blur-[90px]" style={{ background: "hsl(290 100% 50%)", opacity: 0.15, animationDelay: "1.5s" }} />
-          <div className="absolute right-1/4 top-32 h-40 w-40 rounded-full animate-neon-breathe blur-[80px]" style={{ background: "hsl(260 100% 60%)", opacity: 0.1, animationDelay: "3s" }} />
-        </div>
-
-        <div ref={heroParallax.ref as any} style={heroParallax.style} className="relative mx-auto max-w-4xl text-center">
-          {/* CORRECCIÓN 1 — Logo del hero eliminado (ya está en navbar) */}
-
-          {/* Headline principal */}
-          <h1
-            className="mt-4 font-display text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
-            style={{ textShadow: "0 0 40px hsl(270 100% 60% / 0.25)" }}
-          >
-            Controla tus pantallas digitales y{" "}
-            <span className="text-gradient-primary">vende más</span>
+      {/* 1. HERO */}
+      <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28">
+        <div className="relative mx-auto max-w-5xl text-center">
+          <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            Pantallas que venden más,{" "}
+            <span className="text-gradient-primary">sin esfuerzo</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl">
-            Actualiza menús, precios y promociones en segundos — <span className="text-foreground/80">sin técnicos, sin complicaciones.</span>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            {SUBHEAD}
           </p>
 
-          {/* CORRECCIÓN 5 aplicada — CTAs reordenados: primario, secundario, enlace texto */}
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            {/* 1. PRIMARIO */}
-            <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
-              <Link to="/precios">Ver planes y precios <ArrowRight className="ml-2 h-5 w-5" /></Link>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button size="lg" className="px-8 text-base" asChild>
+              <Link to="/registro">
+                Prueba gratis 14 días <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
-            {/* 2. SECUNDARIO */}
             <Button
               size="lg"
               variant="outline"
-              className="neon-border neon-border-hover px-8 text-lg hover-lift"
-              asChild
+              className="px-8 text-base"
+              onClick={() => setChatOpen(true)}
             >
-              <Link to="/registro">Crear cuenta gratis</Link>
+              <Play className="mr-2 h-4 w-4" /> Ver demo de 2 min
             </Button>
           </div>
-          {/* 3. ENLACE DE TEXTO terciario */}
-          <button
-            onClick={() => setChatOpen(true)}
-            className="mt-3 inline-flex items-center gap-1 text-sm font-medium transition-colors"
-            style={{ color: "hsl(0 0% 50%)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "hsl(270 100% 75%)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "hsl(0 0% 50%)")}
-          >
-            ¿Prefieres hablar con alguien? → 
-          </button>
 
-          {/* CORRECCIÓN 2 aplicada — Contexto textual encima del video */}
-          <p className="mt-8 mb-2 text-xs font-medium uppercase tracking-widest text-center" style={{ color: "hsl(0 0% 50%)" }}>
-            Mira cómo un negocio controla todas sus pantallas en menos de 2 minutos
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+            <span>Sin tarjeta de crédito</span>
+            <span className="hidden sm:inline">·</span>
+            <span>Cancela cuando quieras</span>
+            <span className="hidden sm:inline">·</span>
+            <span>Listo en 10 minutos</span>
+          </div>
 
-          {/* Hero Video */}
+          {/* Product mockup: hero video */}
           <div
-            className="mx-auto w-full overflow-hidden rounded-2xl relative"
-            style={{
-              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.45), 0 0 50px 8px hsl(270 100% 50% / 0.2)",
-              border: "1.5px solid hsl(270 100% 60% / 0.6)",
-            }}
+            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border/60 shadow-2xl"
           >
             {videoFailed && (
-              <img src={logoVisualia} alt="Visualia hero" className="w-full h-auto block" />
+              <img src={logoVisualia} alt="Visualia" className="w-full h-auto block" />
             )}
             <video
               ref={heroRef}
@@ -189,7 +278,10 @@ const Landing = () => {
               onError={() => setVideoFailed(true)}
               onLoadedData={() => {
                 const vid = heroRef.current;
-                if (vid) { vid.muted = true; vid.play().catch(() => {}); }
+                if (vid) {
+                  vid.muted = true;
+                  vid.play().catch(() => {});
+                }
               }}
               className="w-full h-auto block"
               style={{ display: videoFailed ? "none" : "block" }}
@@ -200,21 +292,14 @@ const Landing = () => {
             {showSoundPrompt && (
               <button
                 onClick={activateSound}
-                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 transition-opacity duration-500"
-                style={{ background: "hsl(260 30% 5% / 0.55)", backdropFilter: "blur(2px)" }}
+                className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-2 transition-opacity duration-500"
+                style={{ background: "hsl(0 0% 0% / 0.35)" }}
                 aria-label="Activar sonido"
               >
-                <div
-                  className="flex h-16 w-16 items-center justify-center rounded-full animate-pulse"
-                  style={{
-                    background: "hsl(270 100% 50% / 0.2)",
-                    border: "2px solid hsl(270 100% 65% / 0.8)",
-                    boxShadow: "0 0 30px hsl(270 100% 55% / 0.6)",
-                  }}
-                >
-                  <Volume2 className="h-7 w-7" style={{ color: "hsl(270 100% 80%)", filter: "drop-shadow(0 0 8px hsl(270 100% 60%))" }} />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-lg">
+                  <Volume2 className="h-6 w-6" />
                 </div>
-                <span className="text-sm font-semibold tracking-wide" style={{ color: "hsl(270 100% 85%)", textShadow: "0 0 12px hsl(270 100% 60%)" }}>
+                <span className="text-sm font-medium text-white">
                   Toca para activar sonido
                 </span>
               </button>
@@ -223,187 +308,224 @@ const Landing = () => {
             {!showSoundPrompt && (
               <button
                 onClick={toggleMute}
-                className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full p-2.5 transition-all duration-300 hover-lift"
-                style={{
-                  background: "hsl(260 30% 8% / 0.75)",
-                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
-                  backdropFilter: "blur(8px)",
-                  boxShadow: muted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
-                }}
+                className="absolute bottom-4 right-4 z-30 flex items-center justify-center rounded-full bg-background/80 p-2.5 backdrop-blur border border-border"
                 aria-label={muted ? "Activar sonido" : "Silenciar"}
               >
-                {muted
-                  ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
-                  : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
-                }
+                {muted ? (
+                  <VolumeX className="h-4 w-4 text-foreground" />
+                ) : (
+                  <Volume2 className="h-4 w-4 text-primary" />
+                )}
               </button>
             )}
           </div>
-
-          {/* Social proof bar */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs" style={{ color: "hsl(0 0% 45%)" }}>
-            <span>✓ Sin tarjeta de crédito</span>
-            <span className="hidden sm:inline">•</span>
-            <span>✓ Configura en 5 minutos</span>
-            <span className="hidden sm:inline">•</span>
-            <span>✓ Soporte en español</span>
-          </div>
         </div>
       </section>
 
-      {/* Growth Benefits */}
-      <div ref={growthParallax.ref as any} style={growthParallax.style}>
-        <GrowthBenefits />
-      </div>
-
-      {/* CORRECCIÓN 9 aplicada — Sección de logos de clientes */}
+      {/* 2. SOCIAL PROOF */}
       <ClientLogosStrip />
 
-      {/* Benefits Video — revealed on click */}
-      <div
-        ref={benefitsContainerRef}
-        className="overflow-hidden transition-all duration-700 ease-out"
-        style={{
-          maxHeight: showBenefitsVideo ? 800 : 0,
-          opacity: showBenefitsVideo ? 1 : 0,
-          transform: showBenefitsVideo ? "translateY(0)" : "translateY(24px)",
-        }}
-      >
-        <div className="px-4 pb-12 md:px-6">
-          <div
-            className="mx-auto max-w-5xl overflow-hidden rounded-2xl relative"
-            style={{
-              boxShadow: "0 0 18px 3px hsl(270 100% 55% / 0.35), 0 0 50px 8px hsl(270 100% 50% / 0.15)",
-              border: "1.5px solid hsl(270 100% 60% / 0.5)",
-            }}
-          >
-            <video
-              ref={benefitsVideoRef}
-              src={benefitsVideo}
-              muted
-              playsInline
-              loop
-              className="w-full h-auto block"
-            />
-            <div className="absolute bottom-4 right-4 z-30 flex gap-2">
-              <button
-                onClick={() => {
-                  const v = benefitsVideoRef.current;
-                  if (!v) return;
-                  if (v.paused) { v.play(); setBenefitsPaused(false); }
-                  else { v.pause(); setBenefitsPaused(true); }
-                }}
-                className="flex items-center justify-center rounded-full p-2.5 transition-all duration-300"
-                style={{
-                  background: "hsl(260 30% 8% / 0.75)",
-                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
-                  backdropFilter: "blur(8px)",
-                }}
-                aria-label={benefitsPaused ? "Reproducir" : "Pausar"}
-              >
-                {benefitsPaused
-                  ? <Play className="h-5 w-5" style={{ color: "hsl(270 100% 75%)" }} />
-                  : <Pause className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
-                }
-              </button>
-              <button
-                onClick={() => {
-                  setBenefitsMuted((m) => {
-                    const next = !m;
-                    if (benefitsVideoRef.current) benefitsVideoRef.current.muted = next;
-                    return next;
-                  });
-                }}
-                className="flex items-center justify-center rounded-full p-2.5 transition-all duration-300"
-                style={{
-                  background: "hsl(260 30% 8% / 0.75)",
-                  border: "1.5px solid hsl(270 100% 60% / 0.5)",
-                  backdropFilter: "blur(8px)",
-                  boxShadow: benefitsMuted ? "none" : "0 0 14px 2px hsl(270 100% 60% / 0.6)",
-                }}
-                aria-label={benefitsMuted ? "Activar sonido" : "Silenciar"}
-              >
-                {benefitsMuted
-                  ? <VolumeX className="h-5 w-5" style={{ color: "hsl(270 60% 70%)" }} />
-                  : <Volume2 className="h-5 w-5" style={{ color: "hsl(270 100% 75%)", filter: "drop-shadow(0 0 6px hsl(270 100% 60%))" }} />
-                }
-              </button>
-            </div>
+      {/* 3. THREE BENEFITS */}
+      <section id="beneficios" className="px-4 py-16 md:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 max-w-2xl">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
+              Por qué Visualia
+            </p>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Menos trabajo. Más ventas.
+            </h2>
           </div>
-        </div>
-      </div>
 
-      {/* Features */}
-      <div ref={featuresParallax.ref as any} style={featuresParallax.style}>
-        <FeaturesSection onDemo={() => setChatOpen(true)} />
-      </div>
-
-      {/* How It Works */}
-      <section ref={howParallax.ref as any} style={howParallax.style} id="how" className="px-4 py-6 md:px-6 md:py-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-4 text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Cómo funciona</h2>
-            <p className="mx-auto mt-1 max-w-xl text-muted-foreground">Tres pasos para transformar la comunicación visual de tu negocio.</p>
-          </div>
-          <div className="relative">
-            <div className="absolute left-8 top-0 hidden h-full w-px md:block" style={{ background: "linear-gradient(180deg, hsl(270 100% 50%) 0%, hsl(290 100% 50%) 50%, transparent 100%)" }} />
-            <div className="space-y-4 md:space-y-5">
-              {steps.map((s) => (
-                <div key={s.num} className="flex gap-8 md:gap-12 group">
-                  <div className="relative flex-shrink-0">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary-vibrant font-display text-2xl font-bold text-primary-foreground glow-primary transition-shadow duration-300 group-hover:glow-primary-lg">{s.num}</div>
+          <div className="space-y-16 md:space-y-24">
+            {benefits.map((b, i) => {
+              const Icon = b.icon;
+              const reverse = i % 2 === 1;
+              return (
+                <div
+                  key={b.title}
+                  className="grid items-center gap-8 md:grid-cols-2 md:gap-14"
+                >
+                  <div className={reverse ? "md:order-2" : ""}>
+                    <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-display text-2xl font-semibold text-foreground md:text-3xl">
+                      {b.title}
+                    </h3>
+                    <p className="mt-3 max-w-md text-base text-muted-foreground">
+                      {b.desc}
+                    </p>
                   </div>
-                  <div className="pt-2">
-                    <h3 className="mb-1 font-display text-xl font-semibold text-foreground md:text-2xl">{s.title}</h3>
-                    <p className="max-w-lg text-muted-foreground">{s.desc}</p>
+                  <div
+                    className={`overflow-hidden rounded-2xl border border-border/60 ${
+                      reverse ? "md:order-1" : ""
+                    }`}
+                  >
+                    <video
+                      src={b.media}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-auto block"
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Showcase Carousel */}
-      <div ref={showcaseParallax.ref as any} style={showcaseParallax.style}>
-        <ShowcaseCarousel onOpenChat={() => setChatOpen(true)} />
-      </div>
-
-      {/* Visualia Studio */}
-      <VisualiaStudio />
-
-      {/* CORRECCIÓN 8 aplicada — Testimonios con estrellas, avatar, cargo y empresa */}
-      {/* CORRECCIÓN 3 — Espaciado reducido entre secciones */}
-      <section ref={testimonialsParallax.ref as any} style={testimonialsParallax.style} id="testimonials" className="relative px-4 py-6 md:px-6 md:py-8">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 30% at 50% 50%, hsl(270 100% 50% / 0.05) 0%, transparent 70%)" }} />
-        <div className="relative mx-auto max-w-5xl">
-          <div className="mb-4 text-center">
-            <p className="mb-1 text-xs font-medium uppercase tracking-widest" style={{ color: "hsl(270 60% 60%)" }}>Casos reales</p>
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Negocios que ya venden más con Visualia</h2>
+      {/* 4. HOW IT WORKS */}
+      <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
+              Cómo funciona
+            </p>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Tres pasos. Listo en 10 minutos.
+            </h2>
           </div>
-          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-            {testimonials.map((t) => (
-              <div key={t.name} className="glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
-                {/* Estrellas */}
-                <div className="mb-4 flex gap-1">
-                  {[...Array(5)].map((_, i) => (<Star key={i} className="h-4 w-4 fill-primary text-primary icon-neon" />))}
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {steps.map((s) => (
+              <div
+                key={s.num}
+                className="rounded-2xl border border-border/60 bg-card/40 p-6"
+              >
+                <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-semibold">
+                  {s.num}
                 </div>
-                {/* Cita */}
-                <p className="mb-5 text-sm leading-relaxed text-muted-foreground italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  {/* CORRECCIÓN 2 — Avatar con foto real via ui-avatars */}
+                <h3 className="font-display text-lg font-semibold text-foreground">
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. PRICING */}
+      <section id="precios" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
+              Precios
+            </p>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Un precio simple por pantalla
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+              Sin permanencia. Sin costos ocultos. Cancela cuando quieras.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {pricingTiers.map((t) => (
+              <div
+                key={t.name}
+                className={`relative flex flex-col rounded-2xl border p-7 ${
+                  t.highlight
+                    ? "border-primary bg-primary/5 shadow-lg"
+                    : "border-border/60 bg-card/40"
+                }`}
+              >
+                {t.highlight && (
+                  <span className="absolute -top-3 left-7 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                    Más popular
+                  </span>
+                )}
+                <h3 className="font-display text-lg font-semibold text-foreground">
+                  {t.name}
+                </h3>
+                <div className="mt-4">
+                  {t.price !== null ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="font-display text-4xl font-bold text-foreground">
+                        {formatCOP(t.price)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="font-display text-2xl font-semibold text-foreground">
+                      A medida
+                    </span>
+                  )}
+                  <p className="mt-1 text-sm text-muted-foreground">{t.detail}</p>
+                </div>
+
+                <ul className="mt-6 space-y-2.5 text-sm text-foreground/90">
+                  {t.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-7">
+                  <Button
+                    className="w-full"
+                    variant={t.highlight ? "default" : "outline"}
+                    asChild
+                  >
+                    <Link to={t.price ? "/registro" : "#"} onClick={t.price ? undefined : () => setChatOpen(true)}>
+                      {t.cta}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Precios en pesos colombianos (COP). Facturación mensual.
+          </p>
+        </div>
+      </section>
+
+      {/* Testimonials (extra social proof) */}
+      <section className="px-4 py-16 md:px-6 md:py-20 border-t border-border/40">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
+              Casos reales
+            </p>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Negocios que ya venden más
+            </h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-2xl border border-border/60 bg-card/40 p-7"
+              >
+                <div className="mb-4 flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  ))}
+                </div>
+                <p className="text-base leading-relaxed text-foreground/90">
+                  "{t.quote}"
+                </p>
+                <div className="mt-5 flex items-center gap-3">
                   <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=6d28d9&color=fff&size=96&bold=true`}
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      t.name
+                    )}&background=6d28d9&color=fff&size=96&bold=true`}
                     alt={t.name}
-                    className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
-                    style={{ border: "1px solid hsl(270 100% 60% / 0.3)" }}
+                    className="h-10 w-10 rounded-full"
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                    <p className="text-xs" style={{ color: "hsl(270 60% 65%)" }}>{t.business}</p>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.role} · {t.business}
+                    </p>
                   </div>
-                  {/* CORRECCIÓN 2 — Logo empresa oculto hasta tener imagen real */}
                 </div>
               </div>
             ))}
@@ -411,47 +533,103 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      {/* CORRECCIÓN 3 — Espaciado reducido */}
-      <section ref={ctaParallax.ref as any} style={ctaParallax.style} className="px-4 py-6 md:px-6 md:py-8">
+      {/* 6. FAQ */}
+      <section id="faq" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-10 text-center">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
+              Preguntas frecuentes
+            </p>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Lo que otros dueños preguntan antes de empezar
+            </h2>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem key={i} value={`faq-${i}`}>
+                <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {f.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* 7. FINAL CTA */}
+      <section className="px-4 py-20 md:px-6 md:py-28 border-t border-border/40">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="relative overflow-hidden rounded-2xl neon-border px-8 py-10 md:px-16" style={{ background: "linear-gradient(180deg, hsl(260 25% 14%) 0%, hsl(260 30% 8%) 100%)" }}>
-            <div className="pointer-events-none absolute inset-0 animate-neon-breathe" style={{ background: "radial-gradient(ellipse at center, hsl(270 100% 50% / 0.2) 0%, transparent 70%)" }} />
-            <div className="relative">
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Empieza con <span className="text-gradient-primary">Visualia</span> hoy</h2>
-              <p className="mx-auto mt-2 max-w-lg text-muted-foreground">Únete a los negocios que ya están transformando su comunicación visual con Visualia.</p>
-              <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-8 text-lg text-primary-foreground" asChild>
-                  <Link to="/registro">Crear cuenta <ChevronRight className="ml-1 h-5 w-5" /></Link>
-                </Button>
-                <Button size="lg" variant="outline" className="neon-border neon-border-hover px-8 text-lg hover-lift" onClick={() => setChatOpen(true)}>Hablar con un experto</Button>
-              </div>
-            </div>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-5xl">
+            {HEADLINE.split(",")[0]},{" "}
+            <span className="text-gradient-primary">sin esfuerzo</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+            Empieza gratis hoy. Conecta tu primera pantalla en 10 minutos.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button size="lg" className="px-8 text-base" asChild>
+              <Link to="/registro">
+                Prueba gratis 14 días <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 text-base"
+              onClick={() => setChatOpen(true)}
+            >
+              Hablar con un experto
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* CORRECCIÓN 4 aplicada — Footer con logo, redes, enlaces legales y copyright */}
-      <footer className="border-t border-border/20 px-4 py-6 md:px-6">
+      {/* Footer */}
+      <footer className="border-t border-border/40 px-4 py-8 md:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div><img src={logoVisualia} alt="Visualia" className="h-8 w-auto" /></div>
+            <img src={logoVisualia} alt="Visualia" className="h-7 w-auto" />
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground transition hover:text-primary"><Instagram className="h-5 w-5" /></a>
-              <a href="#" className="text-muted-foreground transition hover:text-primary"><Linkedin className="h-5 w-5" /></a>
+              <a
+                href="#"
+                className="text-muted-foreground transition hover:text-primary"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="#"
+                className="text-muted-foreground transition hover:text-primary"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
             </div>
           </div>
-          {/* Enlaces legales mínimos */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-1 text-xs text-muted-foreground/60">
-            <Link to="/terminos" className="transition hover:text-foreground">Términos</Link>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Link to="/terminos" className="transition hover:text-foreground">
+              Términos
+            </Link>
             <span>·</span>
-            <Link to="/privacidad" className="transition hover:text-foreground">Privacidad</Link>
+            <Link to="/privacidad" className="transition hover:text-foreground">
+              Privacidad
+            </Link>
             <span>·</span>
-            <a href="mailto:hola@visualiamedia.com" className="transition hover:text-foreground">Contacto</a>
+            <a
+              href="mailto:hola@visualiamedia.com"
+              className="transition hover:text-foreground"
+            >
+              Contacto
+            </a>
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground/50">© 2026 Visualia Media S.A.S. Todos los derechos reservados. · Colombia</p>
+          <p className="mt-3 text-center text-xs text-muted-foreground/60">
+            © 2026 Visualia Media S.A.S. · Colombia
+          </p>
         </div>
       </footer>
+
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
     </PremiumBackground>
