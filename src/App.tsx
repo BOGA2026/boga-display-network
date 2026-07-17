@@ -37,6 +37,10 @@ const EditorPage = lazy(() => import("./pages/EditorPage"));
 const AdminLeadsPage = lazy(() => import("./pages/AdminLeadsPage"));
 const ScreensList = lazy(() => import("./pages/digital-signage/ScreensList"));
 const ScreenDetail = lazy(() => import("./pages/digital-signage/ScreenDetail"));
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminBusinesses = lazy(() => import("./pages/admin/AdminBusinesses"));
+const AdminAdmins = lazy(() => import("./pages/admin/AdminAdmins"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +88,12 @@ const App = () => (
               <Route path="generar-ia" element={<GenerateAI />} />
               <Route path="editor" element={<EditorPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+            </Route>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="negocios" element={<AdminBusinesses />} />
+              <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="admins" element={<AdminAdmins />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
