@@ -71,6 +71,7 @@ const App = () => (
             <Route path="/digital-signage/screens" element={<ScreensList />} />
             <Route path="/digital-signage/screens/:screenId" element={<ScreenDetail />} />
             <Route path="/templates/lunch" element={<VisualiaLunchTemplate />} />
+            <Route path="/oauth/consent" element={<OAuthConsent />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
