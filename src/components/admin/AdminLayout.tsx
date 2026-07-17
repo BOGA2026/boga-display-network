@@ -81,8 +81,11 @@ export default function AdminLayout() {
           <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
           <span className="text-[10px] uppercase tracking-widest text-primary font-semibold">Admin</span>
         </div>
-        <nav className="flex-1 px-2 py-3 space-y-1">
-          {nav.map(({ to, label, icon: Icon, end }) => {
+        <nav className="flex-1 px-2 py-3 space-y-1 overflow-y-auto">
+          {nav.map((item) => {
+            const { to, label, icon: Icon, end } = item as any;
+            const badgeKey = (item as any).badgeKey as "pqrs" | "chat" | undefined;
+            const badge = badgeKey ? badges[badgeKey] : 0;
             const active = end ? pathname === to : pathname.startsWith(to);
             return (
               <Link
@@ -95,7 +98,12 @@ export default function AdminLayout() {
                 }`}
               >
                 <Icon className="h-4 w-4" />
-                {label}
+                <span className="flex-1">{label}</span>
+                {badge > 0 && (
+                  <span className="text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                    {badge}
+                  </span>
+                )}
               </Link>
             );
           })}
