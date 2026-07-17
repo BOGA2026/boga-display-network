@@ -34,8 +34,12 @@ import {
   Building2,
 } from "lucide-react";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
+import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
+import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
 import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
+import vendeMasRapidoWebm from "@/assets/vende-mas-rapido.webm";
+
 
 // ---------- Content ----------
 const benefits = [
