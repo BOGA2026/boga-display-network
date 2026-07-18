@@ -40,7 +40,7 @@ function InfoTooltip({
         <button
           type="button"
           aria-label={label}
-          className="inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex items-center justify-center rounded-full opacity-70 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Info className="h-4 w-4" />
         </button>
