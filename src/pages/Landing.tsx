@@ -215,6 +215,9 @@ const Landing = () => {
   const [activeHeroVideo, setActiveHeroVideo] = useState<"presenter" | "product">("presenter");
   const presenterRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLVideoElement>(null);
+  const benefitsVideoRef = useRef<HTMLVideoElement>(null);
+  const [benefitsMuted, setBenefitsMuted] = useState(true);
+
 
   useEffect(() => {
     const vid = presenterRef.current;
