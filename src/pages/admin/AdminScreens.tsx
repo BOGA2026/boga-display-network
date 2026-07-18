@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Monitor, Wifi, WifiOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
+import { fetchWithRetry } from "@/lib/adminFetch";
+import { AdminTableSkeleton, AdminInlineError } from "@/components/admin/AdminSkeletons";
 
 type Screen = {
   id: string;
@@ -18,51 +20,80 @@ type Screen = {
 };
 
 const ONLINE_WINDOW_MS = 3 * 60 * 1000; // 3 min
+const SCREENS_SELECT =
+  "id,name,status,last_seen_at,last_sync_at,location_id,locations(name,business_id,businesses(name))";
 
 function isOnline(s: Screen) {
   const last = s.last_seen_at ? new Date(s.last_seen_at).getTime() : 0;
   return Date.now() - last <= ONLINE_WINDOW_MS;
 }
 
+async function fetchScreens(): Promise<Screen[]> {
+  return fetchWithRetry(
+    async () => {
+      const { data, error, status } = await supabase
+        .from("screens")
+        .select(SCREENS_SELECT)
+        .order("last_seen_at", { ascending: false, nullsFirst: false });
+      if (error) throw Object.assign(new Error(error.message), { status: status ?? 500 });
+      return (data as any) ?? [];
+    },
+    { label: "admin-screens", timeoutMs: 10000, retries: 2 }
+  );
+}
+
 export default function AdminScreens() {
-  const [screens, setScreens] = useState<Screen[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: screens = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin", "screens"],
+    queryFn: fetchScreens,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "online" | "offline">("all");
   const [tick, setTick] = useState(0);
+  const reconnectRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const { data, error } = await supabase
-        .from("screens")
-        .select("id,name,status,last_seen_at,last_sync_at,location_id,locations(name,business_id,businesses(name))")
-        .order("last_seen_at", { ascending: false, nullsFirst: false });
-      if (!mounted) return;
-      if (error) setError(error.message);
-      else setScreens((data as any) ?? []);
-      setLoading(false);
-    })();
+    const attach = () => {
+      const channel = supabase
+        .channel("admin-screens")
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "screens" }, () => refetch())
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "screens" }, () => refetch())
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+            if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
+            reconnectRef.current = window.setTimeout(() => {
+              supabase.removeChannel(channel);
+              current = attach();
+            }, 2000);
+          }
+        });
+      return channel;
+    };
+    let current = attach();
 
-    const channel = supabase
-      .channel("admin-screens")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "screens" }, (payload) => {
-        setScreens(prev => prev.map(s => s.id === (payload.new as any).id ? { ...s, ...(payload.new as any) } : s));
-      })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "screens" }, () => {
-        // re-fetch on insert to include joins
-        supabase
-          .from("screens")
-          .select("id,name,status,last_seen_at,last_sync_at,location_id,locations(name,business_id,businesses(name))")
-          .then(({ data }) => data && setScreens(data as any));
-      })
-      .subscribe();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refetch();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("online", () => refetch());
 
-    const t = setInterval(() => setTick(x => x + 1), 30_000);
+    const t = window.setInterval(() => setTick((x) => x + 1), 30_000);
 
-    return () => { mounted = false; supabase.removeChannel(channel); clearInterval(t); };
-  }, []);
+    return () => {
+      supabase.removeChannel(current);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
+      window.clearInterval(t);
+    };
+  }, [refetch]);
 
   const online = useMemo(() => screens.filter(isOnline).length, [screens, tick]);
   const offline = screens.length - online;
