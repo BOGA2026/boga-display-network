@@ -166,11 +166,11 @@ export function PriceCalculator() {
                       </a>
                     )}
                   </p>
-                  <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
                     {tier && total !== null ? (
                       <>
                         {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
-                        <InfoTooltip label="Precio por pantalla">
+                        <InfoTooltip label="Precio por pantalla" side="right">
                           El precio por pantalla baja automáticamente a medida que agregás más pantallas en tu negocio.
                         </InfoTooltip>
                         · {screens} pantalla{screens > 1 ? "s" : ""}
@@ -178,7 +178,7 @@ export function PriceCalculator() {
                     ) : (
                       "Más de 300 pantallas"
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
