@@ -143,7 +143,7 @@ export function PriceCalculator() {
                   {annual && (
                     <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
                       Ahorrá 20%
-                      <InfoTooltip label="Descuento anual">
+                      <InfoTooltip label="Descuento anual" side="right">
                         Pagás 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si preferís, podés seguir pagando mes a mes.
                       </InfoTooltip>
                     </span>
