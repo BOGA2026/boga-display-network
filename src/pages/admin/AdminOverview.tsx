@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, Wifi, RefreshCw } from "lucide-react";
 import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
+import { fetchWithRetry } from "@/lib/adminFetch";
 
 type Stats = {
   businesses: number;
@@ -28,18 +29,15 @@ type Business = {
 const fmtCOP = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n);
 
-// Fetch with a hard timeout so the skeleton never gets stuck on a hung request.
-async function invokeWithTimeout<T = unknown>(fn: string, ms = 12000): Promise<T> {
-  return await Promise.race([
-    (async () => {
-      const { data, error } = await supabase.functions.invoke(fn);
-      if (error) throw new Error(error.message);
-      return data as T;
-    })(),
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error("Tiempo de espera agotado. Reintenta.")), ms)
-    ),
-  ]);
+async function loadOverview(): Promise<{ stats: Stats; businesses: Business[] }> {
+  return fetchWithRetry(
+    async () => {
+      const { data, error } = await supabase.functions.invoke("admin-overview");
+      if (error) throw Object.assign(new Error(error.message), { status: (error as any).status ?? 500 });
+      return data as { stats: Stats; businesses: Business[] };
+    },
+    { label: "admin-overview", timeoutMs: 12000, retries: 2 }
+  );
 }
 
 export default function AdminOverview() {
@@ -52,9 +50,7 @@ export default function AdminOverview() {
     setLoading(true);
     setError(null);
     try {
-      const data = await invokeWithTimeout<{ stats: Stats; businesses: Business[] }>(
-        "admin-overview"
-      );
+      const data = await loadOverview();
       setStats(data?.stats ?? null);
       setBusinesses(data?.businesses ?? []);
     } catch (e: any) {
