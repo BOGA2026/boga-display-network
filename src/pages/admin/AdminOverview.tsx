@@ -73,8 +73,8 @@ export default function AdminOverview() {
     { label: "Ubicaciones", value: s?.locations ?? 0, icon: MapPin, tone: "neutral" },
     { label: "Contenido", value: s?.content ?? 0, icon: FileImage, tone: "neutral" },
     { label: "Leads", value: s?.leads ?? 0, hint: `${s?.leadsNew ?? 0} nuevos`, icon: Inbox, tone: "warning" },
-    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: Wifi, tone: "success" },
-    { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), icon: TrendingUp, tone: "accent" },
+    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: BadgeCheck, tone: "success" },
+    { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), hint: "Pagos aprobados este mes (Wompi)", icon: TrendingUp, tone: "accent" },
     { label: "Ingresos totales", value: fmtCOP(s?.revenueTotal ?? 0), hint: `${s?.paymentsCount ?? 0} pagos`, icon: CreditCard, tone: "success" },
   ];
 
