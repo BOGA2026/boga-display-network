@@ -4,7 +4,8 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Building2, Smartphone, ArrowRight } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
 
 const TIERS = [
   { min: 1, max: 5, price: 50000 },
@@ -22,6 +23,33 @@ const fmtCOP = new Intl.NumberFormat("es-CO", {
 
 function clamp(n: number) {
   return Math.min(300, Math.max(1, Math.floor(n) || 1));
+}
+
+function InfoTooltip({
+  children,
+  label,
+  side = "top",
+}: {
+  children: React.ReactNode;
+  label?: string;
+  side?: "top" | "bottom" | "left" | "right";
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          className="inline-flex items-center justify-center rounded-full opacity-70 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Info className="h-4 w-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side={side} className="max-w-xs text-xs leading-snug">
+        {children}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export function PriceCalculator() {
@@ -113,8 +141,11 @@ export function PriceCalculator() {
                     Anual
                   </span>
                   {annual && (
-                    <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
+                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
                       Ahorrá 20%
+                      <InfoTooltip label="Descuento anual" side="right">
+                        Pagás 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si preferís, podés seguir pagando mes a mes.
+                      </InfoTooltip>
                     </span>
                   )}
                 </div>
@@ -135,16 +166,19 @@ export function PriceCalculator() {
                       </a>
                     )}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes ·{" "}
-                        {screens} pantalla{screens > 1 ? "s" : ""}
+                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
+                        <InfoTooltip label="Precio por pantalla" side="right">
+                          El precio por pantalla baja automáticamente a medida que agregás más pantallas en tu negocio.
+                        </InfoTooltip>
+                        · {screens} pantalla{screens > 1 ? "s" : ""}
                       </>
                     ) : (
                       "Más de 300 pantallas"
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -187,7 +221,12 @@ export function PriceCalculator() {
           </div>
 
           <div className="mt-10">
-            <h3 className="mb-4 font-display text-lg font-semibold text-foreground">Tabla de precios</h3>
+            <h3 className="mb-4 inline-flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+              Tabla de precios
+              <InfoTooltip label="Qué incluye cada plan" side="bottom">
+                Todos los planes incluyen gestión remota, programación de contenido, playlists automáticas, soporte prioritario, actualizaciones continuas y seguridad con respaldos.
+              </InfoTooltip>
+            </h3>
             <div className="overflow-x-auto rounded-xl border border-border/30">
               <table className="w-full text-sm">
                 <thead className="bg-secondary/30">
