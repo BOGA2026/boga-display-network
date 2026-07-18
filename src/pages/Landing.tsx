@@ -215,6 +215,9 @@ const Landing = () => {
   const [activeHeroVideo, setActiveHeroVideo] = useState<"presenter" | "product">("presenter");
   const presenterRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLVideoElement>(null);
+  const benefitsVideoRef = useRef<HTMLVideoElement>(null);
+  const [benefitsMuted, setBenefitsMuted] = useState(true);
+
 
   useEffect(() => {
     const vid = presenterRef.current;
@@ -507,8 +510,9 @@ const Landing = () => {
               Convierte tus pantallas en vendedores
             </h2>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+          <div className="relative overflow-hidden rounded-2xl border border-border shadow-lg">
             <video
+              ref={benefitsVideoRef}
               autoPlay
               loop
               muted
@@ -523,7 +527,23 @@ const Landing = () => {
               <source src={benefitsVideo} type="video/mp4" />
               <source src={benefitsPresenterWebm.url} type="video/webm" />
             </video>
+            <button
+              type="button"
+              onClick={() => {
+                const v = benefitsVideoRef.current;
+                if (!v) return;
+                v.muted = !v.muted;
+                if (!v.muted) v.play().catch(() => {});
+                setBenefitsMuted(v.muted);
+              }}
+              aria-label={benefitsMuted ? "Activar sonido" : "Silenciar"}
+              className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-sm font-medium text-white backdrop-blur transition hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {benefitsMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {benefitsMuted ? "Activar sonido" : "Silenciar"}
+            </button>
           </div>
+
         </div>
       </section>
 
