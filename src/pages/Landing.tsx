@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Seo from "@/components/Seo";
 import { prefetchPublicRoutes } from "@/lib/prefetch";
+import LazyVideo from "@/components/landing/LazyVideo";
+import InitialsAvatar from "@/components/ui/InitialsAvatar";
 
 import heroVideo from "@/assets/hero-video.mp4";
 import heroVideoWebm from "@/assets/hero-video.webm";
@@ -513,7 +515,7 @@ const Landing = () => {
             </h2>
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-border shadow-lg">
-            <video
+            <LazyVideo
               ref={benefitsVideoRef}
               autoPlay
               loop
@@ -525,10 +527,12 @@ const Landing = () => {
               aria-label="Explicación de Visualia presentada por su creador"
               onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
               className="block h-auto w-full"
-            >
-              <source src={benefitsVideo} type="video/mp4" />
-              <source src={benefitsPresenterWebm.url} type="video/webm" />
-            </video>
+              sources={[
+                { src: benefitsVideo, type: "video/mp4" },
+                { src: benefitsPresenterWebm.url, type: "video/webm" },
+              ]}
+            />
+
             <button
               type="button"
               onClick={() => {
@@ -586,21 +590,23 @@ const Landing = () => {
                       reverse ? "md:order-1" : ""
                     }`}
                   >
-                    <video
+                    <LazyVideo
                       autoPlay
                       loop
                       muted
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       width={i === 1 ? 270 : i === 2 ? 1080 : 480}
                       height={i === 1 ? 480 : i === 2 ? 608 : 270}
                       aria-label={`Demostración: ${b.title}`}
                       onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
                       className="w-full h-auto block"
-                    >
-                      <source src={b.media} type="video/mp4" />
-                      <source src={b.mediaWebm} type="video/webm" />
-                    </video>
+                      sources={[
+                        { src: b.media, type: "video/mp4" },
+                        { src: b.mediaWebm, type: "video/webm" },
+                      ]}
+                    />
+
                   </div>
                 </div>
               );
@@ -653,7 +659,7 @@ const Landing = () => {
             </p>
           </div>
           <div className="relative mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-border shadow-lg">
-            <video
+            <LazyVideo
               ref={presenter2Ref}
               autoPlay
               loop
@@ -665,10 +671,12 @@ const Landing = () => {
               aria-label="Mensaje del creador de Visualia"
               onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
               className="block h-auto w-full"
-            >
-              <source src={albertPresenter2Mp4} type="video/mp4" />
-              <source src={albertPresenter2Webm} type="video/webm" />
-            </video>
+              sources={[
+                { src: albertPresenter2Mp4, type: "video/mp4" },
+                { src: albertPresenter2Webm, type: "video/webm" },
+              ]}
+            />
+
             <button
               type="button"
               onClick={() => {
@@ -803,16 +811,13 @@ const Landing = () => {
                   "{t.quote}"
                 </p>
                 <div className="mt-5 flex items-center gap-3">
-                  <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      t.name
-                    )}&background=6d28d9&color=fff&size=96&bold=true`}
-                    alt={`Foto de ${t.name}, ${t.role} en ${t.business}`}
-                    loading="lazy"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full"
+                  <InitialsAvatar
+                    name={t.name}
+                    size={40}
+                    ariaLabel={`Avatar de ${t.name}, ${t.role} en ${t.business}`}
+                    className="h-10 w-10"
                   />
+
                   <div>
                     <p className="text-sm font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">
