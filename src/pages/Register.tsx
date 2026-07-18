@@ -117,6 +117,34 @@ const Register = () => {
         throw new Error(errData.error || "Error al crear negocio");
       }
 
+      // 3. Persist consent audit trail (best-effort; do not block signup)
+      if (authData.session) {
+        try {
+          await supabase.from("legal_consents").insert({
+            user_id: userId,
+            policy_version: LEGAL_VERSIONS.privacy,
+            terms_version: LEGAL_VERSIONS.terms,
+            user_agent: navigator.userAgent,
+            context: "registration",
+          });
+        } catch (consentErr) {
+          console.warn("No se pudo registrar el consentimiento:", consentErr);
+        }
+      } else {
+        // Session not yet available (email confirmation on) — stash intent
+        try {
+          sessionStorage.setItem(
+            "visualia_pending_consent",
+            JSON.stringify({
+              privacy: LEGAL_VERSIONS.privacy,
+              terms: LEGAL_VERSIONS.terms,
+              at: new Date().toISOString(),
+              context: "registration",
+            }),
+          );
+        } catch { /* ignore */ }
+      }
+
       toast({ title: "Cuenta creada exitosamente" });
 
       // If session exists (email confirmation disabled), go to dashboard
