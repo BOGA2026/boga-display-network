@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,9 +17,12 @@ import {
   Map as MapIcon,
   MessageSquare,
   FileText,
+  AlertTriangle,
 } from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
+import { fetchWithRetry } from "@/lib/adminFetch";
+import { logError } from "@/lib/errorLogger";
 
 type NavItem = {
   to: string;
