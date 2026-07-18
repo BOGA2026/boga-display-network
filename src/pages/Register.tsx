@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Monitor, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LEGAL_VERSIONS } from "@/lib/legalVersions";
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -27,13 +29,34 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // ─── Google login ───
   const handleGoogleLogin = async () => {
+    if (!acceptedLegal) {
+      toast({
+        title: "Aceptación requerida",
+        description: "Debes aceptar la política de tratamiento de datos y los términos para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
     setLoading(true);
+    // Persist intended consent so we can log it after OAuth returns.
+    try {
+      sessionStorage.setItem(
+        "visualia_pending_consent",
+        JSON.stringify({
+          privacy: LEGAL_VERSIONS.privacy,
+          terms: LEGAL_VERSIONS.terms,
+          at: new Date().toISOString(),
+          context: "registration_google",
+        }),
+      );
+    } catch { /* ignore */ }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -53,6 +76,14 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!businessName.trim() || !email.trim() || !password.trim()) return;
+    if (!acceptedLegal) {
+      toast({
+        title: "Aceptación requerida",
+        description: "Debes aceptar la política de tratamiento de datos y los términos para crear la cuenta.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
