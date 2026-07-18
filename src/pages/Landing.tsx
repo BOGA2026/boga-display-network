@@ -293,19 +293,6 @@ const Landing = () => {
         title="Visualia | Menús digitales para restaurantes – Pantallas que venden"
         description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos. Prueba gratis 14 días."
         path="/"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          name: "Visualia",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Android TV, Fire TV, Web",
-          description: "Plataforma de menús digitales y cartelería para restaurantes.",
-          offers: {
-            "@type": "Offer",
-            priceCurrency: "COP",
-            price: "50000",
-          },
-        }}
       />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
