@@ -41,6 +41,10 @@ export default function AdminSupport() {
   const [loading, setLoading] = useState(true);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [search, setSearch] = useState("");
+  const [confirm, setConfirm] = useState<
+    | { screen: Screen; command: "restart_playback" | "force_sync" }
+    | null
+  >(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const loadThreads = useCallback(async () => {
