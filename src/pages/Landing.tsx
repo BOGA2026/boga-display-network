@@ -780,31 +780,7 @@ const Landing = () => {
 
 
       {/* 6. FAQ */}
-      <section id="faq" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
-              Preguntas frecuentes
-            </p>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              Lo que otros dueños preguntan antes de empezar
-            </h2>
-          </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((f, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {f.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
+      <Faq />
 
       {/* 7. FINAL CTA */}
       <section className="px-4 py-20 md:px-6 md:py-28 border-t border-border/40">
