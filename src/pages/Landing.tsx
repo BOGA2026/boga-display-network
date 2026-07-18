@@ -515,7 +515,7 @@ const Landing = () => {
             </h2>
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-border shadow-lg">
-            <video
+            <LazyVideo
               ref={benefitsVideoRef}
               autoPlay
               loop
@@ -527,10 +527,12 @@ const Landing = () => {
               aria-label="Explicación de Visualia presentada por su creador"
               onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
               className="block h-auto w-full"
-            >
-              <source src={benefitsVideo} type="video/mp4" />
-              <source src={benefitsPresenterWebm.url} type="video/webm" />
-            </video>
+              sources={[
+                { src: benefitsVideo, type: "video/mp4" },
+                { src: benefitsPresenterWebm.url, type: "video/webm" },
+              ]}
+            />
+
             <button
               type="button"
               onClick={() => {
