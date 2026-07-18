@@ -150,6 +150,8 @@ const Pricing = () => {
         </div>
       </section>
 
+      <Faq />
+
       {/* CTA */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-3xl text-center">
