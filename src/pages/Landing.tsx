@@ -6,8 +6,7 @@ import heroVideo from "@/assets/hero-video.mp4";
 import heroVideoWebm from "@/assets/hero-video.webm";
 import heroPresenterMp4 from "@/assets/hero-presenter.mp4.asset.json";
 import heroPresenterWebm from "@/assets/hero-presenter.webm.asset.json";
-import explainerPresenterMp4 from "@/assets/explainer-presenter.mp4.asset.json";
-import explainerPresenterWebm from "@/assets/explainer-presenter.webm.asset.json";
+import benefitsVideo from "@/assets/benefits-video.mp4";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -518,8 +517,7 @@ const Landing = () => {
               onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
               className="block h-auto w-full"
             >
-              <source src={explainerPresenterMp4.url} type="video/mp4" />
-              <source src={explainerPresenterWebm.url} type="video/webm" />
+              <source src={benefitsVideo} type="video/mp4" />
             </video>
           </div>
         </div>
