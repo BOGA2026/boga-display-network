@@ -425,7 +425,7 @@ const Landing = () => {
               }}
               onLoadedData={() => {
                 const vid = heroRef.current;
-                if (vid) {
+                if (vid && activeHeroVideo === "product") {
                   vid.volume = volume;
                   vid.muted = muted;
                   vid.play().catch(() => {});
