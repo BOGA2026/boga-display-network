@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { CreditCard, CheckCircle2, XCircle, Clock, DollarSign } from "lucide-react";
+import { CreditCard, CheckCircle2, XCircle, Clock, DollarSign, Search } from "lucide-react";
+import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
 
 type Sub = {
   id: string;
@@ -21,14 +19,14 @@ type Sub = {
 const fmtCOP = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n || 0);
 
-const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  active: { label: "Activa", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
-  trial: { label: "Prueba", cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" },
-  trialing: { label: "Prueba", cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" },
-  past_due: { label: "Vencida", cls: "bg-red-500/15 text-red-400 border-red-500/30" },
-  canceled: { label: "Cancelada", cls: "bg-muted text-muted-foreground border-border/50" },
-  cancelled: { label: "Cancelada", cls: "bg-muted text-muted-foreground border-border/50" },
-  paused: { label: "Pausada", cls: "bg-slate-500/15 text-slate-400 border-slate-500/30" },
+const STATUS_LABELS: Record<string, { label: string; bg: string; fg: string }> = {
+  active:    { label: "Activa",     bg: "hsl(var(--admin-success) / 0.15)", fg: "hsl(var(--admin-success))" },
+  trial:     { label: "Prueba",     bg: "hsl(var(--admin-warning) / 0.15)", fg: "hsl(var(--admin-warning))" },
+  trialing:  { label: "Prueba",     bg: "hsl(var(--admin-warning) / 0.15)", fg: "hsl(var(--admin-warning))" },
+  past_due:  { label: "Vencida",    bg: "hsl(var(--admin-danger) / 0.15)",  fg: "hsl(var(--admin-danger))"  },
+  canceled:  { label: "Cancelada",  bg: "hsl(var(--admin-surface-2))",       fg: "hsl(var(--admin-fg-muted))" },
+  cancelled: { label: "Cancelada",  bg: "hsl(var(--admin-surface-2))",       fg: "hsl(var(--admin-fg-muted))" },
+  paused:    { label: "Pausada",    bg: "hsl(var(--admin-surface-2))",       fg: "hsl(var(--admin-fg-muted))" },
 };
 
 export default function AdminSubscriptions() {
@@ -52,98 +50,146 @@ export default function AdminSubscriptions() {
   }, []);
 
   const kpis = useMemo(() => {
-    const active = subs.filter(s => s.status === "active");
+    const active = subs.filter((s) => s.status === "active");
     return {
       total: active.length,
-      trial: subs.filter(s => s.status === "trial" || s.status === "trialing").length,
-      canceled: subs.filter(s => s.status === "canceled" || s.status === "cancelled").length,
-      mrr: active.reduce((acc, s) => acc + Number(s.total_amount || 0) * (s.billing_cycle === "yearly" ? 1 / 12 : 1), 0),
+      trial: subs.filter((s) => s.status === "trial" || s.status === "trialing").length,
+      canceled: subs.filter((s) => s.status === "canceled" || s.status === "cancelled").length,
+      mrr: active.reduce(
+        (acc, s) => acc + Number(s.total_amount || 0) * (s.billing_cycle === "yearly" ? 1 / 12 : 1),
+        0,
+      ),
     };
   }, [subs]);
 
-  const plans = useMemo(() => Array.from(new Set(subs.map(s => s.plan).filter(Boolean))), [subs]);
+  const plans = useMemo(() => Array.from(new Set(subs.map((s) => s.plan).filter(Boolean))), [subs]);
 
-  const filtered = subs.filter(s => {
+  const filtered = subs.filter((s) => {
     if (statusFilter !== "all" && s.status !== statusFilter) return false;
     if (planFilter !== "all" && s.plan !== planFilter) return false;
     if (search && !s.businesses?.name?.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
-  const kpiCards = [
-    { label: "Activas", value: kpis.total, icon: CheckCircle2, color: "text-emerald-400" },
-    { label: "En prueba", value: kpis.trial, icon: Clock, color: "text-amber-400" },
-    { label: "Canceladas", value: kpis.canceled, icon: XCircle, color: "text-red-400" },
-    { label: "MRR estimado", value: fmtCOP(kpis.mrr), icon: DollarSign, color: "text-primary" },
-  ];
-
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Suscripciones activas</h1>
-        <p className="text-sm text-muted-foreground">Estado de suscripciones por negocio</p>
+    <div className="p-8 space-y-8 max-w-[1400px]">
+      <AdminPageHeader
+        title="Suscripciones"
+        subtitle="Estado de suscripciones activas por negocio"
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <AdminKpiCard label="Activas" value={kpis.total} icon={CheckCircle2} tone="success" loading={loading} />
+        <AdminKpiCard label="En prueba" value={kpis.trial} icon={Clock} tone="warning" loading={loading} />
+        <AdminKpiCard label="Canceladas" value={kpis.canceled} icon={XCircle} tone="danger" loading={loading} />
+        <AdminKpiCard label="MRR estimado" value={fmtCOP(kpis.mrr)} icon={DollarSign} tone="accent" loading={loading} hint="Ingresos mensuales recurrentes" />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {kpiCards.map(({ label, value, icon: Icon, color }) => (
-          <Card key={label} className="p-4 bg-background/40 border-border/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground">{label}</span>
-              <Icon className={`h-4 w-4 ${color}`} />
-            </div>
-            {loading ? <Skeleton className="h-7 w-20" /> : <div className="text-2xl font-bold">{value}</div>}
-          </Card>
-        ))}
-      </div>
-
-      <Card className="bg-background/40 border-border/50">
-        <div className="p-4 border-b border-border/50 flex items-center gap-2 flex-wrap">
-          <Input placeholder="Buscar negocio..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs bg-background/60" />
-          <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} className="rounded-md border border-border/50 bg-background/60 px-3 py-2 text-sm">
+      <div className="admin-card overflow-hidden">
+        <div
+          className="p-4 flex items-center gap-2 flex-wrap"
+          style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
+        >
+          <div className="relative flex-1 min-w-[220px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 admin-dim" />
+            <input
+              placeholder="Buscar negocio..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-9 rounded-md pl-9 pr-3 text-[13px]"
+            />
+          </div>
+          <select
+            value={planFilter}
+            onChange={(e) => setPlanFilter(e.target.value)}
+            className="h-9 rounded-md px-3 text-[13px]"
+          >
             <option value="all">Todos los planes</option>
-            {plans.map(p => <option key={p} value={p}>{p}</option>)}
+            {plans.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
           </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-md border border-border/50 bg-background/60 px-3 py-2 text-sm">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-9 rounded-md px-3 text-[13px]"
+          >
             <option value="all">Todos los estados</option>
             <option value="active">Activa</option>
             <option value="trial">Prueba</option>
             <option value="past_due">Vencida</option>
             <option value="canceled">Cancelada</option>
           </select>
-          <span className="ml-auto text-xs text-muted-foreground">{filtered.length} resultados</span>
+          <span className="ml-auto text-[12px] admin-muted">{filtered.length} resultados</span>
         </div>
 
-        {error && <div className="p-4 text-destructive text-sm">Error: {error}</div>}
+        {error && <div className="p-4 text-[13px]" style={{ color: "hsl(var(--admin-danger))" }}>Error: {error}</div>}
+
         {loading ? (
-          <div className="p-4 space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+          <div className="p-4 space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-10 rounded animate-pulse" style={{ background: "hsl(var(--admin-surface-2))" }} />
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Sin suscripciones que coincidan con los filtros</div>
+          <div className="p-12 text-center text-[13px] admin-muted flex flex-col items-center gap-3">
+            <CreditCard className="h-8 w-8 admin-dim" strokeWidth={1.5} />
+            Sin suscripciones que coincidan con los filtros
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-xs uppercase text-muted-foreground border-b border-border/50">
-                <tr>
-                  <th className="text-left p-3">Negocio</th>
-                  <th className="text-left p-3">Plan</th>
-                  <th className="text-left p-3">Estado</th>
-                  <th className="text-left p-3">Pantallas</th>
-                  <th className="text-left p-3">Monto</th>
-                  <th className="text-left p-3">Próximo cobro</th>
-                  <th className="text-left p-3">Inicio</th>
+            <table className="w-full text-[13px]">
+              <thead>
+                <tr
+                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
+                >
+                  <th className="text-left px-4 py-3 font-medium">Negocio</th>
+                  <th className="text-left px-4 py-3 font-medium">Plan</th>
+                  <th className="text-left px-4 py-3 font-medium">Estado</th>
+                  <th className="text-right px-4 py-3 font-medium">Pantallas</th>
+                  <th className="text-right px-4 py-3 font-medium">Monto</th>
+                  <th className="text-left px-4 py-3 font-medium">Próximo cobro</th>
+                  <th className="text-left px-4 py-3 font-medium">Inicio</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(s => {
-                  const st = STATUS_LABELS[s.status] ?? { label: s.status, cls: "bg-muted text-muted-foreground" };
+                {filtered.map((s) => {
+                  const st = STATUS_LABELS[s.status] ?? {
+                    label: s.status,
+                    bg: "hsl(var(--admin-surface-2))",
+                    fg: "hsl(var(--admin-fg-muted))",
+                  };
                   return (
-                    <tr key={s.id} className="border-b border-border/30 hover:bg-white/5">
-                      <td className="p-3 font-medium">{s.businesses?.name ?? "—"}</td>
-                      <td className="p-3">{s.plan}</td>
-                      <td className="p-3"><span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase ${st.cls}`}>{st.label}</span></td>
-                      <td className="p-3">{s.screens_count}</td>
-                      <td className="p-3">{fmtCOP(Number(s.total_amount))}</td>
-                      <td className="p-3 text-muted-foreground">{s.next_billing_date ? new Date(s.next_billing_date).toLocaleDateString("es-CO") : "—"}</td>
-                      <td className="p-3 text-muted-foreground">{new Date(s.created_at).toLocaleDateString("es-CO")}</td>
+                    <tr
+                      key={s.id}
+                      className="admin-card-hover transition-colors"
+                      style={{ borderBottom: "1px solid hsl(var(--admin-border) / 0.6)" }}
+                    >
+                      <td className="px-4 py-3.5 font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
+                        {s.businesses?.name ?? "—"}
+                      </td>
+                      <td className="px-4 py-3.5 admin-muted">{s.plan}</td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                          style={{ background: st.bg, color: st.fg }}
+                        >
+                          {st.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums" style={{ color: "hsl(var(--admin-fg))" }}>
+                        {s.screens_count}
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
+                        {fmtCOP(Number(s.total_amount))}
+                      </td>
+                      <td className="px-4 py-3.5 admin-muted tabular-nums">
+                        {s.next_billing_date ? new Date(s.next_billing_date).toLocaleDateString("es-CO") : "—"}
+                      </td>
+                      <td className="px-4 py-3.5 admin-muted tabular-nums">
+                        {new Date(s.created_at).toLocaleDateString("es-CO")}
+                      </td>
                     </tr>
                   );
                 })}
@@ -151,7 +197,7 @@ export default function AdminSubscriptions() {
             </table>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

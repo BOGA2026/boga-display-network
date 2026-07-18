@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Users, UserPlus, Activity, TrendingUp } from "lucide-react";
 import {
   LineChart,
@@ -11,9 +9,11 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { format, subDays, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
+import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
 
 type Row = { started_at: string; user_id: string; last_ping_at: string };
 type Profile = { id: string; created_at: string };
@@ -45,13 +45,14 @@ export default function AdminTraffic() {
     const d1 = startOfDay(now).getTime();
     const d7 = subDays(now, 7).getTime();
     const d30 = subDays(now, 30).getTime();
-    const active = (since: number) => new Set(sessions.filter(s => new Date(s.last_ping_at).getTime() >= since).map(s => s.user_id)).size;
+    const active = (since: number) =>
+      new Set(sessions.filter((s) => new Date(s.last_ping_at).getTime() >= since).map((s) => s.user_id)).size;
     return {
       today: active(d1),
       week: active(d7),
       month: active(d30),
       sessions: sessions.length,
-      newUsers: profiles.filter(p => new Date(p.created_at).getTime() >= d7).length,
+      newUsers: profiles.filter((p) => new Date(p.created_at).getTime() >= d7).length,
     };
   }, [sessions, profiles]);
 
@@ -71,76 +72,138 @@ export default function AdminTraffic() {
     }
     return Array.from(buckets.entries()).map(([date, users]) => ({
       date: format(new Date(date), "d MMM", { locale: es }),
-      Usuarios: users.size,
+      "Usuarios únicos": users.size,
       Sesiones: sessionBuckets.get(date) || 0,
     }));
   }, [sessions, range]);
 
-  const kpiCards = [
-    { label: "Activos hoy", value: kpis.today, icon: Users, color: "text-cyan-400" },
-    { label: "Activos 7 días", value: kpis.week, icon: Activity, color: "text-purple-400" },
-    { label: "Activos 30 días", value: kpis.month, icon: TrendingUp, color: "text-emerald-400" },
-    { label: "Nuevos (7d)", value: kpis.newUsers, icon: UserPlus, color: "text-amber-400" },
-  ];
+  const hasData = chartData.some((d) => d["Usuarios únicos"] > 0 || d.Sesiones > 0);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Tráfico de usuarios</h1>
-          <p className="text-sm text-muted-foreground">Sesiones y usuarios activos</p>
+    <div className="p-8 space-y-8 max-w-[1400px]">
+      <AdminPageHeader
+        title="Tráfico"
+        subtitle="Sesiones y usuarios activos en la plataforma"
+        actions={
+          <div
+            className="inline-flex rounded-md p-1 gap-1"
+            style={{ background: "hsl(var(--admin-surface))", border: "1px solid hsl(var(--admin-border))" }}
+          >
+            {[7, 14, 30].map((n) => (
+              <button
+                key={n}
+                onClick={() => setRange(n as 7 | 14 | 30)}
+                className="px-3 h-7 text-[12px] rounded font-medium transition-colors"
+                style={
+                  range === n
+                    ? { background: "hsl(var(--admin-accent) / 0.18)", color: "hsl(var(--admin-fg))" }
+                    : { color: "hsl(var(--admin-fg-muted))", background: "transparent" }
+                }
+              >
+                {n} días
+              </button>
+            ))}
+          </div>
+        }
+      />
+
+      {error && (
+        <div className="text-[13px]" style={{ color: "hsl(var(--admin-danger))" }}>
+          Error: {error}
         </div>
-        <div className="flex gap-1 rounded-md border border-border/50 bg-background/40 p-1">
-          {[7, 14, 30].map((n) => (
-            <button
-              key={n}
-              onClick={() => setRange(n as 7 | 14 | 30)}
-              className={`px-3 py-1 text-xs rounded ${range === n ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              {n} días
-            </button>
-          ))}
-        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <AdminKpiCard label="Activos hoy" value={kpis.today} icon={Users} tone="accent" loading={loading} />
+        <AdminKpiCard label="Activos 7 días" value={kpis.week} icon={Activity} tone="success" loading={loading} />
+        <AdminKpiCard label="Activos 30 días" value={kpis.month} icon={TrendingUp} tone="neutral" loading={loading} />
+        <AdminKpiCard label="Nuevos usuarios (7d)" value={kpis.newUsers} icon={UserPlus} tone="warning" loading={loading} />
       </div>
 
-      {error && <div className="text-destructive text-sm">Error: {error}</div>}
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {kpiCards.map(({ label, value, icon: Icon, color }) => (
-          <Card key={label} className="p-4 bg-background/40 border-border/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground">{label}</span>
-              <Icon className={`h-4 w-4 ${color}`} />
-            </div>
-            {loading ? <Skeleton className="h-7 w-16" /> : <div className="text-2xl font-bold">{value}</div>}
-          </Card>
-        ))}
-      </div>
-
-      <Card className="p-4 bg-background/40 border-border/50">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold">Actividad diaria</h2>
-          <span className="text-xs text-muted-foreground">Últimos {range} días • {kpis.sessions} sesiones</span>
+      <div className="admin-card p-6">
+        <div className="mb-5 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="text-[15px] font-semibold" style={{ color: "hsl(var(--admin-fg))" }}>
+              Actividad diaria
+            </h2>
+            <p className="text-[12px] admin-muted mt-1">
+              Últimos {range} días · {kpis.sessions} sesiones registradas
+            </p>
+          </div>
         </div>
+
         {loading ? (
-          <Skeleton className="h-64 w-full" />
-        ) : chartData.every(d => d.Usuarios === 0 && d.Sesiones === 0) ? (
-          <div className="h-64 flex items-center justify-center text-sm text-muted-foreground">
+          <div className="h-72 rounded animate-pulse" style={{ background: "hsl(var(--admin-surface-2))" }} />
+        ) : !hasData ? (
+          <div className="h-72 flex items-center justify-center text-[13px] admin-muted text-center px-6">
             Aún no hay datos de sesiones. Se registrarán a medida que los usuarios entren a la plataforma.
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
-              <Tooltip contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-              <Line type="monotone" dataKey="Usuarios" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Sesiones" stroke="hsl(190 90% 55%)" strokeWidth={2} dot={false} />
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="2 4" stroke="hsl(var(--admin-border))" vertical={false} />
+              <XAxis
+                dataKey="date"
+                stroke="hsl(var(--admin-fg-muted))"
+                fontSize={11}
+                tickMargin={8}
+                axisLine={{ stroke: "hsl(var(--admin-border))" }}
+                tickLine={false}
+              />
+              <YAxis
+                stroke="hsl(var(--admin-fg-muted))"
+                fontSize={11}
+                allowDecimals={false}
+                tickMargin={6}
+                axisLine={false}
+                tickLine={false}
+                label={{
+                  value: "Cantidad",
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: 16,
+                  style: { fill: "hsl(var(--admin-fg-dim))", fontSize: 11 },
+                }}
+              />
+              <Tooltip
+                cursor={{ stroke: "hsl(var(--admin-accent))", strokeWidth: 1, strokeDasharray: "3 3" }}
+                contentStyle={{
+                  background: "hsl(var(--admin-surface))",
+                  border: "1px solid hsl(var(--admin-border-strong))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: "hsl(var(--admin-fg))",
+                  boxShadow: "0 8px 24px hsl(0 0% 0% / 0.5)",
+                }}
+                labelStyle={{ color: "hsl(var(--admin-fg-muted))", marginBottom: 4 }}
+              />
+              <Legend
+                verticalAlign="top"
+                height={32}
+                iconType="circle"
+                iconSize={8}
+                wrapperStyle={{ fontSize: 12, color: "hsl(var(--admin-fg-muted))" }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Usuarios únicos"
+                stroke="hsl(var(--admin-accent))"
+                strokeWidth={2.25}
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Sesiones"
+                stroke="hsl(var(--admin-success))"
+                strokeWidth={2.25}
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

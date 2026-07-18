@@ -3,22 +3,69 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logoVisualia from "@/assets/logo-visualia.webp";
-import { ShieldCheck, LayoutDashboard, Building2, Users, Inbox, LogOut, Activity, CreditCard, Monitor, CalendarClock, Map as MapIcon, MessageSquare, FileText } from "lucide-react";
+import {
+  ShieldCheck,
+  LayoutDashboard,
+  Building2,
+  Users,
+  Inbox,
+  LogOut,
+  Activity,
+  CreditCard,
+  Monitor,
+  CalendarClock,
+  Map as MapIcon,
+  MessageSquare,
+  FileText,
+} from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 
-const nav = [
-  { to: "/admin", label: "Resumen", icon: LayoutDashboard, end: true },
-  { to: "/admin/trafico", label: "Tráfico", icon: Activity },
-  { to: "/admin/suscripciones", label: "Suscripciones", icon: CreditCard },
-  { to: "/admin/pantallas", label: "Pantallas", icon: Monitor },
-  { to: "/admin/pagos", label: "Vencimientos", icon: CalendarClock },
-  { to: "/admin/mapa", label: "Mapa", icon: MapIcon },
-  { to: "/admin/pqrs", label: "PQRS", icon: FileText, badgeKey: "pqrs" as const },
-  { to: "/admin/soporte", label: "Soporte", icon: MessageSquare, badgeKey: "chat" as const },
-  { to: "/admin/negocios", label: "Negocios", icon: Building2 },
-  { to: "/admin/leads", label: "Leads", icon: Inbox },
-  { to: "/admin/admins", label: "Administradores", icon: Users },
+type NavItem = {
+  to: string;
+  label: string;
+  icon: any;
+  end?: boolean;
+  badgeKey?: "pqrs" | "chat";
+};
+
+type NavGroup = { label: string; items: NavItem[] };
+
+const groups: NavGroup[] = [
+  {
+    label: "General",
+    items: [
+      { to: "/admin", label: "Resumen", icon: LayoutDashboard, end: true },
+      { to: "/admin/trafico", label: "Tráfico", icon: Activity },
+    ],
+  },
+  {
+    label: "Comercial",
+    items: [
+      { to: "/admin/suscripciones", label: "Suscripciones", icon: CreditCard },
+      { to: "/admin/pagos", label: "Vencimientos", icon: CalendarClock },
+      { to: "/admin/leads", label: "Leads", icon: Inbox },
+    ],
+  },
+  {
+    label: "Operaciones",
+    items: [
+      { to: "/admin/pantallas", label: "Pantallas", icon: Monitor },
+      { to: "/admin/mapa", label: "Mapa", icon: MapIcon },
+      { to: "/admin/negocios", label: "Negocios", icon: Building2 },
+    ],
+  },
+  {
+    label: "Atención",
+    items: [
+      { to: "/admin/pqrs", label: "PQRS", icon: FileText, badgeKey: "pqrs" },
+      { to: "/admin/soporte", label: "Soporte", icon: MessageSquare, badgeKey: "chat" },
+    ],
+  },
+  {
+    label: "Sistema",
+    items: [{ to: "/admin/admins", label: "Administradores", icon: Users }],
+  },
 ];
 
 export default function AdminLayout() {
@@ -56,73 +103,94 @@ export default function AdminLayout() {
       setBadges({ pqrs: pqrs ?? 0, chat });
     };
     load();
-    const ch = supabase.channel("admin-badges")
+    const ch = supabase
+      .channel("admin-badges")
       .on("postgres_changes", { event: "*", schema: "public", table: "pqrs" }, load)
       .on("postgres_changes", { event: "*", schema: "public", table: "support_threads" }, load)
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [isAdmin]);
 
   if (loading || checking || !isAdmin) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="admin-shell flex h-dvh items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "hsl(var(--admin-accent))" }} />
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-screen overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(260 30% 5%) 0%, hsl(260 25% 7%) 50%, hsl(260 30% 5%) 100%)" }}>
-      <aside className="w-60 shrink-0 border-r border-border/50 bg-background/40 backdrop-blur-sm flex flex-col">
-        <div className="flex items-center gap-2 px-4 h-14 border-b border-border/50">
+    <div className="admin-shell flex h-dvh overflow-hidden font-sans antialiased">
+      <aside
+        className="w-64 shrink-0 flex flex-col"
+        style={{
+          background: "hsl(var(--admin-surface))",
+          borderRight: "1px solid hsl(var(--admin-border))",
+        }}
+      >
+        <div
+          className="flex items-center gap-2 px-5 h-14"
+          style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
+        >
           <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
-          <span className="text-[10px] uppercase tracking-widest text-primary font-semibold">Admin</span>
-        </div>
-        <nav className="flex-1 px-2 py-3 space-y-1 overflow-y-auto">
-          {nav.map((item) => {
-            const { to, label, icon: Icon, end } = item as any;
-            const badgeKey = (item as any).badgeKey as "pqrs" | "chat" | undefined;
-            const badge = badgeKey ? badges[badgeKey] : 0;
-            const active = end ? pathname === to : pathname.startsWith(to);
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
-                  active
-                    ? "bg-primary/15 text-primary shadow-[0_0_20px_-8px_hsl(var(--primary))]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="flex-1">{label}</span>
-                {badge > 0 && (
-                  <span className="text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                    {badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-2 border-t border-border/50 space-y-1">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5"
+          <span
+            className="text-[10px] uppercase tracking-[0.18em] font-semibold"
+            style={{ color: "hsl(var(--admin-accent))" }}
           >
-            <ShieldCheck className="h-4 w-4" />
-            Ir al panel de negocio
+            Admin
+          </span>
+        </div>
+
+        <nav className="flex-1 px-2 py-2 overflow-y-auto">
+          {groups.map((group) => (
+            <div key={group.label}>
+              <div className="admin-nav-label">{group.label}</div>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const { to, label, icon: Icon, end, badgeKey } = item;
+                  const badge = badgeKey ? badges[badgeKey] : 0;
+                  const active = end ? pathname === to : pathname.startsWith(to);
+                  return (
+                    <Link key={to} to={to} className="admin-nav-item" data-active={active}>
+                      <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
+                      <span className="flex-1 truncate">{label}</span>
+                      {badge > 0 && (
+                        <span
+                          className="text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-medium"
+                          style={{ background: "hsl(var(--admin-danger))", color: "white" }}
+                        >
+                          {badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <div
+          className="p-2 space-y-0.5"
+          style={{ borderTop: "1px solid hsl(var(--admin-border))" }}
+        >
+          <Link to="/dashboard" className="admin-nav-item">
+            <ShieldCheck className="h-[16px] w-[16px]" strokeWidth={1.75} />
+            <span>Ir al panel de negocio</span>
           </Link>
           <button
             onClick={() => signOut().then(() => navigate("/login"))}
-            className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5"
+            className="admin-nav-item w-full text-left"
           >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
+            <LogOut className="h-[16px] w-[16px]" strokeWidth={1.75} />
+            <span>Cerrar sesión</span>
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto">
+
+      <main className="flex-1 overflow-y-auto" style={{ background: "hsl(var(--admin-bg))" }}>
         <Outlet />
       </main>
     </div>
