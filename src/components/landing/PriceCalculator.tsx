@@ -158,11 +158,14 @@ export function PriceCalculator() {
                       </a>
                     )}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes ·{" "}
-                        {screens} pantalla{screens > 1 ? "s" : ""}
+                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
+                        <InfoTooltip label="Precio por pantalla">
+                          El precio por pantalla baja automáticamente a medida que agregás más pantallas en tu negocio.
+                        </InfoTooltip>
+                        · {screens} pantalla{screens > 1 ? "s" : ""}
                       </>
                     ) : (
                       "Más de 300 pantallas"
