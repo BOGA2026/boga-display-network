@@ -18,6 +18,7 @@ const RestaurantSolutionPage = () => {
       <LandingHeader />
       <RestaurantSolution onDemo={() => setChatOpen(true)} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
+      <LegalFooter />
     </div>
   );
 };
