@@ -109,6 +109,7 @@ export default function AboutPage() {
         title="Acerca de Visualia | Menús digitales para negocios en Colombia"
         description="Conoce Visualia: plataforma colombiana de menús digitales y cartelería para restaurantes y comercios. Nuestra misión, equipo y respuestas frecuentes."
         path="/acerca"
+        jsonLd={aboutFaqJsonLd}
       />
       <LandingHeader />
 
