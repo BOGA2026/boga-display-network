@@ -38,21 +38,6 @@ const valueCards = [
 ];
 
 const Pricing = () => {
-  const [screens, setScreens] = useState(5);
-  const [annual, setAnnual] = useState(false);
-
-  const calc = useMemo(() => {
-    const perScreen = getPrice(screens);
-    const monthly = perScreen * screens;
-    const annualTotal = monthly * 12 * 0.8;
-    return {
-      perScreen: annual ? Math.round(perScreen * 0.8) : perScreen,
-      total: annual ? Math.round(annualTotal / 12) : monthly,
-      savings: annual ? Math.round(monthly * 12 - annualTotal) : 0,
-      storage: `${Math.min(Math.ceil(screens / 10), 20)} GB`,
-    };
-  }, [screens, annual]);
-
   return (
     <PremiumBackground>
       <Seo
