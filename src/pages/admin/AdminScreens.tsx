@@ -153,10 +153,22 @@ export default function AdminScreens() {
         </div>
       </div>
 
-      {error && <div className="text-destructive text-sm">Error: {error}</div>}
+      {error && (
+        <AdminInlineError
+          message={(error as Error)?.message ?? "No se pudo cargar la lista de pantallas."}
+          onRetry={() => refetch()}
+        />
+      )}
 
-      {loading ? (
-        <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}</div>
+      {isLoading && screens.length === 0 ? (
+        <Card className="bg-background/40 border-border/50 overflow-hidden p-0">
+          <AdminTableSkeleton rows={6} cols={5} />
+        </Card>
+      ) : screens.length === 0 && !error ? (
+        <Card className="p-10 text-center bg-background/40 border-border/50">
+          <Monitor className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+          <div className="text-sm text-muted-foreground">Sin pantallas registradas</div>
+        </Card>
       ) : byBusiness.length === 0 ? (
         <Card className="p-10 text-center bg-background/40 border-border/50">
           <Monitor className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
