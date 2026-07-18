@@ -121,6 +121,7 @@ export default function DescargarApk() {
           </Button>
         </div>
       </main>
+      <LegalFooter />
     </div>
   );
 }
