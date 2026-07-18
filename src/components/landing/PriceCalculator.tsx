@@ -231,6 +231,17 @@ export function PriceCalculator() {
                 </tbody>
               </table>
             </div>
+            <div className="mt-8 text-center">
+              <Button
+                size="lg"
+                className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-10 text-lg text-primary-foreground"
+                asChild
+              >
+                <Link to="/registro">
+                  Prueba gratis 14 días <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
