@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { CreditCard, Building2, Smartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CreditCard, Building2, Smartphone, ArrowRight } from "lucide-react";
 
 const TIERS = [
   { min: 1, max: 5, price: 50000 },
