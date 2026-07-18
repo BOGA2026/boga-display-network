@@ -213,7 +213,12 @@ export function PriceCalculator() {
           </div>
 
           <div className="mt-10">
-            <h3 className="mb-4 font-display text-lg font-semibold text-foreground">Tabla de precios</h3>
+            <h3 className="mb-4 inline-flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+              Tabla de precios
+              <InfoTooltip label="Qué incluye cada plan">
+                Todos los planes incluyen gestión remota, programación de contenido, playlists automáticas, soporte prioritario, actualizaciones continuas y seguridad con respaldos.
+              </InfoTooltip>
+            </h3>
             <div className="overflow-x-auto rounded-xl border border-border/30">
               <table className="w-full text-sm">
                 <thead className="bg-secondary/30">
