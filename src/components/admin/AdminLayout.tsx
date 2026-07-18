@@ -253,5 +253,6 @@ export default function AdminLayout() {
           <Outlet />
         )}
       </main>
+    </div>
   );
 }
