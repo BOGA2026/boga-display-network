@@ -78,7 +78,7 @@ const steps = [
   {
     num: "01",
     title: "Conecta tu pantalla",
-    desc: "Enchufa cualquier TV con Android o Fire TV. Ingresa un código y listo.",
+    desc: "Enchufa cualquier TV con Android TV o Fire TV. Si tu TV no es \"smart\", usa un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar). Ingresa un código de 6 dígitos y listo.",
   },
   {
     num: "02",
@@ -135,7 +135,7 @@ const pricingTiers = [
 const faqs = [
   {
     q: "¿Qué TV necesito?",
-    a: "Cualquier televisor con entrada HDMI. Le conectas un Amazon Fire TV Stick o un Android TV Box económico y ya funciona.",
+    a: "Cualquier televisor con entrada HDMI. Si es Smart TV con Android TV o Google TV, funciona directo. Si no, le conectas un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar) o un Amazon Fire TV Stick.",
   },
   {
     q: "¿Necesito internet en el local?",
@@ -176,9 +176,9 @@ const testimonials = [
   },
 ];
 
-const HEADLINE = "Pantallas que venden más, sin esfuerzo";
+const HEADLINE = "Tu menú en pantalla, siempre actualizado y vendiendo más";
 const SUBHEAD =
-  "Visualia convierte cualquier TV en un canal de ventas para tu restaurante. Sube tu menú, promos y videos desde el celular.";
+  "Cambia precios y promociones desde tu celular y se actualizan al instante en todas las pantallas de tu restaurante. Sin diseñador, sin técnico, sin imprimir cartas nunca más.";
 
 function formatCOP(value: number) {
   return new Intl.NumberFormat("es-CO", {
