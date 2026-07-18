@@ -652,8 +652,9 @@ const Landing = () => {
               Diseñamos Visualia junto a restaurantes reales para que vendas más sin complicarte con tecnología.
             </p>
           </div>
-          <div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-border shadow-lg">
+          <div className="relative mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-border shadow-lg">
             <video
+              ref={presenter2Ref}
               autoPlay
               loop
               muted
@@ -668,6 +669,21 @@ const Landing = () => {
               <source src={albertPresenter2Mp4} type="video/mp4" />
               <source src={albertPresenter2Webm} type="video/webm" />
             </video>
+            <button
+              type="button"
+              onClick={() => {
+                const v = presenter2Ref.current;
+                if (!v) return;
+                v.muted = !v.muted;
+                if (!v.muted) v.play().catch(() => {});
+                setPresenter2Muted(v.muted);
+              }}
+              aria-label={presenter2Muted ? "Activar sonido" : "Silenciar"}
+              className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {presenter2Muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {presenter2Muted ? "Activar sonido" : "Silenciar"}
+            </button>
           </div>
         </div>
       </section>
