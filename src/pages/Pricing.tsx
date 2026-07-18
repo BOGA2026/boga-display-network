@@ -249,10 +249,13 @@ const Pricing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/20 px-6 py-12">
-        <div className="mx-auto max-w-6xl text-center">
-          <span className="font-display text-sm font-bold text-gradient-primary">Visualia</span>
-          <p className="mt-1 text-xs text-muted-foreground">© 2026 Visualia. Todos los derechos reservados.</p>
+      <footer className="border-t border-border/20 px-6 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-muted-foreground md:flex-row">
+          <p>© 2026 Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
+          <div className="flex gap-4">
+            <a href="/privacidad" className="hover:text-foreground">Política de tratamiento de datos</a>
+            <a href="/terminos" className="hover:text-foreground">Términos y condiciones</a>
+          </div>
         </div>
       </footer>
     </PremiumBackground>
