@@ -65,52 +65,7 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* Calculator */}
-      <section className="px-6 pb-20">
-      <div className="mx-auto max-w-5xl">
-          <div className="glass-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
-            <div className="mb-10 flex items-center justify-center gap-3">
-              <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>Mensual</span>
-              <Switch checked={annual} onCheckedChange={setAnnual} />
-              <span className={annual ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>Anual</span>
-              {annual && <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">Ahorra 20%</span>}
-            </div>
-            <div className="mb-10">
-              <div className="mb-3 flex items-end justify-between">
-                <p className="text-sm text-muted-foreground">Número de pantallas</p>
-                <span className="font-display text-3xl font-bold stat-glow">{screens}</span>
-              </div>
-              <Slider value={[screens]} onValueChange={([v]) => setScreens(v)} min={1} max={300} step={1} className="py-2" />
-              <div className="mt-1 flex justify-between text-xs text-muted-foreground"><span>1</span><span>50</span><span>100</span><span>200</span><span>300</span></div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl surface-neon p-5 text-center transition-all duration-300 hover-lift">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Total mensual</p>
-                <p className="mt-2 font-display text-2xl font-bold stat-glow">{formatCOP(calc.total)}</p>
-                <p className="text-sm text-muted-foreground">por mes</p>
-              </div>
-              <div className="rounded-xl surface-neon p-5 text-center transition-all duration-300 hover-lift">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Por pantalla</p>
-                <p className="mt-2 font-display text-2xl font-bold stat-glow">{formatCOP(calc.perScreen)}</p>
-                <p className="text-sm text-muted-foreground">por mes</p>
-              </div>
-              <div className="rounded-xl surface-neon p-5 text-center transition-all duration-300 hover-lift">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Almacenamiento</p>
-                <p className="mt-2 font-display text-2xl font-bold stat-glow">{calc.storage}</p>
-              </div>
-              <div className="rounded-xl surface-neon p-5 text-center transition-all duration-300 hover-lift">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Ahorro anual</p>
-                <p className="mt-2 font-display text-2xl font-bold text-gradient-primary text-neon-bright">{annual ? formatCOP(calc.savings) : "—"}</p>
-              </div>
-            </div>
-            <div className="mt-8 text-center">
-              <Button size="lg" className="gradient-primary-vibrant cta-pulse btn-glow border-0 px-10 text-primary-foreground" asChild>
-                <Link to="/registro">Comenzar ahora</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PriceCalculator />
 
       {/* Showcase */}
       <section className="px-6 py-16">
