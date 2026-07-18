@@ -50,18 +50,15 @@ export default function AdminPQRS() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [responses, setResponses] = useState<Response[]>([]);
   const [responsesLoading, setResponsesLoading] = useState(false);
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data } = await supabase
-        .from("pqrs")
-        .select("*,businesses(name)")
-        .order("created_at", { ascending: false });
-      setItems((data as any) ?? []);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [responsesError, setResponsesError] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
+  const [filter, setFilter] = useState<"todos" | Pqrs["status"]>("todos");
+  const [search, setSearch] = useState("");
+
+  const load = useCallback(async (background = false) => {
+    if (background) setRefreshing(true);
+    else setLoading(true);
     setLoadError(null);
 
     try {
