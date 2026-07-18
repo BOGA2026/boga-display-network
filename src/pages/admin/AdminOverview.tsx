@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, Wifi, RefreshCw } from "lucide-react";
+import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, BadgeCheck, RefreshCw } from "lucide-react";
 import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
 import { fetchWithRetry } from "@/lib/adminFetch";
 
@@ -73,8 +73,8 @@ export default function AdminOverview() {
     { label: "Ubicaciones", value: s?.locations ?? 0, icon: MapPin, tone: "neutral" },
     { label: "Contenido", value: s?.content ?? 0, icon: FileImage, tone: "neutral" },
     { label: "Leads", value: s?.leads ?? 0, hint: `${s?.leadsNew ?? 0} nuevos`, icon: Inbox, tone: "warning" },
-    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: Wifi, tone: "success" },
-    { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), icon: TrendingUp, tone: "accent" },
+    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: BadgeCheck, tone: "success" },
+    { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), hint: "Pagos aprobados este mes (Wompi)", icon: TrendingUp, tone: "accent" },
     { label: "Ingresos totales", value: fmtCOP(s?.revenueTotal ?? 0), hint: `${s?.paymentsCount ?? 0} pagos`, icon: CreditCard, tone: "success" },
   ];
 

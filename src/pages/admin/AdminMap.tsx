@@ -80,7 +80,15 @@ export default function AdminMap() {
       {error && <div className="text-destructive text-sm">Error: {error}</div>}
 
       {loading ? (
-        <Skeleton className="h-[500px] w-full" />
+        <Card className="p-10 flex flex-col items-center justify-center gap-3 bg-background/40 border-border/50" style={{ minHeight: 500 }}>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "hsl(var(--admin-accent))" }} />
+          <div className="text-sm text-muted-foreground">Cargando ubicaciones…</div>
+        </Card>
+      ) : locations.length === 0 ? (
+        <Card className="p-10 text-center bg-background/40 border-border/50">
+          <MapIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground/50" />
+          <div className="text-sm text-muted-foreground">Aún no hay sedes registradas</div>
+        </Card>
       ) : view === "map" ? (
         withCoords.length === 0 ? (
           <Card className="p-10 text-center bg-background/40 border-border/50">

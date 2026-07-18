@@ -4,6 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MessageSquare, Send, WifiOff, RefreshCw, Power, Activity } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -31,6 +41,10 @@ export default function AdminSupport() {
   const [loading, setLoading] = useState(true);
   const [screens, setScreens] = useState<Screen[]>([]);
   const [search, setSearch] = useState("");
+  const [confirm, setConfirm] = useState<
+    | { screen: Screen; command: "restart_playback" | "force_sync" }
+    | null
+  >(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const loadThreads = useCallback(async () => {
@@ -217,10 +231,10 @@ export default function AdminSupport() {
                   {s.last_seen_at ? `Última: ${formatDistanceToNow(new Date(s.last_seen_at), { addSuffix: true, locale: es })}` : "Nunca conectada"}
                 </div>
                 <div className="flex gap-1 mt-2">
-                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => sendCommand(s.id, "force_sync")}>
+                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => setConfirm({ screen: s, command: "force_sync" })}>
                     <RefreshCw className="h-3 w-3 mr-1" /> Sync
                   </Button>
-                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => sendCommand(s.id, "restart_playback")}>
+                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => setConfirm({ screen: s, command: "restart_playback" })}>
                     <Power className="h-3 w-3 mr-1" /> Reiniciar
                   </Button>
                 </div>
@@ -229,6 +243,34 @@ export default function AdminSupport() {
           </div>
         </Card>
       </div>
+
+      <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirm?.command === "restart_playback"
+                ? `¿Reiniciar "${confirm?.screen.name}"?`
+                : `¿Forzar sincronización en "${confirm?.screen.name}"?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm?.command === "restart_playback"
+                ? "La pantalla dejará de reproducir contenido por unos segundos mientras se reinicia. Si está en uso frente a clientes, esto se notará."
+                : "La pantalla volverá a descargar la programación actual. Puede haber una interrupción breve del contenido."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirm) sendCommand(confirm.screen.id, confirm.command);
+                setConfirm(null);
+              }}
+            >
+              {confirm?.command === "restart_playback" ? "Sí, reiniciar" : "Sí, sincronizar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

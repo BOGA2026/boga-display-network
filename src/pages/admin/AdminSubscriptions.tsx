@@ -82,7 +82,7 @@ export default function AdminSubscriptions() {
         <AdminKpiCard label="Activas" value={kpis.total} icon={CheckCircle2} tone="success" loading={loading} />
         <AdminKpiCard label="En prueba" value={kpis.trial} icon={Clock} tone="warning" loading={loading} />
         <AdminKpiCard label="Canceladas" value={kpis.canceled} icon={XCircle} tone="danger" loading={loading} />
-        <AdminKpiCard label="MRR estimado" value={fmtCOP(kpis.mrr)} icon={DollarSign} tone="accent" loading={loading} hint="Ingresos mensuales recurrentes" />
+        <AdminKpiCard label="MRR estimado" value={fmtCOP(kpis.mrr)} icon={DollarSign} tone="accent" loading={loading} hint="Suma teórica de suscripciones activas. No refleja pagos cobrados — ver Resumen › Ingresos del mes." />
       </div>
 
       <div className="admin-card overflow-hidden">

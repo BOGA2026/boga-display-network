@@ -17,7 +17,8 @@ import {
   Map as MapIcon,
   MessageSquare,
   FileText,
-  AlertTriangle,
+  Menu,
+  X,
 } from "lucide-react";
 import { signOut } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
@@ -76,8 +77,14 @@ export default function AdminLayout() {
   useSessionTracker(session?.user?.id);
   const [checking, setChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (loading || !session) return;
@@ -125,7 +132,6 @@ export default function AdminLayout() {
 
     load();
 
-    // Resilient realtime channel: reconnect on drop + on tab regains focus.
     let channel = supabase
       .channel("admin-badges")
       .on("postgres_changes", { event: "*", schema: "public", table: "pqrs" }, load)
@@ -151,9 +157,6 @@ export default function AdminLayout() {
     };
   }, [isAdmin]);
 
-  // Render layout shell immediately once the session is known. Only the main
-  // area shows a subtle placeholder while we verify admin role — the sidebar,
-  // header and navigation are visible right away so the panel never blanks out.
   const showShell = !loading && !!session;
   if (!showShell) {
     return (
@@ -163,20 +166,118 @@ export default function AdminLayout() {
     );
   }
 
+  const sidebar = (
+    <aside
+      className="w-64 shrink-0 flex flex-col h-full"
+      style={{
+        background: "hsl(var(--admin-surface))",
+        borderRight: "1px solid hsl(var(--admin-border))",
+      }}
+    >
+      <div
+        className="flex items-center gap-2 px-5 h-14 shrink-0"
+        style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
+      >
+        <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
+        <span
+          className="text-[10px] uppercase tracking-[0.18em] font-semibold"
+          style={{ color: "hsl(var(--admin-accent))" }}
+        >
+          Admin
+        </span>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="md:hidden ml-auto p-1.5 rounded"
+          aria-label="Cerrar menú"
+          style={{ color: "hsl(var(--admin-fg-muted))" }}
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <nav className="flex-1 px-2 py-2 overflow-y-auto">
+        {groups.map((group) => (
+          <div key={group.label}>
+            <div className="admin-nav-label">{group.label}</div>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const { to, label, icon: Icon, end, badgeKey } = item;
+                const badge = badgeKey ? badges[badgeKey] : 0;
+                const active = end ? pathname === to : pathname.startsWith(to);
+                return (
+                  <Link key={to} to={to} className="admin-nav-item" data-active={active}>
+                    <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
+                    <span className="flex-1 truncate">{label}</span>
+                    {badgeKey && badgesError ? null : badge > 0 ? (
+                      <span
+                        className="text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-medium"
+                        style={{ background: "hsl(var(--admin-danger))", color: "white" }}
+                      >
+                        {badge}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div
+        className="p-2 space-y-0.5 shrink-0"
+        style={{ borderTop: "1px solid hsl(var(--admin-border))" }}
+      >
+        <Link to="/dashboard" className="admin-nav-item">
+          <ShieldCheck className="h-[16px] w-[16px]" strokeWidth={1.75} />
+          <span>Ir al panel de negocio</span>
+        </Link>
+        <button
+          onClick={() => signOut().then(() => navigate("/login"))}
+          className="admin-nav-item w-full text-left"
+        >
+          <LogOut className="h-[16px] w-[16px]" strokeWidth={1.75} />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+  );
+
   return (
     <div className="admin-shell flex h-dvh overflow-hidden font-sans antialiased">
-      <aside
-        className="w-64 shrink-0 flex flex-col"
-        style={{
-          background: "hsl(var(--admin-surface))",
-          borderRight: "1px solid hsl(var(--admin-border))",
-        }}
-      >
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex">{sidebar}</div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+          <div className="absolute inset-y-0 left-0 flex">{sidebar}</div>
+        </div>
+      )}
+
+      <main className="flex-1 min-w-0 overflow-y-auto" style={{ background: "hsl(var(--admin-bg))" }}>
+        {/* Mobile top bar */}
         <div
-          className="flex items-center gap-2 px-5 h-14"
-          style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
+          className="md:hidden flex items-center gap-3 h-12 px-3 sticky top-0 z-30"
+          style={{
+            background: "hsl(var(--admin-surface))",
+            borderBottom: "1px solid hsl(var(--admin-border))",
+          }}
         >
-          <img src={logoVisualia} alt="Visualia" className="h-5 w-auto" />
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-2 rounded"
+            aria-label="Abrir menú"
+            style={{ color: "hsl(var(--admin-fg))" }}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <img src={logoVisualia} alt="Visualia" className="h-4 w-auto" />
           <span
             className="text-[10px] uppercase tracking-[0.18em] font-semibold"
             style={{ color: "hsl(var(--admin-accent))" }}
@@ -185,54 +286,6 @@ export default function AdminLayout() {
           </span>
         </div>
 
-        <nav className="flex-1 px-2 py-2 overflow-y-auto">
-          {groups.map((group) => (
-            <div key={group.label}>
-              <div className="admin-nav-label">{group.label}</div>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const { to, label, icon: Icon, end, badgeKey } = item;
-                  const badge = badgeKey ? badges[badgeKey] : 0;
-                  const active = end ? pathname === to : pathname.startsWith(to);
-                  return (
-                    <Link key={to} to={to} className="admin-nav-item" data-active={active}>
-                      <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
-                      <span className="flex-1 truncate">{label}</span>
-                      {badgeKey && badgesError ? null : badge > 0 ? (
-                        <span
-                          className="text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-medium"
-                          style={{ background: "hsl(var(--admin-danger))", color: "white" }}
-                        >
-                          {badge}
-                        </span>
-                      ) : null}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        <div
-          className="p-2 space-y-0.5"
-          style={{ borderTop: "1px solid hsl(var(--admin-border))" }}
-        >
-          <Link to="/dashboard" className="admin-nav-item">
-            <ShieldCheck className="h-[16px] w-[16px]" strokeWidth={1.75} />
-            <span>Ir al panel de negocio</span>
-          </Link>
-          <button
-            onClick={() => signOut().then(() => navigate("/login"))}
-            className="admin-nav-item w-full text-left"
-          >
-            <LogOut className="h-[16px] w-[16px]" strokeWidth={1.75} />
-            <span>Cerrar sesión</span>
-          </button>
-        </div>
-      </aside>
-
-      <main className="flex-1 overflow-y-auto" style={{ background: "hsl(var(--admin-bg))" }}>
         {checking || !isAdmin ? (
           <div className="p-8">
             <div className="admin-card p-6 flex items-center gap-3">
