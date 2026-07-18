@@ -198,13 +198,7 @@ export default function AdminLayout() {
                     <Link key={to} to={to} className="admin-nav-item" data-active={active}>
                       <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
                       <span className="flex-1 truncate">{label}</span>
-                      {badgeKey && badgesError ? (
-                        <AlertTriangle
-                          className="h-3.5 w-3.5 shrink-0"
-                          style={{ color: "hsl(var(--admin-warning))" }}
-                          aria-label="No se pudo cargar el contador"
-                        />
-                      ) : badge > 0 ? (
+                      {badgeKey && badgesError ? null : badge > 0 ? (
                         <span
                           className="text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-medium"
                           style={{ background: "hsl(var(--admin-danger))", color: "white" }}

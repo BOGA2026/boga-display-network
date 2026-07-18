@@ -129,7 +129,7 @@ export default function AdminPQRS() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
-        <Card className="bg-background/40 border-border/50 overflow-hidden flex flex-col" style={{ height: "70vh" }}>
+        <Card className="admin-card overflow-hidden flex flex-col" style={{ height: "70vh" }}>
           <div className="p-3 border-b border-border/50 space-y-2">
             <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-background/60 h-8 text-sm" />
             <div className="flex gap-1 flex-wrap">
@@ -164,7 +164,7 @@ export default function AdminPQRS() {
           </div>
         </Card>
 
-        <Card className="bg-background/40 border-border/50 flex flex-col" style={{ height: "70vh" }}>
+        <Card className="admin-card flex flex-col" style={{ height: "70vh" }}>
           {!selected ? (
             <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
               Seleccioná un caso para ver el detalle
