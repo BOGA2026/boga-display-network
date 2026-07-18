@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, Wifi, RefreshCw } from "lucide-react";
+import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, BadgeCheck, RefreshCw } from "lucide-react";
 import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
 import { fetchWithRetry } from "@/lib/adminFetch";
 
