@@ -252,6 +252,27 @@
   --admin-warning: 38 92% 60%;
   --admin-danger: 0 78% 62%;
 
+  /* Rebind the shared shadcn/Tailwind semantic tokens inside the console.
+   * Without this, Card, headings and text-muted-foreground keep the public
+   * light-theme colors and look like a translucent disabled layer on dark UI. */
+  --background: var(--admin-bg);
+  --foreground: var(--admin-fg);
+  --card: var(--admin-surface);
+  --card-foreground: var(--admin-fg);
+  --popover: var(--admin-surface);
+  --popover-foreground: var(--admin-fg);
+  --muted: var(--admin-surface-2);
+  --muted-foreground: var(--admin-fg-muted);
+  --secondary: var(--admin-surface-2);
+  --secondary-foreground: var(--admin-fg);
+  --accent: var(--admin-surface-2);
+  --accent-foreground: var(--admin-fg);
+  --border: var(--admin-border);
+  --input: var(--admin-border);
+  --primary: var(--admin-accent);
+  --primary-foreground: 0 0% 100%;
+  --ring: var(--admin-accent);
+
   background: hsl(var(--admin-bg));
   color: hsl(var(--admin-fg));
   font-feature-settings: "cv02","cv03","cv04","cv11";
@@ -261,6 +282,7 @@
 
 .admin-shell .admin-card {
   background: hsl(var(--admin-surface));
+  color: hsl(var(--admin-fg));
   border: 1px solid hsl(var(--admin-border));
   border-radius: 12px;
   box-shadow: 0 1px 0 hsl(0 0% 100% / 0.02) inset;
