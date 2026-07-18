@@ -1,0 +1,237 @@
+import { useMemo, useState } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { CreditCard, Building2, Smartphone } from "lucide-react";
+
+const TIERS = [
+  { min: 1, max: 5, price: 50000 },
+  { min: 6, max: 20, price: 42000 },
+  { min: 21, max: 50, price: 35000 },
+  { min: 51, max: 100, price: 28000 },
+  { min: 101, max: 300, price: 22000 },
+] as const;
+
+const fmtCOP = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+
+function clamp(n: number) {
+  return Math.min(300, Math.max(1, Math.floor(n) || 1));
+}
+
+export function PriceCalculator() {
+  const [screens, setScreens] = useState(3);
+  const [annual, setAnnual] = useState(false);
+
+  const tier = useMemo(
+    () => TIERS.find((t) => screens >= t.min && screens <= t.max),
+    [screens]
+  );
+  const total = tier ? tier.price * screens : null;
+
+  const handleSlider = (value: number[]) => {
+    setScreens(clamp(value[0] ?? 1));
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setScreens(clamp(+e.target.value));
+  };
+
+  return (
+    <section aria-labelledby="calc-title" className="px-6 pb-20">
+      <div className="mx-auto max-w-5xl">
+        <div className="glass-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
+          <div className="grid gap-10 lg:grid-cols-2">
+            <div>
+              <h2
+                id="calc-title"
+                className="font-display text-3xl font-bold text-foreground md:text-4xl"
+              >
+                ¿Cuánto me cuesta?
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Ajustá el número de pantallas y sabé tu precio al instante. IVA incluido.
+              </p>
+
+              <div className="mt-8 space-y-6">
+                <div className="mb-4">
+                  <div className="mb-3 flex items-end justify-between">
+                    <label htmlFor="screens-input" className="text-sm text-muted-foreground">
+                      Número de pantallas
+                    </label>
+                    <span className="font-display text-3xl font-bold stat-glow" aria-hidden="true">
+                      {screens}
+                    </span>
+                  </div>
+                  <Slider
+                    value={[screens]}
+                    onValueChange={handleSlider}
+                    min={1}
+                    max={300}
+                    step={1}
+                    className="py-2"
+                    aria-label="Número de pantallas"
+                  />
+                  <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+                    <span>1</span>
+                    <span>50</span>
+                    <span>100</span>
+                    <span>200</span>
+                    <span>300</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Input
+                    id="screens-input"
+                    type="number"
+                    min={1}
+                    max={300}
+                    value={screens}
+                    onChange={handleInput}
+                    className="w-32"
+                    aria-describedby="calc-title"
+                  />
+                  <span className="text-sm text-muted-foreground">pantallas</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>
+                    Mensual
+                  </span>
+                  <Switch
+                    checked={annual}
+                    onCheckedChange={setAnnual}
+                    aria-label="Cambiar a pago anual con 20% de descuento"
+                  />
+                  <span className={annual ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>
+                    Anual
+                  </span>
+                  {annual && (
+                    <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
+                      Ahorrá 20%
+                    </span>
+                  )}
+                </div>
+
+                <div className="rounded-xl surface-neon p-6 text-center transition-all duration-300">
+                  <p aria-live="polite" className="font-display text-2xl font-bold stat-glow">
+                    {tier && total !== null ? (
+                      <>
+                        {fmtCOP.format(annual ? Math.round(total * 0.8) : total)}
+                        <span className="ml-2 text-sm font-normal text-muted-foreground">/mes</span>
+                      </>
+                    ) : (
+                      <a
+                        href="https://wa.me/573163265696?text=Hola%2C%20tengo%20m%C3%A1s%20de%20300%20pantallas"
+                        className="text-primary hover:underline"
+                      >
+                        Hablemos de un plan corporativo
+                      </a>
+                    )}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {tier && total !== null ? (
+                      <>
+                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes ·{" "}
+                        {screens} pantalla{screens > 1 ? "s" : ""}
+                      </>
+                    ) : (
+                      "Más de 300 pantallas"
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border/30 bg-secondary/20 p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground">
+                  ¿Qué pasa al terminar los 14 días de prueba?
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  Elegís el plan que quieras. No cobramos automáticamente porque no te pedimos tarjeta de crédito.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border/30 bg-secondary/20 p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground">Medios de pago</h3>
+                <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-primary" aria-hidden="true" />
+                    Tarjeta de crédito o débito
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
+                    PSE
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4 text-primary" aria-hidden="true" />
+                    Nequi / Daviplata
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border border-border/30 bg-secondary/20 p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground">Facturación</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  ¿Necesitás factura electrónica? Sí, emitimos factura DIAN.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <h3 className="mb-4 font-display text-lg font-semibold text-foreground">Tabla de precios</h3>
+            <div className="overflow-x-auto rounded-xl border border-border/30">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/30">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium text-foreground">Rango de pantallas</th>
+                    <th className="px-4 py-3 text-right font-medium text-foreground">Precio por pantalla/mes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TIERS.map((t) => {
+                    const active = screens >= t.min && screens <= t.max;
+                    return (
+                      <tr
+                        key={t.min}
+                        className={active ? "bg-primary/5" : "even:bg-secondary/10"}
+                      >
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {t.min === t.max ? `${t.min}` : `${t.min} - ${t.max}`} pantalla{t.max > 1 ? "s" : ""}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-foreground">
+                          {active && tier ? (
+                            <span className="text-primary">{fmtCOP.format(tier.price)}</span>
+                          ) : (
+                            fmtCOP.format(t.price)
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="even:bg-secondary/10">
+                    <td className="px-4 py-3 text-muted-foreground">Más de 300 pantallas</td>
+                    <td className="px-4 py-3 text-right font-medium text-foreground">
+                      <a
+                        href="https://wa.me/573163265696?text=Hola%2C%20tengo%20m%C3%A1s%20de%20300%20pantallas"
+                        className="text-primary hover:underline"
+                      >
+                        Plan corporativo
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
