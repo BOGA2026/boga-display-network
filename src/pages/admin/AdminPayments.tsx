@@ -117,15 +117,20 @@ export default function AdminPayments() {
                     : tone === "warn" ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
                     : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
                   const label =
-                    tone === "danger" ? `Vencido ${Math.abs(r.days!)}d`
-                    : tone === "warn" ? `Vence en ${r.days}d`
+                    tone === "danger" ? `Vencido hace ${Math.abs(r.days!)} d`
+                    : tone === "warn" ? `Vence en ${r.days} d`
                     : "Al día";
+                  const daysText =
+                    r.days === null ? "—"
+                    : r.days < 0 ? `Vencido hace ${Math.abs(r.days)} días`
+                    : r.days === 0 ? "Vence hoy"
+                    : `En ${r.days} días`;
                   return (
-                    <tr key={r.id} className="border-b border-border/30 hover:bg-white/5">
+                    <tr key={r.id} className="border-b border-border/30">
                       <td className="p-3 font-medium">{r.businesses?.name ?? "—"}</td>
                       <td className="p-3">{r.plan}</td>
                       <td className="p-3 text-muted-foreground">{r.next_billing_date ? new Date(r.next_billing_date).toLocaleDateString("es-CO") : "—"}</td>
-                      <td className="p-3">{r.days ?? "—"}</td>
+                      <td className="p-3 whitespace-nowrap">{daysText}</td>
                       <td className="p-3">{fmtCOP(Number(r.total_amount))}</td>
                       <td className="p-3"><span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase ${badge}`}>{label}</span></td>
                     </tr>
