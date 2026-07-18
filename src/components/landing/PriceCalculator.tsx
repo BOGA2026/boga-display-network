@@ -25,7 +25,15 @@ function clamp(n: number) {
   return Math.min(300, Math.max(1, Math.floor(n) || 1));
 }
 
-function InfoTooltip({ children, label }: { children: React.ReactNode; label?: string }) {
+function InfoTooltip({
+  children,
+  label,
+  side = "top",
+}: {
+  children: React.ReactNode;
+  label?: string;
+  side?: "top" | "bottom" | "left" | "right";
+}) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -37,7 +45,7 @@ function InfoTooltip({ children, label }: { children: React.ReactNode; label?: s
           <Info className="h-4 w-4" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+      <TooltipContent side={side} className="max-w-xs text-xs leading-snug">
         {children}
       </TooltipContent>
     </Tooltip>
