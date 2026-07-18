@@ -4,7 +4,8 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Building2, Smartphone, ArrowRight } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
 
 const TIERS = [
   { min: 1, max: 5, price: 50000 },
@@ -22,6 +23,25 @@ const fmtCOP = new Intl.NumberFormat("es-CO", {
 
 function clamp(n: number) {
   return Math.min(300, Math.max(1, Math.floor(n) || 1));
+}
+
+function InfoTooltip({ children, label }: { children: React.ReactNode; label?: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          className="inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Info className="h-4 w-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+        {children}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export function PriceCalculator() {
