@@ -590,21 +590,23 @@ const Landing = () => {
                       reverse ? "md:order-1" : ""
                     }`}
                   >
-                    <video
+                    <LazyVideo
                       autoPlay
                       loop
                       muted
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       width={i === 1 ? 270 : i === 2 ? 1080 : 480}
                       height={i === 1 ? 480 : i === 2 ? 608 : 270}
                       aria-label={`Demostración: ${b.title}`}
                       onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
                       className="w-full h-auto block"
-                    >
-                      <source src={b.media} type="video/mp4" />
-                      <source src={b.mediaWebm} type="video/webm" />
-                    </video>
+                      sources={[
+                        { src: b.media, type: "video/mp4" },
+                        { src: b.mediaWebm, type: "video/webm" },
+                      ]}
+                    />
+
                   </div>
                 </div>
               );
