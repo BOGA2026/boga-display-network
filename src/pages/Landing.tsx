@@ -811,16 +811,13 @@ const Landing = () => {
                   "{t.quote}"
                 </p>
                 <div className="mt-5 flex items-center gap-3">
-                  <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      t.name
-                    )}&background=6d28d9&color=fff&size=96&bold=true`}
-                    alt={`Foto de ${t.name}, ${t.role} en ${t.business}`}
-                    loading="lazy"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full"
+                  <InitialsAvatar
+                    name={t.name}
+                    size={40}
+                    ariaLabel={`Avatar de ${t.name}, ${t.role} en ${t.business}`}
+                    className="h-10 w-10"
                   />
+
                   <div>
                     <p className="text-sm font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">
