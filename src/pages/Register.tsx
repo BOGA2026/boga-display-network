@@ -221,9 +221,29 @@ const Register = () => {
 
                 </div>
               </div>
+              <div className="flex items-start gap-3 pt-2">
+                <Checkbox
+                  id="accept-legal"
+                  checked={acceptedLegal}
+                  onCheckedChange={(v) => setAcceptedLegal(v === true)}
+                  aria-required="true"
+                  className="mt-0.5"
+                />
+                <Label htmlFor="accept-legal" className="text-sm font-normal leading-snug text-muted-foreground cursor-pointer">
+                  Acepto la{" "}
+                  <Link to="/privacidad" target="_blank" className="text-primary hover:underline">
+                    política de tratamiento de datos
+                  </Link>{" "}
+                  y los{" "}
+                  <Link to="/terminos" target="_blank" className="text-primary hover:underline">
+                    términos y condiciones
+                  </Link>
+                  .
+                </Label>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0" disabled={loading}>
+              <Button type="submit" className="w-full gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0" disabled={loading || !acceptedLegal}>
                 {loading ? "Creando cuenta..." : "Crear cuenta"}
               </Button>
               <p className="text-center text-sm text-muted-foreground">
