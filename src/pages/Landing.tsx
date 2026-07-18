@@ -4,6 +4,10 @@ import { prefetchPublicRoutes } from "@/lib/prefetch";
 
 import heroVideo from "@/assets/hero-video.mp4";
 import heroVideoWebm from "@/assets/hero-video.webm";
+import heroPresenterMp4 from "@/assets/hero-presenter.mp4.asset.json";
+import heroPresenterWebm from "@/assets/hero-presenter.webm.asset.json";
+import benefitsVideo from "@/assets/benefits-video.mp4";
+import benefitsPresenterWebm from "@/assets/benefits-presenter.webm.asset.json";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -206,10 +210,12 @@ const Landing = () => {
   const [volume, setVolume] = useState(savedVolume);
   const [showSoundPrompt, setShowSoundPrompt] = useState(initialMuted);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [activeHeroVideo, setActiveHeroVideo] = useState<"presenter" | "product">("presenter");
+  const presenterRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const vid = heroRef.current;
+    const vid = presenterRef.current;
     if (!vid) return;
     vid.muted = true; // must start muted for autoplay
     vid.volume = volume;
@@ -232,7 +238,7 @@ const Landing = () => {
   const persistVolume = (v: number) => localStorage.setItem("visualia_hero_volume", String(v));
 
   const activateSound = useCallback(() => {
-    const vid = heroRef.current;
+    const vid = activeHeroVideo === "presenter" ? presenterRef.current : heroRef.current;
     if (vid) {
       vid.muted = false;
       vid.volume = volume || 0.8;
@@ -241,11 +247,12 @@ const Landing = () => {
     setMuted(false);
     setShowSoundPrompt(false);
     persistMuted(false);
-  }, [volume]);
+  }, [activeHeroVideo, volume]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
       const next = !m;
+      if (presenterRef.current) presenterRef.current.muted = next;
       if (heroRef.current) heroRef.current.muted = next;
       persistMuted(next);
       return next;
@@ -257,15 +264,40 @@ const Landing = () => {
     setVolume(v);
     persistVolume(v);
     const vid = heroRef.current;
-    if (vid) {
-      vid.volume = v;
-      if (v > 0 && vid.muted) {
-        vid.muted = false;
+    const presenter = presenterRef.current;
+    [vid, presenter].forEach((video) => {
+      if (video) {
+        video.volume = v;
+        if (v > 0 && video.muted) video.muted = false;
+      }
+    });
+    if (v > 0 && muted) {
         setMuted(false);
         persistMuted(false);
-      }
     }
-  }, []);
+  }, [muted]);
+
+  const showProductVideo = useCallback(() => {
+    setActiveHeroVideo("product");
+    const video = heroRef.current;
+    if (video) {
+      video.currentTime = 0;
+      video.muted = muted;
+      video.volume = volume;
+      video.play().catch(() => {});
+    }
+  }, [muted, volume]);
+
+  const showPresenterVideo = useCallback(() => {
+    setActiveHeroVideo("presenter");
+    const video = presenterRef.current;
+    if (video) {
+      video.currentTime = 0;
+      video.muted = muted;
+      video.volume = volume;
+      video.play().catch(() => {});
+    }
+  }, [muted, volume]);
 
   const forceIntro = searchParams.get("intro") === "reset";
   const [showIntro, setShowIntro] = useState(() => forceIntro || !hasSeenIntro());
@@ -349,10 +381,35 @@ const Landing = () => {
               <img src={logoVisualia} alt="Visualia" className="w-full h-auto block" />
             )}
             <video
-              ref={heroRef}
+              ref={presenterRef}
               autoPlay
               muted
-              loop
+              playsInline
+              preload="auto"
+              width={854}
+              height={480}
+              aria-label="Presentación de Visualia"
+              onEnded={showProductVideo}
+              onError={() => setVideoFailed(true)}
+              onCanPlay={(event) => {
+                setVideoFailed(false);
+                if (activeHeroVideo === "presenter") event.currentTarget.play().catch(() => {});
+              }}
+              className="w-full h-auto block transition-opacity duration-700"
+              style={{
+                display: videoFailed ? "none" : "block",
+                opacity: activeHeroVideo === "presenter" ? 1 : 0,
+                position: activeHeroVideo === "presenter" ? "relative" : "absolute",
+                inset: 0,
+                zIndex: activeHeroVideo === "presenter" ? 2 : 1,
+              }}
+            >
+              <source src={heroPresenterMp4.url} type="video/mp4" />
+              <source src={heroPresenterWebm.url} type="video/webm" />
+            </video>
+            <video
+              ref={heroRef}
+              muted
               playsInline
               // @ts-ignore
               webkit-playsinline="true"
@@ -360,21 +417,28 @@ const Landing = () => {
               width={854}
               height={480}
               aria-label="Demostración de Visualia en una pantalla de menú digital"
+              onEnded={showPresenterVideo}
               onError={() => setVideoFailed(true)}
               onCanPlay={(event) => {
                 setVideoFailed(false);
-                event.currentTarget.play().catch(() => {});
+                if (activeHeroVideo === "product") event.currentTarget.play().catch(() => {});
               }}
               onLoadedData={() => {
                 const vid = heroRef.current;
-                if (vid) {
+                if (vid && activeHeroVideo === "product") {
                   vid.volume = volume;
                   vid.muted = muted;
                   vid.play().catch(() => {});
                 }
               }}
-              className="w-full h-auto block"
-              style={{ display: videoFailed ? "none" : "block" }}
+              className="w-full h-auto block transition-opacity duration-700"
+              style={{
+                display: videoFailed ? "none" : "block",
+                opacity: activeHeroVideo === "product" ? 1 : 0,
+                position: activeHeroVideo === "product" ? "relative" : "absolute",
+                inset: 0,
+                zIndex: activeHeroVideo === "product" ? 2 : 1,
+              }}
             >
               <source src={heroVideo} type="video/mp4" />
               <source src={heroVideoWebm} type="video/webm" />
@@ -432,6 +496,34 @@ const Landing = () => {
 
       {/* 2. SOCIAL PROOF */}
       <ClientLogosStrip />
+
+      <section className="px-4 py-16 md:px-6 md:py-20" aria-labelledby="video-explicativo-title">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 max-w-2xl">
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">Visualia en acción</p>
+            <h2 id="video-explicativo-title" className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              Convierte tus pantallas en vendedores
+            </h2>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              width={1280}
+              height={720}
+              aria-label="Explicación de Visualia presentada por su creador"
+              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              className="block h-auto w-full"
+            >
+              <source src={benefitsVideo} type="video/mp4" />
+              <source src={benefitsPresenterWebm.url} type="video/webm" />
+            </video>
+          </div>
+        </div>
+      </section>
 
       {/* 3. THREE BENEFITS */}
       <section id="beneficios" className="px-4 py-16 md:px-6 md:py-24">
