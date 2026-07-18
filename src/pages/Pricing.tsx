@@ -1,4 +1,5 @@
 import Seo from "@/components/Seo";
+import { Faq } from "@/components/Faq";
 
 import showcaseImg from "@/assets/signage-restaurant.webp";
 import showcaseImg2 from "@/assets/signage-icecream.webp";
@@ -148,6 +149,8 @@ const Pricing = () => {
           <p className="text-muted-foreground">Funciona con cualquier pantalla y Android Box. Conecta, configura desde el panel y listo.</p>
         </div>
       </section>
+
+      <Faq />
 
       {/* CTA */}
       <section className="px-6 py-20">

@@ -24,12 +24,6 @@ import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
 import Testimonials from "@/components/landing/Testimonials";
 import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   ArrowRight,
   Star,
   Instagram,
@@ -42,6 +36,7 @@ import {
   Clock,
   Building2,
 } from "lucide-react";
+import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
@@ -130,33 +125,6 @@ const pricingTiers = [
     ],
     cta: "Habla con ventas",
     highlight: false,
-  },
-];
-
-const faqs = [
-  {
-    q: "¿Qué TV necesito?",
-    a: "Cualquier televisor con entrada HDMI. Si es Smart TV con Android TV o Google TV, funciona directo. Si no, le conectas un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar) o un Amazon Fire TV Stick.",
-  },
-  {
-    q: "¿Necesito internet en el local?",
-    a: "Sí, WiFi básico es suficiente. Si se cae la red, la pantalla sigue mostrando el último contenido descargado.",
-  },
-  {
-    q: "¿Puedo cancelar cuando quiera?",
-    a: "Sí. No hay permanencia ni penalización. Cancelas desde el panel con un clic.",
-  },
-  {
-    q: "¿Cuánto tarda en estar funcionando?",
-    a: "Menos de 10 minutos. Creas cuenta, conectas la TV con un código y subes tu primer contenido.",
-  },
-  {
-    q: "¿Puedo manejar varias sedes?",
-    a: "Sí. Agrupa pantallas por local o zona y envía contenido a una o a todas desde el mismo panel.",
-  },
-  {
-    q: "¿Sirve para restaurantes, cafeterías y otros negocios?",
-    a: "Sí. Lo usan restaurantes, heladerías, panaderías, gimnasios y tiendas. Cualquier negocio con una TV a la vista.",
   },
 ];
 
@@ -325,19 +293,6 @@ const Landing = () => {
         title="Visualia | Menús digitales para restaurantes – Pantallas que venden"
         description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos. Prueba gratis 14 días."
         path="/"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          name: "Visualia",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Android TV, Fire TV, Web",
-          description: "Plataforma de menús digitales y cartelería para restaurantes.",
-          offers: {
-            "@type": "Offer",
-            priceCurrency: "COP",
-            price: "50000",
-          },
-        }}
       />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
       <LandingHeader />
@@ -785,31 +740,7 @@ const Landing = () => {
 
 
       {/* 6. FAQ */}
-      <section id="faq" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
-              Preguntas frecuentes
-            </p>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              Lo que otros dueños preguntan antes de empezar
-            </h2>
-          </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((f, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {f.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
+      <Faq />
 
       {/* 7. FINAL CTA */}
       <section className="px-4 py-20 md:px-6 md:py-28 border-t border-border/40">

@@ -59,6 +59,19 @@ const faqs = [
   },
 ];
 
+const aboutFaqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.a,
+    },
+  })),
+};
+
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -96,6 +109,7 @@ export default function AboutPage() {
         title="Acerca de Visualia | Menús digitales para negocios en Colombia"
         description="Conoce Visualia: plataforma colombiana de menús digitales y cartelería para restaurantes y comercios. Nuestra misión, equipo y respuestas frecuentes."
         path="/acerca"
+        jsonLd={aboutFaqJsonLd}
       />
       <LandingHeader />
 
