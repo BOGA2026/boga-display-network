@@ -203,7 +203,7 @@ export function PriceCalculator() {
                         className={active ? "bg-primary/5" : "even:bg-secondary/10"}
                       >
                         <td className="px-4 py-3 text-muted-foreground">
-                          {t.min === t.max ? `${t.min}` : `${t.min} - ${t.max}`} pantalla{t.max > 1 ? "s" : ""}
+                          {t.min} - {t.max} pantallas
                         </td>
                         <td className="px-4 py-3 text-right font-medium text-foreground">
                           {active && tier ? (
