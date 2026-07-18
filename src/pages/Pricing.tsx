@@ -1,13 +1,11 @@
-import { useState, useMemo } from "react";
 import Seo from "@/components/Seo";
 
 import showcaseImg from "@/assets/signage-restaurant.webp";
 import showcaseImg2 from "@/assets/signage-icecream.webp";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import LandingHeader from "@/components/landing/LandingHeader";
+import { PriceCalculator } from "@/components/landing/PriceCalculator";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
   Monitor,
@@ -16,7 +14,6 @@ import {
   ListMusic,
   Headphones,
   ArrowRight,
-  Check,
   BarChart3,
   Globe,
   Zap,
