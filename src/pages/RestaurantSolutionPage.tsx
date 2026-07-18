@@ -1,6 +1,7 @@
 import LandingHeader from "@/components/landing/LandingHeader";
 import RestaurantSolution from "@/components/landing/RestaurantSolution";
 import ExpertChat from "@/components/landing/ExpertChat";
+import LegalFooter from "@/components/landing/LegalFooter";
 import Seo from "@/components/Seo";
 import { useState } from "react";
 
