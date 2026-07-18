@@ -239,8 +239,19 @@ export default function AdminLayout() {
       </aside>
 
       <main className="flex-1 overflow-y-auto" style={{ background: "hsl(var(--admin-bg))" }}>
-        <Outlet />
+        {checking || !isAdmin ? (
+          <div className="p-8">
+            <div className="admin-card p-6 flex items-center gap-3">
+              <div
+                className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+                style={{ borderColor: "hsl(var(--admin-accent))" }}
+              />
+              <span className="text-[13px] admin-muted">Verificando permisos…</span>
+            </div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </main>
-    </div>
   );
 }
