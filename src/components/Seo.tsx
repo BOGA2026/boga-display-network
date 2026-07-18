@@ -37,6 +37,8 @@ export default function Seo({
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />
+      <meta property="og:locale" content="es_CO" />
+      <meta property="og:site_name" content="Visualia" />
       <meta property="og:image" content={image} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
