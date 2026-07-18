@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Monitor, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LEGAL_VERSIONS } from "@/lib/legalVersions";
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -27,13 +29,34 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // ─── Google login ───
   const handleGoogleLogin = async () => {
+    if (!acceptedLegal) {
+      toast({
+        title: "Aceptación requerida",
+        description: "Debes aceptar la política de tratamiento de datos y los términos para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
     setLoading(true);
+    // Persist intended consent so we can log it after OAuth returns.
+    try {
+      sessionStorage.setItem(
+        "visualia_pending_consent",
+        JSON.stringify({
+          privacy: LEGAL_VERSIONS.privacy,
+          terms: LEGAL_VERSIONS.terms,
+          at: new Date().toISOString(),
+          context: "registration_google",
+        }),
+      );
+    } catch { /* ignore */ }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -53,6 +76,14 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!businessName.trim() || !email.trim() || !password.trim()) return;
+    if (!acceptedLegal) {
+      toast({
+        title: "Aceptación requerida",
+        description: "Debes aceptar la política de tratamiento de datos y los términos para crear la cuenta.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -84,6 +115,34 @@ const Register = () => {
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.error || "Error al crear negocio");
+      }
+
+      // 3. Persist consent audit trail (best-effort; do not block signup)
+      if (authData.session) {
+        try {
+          await supabase.from("legal_consents").insert({
+            user_id: userId,
+            policy_version: LEGAL_VERSIONS.privacy,
+            terms_version: LEGAL_VERSIONS.terms,
+            user_agent: navigator.userAgent,
+            context: "registration",
+          });
+        } catch (consentErr) {
+          console.warn("No se pudo registrar el consentimiento:", consentErr);
+        }
+      } else {
+        // Session not yet available (email confirmation on) — stash intent
+        try {
+          sessionStorage.setItem(
+            "visualia_pending_consent",
+            JSON.stringify({
+              privacy: LEGAL_VERSIONS.privacy,
+              terms: LEGAL_VERSIONS.terms,
+              at: new Date().toISOString(),
+              context: "registration",
+            }),
+          );
+        } catch { /* ignore */ }
       }
 
       toast({ title: "Cuenta creada exitosamente" });
@@ -162,9 +221,29 @@ const Register = () => {
 
                 </div>
               </div>
+              <div className="flex items-start gap-3 pt-2">
+                <Checkbox
+                  id="accept-legal"
+                  checked={acceptedLegal}
+                  onCheckedChange={(v) => setAcceptedLegal(v === true)}
+                  aria-required="true"
+                  className="mt-0.5"
+                />
+                <Label htmlFor="accept-legal" className="text-sm font-normal leading-snug text-muted-foreground cursor-pointer">
+                  Acepto la{" "}
+                  <Link to="/privacidad" target="_blank" className="text-primary hover:underline">
+                    política de tratamiento de datos
+                  </Link>{" "}
+                  y los{" "}
+                  <Link to="/terminos" target="_blank" className="text-primary hover:underline">
+                    términos y condiciones
+                  </Link>
+                  .
+                </Label>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0" disabled={loading}>
+              <Button type="submit" className="w-full gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0" disabled={loading || !acceptedLegal}>
                 {loading ? "Creando cuenta..." : "Crear cuenta"}
               </Button>
               <p className="text-center text-sm text-muted-foreground">

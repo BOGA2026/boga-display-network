@@ -1,4 +1,5 @@
 import LandingHeader from "@/components/landing/LandingHeader";
+import LegalFooter from "@/components/landing/LegalFooter";
 import Seo from "@/components/Seo";
 import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -254,6 +255,7 @@ export default function AboutPage() {
           </Link>
         </div>
       </section>
+      <LegalFooter />
     </div>
   );
 }

@@ -9,11 +9,34 @@ export function useAuth(redirectTo = "/login") {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const flushPendingConsent = async (userId: string) => {
+      try {
+        const raw = sessionStorage.getItem("visualia_pending_consent");
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as {
+          privacy: string;
+          terms: string;
+          context?: string;
+        };
+        await supabase.from("legal_consents").insert({
+          user_id: userId,
+          policy_version: parsed.privacy,
+          terms_version: parsed.terms,
+          user_agent: navigator.userAgent,
+          context: parsed.context ?? "registration",
+        });
+        sessionStorage.removeItem("visualia_pending_consent");
+      } catch (err) {
+        console.warn("No se pudo registrar el consentimiento pendiente:", err);
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setLoading(false);
         if (!session) navigate(redirectTo, { replace: true });
+        else if (session.user?.id) void flushPendingConsent(session.user.id);
       }
     );
 
@@ -21,6 +44,7 @@ export function useAuth(redirectTo = "/login") {
       setSession(session);
       setLoading(false);
       if (!session) navigate(redirectTo, { replace: true });
+      else if (session.user?.id) void flushPendingConsent(session.user.id);
     });
 
     return () => subscription.unsubscribe();
