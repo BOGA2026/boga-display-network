@@ -20,24 +20,6 @@ import {
   Shield,
 } from "lucide-react";
 
-const tiers = [
-  { max: 5, price: 50000 },
-  { max: 20, price: 42000 },
-  { max: 50, price: 35000 },
-  { max: 100, price: 28000 },
-  { max: 300, price: 22000 },
-];
-
-function formatCOP(value: number) {
-  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-}
-
-function getPrice(screens: number) {
-  for (const t of tiers) {
-    if (screens <= t.max) return t.price;
-  }
-  return tiers[tiers.length - 1].price;
-}
 
 const included = [
   { icon: Monitor, label: "Gestión remota de pantallas" },
