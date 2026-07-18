@@ -78,7 +78,7 @@ const steps = [
   {
     num: "01",
     title: "Conecta tu pantalla",
-    desc: "Enchufa cualquier TV con Android o Fire TV. Ingresa un código y listo.",
+    desc: "Enchufa cualquier TV con Android TV o Fire TV. Si tu TV no es \"smart\", usa un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar). Ingresa un código de 6 dígitos y listo.",
   },
   {
     num: "02",
@@ -135,7 +135,7 @@ const pricingTiers = [
 const faqs = [
   {
     q: "¿Qué TV necesito?",
-    a: "Cualquier televisor con entrada HDMI. Le conectas un Amazon Fire TV Stick o un Android TV Box económico y ya funciona.",
+    a: "Cualquier televisor con entrada HDMI. Si es Smart TV con Android TV o Google TV, funciona directo. Si no, le conectas un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar) o un Amazon Fire TV Stick.",
   },
   {
     q: "¿Necesito internet en el local?",
@@ -176,9 +176,9 @@ const testimonials = [
   },
 ];
 
-const HEADLINE = "Pantallas que venden más, sin esfuerzo";
+const HEADLINE = "Tu menú en pantalla, siempre actualizado y vendiendo más";
 const SUBHEAD =
-  "Visualia convierte cualquier TV en un canal de ventas para tu restaurante. Sube tu menú, promos y videos desde el celular.";
+  "Cambia precios y promociones desde tu celular y se actualizan al instante en todas las pantallas de tu restaurante. Sin diseñador, sin técnico, sin imprimir cartas nunca más.";
 
 function formatCOP(value: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -343,47 +343,41 @@ const Landing = () => {
 
 
       {/* 1. HERO */}
-      <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28">
+      <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28" aria-labelledby="hero-title">
         <div className="relative mx-auto max-w-5xl text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-            Menús digitales para restaurantes
-          </p>
-          <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
-            Pantallas que venden más,{" "}
-            <span className="text-gradient-primary">sin esfuerzo</span>
-            <span className="sr-only"> — plataforma de menús digitales para restaurantes en Colombia</span>
+          <h1
+            id="hero-title"
+            className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl"
+          >
+            Menús digitales para restaurantes:{" "}
+            <span className="text-gradient-primary">tu carta en pantalla, siempre vendiendo</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {SUBHEAD}
           </p>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <Button size="lg" className="px-8 text-base" asChild>
-              <Link to="/registro">
+              <Link to="/registro" data-analytics="cta_hero_registro">
                 Prueba gratis 14 días <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-8 text-base"
-              onClick={() => setChatOpen(true)}
+            <p className="text-xs text-muted-foreground">
+              Sin tarjeta de crédito · Cancela cuando quieras
+            </p>
+            <a
+              href="#demo"
+              className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:underline"
+              data-analytics="cta_hero_demo"
             >
-              <Play className="mr-2 h-4 w-4" /> Ver demo de 2 min
-            </Button>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
-            <span>Sin tarjeta de crédito</span>
-            <span className="hidden sm:inline">·</span>
-            <span>Cancela cuando quieras</span>
-            <span className="hidden sm:inline">·</span>
-            <span>Listo en 10 minutos</span>
+              <Play className="h-3.5 w-3.5" /> Ver demo de 2 minutos
+            </a>
           </div>
 
           {/* Product mockup: hero video */}
           <div
-            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border shadow-lg"
+            id="demo"
+            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border shadow-lg scroll-mt-24"
           >
 
             {videoFailed && (
