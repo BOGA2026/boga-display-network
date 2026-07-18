@@ -24,12 +24,6 @@ import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
 import Testimonials from "@/components/landing/Testimonials";
 import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   ArrowRight,
   Star,
   Instagram,
@@ -42,6 +36,7 @@ import {
   Clock,
   Building2,
 } from "lucide-react";
+import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
