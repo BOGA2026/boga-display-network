@@ -50,9 +50,7 @@ export default function AdminOverview() {
     setLoading(true);
     setError(null);
     try {
-      const data = await invokeWithTimeout<{ stats: Stats; businesses: Business[] }>(
-        "admin-overview"
-      );
+      const data = await loadOverview();
       setStats(data?.stats ?? null);
       setBusinesses(data?.businesses ?? []);
     } catch (e: any) {
