@@ -32,12 +32,9 @@ export default function AdminLayout() {
   useEffect(() => {
     if (loading || !session) return;
     (async () => {
-      const { data } = await supabase
-        .from("platform_admins")
-        .select("user_id")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-      if (!data) {
+      const { data: hasAdminAccess, error } = await supabase.rpc("is_platform_admin");
+      if (error || !hasAdminAccess) {
+        if (error) console.error("No se pudo verificar el acceso de administrador", error);
         navigate("/dashboard", { replace: true });
         return;
       }

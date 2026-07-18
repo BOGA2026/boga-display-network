@@ -50,7 +50,27 @@ const Login = () => {
 
   // Only allow same-origin relative paths as post-login redirect target.
   const rawNext = searchParams.get("next") ?? "";
-  const nextTarget = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
+  const explicitNextTarget = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+
+  const resolvePostLoginTarget = useCallback(async () => {
+    if (explicitNextTarget) return explicitNextTarget;
+
+    const { data: isAdmin, error } = await supabase.rpc("is_platform_admin");
+    if (error) console.error("No se pudo verificar el acceso de administrador", error);
+    return isAdmin ? "/admin" : "/dashboard";
+  }, [explicitNextTarget]);
+
+  useEffect(() => {
+    if (searchParams.get("oauth") !== "callback") return;
+
+    let active = true;
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!active || !user) return;
+      window.location.replace(await resolvePostLoginTarget());
+    });
+
+    return () => { active = false; };
+  }, [resolvePostLoginTarget, searchParams]);
 
   // Cooldown timer
   useEffect(() => {
@@ -69,7 +89,7 @@ const Login = () => {
         password,
       });
       if (error) throw error;
-      window.location.assign(nextTarget);
+      window.location.assign(await resolvePostLoginTarget());
     } catch (err: any) {
       toast({
         title: "Error al iniciar sesión",
@@ -122,7 +142,7 @@ const Login = () => {
         type: "email",
       });
       if (error) throw error;
-      window.location.assign(nextTarget);
+      window.location.assign(await resolvePostLoginTarget());
     } catch (err: any) {
       toast({
         title: "Código inválido",
@@ -133,7 +153,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, nextTarget, toast]);
+  }, [email, resolvePostLoginTarget, toast]);
 
   // Auto-submit when 6 digits entered
   useEffect(() => {
@@ -175,7 +195,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}${nextTarget}`,
+        redirectTo: `${window.location.origin}/login?oauth=callback${explicitNextTarget ? `&next=${encodeURIComponent(explicitNextTarget)}` : ""}`,
       },
     });
     if (error) {
