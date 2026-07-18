@@ -128,33 +128,6 @@ const pricingTiers = [
   },
 ];
 
-const faqs = [
-  {
-    q: "¿Qué TV necesito?",
-    a: "Cualquier televisor con entrada HDMI. Si es Smart TV con Android TV o Google TV, funciona directo. Si no, le conectas un TV Box Android (un aparato pequeño de ~$150.000 COP que convierte cualquier TV en Smart TV — te decimos cuál comprar) o un Amazon Fire TV Stick.",
-  },
-  {
-    q: "¿Necesito internet en el local?",
-    a: "Sí, WiFi básico es suficiente. Si se cae la red, la pantalla sigue mostrando el último contenido descargado.",
-  },
-  {
-    q: "¿Puedo cancelar cuando quiera?",
-    a: "Sí. No hay permanencia ni penalización. Cancelas desde el panel con un clic.",
-  },
-  {
-    q: "¿Cuánto tarda en estar funcionando?",
-    a: "Menos de 10 minutos. Creas cuenta, conectas la TV con un código y subes tu primer contenido.",
-  },
-  {
-    q: "¿Puedo manejar varias sedes?",
-    a: "Sí. Agrupa pantallas por local o zona y envía contenido a una o a todas desde el mismo panel.",
-  },
-  {
-    q: "¿Sirve para restaurantes, cafeterías y otros negocios?",
-    a: "Sí. Lo usan restaurantes, heladerías, panaderías, gimnasios y tiendas. Cualquier negocio con una TV a la vista.",
-  },
-];
-
 const testimonials = [
   {
     name: "Alba Sabogal",
