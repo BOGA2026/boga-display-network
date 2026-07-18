@@ -1,4 +1,5 @@
 import Seo from "@/components/Seo";
+import { Faq } from "@/components/Faq";
 
 import showcaseImg from "@/assets/signage-restaurant.webp";
 import showcaseImg2 from "@/assets/signage-icecream.webp";
