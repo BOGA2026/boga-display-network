@@ -87,7 +87,7 @@ export default function AdminOverview() {
       <AdminPageHeader
         title="Resumen"
         subtitle="Vista global de la plataforma Visualia"
-        action={
+        actions={
           <button
             onClick={load}
             disabled={loading}
