@@ -84,7 +84,7 @@ export default function AdminLayout() {
     (async () => {
       const { data: hasAdminAccess, error } = await supabase.rpc("is_platform_admin");
       if (error || !hasAdminAccess) {
-        if (error) console.error("No se pudo verificar el acceso de administrador", error);
+        if (error) logError(error, { label: "is_platform_admin" });
         navigate("/dashboard", { replace: true });
         return;
       }
@@ -94,29 +94,68 @@ export default function AdminLayout() {
   }, [session, loading, navigate]);
 
   const [badges, setBadges] = useState<{ pqrs: number; chat: number }>({ pqrs: 0, chat: 0 });
+  const [badgesError, setBadgesError] = useState(false);
+  const reconnectRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isAdmin) return;
+
     const load = async () => {
-      const [{ count: pqrs }, { data: threads }] = await Promise.all([
-        supabase.from("pqrs").select("id", { count: "exact", head: true }).eq("read_by_admin", false),
-        supabase.from("support_threads").select("unread_by_admin"),
-      ]);
-      const chat = (threads ?? []).reduce((a: number, t: any) => a + (t.unread_by_admin || 0), 0);
-      setBadges({ pqrs: pqrs ?? 0, chat });
+      try {
+        const result = await fetchWithRetry(
+          async () => {
+            const [pqrsRes, threadsRes] = await Promise.all([
+              supabase.from("pqrs").select("id", { count: "exact", head: true }).eq("read_by_admin", false),
+              supabase.from("support_threads").select("unread_by_admin"),
+            ]);
+            if (pqrsRes.error) throw Object.assign(new Error(pqrsRes.error.message), { status: (pqrsRes as any).status ?? 500 });
+            if (threadsRes.error) throw Object.assign(new Error(threadsRes.error.message), { status: (threadsRes as any).status ?? 500 });
+            const chat = (threadsRes.data ?? []).reduce((a: number, t: any) => a + (t.unread_by_admin || 0), 0);
+            return { pqrs: pqrsRes.count ?? 0, chat };
+          },
+          { label: "admin-badges", timeoutMs: 8000, retries: 2 }
+        );
+        setBadges(result);
+        setBadgesError(false);
+      } catch (err) {
+        setBadgesError(true);
+        logError(err, { label: "admin-badges" });
+      }
     };
+
     load();
-    const ch = supabase
+
+    // Resilient realtime channel: reconnect on drop + on tab regains focus.
+    let channel = supabase
       .channel("admin-badges")
       .on("postgres_changes", { event: "*", schema: "public", table: "pqrs" }, load)
       .on("postgres_changes", { event: "*", schema: "public", table: "support_threads" }, load)
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+          if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
+          reconnectRef.current = window.setTimeout(() => load(), 2000);
+        }
+      });
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("online", load);
+
     return () => {
-      supabase.removeChannel(ch);
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("online", load);
+      if (reconnectRef.current) window.clearTimeout(reconnectRef.current);
     };
   }, [isAdmin]);
 
-  if (loading || checking || !isAdmin) {
+  // Render layout shell immediately once the session is known. Only the main
+  // area shows a subtle placeholder while we verify admin role — the sidebar,
+  // header and navigation are visible right away so the panel never blanks out.
+  const showShell = !loading && !!session;
+  if (!showShell) {
     return (
       <div className="admin-shell flex h-dvh items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "hsl(var(--admin-accent))" }} />
