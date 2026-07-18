@@ -8,6 +8,8 @@ import heroPresenterMp4 from "@/assets/hero-presenter.mp4.asset.json";
 import heroPresenterWebm from "@/assets/hero-presenter.webm.asset.json";
 import benefitsVideo from "@/assets/benefits-video.mp4";
 import benefitsPresenterWebm from "@/assets/benefits-presenter.webm.asset.json";
+import albertPresenter2Mp4 from "@/assets/albert-presenter-2.mp4";
+import albertPresenter2Webm from "@/assets/albert-presenter-2.webm";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
