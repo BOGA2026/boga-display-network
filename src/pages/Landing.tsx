@@ -659,7 +659,7 @@ const Landing = () => {
             </p>
           </div>
           <div className="relative mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-border shadow-lg">
-            <video
+            <LazyVideo
               ref={presenter2Ref}
               autoPlay
               loop
@@ -671,10 +671,12 @@ const Landing = () => {
               aria-label="Mensaje del creador de Visualia"
               onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
               className="block h-auto w-full"
-            >
-              <source src={albertPresenter2Mp4} type="video/mp4" />
-              <source src={albertPresenter2Webm} type="video/webm" />
-            </video>
+              sources={[
+                { src: albertPresenter2Mp4, type: "video/mp4" },
+                { src: albertPresenter2Webm, type: "video/webm" },
+              ]}
+            />
+
             <button
               type="button"
               onClick={() => {
