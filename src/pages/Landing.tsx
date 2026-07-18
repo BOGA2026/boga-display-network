@@ -779,51 +779,9 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonials (extra social proof) */}
-      <section className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 max-w-2xl">
-            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
-              Casos reales
-            </p>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              Negocios que ya venden más
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-2xl border border-border/60 bg-card/40 p-7"
-              >
-                <div className="mb-4 flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
-                </div>
-                <p className="text-base leading-relaxed text-foreground/90">
-                  "{t.quote}"
-                </p>
-                <div className="mt-5 flex items-center gap-3">
-                  <InitialsAvatar
-                    name={t.name}
-                    size={40}
-                    ariaLabel={`Avatar de ${t.name}, ${t.role} en ${t.business}`}
-                    className="h-10 w-10"
-                  />
+      {/* Testimonials (real only — see src/components/landing/Testimonials.tsx) */}
+      <Testimonials />
 
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {t.role} · {t.business}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 6. FAQ */}
       <section id="faq" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
