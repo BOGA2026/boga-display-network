@@ -217,6 +217,8 @@ const Landing = () => {
   const heroRef = useRef<HTMLVideoElement>(null);
   const benefitsVideoRef = useRef<HTMLVideoElement>(null);
   const [benefitsMuted, setBenefitsMuted] = useState(true);
+  const presenter2Ref = useRef<HTMLVideoElement>(null);
+  const [presenter2Muted, setPresenter2Muted] = useState(true);
 
 
   useEffect(() => {
