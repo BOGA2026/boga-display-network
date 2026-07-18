@@ -1,16 +1,41 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import DashboardSidebar from "./DashboardSidebar";
 import { Separator } from "@/components/ui/separator";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardLayout = () => {
   const { session, loading } = useAuth("/login");
+  const [checkingRole, setCheckingRole] = useState(true);
+  const navigate = useNavigate();
   useSessionTracker(session?.user?.id);
 
-  if (loading) {
+  useEffect(() => {
+    if (loading) return;
+    if (!session) {
+      setCheckingRole(false);
+      return;
+    }
+
+    let active = true;
+    supabase.rpc("is_platform_admin").then(({ data: isAdmin, error }) => {
+      if (!active) return;
+      if (error) console.error("No se pudo verificar el acceso de administrador", error);
+      if (isAdmin) {
+        navigate("/admin", { replace: true });
+        return;
+      }
+      setCheckingRole(false);
+    });
+
+    return () => { active = false; };
+  }, [loading, session, navigate]);
+
+  if (loading || checkingRole) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />

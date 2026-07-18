@@ -53,11 +53,13 @@ const Login = () => {
   const explicitNextTarget = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
 
   const resolvePostLoginTarget = useCallback(async () => {
-    if (explicitNextTarget) return explicitNextTarget;
-
     const { data: isAdmin, error } = await supabase.rpc("is_platform_admin");
     if (error) console.error("No se pudo verificar el acceso de administrador", error);
-    return isAdmin ? "/admin" : "/dashboard";
+    // Platform administrators must always enter the platform console. A stale
+    // `next=/dashboard` value previously overrode this check and sent them to
+    // the customer dashboard even though their admin grant was valid.
+    if (isAdmin) return explicitNextTarget?.startsWith("/admin") ? explicitNextTarget : "/admin";
+    return explicitNextTarget ?? "/dashboard";
   }, [explicitNextTarget]);
 
   useEffect(() => {
