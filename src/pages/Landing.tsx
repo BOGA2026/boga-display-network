@@ -8,6 +8,8 @@ import heroPresenterMp4 from "@/assets/hero-presenter.mp4.asset.json";
 import heroPresenterWebm from "@/assets/hero-presenter.webm.asset.json";
 import benefitsVideo from "@/assets/benefits-video.mp4";
 import benefitsPresenterWebm from "@/assets/benefits-presenter.webm.asset.json";
+import albertPresenter2Mp4 from "@/assets/albert-presenter-2.mp4";
+import albertPresenter2Webm from "@/assets/albert-presenter-2.webm";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -615,6 +617,40 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Presenter message from Albert */}
+      <section className="px-4 py-16 md:px-6 md:py-20" aria-labelledby="mensaje-presentador-title">
+        <div className="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-2">
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">Un mensaje del equipo</p>
+            <h2 id="mensaje-presentador-title" className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              Hecho por gente que entiende tu negocio
+            </h2>
+            <p className="mt-4 max-w-md text-base text-muted-foreground">
+              Diseñamos Visualia junto a restaurantes reales para que vendas más sin complicarte con tecnología.
+            </p>
+          </div>
+          <div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-border shadow-lg">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              width={480}
+              height={854}
+              aria-label="Mensaje del creador de Visualia"
+              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              className="block h-auto w-full"
+            >
+              <source src={albertPresenter2Mp4} type="video/mp4" />
+              <source src={albertPresenter2Webm} type="video/webm" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+
 
       {/* 5. PRICING */}
       <section id="precios" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
