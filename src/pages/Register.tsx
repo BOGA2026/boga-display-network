@@ -151,7 +151,7 @@ const Register = () => {
         navigate("/login");
       }
     } catch (err: any) {
-      console.error("Register error:", err);
+      if (import.meta.env.DEV) console.error("Register error:", err);
       toast({
         title: "Error al crear cuenta",
         description: err.message || "Intenta de nuevo",
