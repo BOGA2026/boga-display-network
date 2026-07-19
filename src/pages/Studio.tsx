@@ -105,7 +105,7 @@ const Studio = () => {
       {/* ─── BLOCK 1: Plataforma vs Studio ─── */}
       <section className="relative px-6 pt-36 md:pt-44">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-6 text-center text-sm text-muted-foreground md:text-base">
+          <p className="studio-on-light mb-6 text-center text-sm text-muted-foreground md:text-base">
             La plataforma es el escenario;{" "}
             <span className="font-semibold text-foreground">Studio es el show.</span>
           </p>
@@ -172,7 +172,7 @@ const Studio = () => {
           <div className="absolute left-1/2 top-16 h-72 w-72 -translate-x-1/2 rounded-full opacity-15 blur-[120px]" style={{ background: "hsl(270 100% 50%)" }} />
         </div>
 
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div className="studio-on-light relative mx-auto max-w-4xl text-center">
           <span
             className="mb-6 inline-flex items-center gap-2 rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-widest"
             style={{
@@ -239,7 +239,7 @@ const Studio = () => {
 
       {/* ─── Pre-plans context ─── */}
       <section className="px-6 pb-6 pt-10">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="studio-on-light mx-auto max-w-3xl text-center">
           <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
             Visualia Studio desarrolla el <span className="font-semibold text-foreground">concepto visual, diseño y estrategia de contenido</span> para tus menús digitales y promociones.
           </p>
@@ -249,7 +249,7 @@ const Studio = () => {
       {/* ─── Portafolio Antes / Después ─── */}
       <section className="px-6 py-16 md:py-20" id="antes-despues">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
+          <div className="studio-on-light mb-10 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               Así se ve la diferencia
             </h2>
@@ -281,7 +281,7 @@ const Studio = () => {
       <section className="px-6 py-16 md:py-20">
 
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
+          <div className="studio-on-light mb-10 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               Elige tu plan
             </h2>
@@ -547,7 +547,7 @@ const Studio = () => {
       {/* ─── ¿Cómo trabajamos? (timeline) ─── */}
       <section id="como-trabajamos" className="px-6 py-16 md:py-20">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-12 text-center">
+          <div className="studio-on-light mb-12 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               ¿Cómo trabajamos?
             </h2>
@@ -591,7 +591,7 @@ const Studio = () => {
       {/* ─── FAQ específica de Studio ─── */}
       <section id="faq-studio" className="px-6 py-16 md:py-20">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-10 text-center">
+          <div className="studio-on-light mb-10 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               Preguntas frecuentes sobre Studio
             </h2>
