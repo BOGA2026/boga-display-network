@@ -38,6 +38,14 @@ import {
 } from "lucide-react";
 import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
+import { PRICING_TIERS, MIN_PRICE_PER_SCREEN } from "@/config/pricing";
+
+const _fmtCOP = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+const formatCOPStatic = (n: number) => _fmtCOP.format(n);
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
 import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
