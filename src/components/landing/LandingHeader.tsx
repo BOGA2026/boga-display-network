@@ -111,19 +111,19 @@ const LandingHeader = () => {
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled ? "rgba(6,0,16,0.92)" : "rgba(6,0,16,0.75)",
+        background: scrolled ? "rgba(6,0,16,0.92)" : "rgba(6,0,16,0.8)",
         backdropFilter: "saturate(180%) blur(16px)",
         WebkitBackdropFilter: "saturate(180%) blur(16px)",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
       }}
     >
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6" style={{ height: 68 }}>
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 lg:px-6 h-[60px] lg:h-[68px]">
         {/* Logo */}
         <Link
           to="/"
           className="flex items-center transition-transform duration-[250ms] hover:scale-105"
         >
-          <img src={simboloVisualia} alt="Visualia" className="h-9 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" className="h-8 lg:h-9 w-auto" />
         </Link>
 
         {/* Desktop Nav — Pill container */}
