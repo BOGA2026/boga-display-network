@@ -313,13 +313,14 @@
  * Rebinds semantic tokens so text-foreground / text-muted-foreground
  * resolve to light colors (WCAG AA on dark surfaces).
  * ============================================================ */
+/**
+ * Studio page scope. The page renders on the global light background,
+ * so foreground tokens must stay dark. Only override tokens that need
+ * a Studio-specific tint; do NOT override foreground colors here or
+ * text becomes white-on-white. Dark cards inside /studio set their own
+ * inline text colors.
+ */
 .studio-shell {
-  --foreground: 220 13% 96%;            /* ~#F2F3F5 */
-  --muted-foreground: 220 12% 78%;      /* ~#C1C6CF — AA on dark cards */
-  --card-foreground: 220 13% 96%;
-  --popover-foreground: 220 13% 96%;
-  --border: 260 15% 22%;
-  --input: 260 15% 22%;
   color: hsl(var(--foreground));
 }
 
