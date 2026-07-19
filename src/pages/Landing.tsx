@@ -234,6 +234,27 @@ const Landing = () => {
     ]);
   }, []);
 
+  // Reveal bento / steps / pricing cards as they enter the viewport.
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const elements = document.querySelectorAll(".reveal-on-scroll");
+    if (elements.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+
   const persistMuted = (m: boolean) => localStorage.setItem("visualia_hero_muted", String(m));
   const persistVolume = (v: number) => localStorage.setItem("visualia_hero_volume", String(v));
 
@@ -535,7 +556,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 3. THREE BENEFITS */}
+      {/* 3. THREE BENEFITS — Bento grid glass cards */}
       <section id="beneficios" className="px-4 py-16 md:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 max-w-2xl">
@@ -547,49 +568,22 @@ const Landing = () => {
             </h2>
           </div>
 
-          <div className="space-y-16 md:space-y-24">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {benefits.map((b, i) => {
               const Icon = b.icon;
-              const reverse = i % 2 === 1;
               return (
                 <div
                   key={b.title}
-                  className="grid items-center gap-8 md:grid-cols-2 md:gap-14"
+                  className="bento-card reveal-on-scroll p-6"
+                  style={{ transitionDelay: `${i * 120}ms` }}
                 >
-                  <div className={reverse ? "md:order-2" : ""}>
-                    <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-display text-2xl font-semibold text-foreground md:text-3xl">
-                      {b.title}
-                    </h3>
-                    <p className="mt-3 max-w-md text-base text-muted-foreground">
-                      {b.desc}
-                    </p>
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(82,39,255,0.15)] text-[#B19EEF]">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <div
-                    className={`overflow-hidden rounded-2xl border border-border/60 ${
-                      reverse ? "md:order-1" : ""
-                    }`}
-                  >
-                    <LazyVideo
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      width={i === 1 ? 270 : i === 2 ? 1080 : 480}
-                      height={i === 1 ? 480 : i === 2 ? 608 : 270}
-                      aria-label={`Demostración: ${b.title}`}
-                      onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
-                      className="w-full h-auto block"
-                      sources={[
-                        { src: b.media, type: "video/mp4" },
-                        { src: b.mediaWebm, type: "video/webm" },
-                      ]}
-                    />
-
-                  </div>
+                  <h3 className="font-display text-xl font-semibold text-white">
+                    {b.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/60">{b.desc}</p>
                 </div>
               );
             })}
@@ -597,7 +591,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
+      {/* 4. HOW IT WORKS — connected glass cards */}
       <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
@@ -609,24 +603,37 @@ const Landing = () => {
             </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {steps.map((s) => (
-              <div
-                key={s.num}
-                className="rounded-2xl border border-border/60 bg-card/40 p-6"
-              >
-                <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-semibold">
-                  {s.num}
+          <div className="flex flex-col gap-4 md:flex-row md:items-stretch md:gap-6">
+            {steps.map((s, i) => (
+              <div key={s.num} className="flex flex-1 items-center gap-4 md:flex-col md:items-stretch">
+                <div
+                  className="bento-card reveal-on-scroll flex-1 p-6"
+                  style={{ transitionDelay: `${i * 120}ms` }}
+                >
+                  <div className="font-display text-5xl font-bold leading-none tracking-tight md:text-6xl bg-gradient-to-r from-[#5227FF] to-[#B19EEF] bg-clip-text text-transparent">
+                    {s.num}
+                  </div>
+                  <h3 className="font-display mt-5 text-lg font-semibold text-white">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/60">{s.desc}</p>
                 </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+                {i < steps.length - 1 && (
+                  <>
+                    <div className="hidden md:flex items-center justify-center text-white/20">
+                      <ArrowRight className="h-6 w-6" />
+                    </div>
+                    <div className="flex md:hidden items-center justify-center py-1 text-white/20">
+                      <ArrowRight className="h-5 w-5 rotate-90" />
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
+
 
       {/* Presenter message from Albert */}
       <section className="px-4 py-16 md:px-6 md:py-20" aria-labelledby="mensaje-presentador-title">
@@ -696,60 +703,65 @@ const Landing = () => {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {pricingTiers.map((t) => (
+            {pricingTiers.map((t, i) => (
               <div
                 key={t.name}
-                className={`relative flex flex-col rounded-2xl border p-7 ${
+                className={`relative flex flex-col p-7 ${
                   t.highlight
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-border/60 bg-card/40"
+                    ? "gradient-border-shine reveal-on-scroll"
+                    : "bento-card reveal-on-scroll"
                 }`}
+                style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {t.highlight && (
-                  <span className="absolute -top-3 left-7 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  <span className="absolute -top-3 left-7 rounded-full bg-[#5227FF] px-3 py-1 text-xs font-semibold text-white">
                     Más popular
                   </span>
                 )}
-                <h3 className="font-display text-lg font-semibold text-foreground">
+                <h3 className="font-display text-lg font-semibold text-white">
                   {t.name}
                 </h3>
                 <div className="mt-4">
                   {t.price !== null ? (
                     <div className="flex items-baseline gap-1">
-                      <span className="font-display text-4xl font-bold text-foreground">
+                      <span className="font-display text-4xl font-bold text-white">
                         {formatCOP(t.price)}
                       </span>
                     </div>
                   ) : (
-                    <span className="font-display text-2xl font-semibold text-foreground">
+                    <span className="font-display text-2xl font-semibold text-white">
                       {t.priceLabel ?? "A medida"}
                     </span>
                   )}
-                  <p className="mt-1 text-sm text-muted-foreground">{t.detail}</p>
+                  <p className="mt-1 text-sm text-white/60">{t.detail}</p>
                 </div>
 
-                <ul className="mt-6 space-y-2.5 text-sm text-foreground/90">
+                <ul className="mt-6 space-y-2.5 text-sm text-white/90">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#B19EEF]" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-7">
-                  <Button
-                    className="w-full"
-                    variant={t.highlight ? "default" : "outline"}
-                    asChild
+                <div className="mt-auto pt-7">
+                  <Link
+                    to={t.ctaHref ?? "/registro"}
+                    className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] ${
+                      t.highlight
+                        ? "bg-[#5227FF] text-white hover:shadow-[0_0_40px_rgba(82,39,255,0.55)]"
+                        : "border border-white/15 bg-transparent text-white hover:bg-white/5"
+                    }`}
                   >
-                    <Link to={t.ctaHref ?? "/registro"}>{t.cta}</Link>
-                  </Button>
+                    {t.cta}
+                    {t.highlight && <ArrowRight className="h-4 w-4" />}
+                  </Link>
                 </div>
-
               </div>
             ))}
           </div>
+
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             Precios en pesos colombianos (COP). Facturación mensual.
