@@ -140,14 +140,15 @@ const Pricing = () => {
           <h2 className="mb-12 text-center font-display text-3xl font-bold text-foreground md:text-4xl">Todo incluido en cada plan</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {included.map((item) => (
-              <div key={item.label} className="flex items-center gap-4 glass-card hover:glass-card-hover rounded-xl px-5 py-4 transition-all duration-300 hover-lift">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 neon-border">
-                  <item.icon className="h-5 w-5 text-primary icon-neon" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{item.label}</span>
-              </div>
+              <FeatureCard
+                key={item.label}
+                title={item.label}
+                explanation={item.explanation}
+                icon={<item.icon className="h-5 w-5 text-primary icon-neon" aria-hidden="true" />}
+              />
             ))}
           </div>
+
         </div>
       </section>
 
