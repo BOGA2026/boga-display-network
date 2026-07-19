@@ -33,6 +33,28 @@ import Seo from "@/components/Seo";
 
 const Studio = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [headlineVisible, setHeadlineVisible] = useState(false);
+  const headlineRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHeadlineVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.05, rootMargin: "0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const serviceJsonLd = {
     "@context": "https://schema.org",
