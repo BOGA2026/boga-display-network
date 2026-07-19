@@ -4,11 +4,11 @@ import { ChevronDown } from "lucide-react";
 export const FAQ_ITEMS = [
   {
     q: "¿Sirve con el televisor que ya tengo?",
-    a: "Sí, si tu televisor es Smart TV con Android TV o Google TV. Si no lo es, conectás un TV Box Android (un aparato pequeño de aproximadamente $150.000 COP, pago único) y listo. También funciona con Amazon Fire TV Stick.",
+    a: "Sí, si tu televisor es Smart TV con Android TV o Google TV. Si no lo es, conectas un TV Box Android (un aparato pequeño de aproximadamente $150.000 COP, pago único) y listo. También funciona con Amazon Fire TV Stick.",
   },
   {
     q: "No sé nada de tecnología, ¿quién me lo instala?",
-    a: "No necesitás técnico. Conectás la app Visualia a tu televisor, ingresás un código de 6 dígitos y tu pantalla ya aparece en el panel. Si te trabás, nuestro soporte te guía paso a paso por chat o WhatsApp.",
+    a: "No necesitas técnico. Conectas la app Visualia a tu televisor, ingresas un código de 6 dígitos y tu pantalla ya aparece en el panel. Si tienes dudas, nuestro soporte te guía paso a paso por chat o WhatsApp.",
   },
   {
     q: "¿Qué pasa si se va internet en mi restaurante? ¿La pantalla se apaga?",
@@ -16,19 +16,19 @@ export const FAQ_ITEMS = [
   },
   {
     q: "¿Qué pasa cuando terminan los 14 días gratis?",
-    a: "Elegís si querés seguir con un plan pago o no. No te cobramos automáticamente ni te pedimos tarjeta de crédito para probar. Si decidís continuar, activás tu suscripción en un par de clics.",
+    a: "Eliges si quieres seguir con un plan pago o no. No te cobramos automáticamente ni te pedimos tarjeta de crédito para probar. Si decides continuar, activas tu suscripción en un par de clics.",
   },
   {
     q: "¿Cómo pago? ¿Dan factura electrónica?",
-    a: "Pagás con tarjeta de crédito o débito, PSE, Nequi o Daviplata. Emitimos factura electrónica de manera automática para que cumplas con la DIAN.",
+    a: "Pagas con tarjeta de crédito o débito, PSE, Nequi o Daviplata. Emitimos factura electrónica de manera automática para que cumplas con la DIAN.",
   },
   {
     q: "¿Puedo cambiar precios desde el celular?",
-    a: "Sí. Entrás al panel desde cualquier celular o computador, editás el menú y en segundos se actualiza en todas las pantallas de tu negocio.",
+    a: "Sí. Entras al panel desde cualquier celular o computador, editas el menú y en segundos se actualiza en todas las pantallas de tu negocio.",
   },
   {
     q: "¿Puedo cancelar cuando quiera?",
-    a: "Sí. No hay permanencia ni cláusulas de permanencia. Cancelás desde tu panel cuando quieras y no hay penalización.",
+    a: "Sí. No hay permanencia ni cláusulas de permanencia. Cancelas desde tu panel cuando quieras y no hay penalización.",
   },
 ];
 
