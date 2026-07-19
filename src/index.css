@@ -192,6 +192,16 @@
   .ambient-orb { display: none; }
   .particle { display: none; }
 
+  /* ── Feature disclosure card ── */
+  .chevron[data-open="true"] { transform: rotate(180deg); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .feature-card:hover .feature-panel[data-open="false"] {
+      grid-template-rows: 1fr;
+    }
+  }
+
+
   /* ── New primitives ── */
   .hover-lift {
     transition: transform 200ms ease-out, box-shadow 200ms ease-out;
