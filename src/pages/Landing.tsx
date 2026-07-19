@@ -88,10 +88,22 @@ const steps = [
   },
 ];
 
-const pricingTiers = [
+type PricingCard = {
+  name: string;
+  price: number | null;
+  priceLabel?: string;
+  detail: string;
+  features: string[];
+  cta: string;
+  ctaHref?: string;
+  highlight: boolean;
+  contact?: boolean;
+};
+
+const pricingTiers: PricingCard[] = [
   {
-    name: "1 pantalla",
-    price: 50000,
+    name: `${PRICING_TIERS[0].min} a ${PRICING_TIERS[0].max} pantallas`,
+    price: PRICING_TIERS[0].pricePerScreen,
     detail: "por pantalla / mes",
     features: [
       "Actualizaciones ilimitadas",
@@ -102,8 +114,8 @@ const pricingTiers = [
     highlight: false,
   },
   {
-    name: "De 2 a 20 pantallas",
-    price: 42000,
+    name: `${PRICING_TIERS[1].min} a ${PRICING_TIERS[1].max} pantallas`,
+    price: PRICING_TIERS[1].pricePerScreen,
     detail: "por pantalla / mes",
     features: [
       "Todo lo anterior",
@@ -115,15 +127,17 @@ const pricingTiers = [
     highlight: true,
   },
   {
-    name: "Más de 20 pantallas",
+    name: `${PRICING_TIERS[2].min} o más`,
     price: null,
-    detail: "Precio a medida",
+    priceLabel: `desde ${formatCOPStatic(MIN_PRICE_PER_SCREEN)}`,
+    detail: "por pantalla / mes, según volumen",
     features: [
       "Descuentos por volumen",
       "Onboarding personalizado",
       "Gerente de cuenta",
     ],
-    cta: "Habla con ventas",
+    cta: "Ver calculadora",
+    ctaHref: "/precios",
     highlight: false,
   },
 ];
