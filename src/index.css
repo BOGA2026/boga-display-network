@@ -132,18 +132,23 @@
   .glow-primary-sm,
   .glow-primary-lg,
   .glow-primary-intense {
-    box-shadow: 0 1px 2px hsl(240 10% 8% / 0.04), 0 4px 12px hsl(240 10% 8% / 0.06);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.35), 0 0 120px hsl(var(--primary) / 0.18);
   }
 
   .glass-card,
   .glass-card-hover,
   .surface-elevated,
   .surface-neon {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 2px hsl(240 10% 8% / 0.04);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+  }
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
   .text-gradient-primary,
