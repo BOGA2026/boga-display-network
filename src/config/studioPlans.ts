@@ -106,7 +106,7 @@ export const STUDIO_PLANS: StudioPlan[] = [
       "Programación automática por horarios",
       "Promociones destacadas en pantalla",
       "1 actualización mensual de precios o productos",
-      "Optimización continua del contenido",
+      "Cada mes revisamos qué funciona y mejoramos tus diseños",
     ],
     monthlyDetail: {
       title: null,
