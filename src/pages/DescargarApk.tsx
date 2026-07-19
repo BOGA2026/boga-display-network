@@ -45,11 +45,11 @@ const guidedSteps = [
   },
   {
     title: "Acepta instalar Visualia",
-    desc: "Cuando termine la descarga, la TV te preguntará si querés instalar. Confirmá y abrí la app.",
+    desc: "Cuando termine la descarga, la TV te preguntará si quieres instalar. Confirma y abre la app.",
   },
   {
-    title: "Conectá tu pantalla",
-    desc: "Visualia mostrará un código de 6 caracteres. Ingresalo en tu panel: Pantallas → Agregar pantalla.",
+    title: "Conecta tu pantalla",
+    desc: "Visualia mostrará un código de 6 caracteres. Ingrésalo en tu panel: Pantallas → Agregar pantalla.",
   },
 ];
 
@@ -174,8 +174,8 @@ export default function DescargarApk() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Escribí esta dirección en Downloader (o pedile ayuda a
-                  soporte, la ingresamos con vos).
+                  Escribe esta dirección en Downloader (o pídele ayuda a
+                  soporte, la ingresamos contigo).
                 </p>
               </div>
             </div>
@@ -300,14 +300,14 @@ export default function DescargarApk() {
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-              <span>Solo lee y muestra el contenido que vos programás desde el panel.</span>
+              <span>Solo lee y muestra el contenido que tú programas desde el panel.</span>
             </li>
           </ul>
         </Card>
 
         <div className="text-center">
           <p className="text-muted-foreground mb-4">
-            ¿Preferís que lo instalemos por vos? Es gratis.
+            ¿Prefieres que lo instalemos por ti? Es gratis.
           </p>
           <Button asChild size="lg">
             <a href="/#contacto">

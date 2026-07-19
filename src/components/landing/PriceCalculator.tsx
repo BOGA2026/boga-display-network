@@ -144,7 +144,7 @@ export function PriceCalculator() {
                     <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
                       Ahorrá 20%
                       <InfoTooltip label="Descuento anual" side="right">
-                        Pagás 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si preferís, podés seguir pagando mes a mes.
+                        Pagas 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si prefieres, puedes seguir pagando mes a mes.
                       </InfoTooltip>
                     </span>
                   )}
@@ -171,7 +171,7 @@ export function PriceCalculator() {
                       <>
                         {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
                         <InfoTooltip label="Precio por pantalla" side="right">
-                          El precio por pantalla baja automáticamente a medida que agregás más pantallas en tu negocio.
+                          El precio por pantalla baja automáticamente a medida que agregas más pantallas en tu negocio.
                         </InfoTooltip>
                         · {screens} pantalla{screens > 1 ? "s" : ""}
                       </>
@@ -189,7 +189,7 @@ export function PriceCalculator() {
                   ¿Qué pasa al terminar los 14 días de prueba?
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Elegís el plan que quieras. No cobramos automáticamente porque no te pedimos tarjeta de crédito.
+                  Eliges el plan que quieras. No cobramos automáticamente porque no te pedimos tarjeta de crédito.
                 </p>
               </div>
 
@@ -214,7 +214,7 @@ export function PriceCalculator() {
               <div className="rounded-xl border border-border/30 bg-secondary/20 p-6">
                 <h3 className="font-display text-lg font-semibold text-foreground">Facturación</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  ¿Necesitás factura electrónica? Sí, emitimos factura DIAN.
+                  ¿Necesitas factura electrónica? Sí, emitimos factura DIAN.
                 </p>
               </div>
             </div>
