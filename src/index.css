@@ -321,7 +321,23 @@
  * inline text colors.
  */
 .studio-shell {
+  --foreground: 220 13% 96%;            /* ~#F2F3F5 */
+  --muted-foreground: 220 12% 78%;      /* ~#C1C6CF — AA on dark cards */
+  --card-foreground: 220 13% 96%;
+  --popover-foreground: 220 13% 96%;
+  --border: 260 15% 22%;
+  --input: 260 15% 22%;
   color: hsl(var(--foreground));
+}
+
+/* Studio sections rendered directly on the light global background need
+   dark text — studio-shell defaults are white-on-dark. */
+.studio-shell .studio-on-light,
+.studio-shell .studio-on-light .text-foreground {
+  color: hsl(240 10% 12%);
+}
+.studio-shell .studio-on-light .text-muted-foreground {
+  color: hsl(240 6% 40%);
 }
 
 .admin-shell .admin-card {
