@@ -556,7 +556,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 3. THREE BENEFITS */}
+      {/* 3. THREE BENEFITS — Bento grid glass cards */}
       <section id="beneficios" className="px-4 py-16 md:px-6 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 max-w-2xl">
@@ -568,49 +568,22 @@ const Landing = () => {
             </h2>
           </div>
 
-          <div className="space-y-16 md:space-y-24">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {benefits.map((b, i) => {
               const Icon = b.icon;
-              const reverse = i % 2 === 1;
               return (
                 <div
                   key={b.title}
-                  className="grid items-center gap-8 md:grid-cols-2 md:gap-14"
+                  className="bento-card reveal-on-scroll overflow-hidden p-6"
+                  style={{ transitionDelay: `${i * 120}ms` }}
                 >
-                  <div className={reverse ? "md:order-2" : ""}>
-                    <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-display text-2xl font-semibold text-foreground md:text-3xl">
-                      {b.title}
-                    </h3>
-                    <p className="mt-3 max-w-md text-base text-muted-foreground">
-                      {b.desc}
-                    </p>
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(82,39,255,0.15)] text-[#B19EEF]">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <div
-                    className={`overflow-hidden rounded-2xl border border-border/60 ${
-                      reverse ? "md:order-1" : ""
-                    }`}
-                  >
-                    <LazyVideo
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      width={i === 1 ? 270 : i === 2 ? 1080 : 480}
-                      height={i === 1 ? 480 : i === 2 ? 608 : 270}
-                      aria-label={`Demostración: ${b.title}`}
-                      onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
-                      className="w-full h-auto block"
-                      sources={[
-                        { src: b.media, type: "video/mp4" },
-                        { src: b.mediaWebm, type: "video/webm" },
-                      ]}
-                    />
-
-                  </div>
+                  <h3 className="font-display text-xl font-semibold text-white">
+                    {b.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/60">{b.desc}</p>
                 </div>
               );
             })}
@@ -618,7 +591,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
+      {/* 4. HOW IT WORKS — connected glass cards */}
       <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
@@ -630,24 +603,37 @@ const Landing = () => {
             </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {steps.map((s) => (
-              <div
-                key={s.num}
-                className="rounded-2xl border border-border/60 bg-card/40 p-6"
-              >
-                <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-semibold">
-                  {s.num}
+          <div className="flex flex-col gap-4 md:flex-row md:items-stretch md:gap-6">
+            {steps.map((s, i) => (
+              <div key={s.num} className="flex flex-1 items-center gap-4 md:flex-col md:items-stretch">
+                <div
+                  className="bento-card reveal-on-scroll flex-1 p-6"
+                  style={{ transitionDelay: `${i * 120}ms` }}
+                >
+                  <div className="font-display text-5xl font-bold leading-none tracking-tight md:text-6xl bg-gradient-to-r from-[#5227FF] to-[#B19EEF] bg-clip-text text-transparent">
+                    {s.num}
+                  </div>
+                  <h3 className="font-display mt-5 text-lg font-semibold text-white">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/60">{s.desc}</p>
                 </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+                {i < steps.length - 1 && (
+                  <>
+                    <div className="hidden md:flex items-center justify-center text-white/20">
+                      <ArrowRight className="h-6 w-6" />
+                    </div>
+                    <div className="flex md:hidden items-center justify-center py-1 text-white/20">
+                      <ArrowRight className="h-5 w-5 rotate-90" />
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
+
 
       {/* Presenter message from Albert */}
       <section className="px-4 py-16 md:px-6 md:py-20" aria-labelledby="mensaje-presentador-title">
