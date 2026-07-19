@@ -319,7 +319,7 @@ const Landing = () => {
               </Link>
             </Button>
             <p className="text-xs text-muted-foreground">
-              Sin tarjeta de crédito · Cancela cuando quieras
+              Cancela cuando quieras
             </p>
             <a
               href="#demo"

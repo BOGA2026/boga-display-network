@@ -53,7 +53,7 @@ const FinalCTA = ({ onDemo }: Props) => {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground/60">
-          Sin tarjeta de crédito · Configuración en 5 minutos · Soporte incluido
+          Configuración en 5 minutos · Soporte incluido
         </p>
       </div>
     </section>
