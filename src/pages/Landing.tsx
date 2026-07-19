@@ -234,6 +234,27 @@ const Landing = () => {
     ]);
   }, []);
 
+  // Reveal bento / steps / pricing cards as they enter the viewport.
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const elements = document.querySelectorAll(".reveal-on-scroll");
+    if (elements.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+
   const persistMuted = (m: boolean) => localStorage.setItem("visualia_hero_muted", String(m));
   const persistVolume = (v: number) => localStorage.setItem("visualia_hero_volume", String(v));
 
