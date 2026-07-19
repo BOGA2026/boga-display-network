@@ -14,82 +14,16 @@ import {
   Receipt,
   ShieldCheck,
   ScaleIcon,
+  ChevronDown,
+  Info,
+  Minus,
 } from "lucide-react";
+import {
+  STUDIO_PLANS,
+  STUDIO_COMPARISON,
+  PLATFORM_SUBSCRIPTION_NOTE,
+} from "@/config/studioPlans";
 
-const plans = [
-  {
-    id: "impulso",
-    name: "Impulso Visual",
-    ideal: "Restaurantes y cafés que quieren empezar con un menú digital profesional.",
-    setup: "$990.000",
-    monthly: "$99.000",
-    monthlyLabel: "COP / mes por pantalla",
-    highlighted: false,
-    badge: null,
-    includesFrom: null,
-    features: [
-      "Diseño profesional de carta digital",
-      "Adaptación visual a tus pantallas",
-      "Configuración inicial del sistema",
-      "Programación básica de contenidos",
-      "Plataforma Visualia activa 24/7",
-      "Soporte técnico remoto",
-    ],
-    monthlyDetail: {
-      title: "1 ajuste mensual de tu menú",
-      options: [
-        "Actualización de precios",
-        "Cambio o actualización de productos",
-      ],
-      note: "Las fotografías y contenidos del menú deben ser suministrados por el cliente.",
-    },
-  },
-  {
-    id: "crecimiento",
-    name: "Crecimiento Comercial",
-    ideal: "Negocios que quieren vender más activamente.",
-    setup: "$2.900.000",
-    monthly: "$299.000",
-    monthlyLabel: "COP / mes",
-    highlighted: true,
-    badge: "MÁS ELEGIDO POR RESTAURANTES",
-    includesFrom: "Todo lo de Impulso Visual más:",
-    features: [
-      "Rediseño estratégico del menú digital",
-      "Optimización visual de productos",
-      "Imágenes generadas con IA a partir de fotografías reales",
-      "Programación automática por horarios",
-      "Promociones destacadas en pantalla",
-      "1 actualización mensual de precios o productos",
-      "Optimización continua del contenido",
-    ],
-    monthlyDetail: {
-      title: null,
-      options: [],
-      note: "Las imágenes se optimizan a partir de fotografías reales proporcionadas por el cliente.",
-    },
-  },
-  {
-    id: "dominio",
-    name: "Dominio de Marca",
-    ideal: "Cadenas o marcas en expansión.",
-    setup: "Desde $5.900.000",
-    monthly: "Desde $1.490.000",
-    monthlyLabel: "COP / mes",
-    highlighted: false,
-    badge: null,
-    includesFrom: "Todo lo de Crecimiento Comercial más:",
-    features: [
-      "Gestión multi-sede",
-      "Producción audiovisual",
-      "Campañas comerciales",
-      "Videos promocionales",
-      "Actualizaciones ilimitadas",
-      "Estrategia visual continua",
-      "Prioridad en soporte",
-    ],
-  },
-];
 
 const Studio = () => {
   const [chatOpen, setChatOpen] = useState(false);
