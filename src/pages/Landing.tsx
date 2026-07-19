@@ -712,7 +712,7 @@ const Landing = () => {
                     </div>
                   ) : (
                     <span className="font-display text-2xl font-semibold text-foreground">
-                      A medida
+                      {t.priceLabel ?? "A medida"}
                     </span>
                   )}
                   <p className="mt-1 text-sm text-muted-foreground">{t.detail}</p>
@@ -728,23 +728,13 @@ const Landing = () => {
                 </ul>
 
                 <div className="mt-7">
-                  {t.price ? (
-                    <Button
-                      className="w-full"
-                      variant={t.highlight ? "default" : "outline"}
-                      asChild
-                    >
-                      <Link to="/registro">{t.cta}</Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => setChatOpen(true)}
-                    >
-                      {t.cta}
-                    </Button>
-                  )}
+                  <Button
+                    className="w-full"
+                    variant={t.highlight ? "default" : "outline"}
+                    asChild
+                  >
+                    <Link to={t.ctaHref ?? "/registro"}>{t.cta}</Link>
+                  </Button>
                 </div>
 
               </div>
