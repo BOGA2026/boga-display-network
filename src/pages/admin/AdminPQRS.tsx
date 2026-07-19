@@ -278,7 +278,7 @@ export default function AdminPQRS() {
                 ))}
               </div>
               <div className="p-3 border-t border-border/50 flex gap-2">
-                <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Escribí una respuesta..." className="min-h-[60px] bg-white/5 resize-none" />
+                <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Escribe una respuesta..." className="min-h-[60px] bg-white/5 resize-none" />
                 <Button onClick={sendReply} disabled={sending || !reply.trim()}>
                   <Send className="h-4 w-4" />
                 </Button>

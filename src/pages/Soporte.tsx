@@ -130,7 +130,7 @@ export default function Soporte() {
             <div className="p-3 border-t border-border/50 flex gap-2">
               <Input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendChat())}
-                placeholder="Escribí tu mensaje..." className="bg-background/60" />
+                placeholder="Escribe tu mensaje..." className="bg-background/60" />
               <Button onClick={sendChat} disabled={!chatInput.trim()}><Send className="h-4 w-4" /></Button>
             </div>
           </Card>
