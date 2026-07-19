@@ -121,7 +121,7 @@ export function PriceCalculator() {
                   <p aria-live="polite" className="font-display text-2xl font-bold stat-glow">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(total * 0.8) : total)}
+                        {fmtCOP.format(total)}
                         <span className="ml-2 text-sm font-normal text-muted-foreground">/mes</span>
                       </>
                     ) : (
@@ -136,7 +136,7 @@ export function PriceCalculator() {
                   <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
+                        {fmtCOP.format(tier.pricePerScreen)} por pantalla/mes
                         <InfoTooltip label="Precio por pantalla" side="right">
                           El precio por pantalla baja automáticamente a medida que agregas más pantallas en tu negocio.
                         </InfoTooltip>
@@ -203,7 +203,7 @@ export function PriceCalculator() {
                   </tr>
                 </thead>
                 <tbody>
-                  {TIERS.map((t) => {
+                  {PRICING_TIERS.map((t) => {
                     const active = screens >= t.min && screens <= t.max;
                     return (
                       <tr
@@ -215,9 +215,9 @@ export function PriceCalculator() {
                         </td>
                         <td className="px-4 py-3 text-right font-medium text-foreground">
                           {active && tier ? (
-                            <span className="text-primary">{fmtCOP.format(tier.price)}</span>
+                            <span className="text-primary">{fmtCOP.format(tier.pricePerScreen)}</span>
                           ) : (
-                            fmtCOP.format(t.price)
+                            fmtCOP.format(t.pricePerScreen)
                           )}
                         </td>
                       </tr>
