@@ -674,3 +674,26 @@ body > div button {
   .public-shell button:hover,
   .public-shell [role="button"]:hover { transform: none; }
 }
+
+/* Landing header — mobile stagger */
+.mobile-stagger {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.mobile-stagger-in {
+  animation: mobileStaggerIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes mobileStaggerIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-stagger,
+  .mobile-stagger-in {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
