@@ -336,14 +336,13 @@
   color: hsl(var(--foreground));
 }
 
-/* Studio sections rendered directly on the light global background need
-   dark text — studio-shell defaults are white-on-dark. */
+/* Studio sections on the (now dark) global background — keep light text. */
 .studio-shell .studio-on-light,
 .studio-shell .studio-on-light .text-foreground {
-  color: hsl(240 10% 12%);
+  color: hsl(0 0% 100%);
 }
 .studio-shell .studio-on-light .text-muted-foreground {
-  color: hsl(240 6% 40%);
+  color: hsl(0 0% 70%);
 }
 
 .admin-shell .admin-card {
