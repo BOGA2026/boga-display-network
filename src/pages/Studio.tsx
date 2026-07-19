@@ -2,6 +2,7 @@ import { useState } from "react";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
 import ExpertChat from "@/components/landing/ExpertChat";
+import { BeforeAfter, STUDIO_CASES } from "@/components/studio/BeforeAfter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
