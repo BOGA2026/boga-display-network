@@ -25,7 +25,6 @@ import {
 import {
   STUDIO_PLANS,
   STUDIO_COMPARISON,
-  PLATFORM_SUBSCRIPTION_NOTE,
 } from "@/config/studioPlans";
 import { STUDIO_STEPS, STUDIO_FAQ } from "@/config/studioContent";
 import Seo from "@/components/Seo";
@@ -386,17 +385,6 @@ const Studio = () => {
                       </p>
                     </div>
 
-                    {/* Nota de plataforma — misma en los 3 planes */}
-                    <div
-                      className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs leading-relaxed text-muted-foreground"
-                      style={{
-                        background: "hsl(260 20% 10%)",
-                        border: "1px dashed hsl(260 15% 22%)",
-                      }}
-                    >
-                      <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />
-                      <span>{PLATFORM_SUBSCRIPTION_NOTE}</span>
-                    </div>
                   </div>
 
                   {/* Features */}
@@ -522,9 +510,6 @@ const Studio = () => {
                 </tbody>
               </table>
             </div>
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              {PLATFORM_SUBSCRIPTION_NOTE}
-            </p>
           </div>
 
 
