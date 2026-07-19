@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { prefetchRoute } from "@/lib/prefetch";
 
 const menuItems = [
   {
+    id: "productos" as const,
     label: "Productos",
     children: [
       { label: "Panel de control", href: "/precios", disabled: false },
@@ -15,6 +16,7 @@ const menuItems = [
     ],
   },
   {
+    id: "soluciones" as const,
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "/soluciones/restaurantes", disabled: false },
@@ -33,14 +35,19 @@ const directLinks = [
 const linkClass =
   "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
+type MenuId = (typeof menuItems)[number]["id"];
 
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<MenuId | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<MenuId | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const menuTriggersRef = useRef<Record<MenuId, HTMLButtonElement | null>>({
+    productos: null,
+    soluciones: null,
+  });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -54,18 +61,37 @@ const LandingHeader = () => {
         setActiveMenu(null);
       }
     };
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const handleEnter = (label: string) => {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveMenu(null);
+        setMobileExpanded(null);
+        if (activeMenu) {
+          menuTriggersRef.current[activeMenu]?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [activeMenu]);
+
+  const openMenu = useCallback((id: MenuId) => {
     clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setActiveMenu(label), 80);
-  };
-  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setActiveMenu(id), 80);
+  }, []);
+
+  const closeMenu = useCallback(() => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setActiveMenu(null), 120);
-  };
+  }, []);
+
+  const toggleMenu = useCallback((id: MenuId) => {
+    setActiveMenu((prev) => (prev === id ? null : id));
+  }, []);
 
   return (
     <header
@@ -90,24 +116,28 @@ const LandingHeader = () => {
         <nav className="hidden items-center gap-1 lg:flex">
           {menuItems.map((item) => (
             <div
-              key={item.label}
+              key={item.id}
               className="relative"
-              onMouseEnter={() => handleEnter(item.label)}
-              onMouseLeave={handleLeave}
+              onMouseEnter={() => openMenu(item.id)}
+              onMouseLeave={closeMenu}
             >
               <button
+                ref={(el) => { menuTriggersRef.current[item.id] = el; }}
                 className={cn(
                   "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  activeMenu === item.label
+                  activeMenu === item.id
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
+                onClick={() => toggleMenu(item.id)}
+                aria-expanded={activeMenu === item.id}
+                aria-haspopup="true"
               >
                 {item.label}
                 <ChevronDown
                   className={cn(
                     "h-3.5 w-3.5 transition-transform",
-                    activeMenu === item.label && "rotate-180"
+                    activeMenu === item.id && "rotate-180"
                   )}
                 />
               </button>
@@ -115,7 +145,7 @@ const LandingHeader = () => {
               <div
                 className={cn(
                   "absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-opacity duration-200",
-                  activeMenu === item.label
+                  activeMenu === item.id
                     ? "pointer-events-auto opacity-100"
                     : "pointer-events-none opacity-0"
                 )}
@@ -195,25 +225,27 @@ const LandingHeader = () => {
       >
         <div className="mx-auto max-w-[1200px] space-y-1 px-6 py-4">
           {menuItems.map((item) => (
-            <div key={item.label}>
+            <div key={item.id}>
               <button
                 className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-foreground"
                 onClick={() =>
-                  setMobileExpanded(mobileExpanded === item.label ? null : item.label)
+                  setMobileExpanded(mobileExpanded === item.id ? null : item.id)
                 }
+                aria-expanded={mobileExpanded === item.id}
+                aria-haspopup="true"
               >
                 {item.label}
                 <ChevronDown
                   className={cn(
                     "h-4 w-4 text-muted-foreground transition-transform",
-                    mobileExpanded === item.label && "rotate-180"
+                    mobileExpanded === item.id && "rotate-180"
                   )}
                 />
               </button>
               <div
                 className={cn(
                   "overflow-hidden transition-all duration-200",
-                  mobileExpanded === item.label
+                  mobileExpanded === item.id
                     ? "max-h-96 opacity-100"
                     : "max-h-0 opacity-0"
                 )}
