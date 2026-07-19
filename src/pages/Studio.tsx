@@ -620,11 +620,8 @@ const Studio = () => {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border/20 px-6 py-8">
-        <p className="text-center text-xs text-muted-foreground/50">
-          © 2026 Visualia. Todos los derechos reservados.
-        </p>
-      </footer>
+      <LegalFooter />
+
 
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
     </PremiumBackground>
