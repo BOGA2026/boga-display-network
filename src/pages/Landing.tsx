@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
+import WorkflowDemoModal from "@/components/landing/WorkflowDemoModal";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
