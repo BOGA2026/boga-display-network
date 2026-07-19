@@ -374,13 +374,14 @@ const Landing = () => {
               Prueba gratis 14 días
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <a
-              href="#demo"
+            <button
+              type="button"
+              onClick={() => setWorkflowOpen(true)}
               data-analytics="cta_hero_demo"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-transparent px-8 py-3.5 text-base font-medium text-white transition-all duration-300 hover:border-white/30 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
               <Play className="h-4 w-4" /> Ver demo de 2 minutos
-            </a>
+            </button>
           </div>
           <p className="hero-rise hero-rise-4 mt-4 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
             Cancela cuando quieras
