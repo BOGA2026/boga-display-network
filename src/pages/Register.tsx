@@ -21,8 +21,6 @@ const GoogleIcon = () => (
 import { useToast } from "@/hooks/use-toast";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 
-const SUPABASE_URL = "https://ovuhtroiuuqsiltqgqpp.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92dWh0cm9pdXVxc2lsdHFncXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MzQ2NjIsImV4cCI6MjA4NjQxMDY2Mn0.qjpz83tFpdxDa8YwbSdQLit4T_IiFV5H6GtEmH1TBNw";
 
 const Register = () => {
   const [businessName, setBusinessName] = useState("");
@@ -103,18 +101,13 @@ const Register = () => {
       const userId = authData.user.id;
 
       // 2. Use edge function with service role to create business + membership
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/register-business`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-        },
-        body: JSON.stringify({ user_id: userId, business_name: businessName.trim() }),
-      });
+      const { data: regData, error: regError } = await supabase.functions.invoke(
+        "register-business",
+        { body: { user_id: userId, business_name: businessName.trim() } },
+      );
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Error al crear negocio");
+      if (regError || (regData && (regData as any).error)) {
+        throw new Error((regError && regError.message) || (regData as any)?.error || "Error al crear negocio");
       }
 
       // 3. Persist consent audit trail (best-effort; do not block signup)
@@ -158,7 +151,7 @@ const Register = () => {
         navigate("/login");
       }
     } catch (err: any) {
-      console.error("Register error:", err);
+      if (import.meta.env.DEV) console.error("Register error:", err);
       toast({
         title: "Error al crear cuenta",
         description: err.message || "Intenta de nuevo",

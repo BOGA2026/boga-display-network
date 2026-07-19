@@ -175,7 +175,7 @@ const Player = () => {
       return data;
     } catch (err: any) {
       setIsReconnecting(true);
-      console.error("Checkin error:", err);
+      if (import.meta.env.DEV) console.error("Checkin error:", err);
       return null;
     }
   }, [deviceCode]);
@@ -258,7 +258,7 @@ const Player = () => {
       await video.play();
       console.log("[Player] Video playback started", { src: video.currentSrc || video.src });
     } catch (err) {
-      console.error("[Player] Video playback failed", err);
+      if (import.meta.env.DEV) console.error("[Player] Video playback failed", err);
     }
   }, []);
 
@@ -487,7 +487,7 @@ const Player = () => {
             }
           }}
           onError={(event) => {
-            console.error("[Player] Video element error", event.currentTarget.error);
+            if (import.meta.env.DEV) console.error("[Player] Video element error", event.currentTarget.error);
           }}
         />
       );

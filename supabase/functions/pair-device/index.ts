@@ -6,6 +6,32 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// In-memory sliding-window rate limiter (per instance, per IP+path).
+// Not a substitute for a WAF but blocks trivial abuse from a single origin.
+const RL_WINDOW_MS = 60_000;
+const RL_MAX = { register: 20, checkin: 120 } as const;
+const rlBuckets = new Map<string, number[]>();
+
+function rateLimited(key: string, max: number): boolean {
+  const now = Date.now();
+  const arr = (rlBuckets.get(key) ?? []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= max) {
+    rlBuckets.set(key, arr);
+    return true;
+  }
+  arr.push(now);
+  rlBuckets.set(key, arr);
+  return false;
+}
+
+function clientIp(req: Request): string {
+  return (
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -19,8 +45,16 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const path = url.pathname.replace("/pair-device", "").replace(/^\//, "");
 
+    const ip = clientIp(req);
+
     // POST /pair-device/register — device self-registers with a code
     if (req.method === "POST" && path === "register") {
+      if (rateLimited(`register:${ip}`, RL_MAX.register)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const { device_code, app_version } = await req.json();
       if (!device_code || typeof device_code !== "string" || device_code.length < 4) {
         return new Response(JSON.stringify({ error: "Invalid device_code" }), {
@@ -51,6 +85,12 @@ Deno.serve(async (req) => {
 
     // POST /pair-device/checkin — device heartbeat
     if (req.method === "POST" && path === "checkin") {
+      if (rateLimited(`checkin:${ip}`, RL_MAX.checkin)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const body = await req.json();
       const { device_code, app_version, device_model, os_version, user_agent, gps } = body;
       if (!device_code) {
