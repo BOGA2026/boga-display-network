@@ -183,13 +183,10 @@ const Studio = () => {
             }}
           >
             <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-              Este es un <span className="font-semibold text-foreground">servicio adicional</span> a la plataforma Visualia.
-              <br />
-              Aquí no pagas por pantallas.
-              <br />
-              Nos enfocamos en diseñar el contenido que verán tus clientes para{" "}
-              <span className="font-semibold text-foreground">mejorar su decisión de compra.</span>
+              Studio <span className="font-semibold text-foreground">no reemplaza tu suscripción a la plataforma</span>: es el equipo creativo que diseña lo que tus clientes ven en pantalla —{" "}
+              <span className="font-semibold text-foreground">carta, promociones y campañas</span>— para que decidan comprar más.
             </p>
+
 
             <div
               className="mx-auto mt-8 max-w-lg rounded-xl border px-6 py-5"
