@@ -1,16 +1,16 @@
 /**
  * Proration utilities for subscription billing.
  * All amounts in COP. Proration by day.
+ * Pricing comes from src/config/pricing.ts (single source of truth).
  */
 
-/** Pricing tiers with min/max boundaries (same as /precios) */
-const TIERS = [
-  { min: 1, max: 5, price: 50000 },
-  { min: 6, max: 20, price: 42000 },
-  { min: 21, max: 50, price: 35000 },
-  { min: 51, max: 100, price: 28000 },
-  { min: 101, max: 300, price: 22000 },
-];
+import { PRICING_TIERS } from "@/config/pricing";
+
+const TIERS = PRICING_TIERS.map((t) => ({
+  min: t.min,
+  max: t.max,
+  price: t.pricePerScreen,
+}));
 
 /**
  * @deprecated Use calculateMonthlyTotal instead.
