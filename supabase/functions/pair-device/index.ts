@@ -85,6 +85,12 @@ Deno.serve(async (req) => {
 
     // POST /pair-device/checkin — device heartbeat
     if (req.method === "POST" && path === "checkin") {
+      if (rateLimited(`checkin:${ip}`, RL_MAX.checkin)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const body = await req.json();
       const { device_code, app_version, device_model, os_version, user_agent, gps } = body;
       if (!device_code) {
