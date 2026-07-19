@@ -225,25 +225,27 @@ const LandingHeader = () => {
       >
         <div className="mx-auto max-w-[1200px] space-y-1 px-6 py-4">
           {menuItems.map((item) => (
-            <div key={item.label}>
+            <div key={item.id}>
               <button
                 className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-foreground"
                 onClick={() =>
-                  setMobileExpanded(mobileExpanded === item.label ? null : item.label)
+                  setMobileExpanded(mobileExpanded === item.id ? null : item.id)
                 }
+                aria-expanded={mobileExpanded === item.id}
+                aria-haspopup="true"
               >
                 {item.label}
                 <ChevronDown
                   className={cn(
                     "h-4 w-4 text-muted-foreground transition-transform",
-                    mobileExpanded === item.label && "rotate-180"
+                    mobileExpanded === item.id && "rotate-180"
                   )}
                 />
               </button>
               <div
                 className={cn(
                   "overflow-hidden transition-all duration-200",
-                  mobileExpanded === item.label
+                  mobileExpanded === item.id
                     ? "max-h-96 opacity-100"
                     : "max-h-0 opacity-0"
                 )}
