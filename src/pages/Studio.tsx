@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
+import LegalFooter from "@/components/landing/LegalFooter";
 import ExpertChat from "@/components/landing/ExpertChat";
 import { BeforeAfter, STUDIO_CASES } from "@/components/studio/BeforeAfter";
 import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
@@ -66,36 +69,77 @@ const Studio = () => {
   return (
     <PremiumBackground>
       <Seo
-        title="Visualia Studio — Diseño de contenido para tus pantallas"
-        description="Servicio de diseño, producción y estrategia visual para menús digitales y promociones en pantallas de restaurantes. Planes desde $99.000 COP/mes."
+        title="Visualia Studio | Diseño de contenido para pantallas de restaurantes"
+        description="Nuestro equipo diseña tu carta digital, promociones y campañas para que tus pantallas vendan más. Planes desde $99.000/mes."
         path="/studio"
         jsonLd={[serviceJsonLd, faqJsonLd]}
       />
+
       <LandingHeader />
 
 
-      {/* ─── BLOCK 1: Visualia Software Reference ─── */}
+      {/* ─── BLOCK 1: Plataforma vs Studio ─── */}
       <section className="relative px-6 pt-36 md:pt-44">
-        <div className="mx-auto max-w-3xl">
-          <div
-            className="flex items-start gap-4 rounded-xl border px-6 py-5"
-            style={{
-              borderColor: "hsl(260 15% 22%)",
-              background: "hsl(260 20% 10% / 0.6)",
-            }}
-          >
-            <Monitor className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Ya controlas tus pantallas con Visualia
+        <div className="mx-auto max-w-4xl">
+          <p className="mb-6 text-center text-sm text-muted-foreground md:text-base">
+            La plataforma es el escenario;{" "}
+            <span className="font-semibold text-foreground">Studio es el show.</span>
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Plataforma */}
+            <div
+              className="rounded-2xl border p-6"
+              style={{
+                borderColor: "hsl(260 15% 22%)",
+                background: "hsl(260 20% 10% / 0.6)",
+              }}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <Monitor className="h-5 w-5 text-muted-foreground" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  Plataforma Visualia
+                </span>
+              </div>
+              <p className="text-base font-semibold leading-snug text-foreground">
+                El sistema que muestra tu menú en las pantallas.
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                La plataforma Visualia te permite administrar tus pantallas remotamente desde la nube.
+              <p className="mt-2 text-sm text-muted-foreground">
+                Desde $50.000 / pantalla / mes.
+              </p>
+              <Link
+                to="/precios"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+              >
+                Ver la plataforma
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* Studio */}
+            <div
+              className="rounded-2xl border p-6"
+              style={{
+                borderColor: "hsl(270 100% 50% / 0.4)",
+                background: "linear-gradient(180deg, hsl(260 30% 12%) 0%, hsl(260 25% 9%) 100%)",
+              }}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <Paintbrush className="h-5 w-5" style={{ color: "hsl(280 100% 75%)" }} />
+                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "hsl(280 100% 75%)" }}>
+                  Visualia Studio
+                </span>
+              </div>
+              <p className="text-base font-semibold leading-snug text-foreground">
+                El equipo de diseño que crea lo que se muestra: tu carta, promociones y campañas.
+              </p>
+              <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground/80">
+                Estás aquí
               </p>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* ─── BLOCK 2: Visualia Studio ─── */}
       {/* Hero */}
@@ -139,13 +183,10 @@ const Studio = () => {
             }}
           >
             <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-              Este es un <span className="font-semibold text-foreground">servicio adicional</span> a la plataforma Visualia.
-              <br />
-              Aquí no pagas por pantallas.
-              <br />
-              Nos enfocamos en diseñar el contenido que verán tus clientes para{" "}
-              <span className="font-semibold text-foreground">mejorar su decisión de compra.</span>
+              Studio <span className="font-semibold text-foreground">no reemplaza tu suscripción a la plataforma</span>: es el equipo creativo que diseña lo que tus clientes ven en pantalla —{" "}
+              <span className="font-semibold text-foreground">carta, promociones y campañas</span>— para que decidan comprar más.
             </p>
+
 
             <div
               className="mx-auto mt-8 max-w-lg rounded-xl border px-6 py-5"
@@ -579,11 +620,8 @@ const Studio = () => {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border/20 px-6 py-8">
-        <p className="text-center text-xs text-muted-foreground/50">
-          © 2026 Visualia. Todos los derechos reservados.
-        </p>
-      </footer>
+      <LegalFooter />
+
 
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
     </PremiumBackground>

@@ -106,7 +106,7 @@ export const STUDIO_PLANS: StudioPlan[] = [
       "Programación automática por horarios",
       "Promociones destacadas en pantalla",
       "1 actualización mensual de precios o productos",
-      "Optimización continua del contenido",
+      "Cada mes revisamos qué funciona y mejoramos tus diseños",
     ],
     monthlyDetail: {
       title: null,
@@ -140,13 +140,14 @@ export const STUDIO_PLANS: StudioPlan[] = [
     },
     includesFrom: "Todo lo de Crecimiento Comercial más:",
     features: [
-      "Gestión multi-sede",
+      "Manejamos las pantallas de todas tus sedes por ti",
       "Producción audiovisual",
       "Campañas comerciales",
       "Videos promocionales",
       "Actualizaciones ilimitadas",
-      "Estrategia visual continua",
+      "Un plan de qué mostrar cada temporada (Navidad, día de la madre, temporada de almuerzos)",
       "Prioridad en soporte",
+
     ],
   },
 ];
@@ -175,6 +176,6 @@ export const STUDIO_COMPARISON: ComparisonRow[] = [
     values: ["1", "1", "Ilimitadas"],
   },
   { label: "Producción audiovisual", values: [false, false, true] },
-  { label: "Gestión multi-sede", values: [false, false, true] },
+  { label: "Manejamos las pantallas de todas tus sedes", values: [false, false, true] },
   { label: "Prioridad en soporte", values: [false, false, true] },
 ];
