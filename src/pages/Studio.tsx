@@ -172,7 +172,7 @@ const Studio = () => {
           <div className="absolute left-1/2 top-16 h-72 w-72 -translate-x-1/2 rounded-full opacity-15 blur-[120px]" style={{ background: "hsl(270 100% 50%)" }} />
         </div>
 
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div className="studio-on-light relative mx-auto max-w-4xl text-center">
           <span
             className="mb-6 inline-flex items-center gap-2 rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-widest"
             style={{
