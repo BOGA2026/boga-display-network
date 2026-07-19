@@ -71,7 +71,7 @@ export function PriceCalculator() {
                 ¿Cuánto me cuesta?
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Ajustá el número de pantallas y sabé tu precio al instante. IVA incluido.
+                Ajusta el número de pantallas y conoce tu precio al instante. IVA incluido.
               </p>
 
               <div className="mt-8 space-y-6">
