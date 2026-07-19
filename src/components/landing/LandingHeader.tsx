@@ -107,6 +107,7 @@ const LandingHeader = () => {
     "relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)]";
 
   return (
+    <>
     <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
