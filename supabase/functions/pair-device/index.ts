@@ -6,6 +6,32 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// In-memory sliding-window rate limiter (per instance, per IP+path).
+// Not a substitute for a WAF but blocks trivial abuse from a single origin.
+const RL_WINDOW_MS = 60_000;
+const RL_MAX = { register: 20, checkin: 120 } as const;
+const rlBuckets = new Map<string, number[]>();
+
+function rateLimited(key: string, max: number): boolean {
+  const now = Date.now();
+  const arr = (rlBuckets.get(key) ?? []).filter((t) => now - t < RL_WINDOW_MS);
+  if (arr.length >= max) {
+    rlBuckets.set(key, arr);
+    return true;
+  }
+  arr.push(now);
+  rlBuckets.set(key, arr);
+  return false;
+}
+
+function clientIp(req: Request): string {
+  return (
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
