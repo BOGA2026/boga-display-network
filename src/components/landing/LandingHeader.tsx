@@ -312,16 +312,17 @@ const LandingHeader = () => {
           </button>
         </div>
       </div>
+    </header>
 
-      {/* Mobile fullscreen panel */}
-      <div
-        className={cn(
-          "lg:hidden fixed inset-0 top-[60px]",
-          mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
-        )}
-        style={{ background: "#060010" }}
-        aria-hidden={!mobileOpen}
-      >
+    {/* Mobile fullscreen panel — rendered outside the header so `fixed` positions against the viewport (header's backdrop-filter creates a containing block that would clip it) */}
+    <div
+      className={cn(
+        "lg:hidden fixed inset-0 top-[60px] z-40",
+        mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
+      )}
+      style={{ background: "#060010" }}
+      aria-hidden={!mobileOpen}
+    >
         {/* Radial violet glow at the top */}
         <div
           aria-hidden="true"
