@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -6,6 +6,7 @@ import LegalFooter from "@/components/landing/LegalFooter";
 import ExpertChat from "@/components/landing/ExpertChat";
 import { BeforeAfter, STUDIO_CASES } from "@/components/studio/BeforeAfter";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -32,6 +33,28 @@ import Seo from "@/components/Seo";
 
 const Studio = () => {
   const [chatOpen, setChatOpen] = useState(false);
+  const [headlineVisible, setHeadlineVisible] = useState(false);
+  const headlineRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHeadlineVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.05, rootMargin: "0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const serviceJsonLd = {
     "@context": "https://schema.org",
@@ -163,7 +186,15 @@ const Studio = () => {
           </span>
 
           <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
-            Ahora hagamos que tus pantallas{" "}
+            <span
+              ref={headlineRef}
+              className={cn(
+                "headline-fragment",
+                headlineVisible && "is-visible"
+              )}
+            >
+              Ahora hagamos que tus pantallas{" "}
+            </span>
             <span className="text-gradient-primary">realmente vendan.</span>
           </h1>
 
