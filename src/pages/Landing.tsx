@@ -703,60 +703,65 @@ const Landing = () => {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {pricingTiers.map((t) => (
+            {pricingTiers.map((t, i) => (
               <div
                 key={t.name}
-                className={`relative flex flex-col rounded-2xl border p-7 ${
+                className={`relative flex flex-col overflow-hidden p-7 ${
                   t.highlight
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-border/60 bg-card/40"
+                    ? "gradient-border-shine reveal-on-scroll"
+                    : "bento-card reveal-on-scroll"
                 }`}
+                style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {t.highlight && (
-                  <span className="absolute -top-3 left-7 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  <span className="absolute -top-3 left-7 rounded-full bg-[#5227FF] px-3 py-1 text-xs font-semibold text-white">
                     Más popular
                   </span>
                 )}
-                <h3 className="font-display text-lg font-semibold text-foreground">
+                <h3 className="font-display text-lg font-semibold text-white">
                   {t.name}
                 </h3>
                 <div className="mt-4">
                   {t.price !== null ? (
                     <div className="flex items-baseline gap-1">
-                      <span className="font-display text-4xl font-bold text-foreground">
+                      <span className="font-display text-4xl font-bold text-white">
                         {formatCOP(t.price)}
                       </span>
                     </div>
                   ) : (
-                    <span className="font-display text-2xl font-semibold text-foreground">
+                    <span className="font-display text-2xl font-semibold text-white">
                       {t.priceLabel ?? "A medida"}
                     </span>
                   )}
-                  <p className="mt-1 text-sm text-muted-foreground">{t.detail}</p>
+                  <p className="mt-1 text-sm text-white/60">{t.detail}</p>
                 </div>
 
-                <ul className="mt-6 space-y-2.5 text-sm text-foreground/90">
+                <ul className="mt-6 space-y-2.5 text-sm text-white/90">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#B19EEF]" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-7">
-                  <Button
-                    className="w-full"
-                    variant={t.highlight ? "default" : "outline"}
-                    asChild
+                <div className="mt-auto pt-7">
+                  <Link
+                    to={t.ctaHref ?? "/registro"}
+                    className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] ${
+                      t.highlight
+                        ? "bg-[#5227FF] text-white hover:shadow-[0_0_40px_rgba(82,39,255,0.55)]"
+                        : "border border-white/15 bg-transparent text-white hover:bg-white/5"
+                    }`}
                   >
-                    <Link to={t.ctaHref ?? "/registro"}>{t.cta}</Link>
-                  </Button>
+                    {t.cta}
+                    {t.highlight && <ArrowRight className="h-4 w-4" />}
+                  </Link>
                 </div>
-
               </div>
             ))}
           </div>
+
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             Precios en pesos colombianos (COP). Facturación mensual.
