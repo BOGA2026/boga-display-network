@@ -23,14 +23,56 @@ import {
   STUDIO_COMPARISON,
   PLATFORM_SUBSCRIPTION_NOTE,
 } from "@/config/studioPlans";
+import { STUDIO_STEPS, STUDIO_FAQ } from "@/config/studioContent";
+import Seo from "@/components/Seo";
 
 
 const Studio = () => {
   const [chatOpen, setChatOpen] = useState(false);
 
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Visualia Studio",
+    serviceType: "Diseño de contenido para pantallas digitales (digital signage)",
+    provider: {
+      "@type": "Organization",
+      name: "Visualia",
+      url: "https://visualiamedia.com",
+    },
+    areaServed: { "@type": "Country", name: "Colombia" },
+    description:
+      "Servicio de diseño, producción y estrategia visual para menús digitales y promociones en pantallas de restaurantes y negocios físicos.",
+    offers: STUDIO_PLANS.map((p) => ({
+      "@type": "Offer",
+      name: p.name,
+      priceCurrency: "COP",
+      description: `${p.ideal} Inversión inicial: ${p.setup.display}. Mensualidad: ${p.monthly.display} ${p.monthly.unitLabel}.`,
+    })),
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: STUDIO_FAQ.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+
+
   return (
     <PremiumBackground>
+      <Seo
+        title="Visualia Studio — Diseño de contenido para tus pantallas"
+        description="Servicio de diseño, producción y estrategia visual para menús digitales y promociones en pantallas de restaurantes. Planes desde $99.000 COP/mes."
+        path="/studio"
+        jsonLd={[serviceJsonLd, faqJsonLd]}
+      />
       <LandingHeader />
+
 
       {/* ─── BLOCK 1: Visualia Software Reference ─── */}
       <section className="relative px-6 pt-36 md:pt-44">
@@ -418,8 +460,85 @@ const Studio = () => {
         </div>
       </section>
 
+      {/* ─── ¿Cómo trabajamos? (timeline) ─── */}
+      <section id="como-trabajamos" className="px-6 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-12 text-center">
+            <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
+              ¿Cómo trabajamos?
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+              De la primera llamada a tus pantallas vendiendo, en 4 pasos claros.
+            </p>
+          </div>
+
+          <ol className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {STUDIO_STEPS.map((step) => (
+              <li
+                key={step.n}
+                className="relative rounded-2xl border p-6"
+                style={{
+                  borderColor: "hsl(260 15% 18%)",
+                  background: "linear-gradient(180deg, hsl(260 25% 11%) 0%, hsl(260 25% 8%) 100%)",
+                }}
+              >
+                <div
+                  className="mb-4 flex h-9 w-9 items-center justify-center rounded-full font-display text-sm font-bold"
+                  style={{
+                    background: "hsl(270 100% 50% / 0.15)",
+                    border: "1px solid hsl(270 100% 50% / 0.4)",
+                    color: "hsl(280 100% 75%)",
+                  }}
+                >
+                  {step.n}
+                </div>
+                <h3 className="font-display text-base font-bold text-foreground md:text-lg">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {step.text}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ─── FAQ específica de Studio ─── */}
+      <section id="faq-studio" className="px-6 py-16 md:py-20">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-10 text-center">
+            <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
+              Preguntas frecuentes sobre Studio
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+              Todo lo que los dueños de restaurantes nos preguntan antes de arrancar.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {STUDIO_FAQ.map((f) => (
+              <details
+                key={f.q}
+                className="group/faq rounded-xl border transition-colors"
+                style={{ borderColor: "hsl(260 15% 20%)", background: "hsl(260 25% 9%)" }}
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left text-base font-semibold text-foreground">
+                  {f.q}
+                  <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform group-open/faq:rotate-180" />
+                </summary>
+                <div className="border-t border-border/30 px-5 py-4 text-sm leading-relaxed text-muted-foreground">
+                  {f.a}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── Final CTA ─── */}
       <section className="px-6 py-20">
+
         <div className="mx-auto max-w-3xl text-center">
           <div
             className="relative overflow-hidden rounded-2xl border px-8 py-16 md:px-16"
