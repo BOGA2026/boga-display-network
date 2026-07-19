@@ -140,13 +140,14 @@ export const STUDIO_PLANS: StudioPlan[] = [
     },
     includesFrom: "Todo lo de Crecimiento Comercial más:",
     features: [
-      "Gestión multi-sede",
+      "Manejamos las pantallas de todas tus sedes por ti",
       "Producción audiovisual",
       "Campañas comerciales",
       "Videos promocionales",
       "Actualizaciones ilimitadas",
-      "Estrategia visual continua",
+      "Un plan de qué mostrar cada temporada (Navidad, día de la madre, temporada de almuerzos)",
       "Prioridad en soporte",
+
     ],
   },
 ];
