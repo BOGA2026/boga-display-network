@@ -469,3 +469,8 @@ body {
     radial-gradient(ellipse 70% 50% at 50% 100%, hsl(252 100% 57% / 0.12), transparent 75%);
   background-attachment: fixed;
 }
+/* Pill buttons on the public site. Admin console keeps its own square-ish look. */
+.public-shell button,
+body > div button {
+  /* fallback; individual components can override */
+}
