@@ -101,18 +101,13 @@ const Register = () => {
       const userId = authData.user.id;
 
       // 2. Use edge function with service role to create business + membership
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/register-business`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-        },
-        body: JSON.stringify({ user_id: userId, business_name: businessName.trim() }),
-      });
+      const { data: regData, error: regError } = await supabase.functions.invoke(
+        "register-business",
+        { body: { user_id: userId, business_name: businessName.trim() } },
+      );
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Error al crear negocio");
+      if (regError || (regData && (regData as any).error)) {
+        throw new Error((regError && regError.message) || (regData as any)?.error || "Error al crear negocio");
       }
 
       // 3. Persist consent audit trail (best-effort; do not block signup)
