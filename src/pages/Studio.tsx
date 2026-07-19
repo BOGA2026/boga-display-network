@@ -186,7 +186,15 @@ const Studio = () => {
           </span>
 
           <h1 className="mt-6 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
-            Ahora hagamos que tus pantallas{" "}
+            <span
+              ref={headlineRef}
+              className={cn(
+                "headline-fragment",
+                headlineVisible && "is-visible"
+              )}
+            >
+              Ahora hagamos que tus pantallas{" "}
+            </span>
             <span className="text-gradient-primary">realmente vendan.</span>
           </h1>
 
