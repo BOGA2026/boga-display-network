@@ -874,6 +874,7 @@ const Landing = () => {
       <WhatsAppFloatingButton />
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
+      <WorkflowDemoModal open={workflowOpen} onClose={() => setWorkflowOpen(false)} />
     </PremiumBackground>
   );
 };
