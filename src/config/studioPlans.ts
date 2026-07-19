@@ -4,8 +4,6 @@
  * Regla equivalente a src/config/pricing.ts para la plataforma.
  */
 
-export const PLATFORM_SUBSCRIPTION_NOTE =
-  "La suscripción a la plataforma Visualia ($50.000 / pantalla / mes) se factura por separado.";
 
 export type StudioPlan = {
   id: "impulso" | "crecimiento" | "dominio";
