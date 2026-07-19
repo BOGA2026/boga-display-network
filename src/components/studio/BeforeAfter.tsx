@@ -1,4 +1,6 @@
 import { useState } from "react";
+import caso1Antes from "@/assets/studio-caso1-antes.jpg";
+import caso1Despues from "@/assets/studio-caso1-despues.jpg";
 
 export type BeforeAfterCase = {
   before: string;
@@ -9,9 +11,9 @@ export type BeforeAfterCase = {
 
 export const STUDIO_CASES: BeforeAfterCase[] = [
   {
-    before: "/media/studio/caso1-antes.webp",
-    after: "/media/studio/caso1-despues.webp",
-    label: "Carta de almuerzos — restaurante piloto en Bogotá",
+    before: caso1Antes,
+    after: caso1Despues,
+    label: "Carta de almuerzos — restaurante piloto en Bogotá (imagen de referencia)",
     // Sin métrica verificada: omitimos la línea de resultado a propósito.
   },
 ];
