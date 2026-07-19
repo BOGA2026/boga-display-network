@@ -272,14 +272,15 @@ const Studio = () => {
                 )}
 
                 <div className="relative">
-                  {plan.badge && (
-                    <div className="mb-5">
+                  {/* Badge slot — reserva altura en todas las tarjetas para alinear títulos */}
+                  <div className="mb-5 flex min-h-[32px] items-center" aria-hidden={!plan.badge}>
+                    {plan.badge ? (
                       <Badge className="gradient-primary-vibrant border-0 px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-lg">
                         <Star className="mr-1.5 h-3 w-3" />
                         {plan.badge}
                       </Badge>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
 
                   <h3 className={`font-display text-2xl font-bold text-foreground md:text-3xl ${plan.highlighted ? "text-gradient-primary" : ""}`}>
                     {plan.name}
@@ -294,8 +295,9 @@ const Studio = () => {
                   <div className="mt-7 space-y-3">
                     <div>
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Inversión inicial</span>
-                      <p className="font-display text-2xl font-bold text-foreground md:text-3xl">
-                        {plan.setup.display} <span className="text-sm font-normal text-muted-foreground">COP</span>
+                      <p className="font-display text-2xl font-bold text-foreground md:text-3xl leading-tight">
+                        <span className="whitespace-nowrap">{plan.setup.display}</span>{" "}
+                        <span className="text-sm font-normal text-muted-foreground">COP</span>
                       </p>
 
                       {/* Expandible: ¿Qué cubre este valor? */}
