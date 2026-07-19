@@ -197,8 +197,40 @@ const Studio = () => {
         </div>
       </section>
 
+      {/* ─── Portafolio Antes / Después ─── */}
+      <section className="px-6 py-16 md:py-20" id="antes-despues">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-10 text-center">
+            <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
+              Así se ve la diferencia
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+              Mismos platos, misma pantalla. Solo cambió el diseño.
+            </p>
+          </div>
+
+          {STUDIO_CASES.length === 0 ? (
+            <div
+              className="mx-auto max-w-2xl rounded-2xl border border-dashed border-border/50 px-6 py-10 text-center"
+              style={{ background: "hsl(260 20% 10% / 0.4)" }}
+            >
+              <p className="text-sm text-muted-foreground">
+                Estamos publicando los primeros casos reales de nuestro programa piloto. Muy pronto verás aquí las pantallas antes y después de pasar por Visualia Studio.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-10 md:grid-cols-1">
+              {STUDIO_CASES.map((c) => (
+                <BeforeAfter key={c.label} c={c} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ─── Plans ─── */}
       <section className="px-6 py-16 md:py-20">
+
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
             {plans.map((plan) => (
