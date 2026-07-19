@@ -574,7 +574,7 @@ const Landing = () => {
               return (
                 <div
                   key={b.title}
-                  className="bento-card reveal-on-scroll overflow-hidden p-6"
+                  className="bento-card reveal-on-scroll p-6"
                   style={{ transitionDelay: `${i * 120}ms` }}
                 >
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(82,39,255,0.15)] text-[#B19EEF]">
@@ -706,7 +706,7 @@ const Landing = () => {
             {pricingTiers.map((t, i) => (
               <div
                 key={t.name}
-                className={`relative flex flex-col overflow-hidden p-7 ${
+                className={`relative flex flex-col p-7 ${
                   t.highlight
                     ? "gradient-border-shine reveal-on-scroll"
                     : "bento-card reveal-on-scroll"
