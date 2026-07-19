@@ -46,13 +46,9 @@ function InfoTooltip({
 
 export function PriceCalculator() {
   const [screens, setScreens] = useState(3);
-  const [annual, setAnnual] = useState(false);
 
-  const tier = useMemo(
-    () => TIERS.find((t) => screens >= t.min && screens <= t.max),
-    [screens]
-  );
-  const total = tier ? tier.price * screens : null;
+  const tier = useMemo(() => findTier(screens), [screens]);
+  const total = tier ? tier.pricePerScreen * screens : null;
 
   const handleSlider = (value: number[]) => {
     setScreens(clamp(value[0] ?? 1));
