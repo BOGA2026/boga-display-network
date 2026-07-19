@@ -281,6 +281,15 @@ const Studio = () => {
       <section className="px-6 py-16 md:py-20">
 
         <div className="mx-auto max-w-7xl">
+          <div className="mb-10 text-center">
+            <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
+              Elige tu plan
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+              Todos incluyen concepto, diseño y ajustes. La suscripción a la plataforma se contrata aparte.
+            </p>
+          </div>
+
           <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
             {STUDIO_PLANS.map((plan) => (
               <div
