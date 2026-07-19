@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -6,6 +6,7 @@ import LegalFooter from "@/components/landing/LegalFooter";
 import ExpertChat from "@/components/landing/ExpertChat";
 import { BeforeAfter, STUDIO_CASES } from "@/components/studio/BeforeAfter";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import {
