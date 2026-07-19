@@ -16,54 +16,55 @@
 
 @layer base {
   :root {
-    /* Neutral scale (light) */
-    --background: 0 0% 100%;              /* #FFFFFF */
-    --foreground: 240 10% 8%;             /* near-black text */
+    /* Dark premium — inspired by reactbits.dev
+       Background #060010, accent #5227FF, lavender #B19EEF */
+    --background: 260 100% 3%;            /* #060010 */
+    --foreground: 0 0% 100%;              /* white text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 8%;
+    --card: 260 60% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 8%;
+    --popover: 260 60% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    --muted: 240 5% 96%;                  /* off-white surface */
-    --muted-foreground: 240 4% 46%;       /* secondary gray */
+    --muted: 260 40% 10%;
+    --muted-foreground: 0 0% 70%;         /* ~rgba(255,255,255,0.6-0.7) */
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 8%;
+    --secondary: 260 40% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 10% 8%;
+    --accent: 260 40% 12%;
+    --accent-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 260 30% 18%;                /* subtle violet border */
+    --input: 260 30% 18%;
 
-    /* Single brand accent — reserved for CTAs & key data */
-    --primary: 262 83% 58%;               /* refined violet */
+    /* Brand accents */
+    --primary: 252 100% 57%;              /* #5227FF electric violet */
     --primary-foreground: 0 0% 100%;
-    --ring: 262 83% 58%;
+    --ring: 252 100% 57%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --radius: 0.625rem;                   /* 10px */
+    --radius: 1.125rem;                   /* 18px — generous */
 
-    /* Sidebar (kept in sync) */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 10% 8%;
-    --sidebar-primary: 262 83% 58%;
+    /* Sidebar */
+    --sidebar-background: 260 100% 3%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 252 100% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 10% 8%;
-    --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-accent: 260 40% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 260 30% 18%;
+    --sidebar-ring: 252 100% 57%;
 
-    /* Legacy aliases — collapsed to the single accent */
-    --primary-glow: 262 83% 58%;
-    --primary-end: 262 83% 58%;
-    --surface-glow: 262 83% 58%;
-    --neon-purple: 262 83% 58%;
-    --neon-magenta: 262 83% 58%;
+    /* Legacy aliases */
+    --primary-glow: 254 71% 78%;          /* #B19EEF lavender */
+    --primary-end: 252 100% 57%;
+    --surface-glow: 252 100% 57%;
+    --neon-purple: 252 100% 57%;
+    --neon-magenta: 254 71% 78%;
   }
 }
 
