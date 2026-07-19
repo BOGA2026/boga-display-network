@@ -258,35 +258,60 @@
 
   /* Glass bento card with gradient border on hover */
   .bento-card {
+    position: relative;
     border-radius: 20px;
     border: 1px solid transparent;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03)),
-      linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    transition: transform 0.3s ease, background-image 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    isolation: isolate;
+  }
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 20px;
+    padding: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    z-index: -1;
+    transition: background 0.3s ease;
   }
   .bento-card:hover {
     transform: translateY(-4px);
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
-      conic-gradient(from 0deg, #5227FF, #B19EEF, #5227FF);
     box-shadow: 0 0 40px rgba(82, 39, 255, 0.15);
+  }
+  .bento-card:hover::before {
+    background: conic-gradient(from 0deg, #5227FF, #B19EEF, #5227FF);
   }
 
   /* Animated gradient border for the highlighted pricing card */
   .gradient-border-shine {
+    position: relative;
     border-radius: 20px;
     border: 1px solid transparent;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)),
-      conic-gradient(from var(--angle), #5227FF, #B19EEF, #5227FF, #B19EEF, #5227FF);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    isolation: isolate;
+  }
+  .gradient-border-shine::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 20px;
+    padding: 1px;
+    background: conic-gradient(from var(--angle), #5227FF, #B19EEF, #5227FF, #B19EEF, #5227FF);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
     animation: border-shine 3s linear infinite;
+    z-index: -1;
   }
 
   @property --angle {
@@ -298,6 +323,7 @@
   @keyframes border-shine {
     to { --angle: 360deg; }
   }
+
 
   @media (prefers-reduced-motion: reduce) {
     .headline-fragment,
