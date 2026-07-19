@@ -69,11 +69,12 @@ const Studio = () => {
   return (
     <PremiumBackground>
       <Seo
-        title="Visualia Studio — Diseño de contenido para tus pantallas"
-        description="Servicio de diseño, producción y estrategia visual para menús digitales y promociones en pantallas de restaurantes. Planes desde $99.000 COP/mes."
+        title="Visualia Studio | Diseño de contenido para pantallas de restaurantes"
+        description="Nuestro equipo diseña tu carta digital, promociones y campañas para que tus pantallas vendan más. Planes desde $99.000/mes."
         path="/studio"
         jsonLd={[serviceJsonLd, faqJsonLd]}
       />
+
       <LandingHeader />
 
 
