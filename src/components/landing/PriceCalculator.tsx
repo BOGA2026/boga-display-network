@@ -116,27 +116,6 @@ export function PriceCalculator() {
                   <span className="text-sm text-muted-foreground">pantallas</span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>
-                    Mensual
-                  </span>
-                  <Switch
-                    checked={annual}
-                    onCheckedChange={setAnnual}
-                    aria-label="Cambiar a pago anual con 20% de descuento"
-                  />
-                  <span className={annual ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>
-                    Anual
-                  </span>
-                  {annual && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
-                      Ahorrá 20%
-                      <InfoTooltip label="Descuento anual" side="right">
-                        Pagas 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si prefieres, puedes seguir pagando mes a mes.
-                      </InfoTooltip>
-                    </span>
-                  )}
-                </div>
 
                 <div className="rounded-xl surface-neon p-6 text-center transition-all duration-300">
                   <p aria-live="polite" className="font-display text-2xl font-bold stat-glow">
