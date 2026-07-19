@@ -697,3 +697,41 @@ body > div button {
     animation: none !important;
   }
 }
+
+/* Hamburger icon — two lines that morph into an X */
+.hamburger-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 1.5px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hamburger-line-top { transform: translate(-50%, -5px); }
+.hamburger-line-bottom { transform: translate(-50%, 3px); }
+.hamburger-line-top.is-open { transform: translate(-50%, -50%) rotate(45deg); }
+.hamburger-line-bottom.is-open { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* Mobile panel — fade + slide from top */
+.mobile-panel-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mobile-panel-out {
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-panel-in,
+  .mobile-panel-out {
+    transition: none;
+    transform: none;
+  }
+  .hamburger-line { transition: none; }
+}
