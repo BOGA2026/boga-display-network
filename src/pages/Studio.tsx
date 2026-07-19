@@ -547,7 +547,7 @@ const Studio = () => {
       {/* ─── ¿Cómo trabajamos? (timeline) ─── */}
       <section id="como-trabajamos" className="px-6 py-16 md:py-20">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-12 text-center">
+          <div className="studio-on-light mb-12 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               ¿Cómo trabajamos?
             </h2>
