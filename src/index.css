@@ -474,3 +474,75 @@ body {
 body > div button {
   /* fallback; individual components can override */
 }
+
+/* ── Hero aurora + entrance animations ── */
+.hero-aurora {
+  position: absolute;
+  inset: -20% -10% -10% -10%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  filter: blur(80px);
+  opacity: 0.9;
+}
+.hero-aurora::before,
+.hero-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.hero-aurora::before {
+  width: 55vw; height: 55vw;
+  left: -10%; top: -20%;
+  background: radial-gradient(circle at 30% 30%, hsl(252 100% 57% / 0.55), transparent 60%);
+  animation: aurora-drift-a 18s ease-in-out infinite alternate;
+}
+.hero-aurora::after {
+  width: 60vw; height: 60vw;
+  right: -15%; top: -10%;
+  background: radial-gradient(circle at 70% 40%, hsl(254 71% 78% / 0.45), transparent 60%);
+  animation: aurora-drift-b 22s ease-in-out infinite alternate;
+}
+.hero-aurora-3 {
+  position: absolute;
+  width: 50vw; height: 50vw;
+  left: 25%; bottom: -30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(252 100% 57% / 0.35), transparent 65%);
+  mix-blend-mode: screen;
+  animation: aurora-drift-c 26s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-a {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(10vw, 6vh) scale(1.15); }
+}
+@keyframes aurora-drift-b {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-8vw, 4vh) scale(1.1); }
+}
+@keyframes aurora-drift-c {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-6vw, -8vh) scale(1.2); }
+}
+
+@keyframes hero-rise {
+  0%   { opacity: 0; transform: translate3d(0, 24px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.hero-rise {
+  opacity: 0;
+  animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-rise-1 { animation-delay: 0.05s; }
+.hero-rise-2 { animation-delay: 0.25s; }
+.hero-rise-3 { animation-delay: 0.45s; }
+.hero-rise-4 { animation-delay: 0.65s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-aurora::before,
+  .hero-aurora::after,
+  .hero-aurora-3 { animation: none; }
+  .hero-rise { opacity: 1; animation: none; }
+}

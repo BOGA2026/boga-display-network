@@ -322,35 +322,45 @@ const Landing = () => {
 
       {/* 1. HERO */}
       <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28" aria-labelledby="hero-title">
-        <div className="relative mx-auto max-w-5xl text-center">
+        {/* Aurora background */}
+        <div className="hero-aurora" aria-hidden="true">
+          <div className="hero-aurora-3" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-5xl text-center">
           <h1
             id="hero-title"
-            className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl"
+            className="hero-rise hero-rise-1 mt-4 font-display font-bold leading-[1.05] tracking-[-0.02em] text-white text-[44px] sm:text-6xl md:text-7xl lg:text-[80px]"
           >
             Menús digitales para restaurantes:{" "}
-            <span className="text-gradient-primary">tu carta en pantalla, siempre vendiendo</span>
+            <span className="bg-gradient-to-r from-[#5227FF] to-[#B19EEF] bg-clip-text text-transparent">
+              pantallas que venden
+            </span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="hero-rise hero-rise-2 mx-auto mt-6 max-w-2xl text-base sm:text-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
             {SUBHEAD}
           </p>
 
-          <div className="mt-8 flex flex-col items-center gap-3">
-            <Button size="lg" className="px-8 text-base" asChild>
-              <Link to="/registro" data-analytics="cta_hero_registro">
-                Prueba gratis 14 días <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              Cancela cuando quieras
-            </p>
+          <div className="hero-rise hero-rise-3 mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Link
+              to="/registro"
+              data-analytics="cta_hero_registro"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#5227FF] px-8 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-[#5227FF] hover:shadow-[0_0_40px_rgba(82,39,255,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF]"
+            >
+              Prueba gratis 14 días
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
             <a
               href="#demo"
-              className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:underline"
               data-analytics="cta_hero_demo"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-transparent px-8 py-3.5 text-base font-medium text-white transition-all duration-300 hover:border-white/30 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
-              <Play className="h-3.5 w-3.5" /> Ver demo de 2 minutos
+              <Play className="h-4 w-4" /> Ver demo de 2 minutos
             </a>
           </div>
+          <p className="hero-rise hero-rise-4 mt-4 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Cancela cuando quieras
+          </p>
 
           {/* Product mockup: hero video */}
           <div
