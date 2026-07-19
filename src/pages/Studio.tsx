@@ -620,8 +620,11 @@ const Studio = () => {
         </div>
       </section>
 
+      </div>
+
       {/* ─── Footer ─── */}
       <LegalFooter />
+
 
 
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
