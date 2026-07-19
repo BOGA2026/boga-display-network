@@ -176,6 +176,6 @@ export const STUDIO_COMPARISON: ComparisonRow[] = [
     values: ["1", "1", "Ilimitadas"],
   },
   { label: "Producción audiovisual", values: [false, false, true] },
-  { label: "Gestión multi-sede", values: [false, false, true] },
+  { label: "Manejamos las pantallas de todas tus sedes", values: [false, false, true] },
   { label: "Prioridad en soporte", values: [false, false, true] },
 ];
