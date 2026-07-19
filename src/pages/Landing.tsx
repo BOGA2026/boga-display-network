@@ -331,7 +331,7 @@ const Landing = () => {
   }, [forceIntro, searchParams, setSearchParams]);
 
   return (
-    <PremiumBackground>
+    <PremiumBackground className="public-shell">
       <Seo
         title="Visualia | Menús digitales para restaurantes – Pantallas que venden"
         description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos. Prueba gratis 14 días."
@@ -343,6 +343,7 @@ const Landing = () => {
 
       {/* 1. HERO */}
       <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28" aria-labelledby="hero-title">
+        <div className="section-glow" aria-hidden="true" />
         {/* Aurora background */}
         <div className="hero-aurora" aria-hidden="true">
           <div className="hero-aurora-3" />
@@ -688,8 +689,9 @@ const Landing = () => {
 
 
       {/* 5. PRICING */}
-      <section id="precios" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
-        <div className="mx-auto max-w-6xl">
+      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+        <div className="section-glow" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-6xl">
           <div className="mb-10 text-center">
             <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
               Precios
