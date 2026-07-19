@@ -40,12 +40,19 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
     message: "",
   });
 
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid =
-    form.name.trim() &&
-    form.phone.trim() &&
-    form.email.trim() &&
-    form.business_name.trim() &&
-    form.city.trim() &&
+    form.name.trim().length >= 1 &&
+    form.name.trim().length <= 120 &&
+    form.phone.trim().length >= 5 &&
+    form.phone.trim().length <= 40 &&
+    emailRe.test(form.email.trim()) &&
+    form.email.trim().length <= 254 &&
+    form.business_name.trim().length >= 1 &&
+    form.business_name.trim().length <= 160 &&
+    form.city.trim().length >= 1 &&
+    form.city.trim().length <= 120 &&
+    (form.message.trim().length <= 2000) &&
     screensRange &&
     consent;
 
@@ -59,13 +66,13 @@ const DemoRequestDialog = ({ open, onOpenChange }: DemoRequestDialogProps) => {
     setLoading(true);
     try {
       await supabase.from("demo_requests" as any).insert({
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        email: form.email.trim(),
-        business_name: form.business_name.trim(),
-        city: form.city.trim(),
+        name: form.name.trim().slice(0, 120),
+        phone: form.phone.trim().slice(0, 40),
+        email: form.email.trim().slice(0, 254),
+        business_name: form.business_name.trim().slice(0, 160),
+        city: form.city.trim().slice(0, 120),
         screens_range: screensRange,
-        message: form.message.trim() || null,
+        message: form.message.trim() ? form.message.trim().slice(0, 2000) : null,
         consent: true,
       });
       setSubmitted(true);
