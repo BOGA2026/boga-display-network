@@ -282,26 +282,56 @@ const LandingHeader = () => {
           </Link>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="rounded-md p-2 text-white lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
-        </button>
+        {/* Mobile right cluster */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <Link
+            to="/login"
+            className="inline-flex items-center rounded-full font-semibold text-white transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-[0.97]"
+            style={{
+              background: "#5227FF",
+              padding: "8px 16px",
+              fontSize: 13,
+              boxShadow: "0 0 16px rgba(82,39,255,0.35)",
+            }}
+          >
+            Entrar
+          </Link>
+          <button
+            className="mobile-hamburger relative inline-flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={mobileOpen}
+          >
+            <span className={cn("hamburger-line hamburger-line-top", mobileOpen && "is-open")} />
+            <span className={cn("hamburger-line hamburger-line-bottom", mobileOpen && "is-open")} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile fullscreen panel */}
       <div
         className={cn(
-          "lg:hidden fixed inset-0 top-[68px] transition-all duration-300",
-          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          "lg:hidden fixed inset-0 top-[60px]",
+          mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
         )}
         style={{ background: "#060010" }}
+        aria-hidden={!mobileOpen}
       >
-        <div className="h-full overflow-y-auto px-6 pt-6 pb-10">
+        {/* Radial violet glow at the top */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[280px]"
+          style={{
+            background:
+              "radial-gradient(60% 100% at 50% 0%, rgba(82,39,255,0.12) 0%, rgba(82,39,255,0) 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+        <div className="relative h-full overflow-y-auto px-6 pt-6 pb-10">
           <div className="mx-auto max-w-[600px] flex flex-col gap-2">
             {menuItems.map((item, idx) => (
               <div
@@ -384,21 +414,6 @@ const LandingHeader = () => {
               style={{ animationDelay: `${(menuItems.length + directLinks.length) * 60}ms` }}
             >
               Descargar app
-            </Link>
-            <Link
-              to="/login"
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "mt-4 flex w-full items-center justify-center rounded-full py-4 text-lg font-semibold text-white mobile-stagger",
-                mobileOpen && "mobile-stagger-in"
-              )}
-              style={{
-                background: "#5227FF",
-                animationDelay: `${(menuItems.length + directLinks.length + 1) * 60}ms`,
-                boxShadow: "0 0 24px rgba(82,39,255,0.4)",
-              }}
-            >
-              Entrar
             </Link>
           </div>
         </div>
