@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import { PriceCalculator } from "@/components/landing/PriceCalculator";
+import { FeatureCard } from "@/components/landing/FeatureCard";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import {
   Monitor,
@@ -23,13 +24,44 @@ import {
 
 
 const included = [
-  { icon: Monitor, label: "Gestión remota de pantallas" },
-  { icon: CalendarClock, label: "Programación de contenido" },
-  { icon: ListMusic, label: "Playlists automáticas" },
-  { icon: Headphones, label: "Soporte técnico prioritario" },
-  { icon: RefreshCw, label: "Actualizaciones continuas" },
-  { icon: Shield, label: "Seguridad y respaldos" },
+  {
+    icon: Monitor,
+    label: "Gestión remota de pantallas",
+    explanation:
+      "Controla todas tus pantallas desde tu celular o computador, estés donde estés. Por ejemplo: cambias el precio del almuerzo desde tu casa y se actualiza al instante en todas tus sedes.",
+  },
+  {
+    icon: CalendarClock,
+    label: "Programación de contenido",
+    explanation:
+      "Deja todo programado y olvídate: el menú de desayuno aparece solo a las 7:00 a.m. y el de almuerzo a las 11:30 a.m., sin que nadie tenga que tocar el televisor.",
+  },
+  {
+    icon: ListMusic,
+    label: "Playlists automáticas",
+    explanation:
+      "Como una lista de canciones, pero con tus imágenes y videos: tus promociones rotan solas en la pantalla, una tras otra, todo el día.",
+  },
+  {
+    icon: Headphones,
+    label: "Soporte técnico prioritario",
+    explanation:
+      "Si algo falla, escribes por chat y una persona real te ayuda de inmediato. No necesitas saber de tecnología.",
+  },
+  {
+    icon: RefreshCw,
+    label: "Actualizaciones continuas",
+    explanation:
+      "La plataforma mejora todos los meses con funciones nuevas, sin que pagues más ni tengas que instalar nada.",
+  },
+  {
+    icon: Shield,
+    label: "Seguridad y respaldos",
+    explanation:
+      "Tus menús y diseños quedan guardados en la nube. Si el televisor se daña o se va la luz, no pierdes nada: conectas otro TV y todo reaparece.",
+  },
 ];
+
 
 const valueCards = [
   { icon: Globe, title: "Control total desde cualquier lugar", desc: "Gestiona todas tus pantallas desde un solo panel, sin importar dónde estés." },
