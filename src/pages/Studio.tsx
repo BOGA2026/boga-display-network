@@ -167,7 +167,7 @@ const Studio = () => {
 
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
-            {plans.map((plan) => (
+            {STUDIO_PLANS.map((plan) => (
               <div
                 key={plan.id}
                 className={`group relative overflow-hidden rounded-2xl border p-8 md:p-10 transition-all duration-300 ${
@@ -211,9 +211,39 @@ const Studio = () => {
                     <div>
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Inversión inicial</span>
                       <p className="font-display text-2xl font-bold text-foreground md:text-3xl">
-                        {plan.setup} <span className="text-sm font-normal text-muted-foreground">COP</span>
+                        {plan.setup.display} <span className="text-sm font-normal text-muted-foreground">COP</span>
                       </p>
+
+                      {/* Expandible: ¿Qué cubre este valor? */}
+                      <details className="group/details mt-2 rounded-lg border border-border/40 bg-black/20 open:bg-black/30">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <Info className="h-3.5 w-3.5" />
+                            ¿Qué cubre este valor?
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5 transition-transform group-open/details:rotate-180" />
+                        </summary>
+                        <div className="border-t border-border/40 px-3 py-3">
+                          <ul className="space-y-1.5">
+                            {plan.setup.breakdown.map((item) => (
+                              <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                <Check className="mt-0.5 h-3 w-3 flex-shrink-0 text-primary" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                          {plan.setup.variesBy && (
+                            <p className="mt-3 text-xs italic text-muted-foreground/80">
+                              {plan.setup.variesBy}
+                            </p>
+                          )}
+                          <p className="mt-3 border-t border-border/30 pt-2 text-xs text-foreground/70">
+                            {plan.setup.installments}
+                          </p>
+                        </div>
+                      </details>
                     </div>
+
                     <div
                       className="rounded-xl px-5 py-4"
                       style={{
@@ -223,8 +253,23 @@ const Studio = () => {
                     >
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Servicio mensual</span>
                       <p className="font-display text-xl font-bold text-foreground md:text-2xl">
-                        {plan.monthly} <span className="text-xs font-normal text-muted-foreground">{plan.monthlyLabel}</span>
+                        {plan.monthly.display}
                       </p>
+                      <p className="mt-1 text-xs font-medium text-muted-foreground">
+                        {plan.monthly.unitLabel}
+                      </p>
+                    </div>
+
+                    {/* Nota de plataforma — misma en los 3 planes */}
+                    <div
+                      className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs leading-relaxed text-muted-foreground"
+                      style={{
+                        background: "hsl(260 20% 10%)",
+                        border: "1px dashed hsl(260 15% 22%)",
+                      }}
+                    >
+                      <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />
+                      <span>{PLATFORM_SUBSCRIPTION_NOTE}</span>
                     </div>
                   </div>
 
@@ -244,7 +289,7 @@ const Studio = () => {
                   </div>
 
                   {/* Monthly detail */}
-                  {"monthlyDetail" in plan && plan.monthlyDetail && (
+                  {plan.monthlyDetail && (
                     <div className="mt-6">
                       <div
                         className="rounded-xl px-5 py-4"
@@ -298,6 +343,64 @@ const Studio = () => {
               </div>
             ))}
           </div>
+
+          {/* Tabla comparativa (solo desktop) */}
+          <div className="mt-16 hidden lg:block">
+            <h3 className="mb-6 text-center font-display text-xl font-bold text-foreground">
+              Comparativa rápida
+            </h3>
+            <div
+              className="overflow-hidden rounded-2xl border"
+              style={{ borderColor: "hsl(260 15% 18%)", background: "hsl(260 25% 9%)" }}
+            >
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b" style={{ borderColor: "hsl(260 15% 18%)" }}>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                      Qué incluye
+                    </th>
+                    {STUDIO_PLANS.map((p) => (
+                      <th
+                        key={p.id}
+                        className={`px-6 py-4 text-center text-xs font-semibold uppercase tracking-widest ${
+                          p.highlighted ? "text-primary" : "text-muted-foreground"
+                        }`}
+                      >
+                        {p.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {STUDIO_COMPARISON.map((row, idx) => (
+                    <tr
+                      key={row.label}
+                      className={idx % 2 === 0 ? "" : "bg-white/[0.02]"}
+                    >
+                      <td className="px-6 py-3.5 text-foreground/90">{row.label}</td>
+                      {row.values.map((v, i) => (
+                        <td key={i} className="px-6 py-3.5 text-center">
+                          {typeof v === "boolean" ? (
+                            v ? (
+                              <Check className="mx-auto h-4 w-4 text-primary" />
+                            ) : (
+                              <Minus className="mx-auto h-4 w-4 text-muted-foreground/40" />
+                            )
+                          ) : (
+                            <span className="text-sm text-foreground/80">{v}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              {PLATFORM_SUBSCRIPTION_NOTE}
+            </p>
+          </div>
+
 
           {/* Microcopy */}
           <div className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-3">
