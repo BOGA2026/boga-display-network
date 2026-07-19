@@ -116,24 +116,28 @@ const LandingHeader = () => {
         <nav className="hidden items-center gap-1 lg:flex">
           {menuItems.map((item) => (
             <div
-              key={item.label}
+              key={item.id}
               className="relative"
-              onMouseEnter={() => handleEnter(item.label)}
-              onMouseLeave={handleLeave}
+              onMouseEnter={() => openMenu(item.id)}
+              onMouseLeave={closeMenu}
             >
               <button
+                ref={(el) => { menuTriggersRef.current[item.id] = el; }}
                 className={cn(
                   "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  activeMenu === item.label
+                  activeMenu === item.id
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
+                onClick={() => toggleMenu(item.id)}
+                aria-expanded={activeMenu === item.id}
+                aria-haspopup="true"
               >
                 {item.label}
                 <ChevronDown
                   className={cn(
                     "h-3.5 w-3.5 transition-transform",
-                    activeMenu === item.label && "rotate-180"
+                    activeMenu === item.id && "rotate-180"
                   )}
                 />
               </button>
@@ -141,7 +145,7 @@ const LandingHeader = () => {
               <div
                 className={cn(
                   "absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-opacity duration-200",
-                  activeMenu === item.label
+                  activeMenu === item.id
                     ? "pointer-events-auto opacity-100"
                     : "pointer-events-none opacity-0"
                 )}
