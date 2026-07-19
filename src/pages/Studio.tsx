@@ -23,10 +23,45 @@ import {
   STUDIO_COMPARISON,
   PLATFORM_SUBSCRIPTION_NOTE,
 } from "@/config/studioPlans";
+import { STUDIO_STEPS, STUDIO_FAQ } from "@/config/studioContent";
+import Seo from "@/components/Seo";
 
 
 const Studio = () => {
   const [chatOpen, setChatOpen] = useState(false);
+
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Visualia Studio",
+    serviceType: "Diseño de contenido para pantallas digitales (digital signage)",
+    provider: {
+      "@type": "Organization",
+      name: "Visualia",
+      url: "https://visualiamedia.com",
+    },
+    areaServed: { "@type": "Country", name: "Colombia" },
+    description:
+      "Servicio de diseño, producción y estrategia visual para menús digitales y promociones en pantallas de restaurantes y negocios físicos.",
+    offers: STUDIO_PLANS.map((p) => ({
+      "@type": "Offer",
+      name: p.name,
+      priceCurrency: "COP",
+      description: `${p.ideal} Inversión inicial: ${p.setup.display}. Mensualidad: ${p.monthly.display} ${p.monthly.unitLabel}.`,
+    })),
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: STUDIO_FAQ.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+
 
   return (
     <PremiumBackground>
