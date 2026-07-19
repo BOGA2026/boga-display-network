@@ -77,6 +77,7 @@ const Studio = () => {
 
       <LandingHeader />
 
+      <div className="studio-shell">
 
       {/* ─── BLOCK 1: Plataforma vs Studio ─── */}
       <section className="relative px-6 pt-36 md:pt-44">
@@ -619,8 +620,11 @@ const Studio = () => {
         </div>
       </section>
 
+      </div>
+
       {/* ─── Footer ─── */}
       <LegalFooter />
+
 
 
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
