@@ -469,8 +469,3 @@ body {
     radial-gradient(ellipse 70% 50% at 50% 100%, hsl(252 100% 57% / 0.12), transparent 75%);
   background-attachment: fixed;
 }
-
-/* Generous pill radius on public buttons (public site scope only) */
-body:not(.admin-open) button:not(.admin-shell button):not([data-no-pill]) {
-  border-radius: 9999px;
-}
