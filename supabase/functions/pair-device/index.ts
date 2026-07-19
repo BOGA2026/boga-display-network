@@ -45,8 +45,16 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const path = url.pathname.replace("/pair-device", "").replace(/^\//, "");
 
+    const ip = clientIp(req);
+
     // POST /pair-device/register — device self-registers with a code
     if (req.method === "POST" && path === "register") {
+      if (rateLimited(`register:${ip}`, RL_MAX.register)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const { device_code, app_version } = await req.json();
       if (!device_code || typeof device_code !== "string" || device_code.length < 4) {
         return new Response(JSON.stringify({ error: "Invalid device_code" }), {
