@@ -16,54 +16,55 @@
 
 @layer base {
   :root {
-    /* Neutral scale (light) */
-    --background: 0 0% 100%;              /* #FFFFFF */
-    --foreground: 240 10% 8%;             /* near-black text */
+    /* Dark premium — inspired by reactbits.dev
+       Background #060010, accent #5227FF, lavender #B19EEF */
+    --background: 260 100% 3%;            /* #060010 */
+    --foreground: 0 0% 100%;              /* white text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 8%;
+    --card: 260 60% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 8%;
+    --popover: 260 60% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    --muted: 240 5% 96%;                  /* off-white surface */
-    --muted-foreground: 240 4% 46%;       /* secondary gray */
+    --muted: 260 40% 10%;
+    --muted-foreground: 0 0% 70%;         /* ~rgba(255,255,255,0.6-0.7) */
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 8%;
+    --secondary: 260 40% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 10% 8%;
+    --accent: 260 40% 12%;
+    --accent-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 260 30% 18%;                /* subtle violet border */
+    --input: 260 30% 18%;
 
-    /* Single brand accent — reserved for CTAs & key data */
-    --primary: 262 83% 58%;               /* refined violet */
+    /* Brand accents */
+    --primary: 252 100% 57%;              /* #5227FF electric violet */
     --primary-foreground: 0 0% 100%;
-    --ring: 262 83% 58%;
+    --ring: 252 100% 57%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --radius: 0.625rem;                   /* 10px */
+    --radius: 1.125rem;                   /* 18px — generous */
 
-    /* Sidebar (kept in sync) */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 10% 8%;
-    --sidebar-primary: 262 83% 58%;
+    /* Sidebar */
+    --sidebar-background: 260 100% 3%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 252 100% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 10% 8%;
-    --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-accent: 260 40% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 260 30% 18%;
+    --sidebar-ring: 252 100% 57%;
 
-    /* Legacy aliases — collapsed to the single accent */
-    --primary-glow: 262 83% 58%;
-    --primary-end: 262 83% 58%;
-    --surface-glow: 262 83% 58%;
-    --neon-purple: 262 83% 58%;
-    --neon-magenta: 262 83% 58%;
+    /* Legacy aliases */
+    --primary-glow: 254 71% 78%;          /* #B19EEF lavender */
+    --primary-end: 252 100% 57%;
+    --surface-glow: 252 100% 57%;
+    --neon-purple: 252 100% 57%;
+    --neon-magenta: 254 71% 78%;
   }
 }
 
@@ -73,7 +74,7 @@
   }
 
   html {
-    color-scheme: light;
+    color-scheme: dark;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -131,18 +132,23 @@
   .glow-primary-sm,
   .glow-primary-lg,
   .glow-primary-intense {
-    box-shadow: 0 1px 2px hsl(240 10% 8% / 0.04), 0 4px 12px hsl(240 10% 8% / 0.06);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.35), 0 0 120px hsl(var(--primary) / 0.18);
   }
 
   .glass-card,
   .glass-card-hover,
   .surface-elevated,
   .surface-neon {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 2px hsl(240 10% 8% / 0.04);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+  }
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 
   .text-gradient-primary,
@@ -208,7 +214,7 @@
   }
   .hover-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px hsl(240 10% 8% / 0.08);
+    box-shadow: 0 8px 40px hsl(var(--primary) / 0.25);
   }
 
   .container-page {
@@ -330,14 +336,13 @@
   color: hsl(var(--foreground));
 }
 
-/* Studio sections rendered directly on the light global background need
-   dark text — studio-shell defaults are white-on-dark. */
+/* Studio sections on the (now dark) global background — keep light text. */
 .studio-shell .studio-on-light,
 .studio-shell .studio-on-light .text-foreground {
-  color: hsl(240 10% 12%);
+  color: hsl(0 0% 100%);
 }
 .studio-shell .studio-on-light .text-muted-foreground {
-  color: hsl(240 6% 40%);
+  color: hsl(0 0% 70%);
 }
 
 .admin-shell .admin-card {
@@ -454,3 +459,18 @@
 }
 
 
+
+/* ── Dark premium global ambient (reactbits-style) ── */
+body {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 0%, hsl(252 100% 57% / 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 20%, hsl(254 71% 78% / 0.10), transparent 75%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, hsl(252 100% 57% / 0.12), transparent 75%);
+  background-attachment: fixed;
+}
+/* Pill buttons on the public site. Admin console keeps its own square-ish look. */
+.public-shell button,
+body > div button {
+  /* fallback; individual components can override */
+}
