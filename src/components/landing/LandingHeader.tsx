@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { prefetchRoute } from "@/lib/prefetch";
 
 const menuItems = [
   {
+    id: "productos" as const,
     label: "Productos",
     children: [
       { label: "Panel de control", href: "/precios", disabled: false },
@@ -15,6 +16,7 @@ const menuItems = [
     ],
   },
   {
+    id: "soluciones" as const,
     label: "Soluciones",
     children: [
       { label: "Restaurantes", href: "/soluciones/restaurantes", disabled: false },
@@ -33,14 +35,19 @@ const directLinks = [
 const linkClass =
   "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
+type MenuId = (typeof menuItems)[number]["id"];
 
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<MenuId | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<MenuId | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const menuTriggersRef = useRef<Record<MenuId, HTMLButtonElement | null>>({
+    productos: null,
+    soluciones: null,
+  });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -54,18 +61,37 @@ const LandingHeader = () => {
         setActiveMenu(null);
       }
     };
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const handleEnter = (label: string) => {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveMenu(null);
+        setMobileExpanded(null);
+        if (activeMenu) {
+          menuTriggersRef.current[activeMenu]?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [activeMenu]);
+
+  const openMenu = useCallback((id: MenuId) => {
     clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setActiveMenu(label), 80);
-  };
-  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setActiveMenu(id), 80);
+  }, []);
+
+  const closeMenu = useCallback(() => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setActiveMenu(null), 120);
-  };
+  }, []);
+
+  const toggleMenu = useCallback((id: MenuId) => {
+    setActiveMenu((prev) => (prev === id ? null : id));
+  }, []);
 
   return (
     <header
