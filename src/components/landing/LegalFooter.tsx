@@ -11,10 +11,10 @@ const LegalFooter = () => (
         © {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia
       </p>
       <div className="flex gap-4">
-        <Link to="/privacidad" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <Link to="/legal/privacidad" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           Política de tratamiento de datos
         </Link>
-        <Link to="/terminos" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <Link to="/legal/terminos" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           Términos y condiciones
         </Link>
       </div>
