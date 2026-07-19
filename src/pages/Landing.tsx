@@ -193,6 +193,7 @@ const Landing = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [demoOpen, setDemoOpen] = useState(false);
+  const [workflowOpen, setWorkflowOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   // Persisted audio prefs
   const savedVolume = (() => {
