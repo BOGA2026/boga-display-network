@@ -249,7 +249,7 @@ const Studio = () => {
       {/* ─── Portafolio Antes / Después ─── */}
       <section className="px-6 py-16 md:py-20" id="antes-despues">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
+          <div className="studio-on-light mb-10 text-center">
             <h2 className="font-display text-3xl font-bold leading-tight text-foreground md:text-4xl">
               Así se ve la diferencia
             </h2>
