@@ -1,19 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
-
-const TIERS = [
-  { min: 1, max: 5, price: 50000 },
-  { min: 6, max: 20, price: 42000 },
-  { min: 21, max: 50, price: 35000 },
-  { min: 51, max: 100, price: 28000 },
-  { min: 101, max: 300, price: 22000 },
-] as const;
+import { PRICING_TIERS, findTier } from "@/config/pricing";
 
 const fmtCOP = new Intl.NumberFormat("es-CO", {
   style: "currency",
