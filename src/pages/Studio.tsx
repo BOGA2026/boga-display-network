@@ -239,7 +239,7 @@ const Studio = () => {
 
       {/* ─── Pre-plans context ─── */}
       <section className="px-6 pb-6 pt-10">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="studio-on-light mx-auto max-w-3xl text-center">
           <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
             Visualia Studio desarrolla el <span className="font-semibold text-foreground">concepto visual, diseño y estrategia de contenido</span> para tus menús digitales y promociones.
           </p>
