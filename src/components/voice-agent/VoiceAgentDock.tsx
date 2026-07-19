@@ -208,7 +208,7 @@ export const VoiceAgentDock = () => {
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendText()}
-                placeholder={attachedImages.length ? "Describí qué hacer con la imagen…" : "O escribí acá…"}
+                placeholder={attachedImages.length ? "Describe qué hacer con la imagen…" : "O escribe acá…"}
                 className="h-9 text-sm"
                 disabled={isProcessing}
               />

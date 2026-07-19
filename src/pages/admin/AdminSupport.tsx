@@ -207,7 +207,7 @@ export default function AdminSupport() {
                 ))}
               </div>
               <div className="p-3 border-t border-border/50 flex gap-2">
-                <Input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), send())} placeholder="Escribí tu mensaje..." className="bg-background/60" />
+                <Input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), send())} placeholder="Escribe tu mensaje..." className="bg-background/60" />
                 <Button onClick={send} disabled={sending || !input.trim()}><Send className="h-4 w-4" /></Button>
               </div>
             </>

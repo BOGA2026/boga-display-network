@@ -38,6 +38,14 @@ import {
 } from "lucide-react";
 import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
+import { PRICING_TIERS, MIN_PRICE_PER_SCREEN } from "@/config/pricing";
+
+const _fmtCOP = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+const formatCOPStatic = (n: number) => _fmtCOP.format(n);
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
 import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
@@ -88,10 +96,22 @@ const steps = [
   },
 ];
 
-const pricingTiers = [
+type PricingCard = {
+  name: string;
+  price: number | null;
+  priceLabel?: string;
+  detail: string;
+  features: string[];
+  cta: string;
+  ctaHref?: string;
+  highlight: boolean;
+  contact?: boolean;
+};
+
+const pricingTiers: PricingCard[] = [
   {
-    name: "1 pantalla",
-    price: 50000,
+    name: `${PRICING_TIERS[0].min} a ${PRICING_TIERS[0].max} pantallas`,
+    price: PRICING_TIERS[0].pricePerScreen,
     detail: "por pantalla / mes",
     features: [
       "Actualizaciones ilimitadas",
@@ -102,8 +122,8 @@ const pricingTiers = [
     highlight: false,
   },
   {
-    name: "De 2 a 20 pantallas",
-    price: 42000,
+    name: `${PRICING_TIERS[1].min} a ${PRICING_TIERS[1].max} pantallas`,
+    price: PRICING_TIERS[1].pricePerScreen,
     detail: "por pantalla / mes",
     features: [
       "Todo lo anterior",
@@ -115,15 +135,17 @@ const pricingTiers = [
     highlight: true,
   },
   {
-    name: "Más de 20 pantallas",
+    name: `${PRICING_TIERS[2].min} o más`,
     price: null,
-    detail: "Precio a medida",
+    priceLabel: `desde ${formatCOPStatic(MIN_PRICE_PER_SCREEN)}`,
+    detail: "por pantalla / mes, según volumen",
     features: [
       "Descuentos por volumen",
       "Onboarding personalizado",
       "Gerente de cuenta",
     ],
-    cta: "Habla con ventas",
+    cta: "Ver calculadora",
+    ctaHref: "/precios",
     highlight: false,
   },
 ];
@@ -690,7 +712,7 @@ const Landing = () => {
                     </div>
                   ) : (
                     <span className="font-display text-2xl font-semibold text-foreground">
-                      A medida
+                      {t.priceLabel ?? "A medida"}
                     </span>
                   )}
                   <p className="mt-1 text-sm text-muted-foreground">{t.detail}</p>
@@ -706,23 +728,13 @@ const Landing = () => {
                 </ul>
 
                 <div className="mt-7">
-                  {t.price ? (
-                    <Button
-                      className="w-full"
-                      variant={t.highlight ? "default" : "outline"}
-                      asChild
-                    >
-                      <Link to="/registro">{t.cta}</Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => setChatOpen(true)}
-                    >
-                      {t.cta}
-                    </Button>
-                  )}
+                  <Button
+                    className="w-full"
+                    variant={t.highlight ? "default" : "outline"}
+                    asChild
+                  >
+                    <Link to={t.ctaHref ?? "/registro"}>{t.cta}</Link>
+                  </Button>
                 </div>
 
               </div>

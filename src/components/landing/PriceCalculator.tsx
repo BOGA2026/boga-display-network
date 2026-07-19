@@ -1,19 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
-
-const TIERS = [
-  { min: 1, max: 5, price: 50000 },
-  { min: 6, max: 20, price: 42000 },
-  { min: 21, max: 50, price: 35000 },
-  { min: 51, max: 100, price: 28000 },
-  { min: 101, max: 300, price: 22000 },
-] as const;
+import { PRICING_TIERS, findTier } from "@/config/pricing";
 
 const fmtCOP = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -54,13 +46,9 @@ function InfoTooltip({
 
 export function PriceCalculator() {
   const [screens, setScreens] = useState(3);
-  const [annual, setAnnual] = useState(false);
 
-  const tier = useMemo(
-    () => TIERS.find((t) => screens >= t.min && screens <= t.max),
-    [screens]
-  );
-  const total = tier ? tier.price * screens : null;
+  const tier = useMemo(() => findTier(screens), [screens]);
+  const total = tier ? tier.pricePerScreen * screens : null;
 
   const handleSlider = (value: number[]) => {
     setScreens(clamp(value[0] ?? 1));
@@ -83,7 +71,7 @@ export function PriceCalculator() {
                 ¿Cuánto me cuesta?
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Ajustá el número de pantallas y sabé tu precio al instante. IVA incluido.
+                Ajusta el número de pantallas y conoce tu precio al instante. IVA incluido.
               </p>
 
               <div className="mt-8 space-y-6">
@@ -128,33 +116,12 @@ export function PriceCalculator() {
                   <span className="text-sm text-muted-foreground">pantallas</span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className={annual ? "text-sm text-muted-foreground" : "text-sm font-medium text-foreground"}>
-                    Mensual
-                  </span>
-                  <Switch
-                    checked={annual}
-                    onCheckedChange={setAnnual}
-                    aria-label="Cambiar a pago anual con 20% de descuento"
-                  />
-                  <span className={annual ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>
-                    Anual
-                  </span>
-                  {annual && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold gradient-primary-vibrant text-primary-foreground glow-primary-sm">
-                      Ahorrá 20%
-                      <InfoTooltip label="Descuento anual" side="right">
-                        Pagas 12 meses juntos y te descontamos el 20% sobre el precio mensual. Si prefieres, puedes seguir pagando mes a mes.
-                      </InfoTooltip>
-                    </span>
-                  )}
-                </div>
 
                 <div className="rounded-xl surface-neon p-6 text-center transition-all duration-300">
                   <p aria-live="polite" className="font-display text-2xl font-bold stat-glow">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(total * 0.8) : total)}
+                        {fmtCOP.format(total)}
                         <span className="ml-2 text-sm font-normal text-muted-foreground">/mes</span>
                       </>
                     ) : (
@@ -169,7 +136,7 @@ export function PriceCalculator() {
                   <div className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
                     {tier && total !== null ? (
                       <>
-                        {fmtCOP.format(annual ? Math.round(tier.price * 0.8) : tier.price)} por pantalla/mes
+                        {fmtCOP.format(tier.pricePerScreen)} por pantalla/mes
                         <InfoTooltip label="Precio por pantalla" side="right">
                           El precio por pantalla baja automáticamente a medida que agregas más pantallas en tu negocio.
                         </InfoTooltip>
@@ -236,7 +203,7 @@ export function PriceCalculator() {
                   </tr>
                 </thead>
                 <tbody>
-                  {TIERS.map((t) => {
+                  {PRICING_TIERS.map((t) => {
                     const active = screens >= t.min && screens <= t.max;
                     return (
                       <tr
@@ -248,9 +215,9 @@ export function PriceCalculator() {
                         </td>
                         <td className="px-4 py-3 text-right font-medium text-foreground">
                           {active && tier ? (
-                            <span className="text-primary">{fmtCOP.format(tier.price)}</span>
+                            <span className="text-primary">{fmtCOP.format(tier.pricePerScreen)}</span>
                           ) : (
-                            fmtCOP.format(t.price)
+                            fmtCOP.format(t.pricePerScreen)
                           )}
                         </td>
                       </tr>
