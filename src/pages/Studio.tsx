@@ -105,7 +105,7 @@ const Studio = () => {
       {/* ─── BLOCK 1: Plataforma vs Studio ─── */}
       <section className="relative px-6 pt-36 md:pt-44">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-6 text-center text-sm text-muted-foreground md:text-base">
+          <p className="studio-on-light mb-6 text-center text-sm text-muted-foreground md:text-base">
             La plataforma es el escenario;{" "}
             <span className="font-semibold text-foreground">Studio es el show.</span>
           </p>
