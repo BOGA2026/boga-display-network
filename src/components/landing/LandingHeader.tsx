@@ -345,7 +345,7 @@ const LandingHeader = () => {
               "Vincula tu pantalla": Monitor,
             };
             const cardBase =
-              "flex w-full items-center gap-3 rounded-2xl text-left text-white transition-colors";
+              "mobile-nav-card flex w-full items-center gap-3 rounded-2xl text-left text-white transition-colors";
             const cardStyle: React.CSSProperties = {
               background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.1)",
