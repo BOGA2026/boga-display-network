@@ -419,7 +419,6 @@ const LandingHeader = () => {
             </Link>
           </div>
         </div>
-      </div>
     </div>
     </>
   );
