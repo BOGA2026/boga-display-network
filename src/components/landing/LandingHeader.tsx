@@ -107,6 +107,7 @@ const LandingHeader = () => {
     "relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)]";
 
   return (
+    <>
     <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
@@ -311,16 +312,17 @@ const LandingHeader = () => {
           </button>
         </div>
       </div>
+    </header>
 
-      {/* Mobile fullscreen panel */}
-      <div
-        className={cn(
-          "lg:hidden fixed inset-0 top-[60px]",
-          mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
-        )}
-        style={{ background: "#060010" }}
-        aria-hidden={!mobileOpen}
-      >
+    {/* Mobile fullscreen panel — rendered outside the header so `fixed` positions against the viewport (header's backdrop-filter creates a containing block that would clip it) */}
+    <div
+      className={cn(
+        "lg:hidden fixed inset-0 top-[60px] z-40",
+        mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
+      )}
+      style={{ background: "#060010" }}
+      aria-hidden={!mobileOpen}
+    >
         {/* Radial violet glow at the top */}
         <div
           aria-hidden="true"
@@ -417,8 +419,8 @@ const LandingHeader = () => {
             </Link>
           </div>
         </div>
-      </div>
-    </header>
+    </div>
+    </>
   );
 };
 
