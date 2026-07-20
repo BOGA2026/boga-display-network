@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight, Grid, Layers, Tag, Info, Monitor, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { prefetchRoute } from "@/lib/prefetch";
 
@@ -323,101 +323,207 @@ const LandingHeader = () => {
       style={{ background: "#060010" }}
       aria-hidden={!mobileOpen}
     >
-        {/* Radial violet glow at the top */}
+        {/* Radial violet glow — top right */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[280px]"
+          className="pointer-events-none absolute right-[-80px] top-[-80px] h-[360px] w-[360px]"
           style={{
             background:
-              "radial-gradient(60% 100% at 50% 0%, rgba(82,39,255,0.12) 0%, rgba(82,39,255,0) 70%)",
-            filter: "blur(60px)",
+              "radial-gradient(circle, rgba(82,39,255,0.15) 0%, rgba(82,39,255,0) 70%)",
+            filter: "blur(130px)",
           }}
         />
-        <div className="relative h-full overflow-y-auto px-6 pt-6 pb-10">
-          <div className="mx-auto max-w-[600px] flex flex-col gap-2">
-            {menuItems.map((item, idx) => (
-              <div
-                key={item.id}
-                className={cn("mobile-stagger", mobileOpen && "mobile-stagger-in")}
-                style={{ animationDelay: `${idx * 60}ms` }}
-              >
-                <button
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-4 text-[24px] font-medium text-white"
-                  onClick={() =>
-                    setMobileExpanded(mobileExpanded === item.id ? null : item.id)
-                  }
-                  aria-expanded={mobileExpanded === item.id}
-                >
-                  {item.label}
-                  <ChevronDown
-                    className={cn(
-                      "h-5 w-5 text-white/60 transition-transform",
-                      mobileExpanded === item.id && "rotate-180"
-                    )}
-                  />
-                </button>
-                <div
-                  className={cn(
-                    "overflow-hidden transition-all duration-200",
-                    mobileExpanded === item.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                  )}
-                >
-                  <div className="space-y-1 pb-2 pl-4">
-                    {item.children.map((child) =>
-                      child.disabled ? (
-                        <span
-                          key={child.label}
-                          className="flex items-center justify-between rounded-lg px-3 py-2 text-base text-white/50"
-                        >
-                          {child.label}
-                          <span
-                            className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60"
-                            style={{ border: "1px solid rgba(255,255,255,0.12)" }}
-                          >
-                            Próximamente
-                          </span>
+        <div className="relative h-full overflow-y-auto pt-4 pb-8">
+          {(() => {
+            const menuIcons: Record<string, typeof Grid> = {
+              productos: Grid,
+              soluciones: Layers,
+            };
+            const directIcons: Record<string, typeof Grid> = {
+              "Precios": Tag,
+              "Acerca de Visualia": Info,
+              "Vincula tu pantalla": Monitor,
+            };
+            const cardBase =
+              "mobile-nav-card flex w-full items-center gap-3 rounded-2xl text-left text-white transition-colors";
+            const cardStyle: React.CSSProperties = {
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              padding: "18px 20px",
+              fontSize: 18,
+              fontWeight: 600,
+            };
+            const iconWrap: React.CSSProperties = {
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "rgba(82,39,255,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            };
+            let staggerIdx = 0;
+            const nextDelay = () => `${staggerIdx++ * 70}ms`;
+
+            return (
+              <div className="flex flex-col gap-[10px] px-5">
+                {menuItems.map((item) => {
+                  const Icon = menuIcons[item.id] ?? Grid;
+                  const expanded = mobileExpanded === item.id;
+                  return (
+                    <div
+                      key={item.id}
+                      className={cn("mobile-stagger", mobileOpen && "mobile-stagger-in")}
+                      style={{ animationDelay: nextDelay() }}
+                    >
+                      <button
+                        className={cardBase}
+                        style={cardStyle}
+                        onClick={() =>
+                          setMobileExpanded(expanded ? null : item.id)
+                        }
+                        aria-expanded={expanded}
+                      >
+                        <span style={iconWrap}>
+                          <Icon size={18} color="#B19EEF" />
                         </span>
-                      ) : (
-                        <Link
-                          key={child.label}
-                          to={child.href}
-                          className="block rounded-lg px-3 py-2 text-lg text-white/75 hover:text-white"
-                          onClick={() => setMobileOpen(false)}
+                        <span className="flex-1">{item.label}</span>
+                        <ChevronDown
+                          className={cn(
+                            "h-5 w-5 transition-transform",
+                            expanded && "rotate-180"
+                          )}
+                          style={{ color: "rgba(255,255,255,0.4)" }}
+                        />
+                      </button>
+                      <div
+                        className={cn(
+                          "overflow-hidden transition-all duration-200",
+                          expanded ? "max-h-96 opacity-100 mt-[6px]" : "max-h-0 opacity-0"
+                        )}
+                      >
+                        <div
+                          className="flex flex-col gap-1 rounded-2xl p-2"
+                          style={{ background: "rgba(255,255,255,0.03)" }}
                         >
-                          {child.label}
-                        </Link>
-                      )
-                    )}
+                          {item.children.map((child) =>
+                            child.disabled ? (
+                              <span
+                                key={child.label}
+                                className="flex items-center justify-between rounded-lg px-3 py-2"
+                                style={{ fontSize: 15, color: "rgba(255,255,255,0.65)" }}
+                              >
+                                {child.label}
+                                <span
+                                  className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60"
+                                  style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+                                >
+                                  Próximamente
+                                </span>
+                              </span>
+                            ) : (
+                              <Link
+                                key={child.label}
+                                to={child.href}
+                                className="block rounded-lg px-3 py-2 hover:text-white"
+                                style={{ fontSize: 15, color: "rgba(255,255,255,0.65)" }}
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                {child.label}
+                              </Link>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {directLinks.map((link) => {
+                  const Icon = directIcons[link.label] ?? Info;
+                  return (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        cardBase,
+                        "mobile-stagger",
+                        mobileOpen && "mobile-stagger-in"
+                      )}
+                      style={{ ...cardStyle, animationDelay: nextDelay() }}
+                    >
+                      <span style={iconWrap}>
+                        <Icon size={18} color="#B19EEF" />
+                      </span>
+                      <span className="flex-1">{link.label}</span>
+                      <ChevronRight
+                        className="h-5 w-5"
+                        style={{ color: "rgba(255,255,255,0.4)" }}
+                      />
+                    </Link>
+                  );
+                })}
+
+                {/* Descargar app — featured card with gradient border */}
+                <div
+                  className={cn("mobile-stagger mt-4", mobileOpen && "mobile-stagger-in")}
+                  style={{ animationDelay: nextDelay() }}
+                >
+                  <div
+                    style={{
+                      borderRadius: 18,
+                      padding: 1,
+                      background:
+                        "linear-gradient(135deg, #5227FF 0%, #B19EEF 100%)",
+                    }}
+                  >
+                    <Link
+                      to="/descargar-apk"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 text-left text-white"
+                      style={{
+                        background: "#0B0518",
+                        borderRadius: 17,
+                        padding: "18px 20px",
+                        fontSize: 18,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <span style={iconWrap}>
+                        <Download size={18} color="#B19EEF" />
+                      </span>
+                      <span className="flex-1">Descargar app</span>
+                      <ChevronRight
+                        className="h-5 w-5"
+                        style={{ color: "rgba(255,255,255,0.4)" }}
+                      />
+                    </Link>
                   </div>
                 </div>
+
+                <div
+                  className={cn("mobile-stagger mt-2", mobileOpen && "mobile-stagger-in")}
+                  style={{ animationDelay: nextDelay() }}
+                >
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex w-full items-center justify-center rounded-full font-semibold text-white transition-transform active:scale-[0.98]"
+                    style={{
+                      background: "#5227FF",
+                      height: 52,
+                      fontSize: 16,
+                      boxShadow: "0 0 24px rgba(82,39,255,0.4)",
+                    }}
+                  >
+                    Crea tu cuenta gratis
+                  </Link>
+                </div>
               </div>
-            ))}
-            {directLinks.map((link, idx) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className={cn(
-                  "block rounded-xl px-4 py-4 text-[24px] font-medium text-white mobile-stagger",
-                  mobileOpen && "mobile-stagger-in"
-                )}
-                style={{ animationDelay: `${(menuItems.length + idx) * 60}ms` }}
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              to="/descargar-apk"
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "block rounded-xl px-4 py-4 text-[24px] font-medium text-white/80 mobile-stagger",
-                mobileOpen && "mobile-stagger-in"
-              )}
-              style={{ animationDelay: `${(menuItems.length + directLinks.length) * 60}ms` }}
-            >
-              Descargar app
-            </Link>
-          </div>
+            );
+          })()}
         </div>
     </div>
     </>
@@ -425,3 +531,4 @@ const LandingHeader = () => {
 };
 
 export default LandingHeader;
+
