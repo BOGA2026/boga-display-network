@@ -678,7 +678,7 @@ body > div button {
 /* Landing header — mobile stagger */
 .mobile-stagger {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(20px);
 }
 .mobile-stagger-in {
   animation: mobileStaggerIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -689,6 +689,7 @@ body > div button {
     transform: translateY(0);
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .mobile-stagger,
   .mobile-stagger-in {
