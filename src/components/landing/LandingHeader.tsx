@@ -420,7 +420,8 @@ const LandingHeader = () => {
           </div>
         </div>
       </div>
-    </header>
+    </div>
+    </>
   );
 };
 
