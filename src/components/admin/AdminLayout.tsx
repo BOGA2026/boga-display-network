@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ContentSkeleton } from "@/components/layout/ContentSkeleton";
+import { prefetch } from "@/lib/routePrefetch";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logoVisualia from "@/assets/logo-visualia.webp";
@@ -205,7 +208,16 @@ export default function AdminLayout() {
                 const badge = badgeKey ? badges[badgeKey] : 0;
                 const active = end ? pathname === to : pathname.startsWith(to);
                 return (
-                  <Link key={to} to={to} className="admin-nav-item" data-active={active}>
+                  <Link
+                    key={to}
+                    to={to}
+                    className="admin-nav-item"
+                    data-active={active}
+                    onMouseEnter={() => prefetch(to)}
+                    onFocus={() => prefetch(to)}
+                    onTouchStart={() => prefetch(to)}
+                  >
+
                     <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
                     <span className="flex-1 truncate">{label}</span>
                     {badgeKey && badgesError ? null : badge > 0 ? (
