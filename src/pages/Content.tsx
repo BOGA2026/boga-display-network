@@ -30,7 +30,9 @@ import {
   ListPlus,
   Sparkles,
   PenTool,
+  MonitorPlay,
 } from "lucide-react";
+import { SendToScreenSheet } from "@/components/dashboard/SendToScreenSheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,6 +116,9 @@ const Content = () => {
   const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
   const [assigning, setAssigning] = useState(false);
+
+  // Send to screen state
+  const [sendTarget, setSendTarget] = useState<ContentItem | null>(null);
 
   const openInEditor = (id: string) => {
     navigate(`/dashboard/editor?contentId=${id}`);
@@ -403,6 +408,10 @@ const Content = () => {
                         <ListPlus className="mr-2 h-4 w-4" />
                         Asignar a playlist
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSendTarget(item); }}>
+                        <MonitorPlay className="mr-2 h-4 w-4" />
+                        Enviar a pantalla
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => { e.stopPropagation(); setDeleteTarget(item); }}
                         className="text-destructive focus:text-destructive"
@@ -645,6 +654,13 @@ const Content = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SendToScreenSheet
+        open={!!sendTarget}
+        onOpenChange={(o) => !o && setSendTarget(null)}
+        contentId={sendTarget?.id}
+        contentLabel={sendTarget?.name}
+      />
 
     </div>
   );
