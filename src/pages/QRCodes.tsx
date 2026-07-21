@@ -37,7 +37,7 @@ export default function QRCodes() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: biz } = await supabase.rpc("get_user_business_id");
+      const { data: biz } = await (supabase.rpc as (fn: string) => Promise<{ data: string | null }>)("get_user_business_id");
       const bizId = biz as string | null;
       setBusinessId(bizId);
       if (!bizId) {
