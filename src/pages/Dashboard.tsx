@@ -461,6 +461,36 @@ const Dashboard = () => {
         ))}
       </div>
 
+      {/* Mini mapa de pantallas */}
+      {(() => {
+        const points: MiniMapPoint[] = (stats?.screens ?? [])
+          .filter((s: any) => s.locations?.latitude && s.locations?.longitude)
+          .map((s: any) => ({
+            id: s.id,
+            name: `${s.name} · ${s.locations?.name ?? ""}`,
+            lat: Number(s.locations.latitude),
+            lng: Number(s.locations.longitude),
+            status: s.status === "online" ? "online" : s.status === "offline" ? "offline" : "unpaired",
+            screenId: s.id,
+          }));
+        if (points.length === 0) return null;
+        return (
+          <Card className="surface-elevated border-border/30 overflow-hidden">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-display text-base">Tus pantallas en el mapa</CardTitle>
+                <Link to="/dashboard/mapa" className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+                  Ver mapa completo <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3">
+              <MiniMap points={points} height={260} className="rounded-xl overflow-hidden" />
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {/* Activity + Screen status */}
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Activity feed */}
