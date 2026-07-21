@@ -22,6 +22,7 @@ import WorkflowDemoModal from "@/components/landing/WorkflowDemoModal";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
+import ClientScreensShowcase from "@/components/landing/ClientScreensShowcase";
 import Testimonials from "@/components/landing/Testimonials";
 import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
 import {
