@@ -110,6 +110,7 @@ const Screens = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [subscriptionGateOpen, setSubscriptionGateOpen] = useState(false);
   const [limitGateOpen, setLimitGateOpen] = useState(false);
+  const [pairModalOpen, setPairModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
