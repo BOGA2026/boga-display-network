@@ -10,6 +10,8 @@ import {
   LogOut,
   ChevronLeft,
   LifeBuoy,
+  Map,
+  QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -23,6 +25,8 @@ const navItems = [
   { icon: Image, label: "Contenido", path: "/dashboard/contenido" },
   { icon: ListVideo, label: "Listas", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
+  { icon: Map, label: "Mapa", path: "/dashboard/mapa" },
+  { icon: QrCode, label: "QR", path: "/dashboard/qr" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
   { icon: LifeBuoy, label: "Soporte", path: "/dashboard/soporte" },
