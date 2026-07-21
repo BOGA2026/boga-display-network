@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
+import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { useToast } from "@/hooks/use-toast";
 
 // ─── Data hooks ──────────────────────────────────────────
@@ -26,7 +27,7 @@ function useDashboardStats() {
       if (!businessId) return null;
 
       const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes, scheduleRes] = await Promise.all([
-        supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(name)").order("name"),
+        supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(id, name, latitude, longitude)").order("name"),
         supabase.from("locations").select("id, name", { count: "exact", head: true }),
         supabase.from("content").select("id", { count: "exact", head: true }),
         supabase.from("playlists").select("id", { count: "exact", head: true }),
