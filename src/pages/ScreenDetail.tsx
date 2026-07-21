@@ -78,9 +78,9 @@ export default function ScreenDetail() {
           .maybeSingle(),
         supabase
           .from("schedule_blocks")
-          .select("id, day_of_week, start_time, end_time, content_id")
+          .select("id, days_of_week, start_time, end_time, name")
           .eq("screen_id", id)
-          .order("day_of_week"),
+          .order("start_time"),
         supabase
           .from("screen_commands")
           .select("id, command, status, created_at, executed_at")
