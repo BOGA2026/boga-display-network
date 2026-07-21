@@ -6,6 +6,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+// Layouts se importan eager para que el "chrome" (sidebar + topbar) sea
+// PERSISTENTE entre rutas hijas. Así, al navegar dentro del dashboard, sólo
+// el contenido cae en Suspense (skeleton), nunca el shell entero.
+import DashboardLayout from "./components/layout/DashboardLayout";
+import AdminLayout from "./components/admin/AdminLayout";
+
 
 // Auth & light pages
 const Login = lazy(() => import("./pages/Login"));
@@ -23,8 +29,7 @@ const Player = lazy(() => import("./pages/Player"));
 const VisualiaLunchTemplate = lazy(() => import("./templates/lunch-dual/VisualiaLunchTemplate"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
-// Dashboard (heavy)
-const DashboardLayout = lazy(() => import("./components/layout/DashboardLayout"));
+// Dashboard (heavy) — sólo las páginas hijas son lazy; el layout es eager.
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Screens = lazy(() => import("./pages/Screens"));
 const Content = lazy(() => import("./pages/Content"));
@@ -41,7 +46,6 @@ const Monitoring = lazy(() => import("./pages/Monitoring"));
 const AdminLeadsPage = lazy(() => import("./pages/AdminLeadsPage"));
 const ScreensList = lazy(() => import("./pages/digital-signage/ScreensList"));
 const ScreenDetail = lazy(() => import("./pages/digital-signage/ScreenDetail"));
-const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminBusinesses = lazy(() => import("./pages/admin/AdminBusinesses"));
 const AdminAdmins = lazy(() => import("./pages/admin/AdminAdmins"));
@@ -54,19 +58,22 @@ const AdminPQRS = lazy(() => import("./pages/admin/AdminPQRS"));
 const AdminSupport = lazy(() => import("./pages/admin/AdminSupport"));
 const Soporte = lazy(() => import("./pages/Soporte"));
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Public pages are largely static; keep responses fresh for 5 min and in
-      // memory for 30 min so back/forward + repeated visits are instant.
-      staleTime: 5 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
+      // Data del dashboard: fresca 30s, cacheada 10min. Con keepPreviousData
+      // (opt-in por hook) la vista siguiente se pinta al instante sin
+      // parpadeo de loading state.
+      staleTime: 30 * 1000,
+      gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: 1,
     },
   },
 });
+
 
 const RouteFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
