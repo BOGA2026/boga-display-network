@@ -197,6 +197,9 @@ function ShellInner() {
               key={item.path}
               to={item.path}
               end={item.end}
+              onMouseEnter={() => prefetch(item.path)}
+              onFocus={() => prefetch(item.path)}
+              onTouchStart={() => prefetch(item.path)}
               className={({ isActive }) =>
                 cn(
                   "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
@@ -206,6 +209,7 @@ function ShellInner() {
                 )
               }
             >
+
               {({ isActive }) => (
                 <>
                   {isActive && (
@@ -258,10 +262,13 @@ function ShellInner() {
 
         <main className="flex-1 overflow-y-auto">
           <PageTransition>
-            <Outlet />
+            <Suspense fallback={<ContentSkeleton />}>
+              <Outlet />
+            </Suspense>
           </PageTransition>
         </main>
       </div>
+
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <GlobalCommands />
