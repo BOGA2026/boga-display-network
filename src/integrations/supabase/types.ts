@@ -1000,6 +1000,86 @@ export type Database = {
           },
         ]
       }
+      qr_codes: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          label: string
+          screen_id: string | null
+          slug: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          label: string
+          screen_id?: string | null
+          slug: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          screen_id?: string | null
+          slug?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_codes_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_scans: {
+        Row: {
+          id: string
+          qr_code_id: string
+          referrer: string | null
+          scanned_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          id?: string
+          qr_code_id: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          id?: string
+          qr_code_id?: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_scans_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "qr_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_blocks: {
         Row: {
           business_id: string

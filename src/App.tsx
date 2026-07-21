@@ -34,6 +34,9 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const Subscription = lazy(() => import("./pages/Subscription"));
 const GenerateAI = lazy(() => import("./pages/GenerateAI"));
 const EditorPage = lazy(() => import("./pages/EditorPage"));
+const DashboardScreenDetail = lazy(() => import("./pages/ScreenDetail"));
+const QRCodes = lazy(() => import("./pages/QRCodes"));
+const DashboardMap = lazy(() => import("./pages/DashboardMap"));
 const AdminLeadsPage = lazy(() => import("./pages/AdminLeadsPage"));
 const ScreensList = lazy(() => import("./pages/digital-signage/ScreensList"));
 const ScreenDetail = lazy(() => import("./pages/digital-signage/ScreenDetail"));
@@ -102,6 +105,9 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="pantallas" element={<Screens />} />
+              <Route path="pantallas/:id" element={<DashboardScreenDetail />} />
+              <Route path="mapa" element={<DashboardMap />} />
+              <Route path="qr" element={<QRCodes />} />
               <Route path="contenido" element={<Content />} />
               <Route path="playlists" element={<Playlists />} />
               <Route path="programacion" element={<Schedule />} />

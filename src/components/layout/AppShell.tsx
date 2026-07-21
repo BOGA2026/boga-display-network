@@ -28,6 +28,8 @@ import {
   Command as CommandIcon,
   Plus,
   Upload,
+  Map as MapIcon,
+  QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
@@ -46,6 +48,7 @@ import {
 } from "@/hooks/useCommandRegistry";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
+import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard", end: true },
@@ -53,6 +56,8 @@ const NAV_ITEMS = [
   { icon: ImageIcon, label: "Contenido", path: "/dashboard/contenido" },
   { icon: ListVideo, label: "Listas", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
+  { icon: MapIcon, label: "Mapa", path: "/dashboard/mapa" },
+  { icon: QrCode, label: "QR", path: "/dashboard/qr" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
   { icon: LifeBuoy, label: "Soporte", path: "/dashboard/soporte" },
@@ -251,6 +256,7 @@ function ShellInner() {
       </div>
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <GlobalCommands />
       <VoiceAgentDock />
     </div>
   );
