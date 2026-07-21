@@ -12,7 +12,7 @@
   "mcp": {
     "server": {
       "name": "visualia-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "title": "Visualia"
     },
     "tools": [
@@ -109,6 +109,154 @@
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_image",
+        "title": "Generar imagen para pantalla",
+        "description": "Genera una imagen profesional para digital signage (menú, promoción, bienvenida). Aplica el brand kit del negocio del usuario a menos que se indique lo contrario.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "minLength": 3,
+              "description": "Descripción en español de la imagen a generar."
+            },
+            "formato": {
+              "type": "string",
+              "enum": [
+                "16:9",
+                "9:16",
+                "1:1",
+                "4:5"
+              ],
+              "default": "16:9",
+              "description": "Formato de pantalla objetivo."
+            },
+            "marca_de_agua_off": {
+              "type": "boolean",
+              "description": "Desactiva el watermark discreto de Visualia (solo planes premium)."
+            },
+            "apply_brand_kit": {
+              "type": "boolean",
+              "description": "Aplica automáticamente colores/logo del brand kit del negocio."
+            }
+          },
+          "required": [
+            "prompt"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_video_loop",
+        "title": "Generar loop corto para pantalla",
+        "description": "Genera una pieza en loop corta (3–15s) para digital signage. Devuelve la URL del asset y su duración. Aplica el brand kit del negocio.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "minLength": 3,
+              "description": "Descripción de la escena en loop."
+            },
+            "duracion_segundos": {
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 15,
+              "default": 6
+            },
+            "formato": {
+              "type": "string",
+              "enum": [
+                "16:9",
+                "9:16",
+                "1:1"
+              ],
+              "default": "16:9"
+            }
+          },
+          "required": [
+            "prompt"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "suggest_copy",
+        "title": "Sugerir copy de promoción",
+        "description": "Genera título, subtítulo y CTA para una promoción usando el contexto real del negocio del usuario (nombre, segmento).",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "tipo_promocion": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Ej: 'happy hour cerveza', 'menú del día', 'apertura'."
+            },
+            "contexto_negocio": {
+              "type": "string",
+              "description": "Contexto adicional opcional; si no se envía se toma del perfil del negocio."
+            }
+          },
+          "required": [
+            "tipo_promocion"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "apply_brand_kit",
+        "title": "Reaplicar brand kit al asset",
+        "description": "Toma un asset generado previamente y lo re-genera aplicando los colores, logo y watermark del brand kit del negocio. Útil cuando la primera generación no respetó la marca.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "asset_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID de una generación previa del propio negocio."
+            },
+            "tenant_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Legacy; ignorado. El tenant siempre se deriva del token del usuario."
+            }
+          },
+          "required": [
+            "asset_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       }

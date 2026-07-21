@@ -123,18 +123,172 @@ var get_subscription_default = defineTool4({
   }
 });
 
+// src/lib/mcp/tools/generate-image.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.23.0";
+import { z as z4 } from "npm:zod@^3.25.76";
+
+// src/lib/mcp/ai-studio-bridge.ts
+async function callAiStudio(path, body, token) {
+  const url = process.env.SUPABASE_URL;
+  const resp = await fetch(`${url}/functions/v1/ai-studio/${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "X-Visualia-Source": "mcp"
+    },
+    body: JSON.stringify(body)
+  });
+  const text = await resp.text();
+  const data = text ? JSON.parse(text) : {};
+  if (!resp.ok) {
+    throw new Error(data.error ?? `ai-studio ${resp.status}`);
+  }
+  return data;
+}
+
+// src/lib/mcp/tools/generate-image.ts
+var generate_image_default = defineTool5({
+  name: "generate_image",
+  title: "Generar imagen para pantalla",
+  description: "Genera una imagen profesional para digital signage (men\xFA, promoci\xF3n, bienvenida). Aplica el brand kit del negocio del usuario a menos que se indique lo contrario.",
+  inputSchema: {
+    prompt: z4.string().min(3).describe("Descripci\xF3n en espa\xF1ol de la imagen a generar."),
+    formato: z4.enum(["16:9", "9:16", "1:1", "4:5"]).default("16:9").describe("Formato de pantalla objetivo."),
+    marca_de_agua_off: z4.boolean().optional().describe("Desactiva el watermark discreto de Visualia (solo planes premium)."),
+    apply_brand_kit: z4.boolean().optional().describe("Aplica autom\xE1ticamente colores/logo del brand kit del negocio.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "No autenticado." }], isError: true };
+    }
+    const out = await callAiStudio(
+      "generate_image",
+      {
+        prompt: input.prompt,
+        formato: input.formato,
+        watermark_off: input.marca_de_agua_off ?? false,
+        apply_brand_kit: input.apply_brand_kit ?? true
+      },
+      ctx.getToken()
+    );
+    return {
+      content: [{ type: "text", text: `Imagen generada: ${out.url}` }],
+      structuredContent: out
+    };
+  }
+});
+
+// src/lib/mcp/tools/generate-video-loop.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.23.0";
+import { z as z5 } from "npm:zod@^3.25.76";
+var generate_video_loop_default = defineTool6({
+  name: "generate_video_loop",
+  title: "Generar loop corto para pantalla",
+  description: "Genera una pieza en loop corta (3\u201315s) para digital signage. Devuelve la URL del asset y su duraci\xF3n. Aplica el brand kit del negocio.",
+  inputSchema: {
+    prompt: z5.string().min(3).describe("Descripci\xF3n de la escena en loop."),
+    duracion_segundos: z5.number().int().min(3).max(15).default(6),
+    formato: z5.enum(["16:9", "9:16", "1:1"]).default("16:9")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "No autenticado." }], isError: true };
+    }
+    const out = await callAiStudio(
+      "generate_video_loop",
+      input,
+      ctx.getToken()
+    );
+    return {
+      content: [{ type: "text", text: `Loop ${out.duracion_segundos}s listo: ${out.url}` }],
+      structuredContent: out
+    };
+  }
+});
+
+// src/lib/mcp/tools/suggest-copy.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.23.0";
+import { z as z6 } from "npm:zod@^3.25.76";
+var suggest_copy_default = defineTool7({
+  name: "suggest_copy",
+  title: "Sugerir copy de promoci\xF3n",
+  description: "Genera t\xEDtulo, subt\xEDtulo y CTA para una promoci\xF3n usando el contexto real del negocio del usuario (nombre, segmento).",
+  inputSchema: {
+    tipo_promocion: z6.string().min(2).describe("Ej: 'happy hour cerveza', 'men\xFA del d\xEDa', 'apertura'."),
+    contexto_negocio: z6.string().optional().describe("Contexto adicional opcional; si no se env\xEDa se toma del perfil del negocio.")
+  },
+  annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "No autenticado." }], isError: true };
+    }
+    const out = await callAiStudio(
+      "suggest_copy",
+      input,
+      ctx.getToken()
+    );
+    const c = out.copy ?? {};
+    return {
+      content: [{ type: "text", text: `${c.titulo ?? ""}
+${c.subtitulo ?? ""}
+${c.cta ?? ""}`.trim() }],
+      structuredContent: out
+    };
+  }
+});
+
+// src/lib/mcp/tools/apply-brand-kit.ts
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.23.0";
+import { z as z7 } from "npm:zod@^3.25.76";
+var apply_brand_kit_default = defineTool8({
+  name: "apply_brand_kit",
+  title: "Reaplicar brand kit al asset",
+  description: "Toma un asset generado previamente y lo re-genera aplicando los colores, logo y watermark del brand kit del negocio. \xDAtil cuando la primera generaci\xF3n no respet\xF3 la marca.",
+  inputSchema: {
+    asset_id: z7.string().uuid().describe("ID de una generaci\xF3n previa del propio negocio."),
+    tenant_id: z7.string().uuid().optional().describe("Legacy; ignorado. El tenant siempre se deriva del token del usuario.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "No autenticado." }], isError: true };
+    }
+    const out = await callAiStudio(
+      "apply_brand_kit",
+      { generation_id: input.asset_id },
+      ctx.getToken()
+    );
+    return {
+      content: [{ type: "text", text: `Asset con brand kit aplicado: ${out.url}` }],
+      structuredContent: out
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "ovuhtroiuuqsiltqgqpp";
 var mcp_default = defineMcp({
   name: "visualia-mcp",
   title: "Visualia",
-  version: "0.1.0",
-  instructions: "Tools for the Visualia digital-signage platform. Use these to inspect the signed-in user's screens, locations, content library, and subscription. All tools respect the user's business membership via Supabase RLS.",
+  version: "0.2.0",
+  instructions: "Herramientas para la plataforma Visualia de digital signage. Consultan el negocio del usuario (pantallas, sedes, biblioteca, suscripci\xF3n) y generan contenido de IA (im\xE1genes, loops, copy) con el brand kit del tenant. Todo el acceso respeta la membres\xEDa del usuario v\xEDa Supabase RLS.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
   }),
-  tools: [list_screens_default, list_locations_default, list_content_default, get_subscription_default]
+  tools: [
+    list_screens_default,
+    list_locations_default,
+    list_content_default,
+    get_subscription_default,
+    generate_image_default,
+    generate_video_loop_default,
+    suggest_copy_default,
+    apply_brand_kit_default
+  ]
 });
 
 // lovable-mcp-supabase-entry.ts

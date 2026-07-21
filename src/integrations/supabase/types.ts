@@ -52,6 +52,115 @@ export type Database = {
           },
         ]
       }
+      ai_generations: {
+        Row: {
+          business_id: string
+          cost_cents: number
+          created_at: string
+          error: string | null
+          id: string
+          output_text: string | null
+          output_url: string | null
+          params: Json
+          prompt: string | null
+          source: string
+          status: string
+          tokens_used: number
+          tool: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id: string
+          cost_cents?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          output_text?: string | null
+          output_url?: string | null
+          params?: Json
+          prompt?: string | null
+          source?: string
+          status?: string
+          tokens_used?: number
+          tool: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          cost_cents?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          output_text?: string | null
+          output_url?: string | null
+          params?: Json
+          prompt?: string | null
+          source?: string
+          status?: string
+          tokens_used?: number
+          tool?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_kits: {
+        Row: {
+          accent_color: string | null
+          business_id: string
+          created_at: string
+          font_family: string | null
+          id: string
+          logo_url: string | null
+          primary_color: string
+          secondary_color: string
+          updated_at: string
+          watermark_disabled: boolean
+        }
+        Insert: {
+          accent_color?: string | null
+          business_id: string
+          created_at?: string
+          font_family?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          updated_at?: string
+          watermark_disabled?: boolean
+        }
+        Update: {
+          accent_color?: string | null
+          business_id?: string
+          created_at?: string
+          font_family?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          updated_at?: string
+          watermark_disabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_kits_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_memberships: {
         Row: {
           business_id: string
@@ -89,18 +198,21 @@ export type Database = {
       }
       businesses: {
         Row: {
+          ai_monthly_limit: number
           created_at: string
           id: string
           name: string
           updated_at: string
         }
         Insert: {
+          ai_monthly_limit?: number
           created_at?: string
           id?: string
           name: string
           updated_at?: string
         }
         Update: {
+          ai_monthly_limit?: number
           created_at?: string
           id?: string
           name?: string
