@@ -108,6 +108,7 @@ const App = () => (
               <Route path="pantallas" element={<Screens />} />
               <Route path="pantallas/:id" element={<DashboardScreenDetail />} />
               <Route path="mapa" element={<DashboardMap />} />
+              <Route path="monitoreo" element={<Monitoring />} />
               <Route path="qr" element={<QRCodes />} />
               <Route path="contenido" element={<Content />} />
               <Route path="playlists" element={<Playlists />} />
