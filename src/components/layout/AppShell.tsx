@@ -9,10 +9,15 @@
  * - Sidebar width is spring-animated with Framer Motion. Collapse state
  *   persists in localStorage so power users don't re-collapse it every visit.
  * - Command Palette listens for ⌘K / Ctrl+K globally.
+ * - Un `<Suspense>` interno envuelve al `<Outlet />`: sólo el área de
+ *   contenido cae en skeleton al cargar un chunk de página; sidebar y
+ *   topbar permanecen montados → sin parpadeo de shell.
  */
 import * as React from "react";
+import { Suspense } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+
 import {
   LayoutDashboard,
   Monitor,
@@ -49,6 +54,9 @@ import {
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
 import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
+import { ContentSkeleton } from "./ContentSkeleton";
+import { prefetch } from "@/lib/routePrefetch";
+
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard", end: true },
@@ -189,6 +197,9 @@ function ShellInner() {
               key={item.path}
               to={item.path}
               end={item.end}
+              onMouseEnter={() => prefetch(item.path)}
+              onFocus={() => prefetch(item.path)}
+              onTouchStart={() => prefetch(item.path)}
               className={({ isActive }) =>
                 cn(
                   "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
@@ -198,6 +209,7 @@ function ShellInner() {
                 )
               }
             >
+
               {({ isActive }) => (
                 <>
                   {isActive && (
@@ -250,10 +262,13 @@ function ShellInner() {
 
         <main className="flex-1 overflow-y-auto">
           <PageTransition>
-            <Outlet />
+            <Suspense fallback={<ContentSkeleton />}>
+              <Outlet />
+            </Suspense>
           </PageTransition>
         </main>
       </div>
+
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <GlobalCommands />
