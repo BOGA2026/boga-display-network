@@ -165,12 +165,12 @@ export default function ScreenDetail() {
     );
   }
 
-  const statusVariant =
+  const statusVariant: "live" | "offline" | "idle" =
     screen.status === "online"
       ? "live"
       : screen.status === "offline"
-        ? "destructive"
-        : "secondary";
+        ? "offline"
+        : "idle";
 
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
