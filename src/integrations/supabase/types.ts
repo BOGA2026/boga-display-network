@@ -356,8 +356,54 @@ export type Database = {
         }
         Relationships: []
       }
+      device_offline_events: {
+        Row: {
+          business_id: string
+          came_online_at: string | null
+          created_at: string
+          device_id: string
+          duration_seconds: number | null
+          id: string
+          went_offline_at: string
+        }
+        Insert: {
+          business_id: string
+          came_online_at?: string | null
+          created_at?: string
+          device_id: string
+          duration_seconds?: number | null
+          id?: string
+          went_offline_at?: string
+        }
+        Update: {
+          business_id?: string
+          came_online_at?: string | null
+          created_at?: string
+          device_id?: string
+          duration_seconds?: number | null
+          id?: string
+          went_offline_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_offline_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_offline_events_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       devices: {
         Row: {
+          address: string | null
           app_version: string | null
           business_id: string
           code_expires_at: string | null
@@ -380,6 +426,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           app_version?: string | null
           business_id: string
           code_expires_at?: string | null
@@ -402,6 +449,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           app_version?: string | null
           business_id?: string
           code_expires_at?: string | null
@@ -1976,6 +2024,10 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      sweep_offline_devices: {
+        Args: { _threshold_seconds?: number }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "content_editor"
