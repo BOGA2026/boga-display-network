@@ -46,7 +46,7 @@ export default function QRCodes() {
         return;
       }
       const qrs = await listQRCodes(bizId);
-      const scr = await supabase.from("screens").select("id, name").eq("business_id", bizId).order("name");
+      const scr = await (supabase.from("screens") as unknown as { select: (c: string) => { eq: (k: string, v: string) => { order: (c: string) => Promise<{ data: Screen[] | null }> } } }).select("id, name").eq("business_id", bizId).order("name");
       setItems(qrs);
       setScreens((scr.data ?? []) as Screen[]);
 
