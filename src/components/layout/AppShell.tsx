@@ -251,6 +251,7 @@ function ShellInner() {
       </div>
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <GlobalCommands />
       <VoiceAgentDock />
     </div>
   );
