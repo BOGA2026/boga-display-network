@@ -1,120 +1,95 @@
 
-# Rediseño del Dashboard de Usuario
+# Rediseño de las 7 vistas del dashboard
 
-Enfoque **híbrido**: se mantiene la identidad "Neon Premium" (negro + violeta) como marca, y se introduce un acento verde exclusivo para estados en vivo (online, streaming, heartbeat). Se agrega toda la estructura moderna: AppShell, ⌘K, breadcrumbs, selector de sede global, transiciones animadas.
+Trabajamos sobre el proyecto actual (no un subproyecto). Conectamos a las tablas Supabase existentes (`screens`, `content`, `content_items`, `locations`, `schedule_blocks`, `screen_commands`, `businesses`) y creamos las tablas mínimas que faltan para QR (`qr_codes`, `qr_scans`). Toda la navegación queda cableada al Command Palette ⌘K que ya existe.
 
-**Solo afecta `/dashboard/*`.** El landing público, `/studio` y `/admin` no se tocan.
-
----
-
-## 1. Design tokens y base
-
-**`tailwind.config.ts`** — añadir sin romper lo existente:
-- `colors.live` con `DEFAULT`, `foreground`, `glow` (HSL vía CSS vars).
-- `boxShadow`: `soft-1`, `soft-2`, `soft-3` (sombras multicapa) y `live-pulse`.
-- `borderRadius`: elevar `--radius` base a `16px`, agregar `xl2: 20px`, `xl3: 24px`.
-- `transitionTimingFunction.ios`: `cubic-bezier(0.32, 0.72, 0, 1)`.
-- Keyframes: `live-pulse`, `page-in`, `pill-slide`.
-
-**`src/index.css`** — añadir dentro de `@layer base`:
-- Variables `--live`, `--live-foreground`, `--live-glow` (verde `142 76% 45%`).
-- Variables `--dash-bg`, `--dash-surface`, `--dash-surface-2`, `--dash-border` (neutros ligeramente cálidos sobre negro violeta: `260 15% 6/8/10%`).
-- Clase `.dash-scope` que redefine `--background`, `--card`, `--border`, `--radius` para todo el dashboard, sin afectar el resto del sitio.
-- Fundido claro/oscuro: `html.theme-transition *, html.theme-transition *::before, html.theme-transition *::after { transition: background-color 300ms var(--ease-ios), border-color 300ms var(--ease-ios), color 300ms var(--ease-ios); }`.
-- Comentario JSDoc arriba del bloque explicando *por qué* cada token existe.
-
-## 2. Componentes UI nuevos en `src/components/ui/`
-
-Cada archivo lleva un comentario de cabecera con la justificación de sus decisiones visuales (2-4 líneas).
-
-- **`status-badge.tsx`** — variantes `live | online | offline | idle | warning`. La variante `live` muestra un punto verde con doble anillo animado (`live-pulse`, 2s, ease-ios).
-- **`segmented-control.tsx`** — pill container + indicador deslizante con `motion.div layoutId="segmented-pill"` (spring `stiffness: 380, damping: 32`). API: `<SegmentedControl value onChange options={[{value,label,icon}]} />`.
-- **`command-palette.tsx`** — envuelve `cmdk` (ya presente vía shadcn `command`) en un Dialog con atajo global ⌘K / Ctrl+K, agrupado en Navegación / Acciones / Pantallas. Registro extensible vía `useCommandRegistry`.
-- **`skeleton-block.tsx`** — variantes `line | card | avatar | chart`, shimmer con gradiente.
-- **`page-transition.tsx`** — wrapper `AnimatePresence mode="wait"` con fade + translateY 8→0 en 240ms ease-ios. Usa `location.pathname` como key.
-
-Ya existentes que se re-estilan solo con tokens (sin cambiar API): `button`, `card`, `sheet`, `tabs`, `switch`, `toast`, `skeleton`.
-
-## 3. AppShell
-
-**Nuevo `src/components/layout/AppShell.tsx`** — reemplaza a `DashboardLayout.tsx` en la ruta `/dashboard`. Estructura:
+## Mapa de rutas y archivos
 
 ```text
-┌─ Sidebar (colapsable, 240 ↔ 68 px) ──┬─ Topbar (56px) ──────────────────────┐
-│  Logo                                 │  Breadcrumbs · LocationSwitcher · ⌘K│
-│  Nav items (violeta activo)           ├──────────────────────────────────────┤
-│  ─                                    │                                      │
-│  Colapsar / Cerrar sesión             │  <PageTransition><Outlet /></...>   │
-└───────────────────────────────────────┴──────────────────────────────────────┘
+/dashboard                       → src/pages/Dashboard.tsx        (hub: KPIs + mini-mapa + accesos rápidos)
+/dashboard/pantallas             → src/pages/Screens.tsx          (grid Apple TV + sheet de emparejamiento)
+/dashboard/pantallas/:id         → src/pages/ScreenDetail.tsx     (NUEVO: preview, timeline, historial, acciones)
+/dashboard/contenido             → src/pages/Content.tsx          (grilla + "enviar a pantalla" → scheduler)
+/dashboard/generar-ia            → src/pages/GenerateAI.tsx       (generar → preview → enviar → scheduler)
+/dashboard/qr                    → src/pages/QRCodes.tsx          (NUEVO: lista + panel lateral con analítica)
+/dashboard/mapa                  → src/pages/DashboardMap.tsx     (NUEVO: mapa con filtros y link a detalle)
 ```
 
-Detalles:
-- Sidebar: estado colapsado persistido en `localStorage("dash.sidebar")`. Ancho animado con Framer Motion (`ease-ios`, 260ms). Indicador de ruta activa: barra vertical + fondo gradiente violeta.
-- Topbar: alto 56px, borde inferior sutil, contiene:
-  - **Breadcrumbs** generados por mapa `path → label` (`/dashboard/pantallas` → "Inicio / Pantallas"). Componente `Breadcrumbs.tsx`.
-  - **LocationSwitcher** (ver §4).
-  - Botón `⌘K` que abre CommandPalette.
-- Transición de página: `PageTransition` alrededor de `<Outlet />`.
-- El `VoiceAgentDock` se conserva.
-- `DashboardLayout.tsx` queda como alias que re-exporta `AppShell` para no romper imports.
+Sidebar: agregamos entradas para **QR** y **Mapa** en `DashboardSidebar.tsx`. El Command Palette (`command-palette.tsx`) recibe comandos nuevos: `Ir a Mapa`, `Ir a QR`, `Emparejar pantalla`, `Crear con IA`, `Enviar a pantalla…`.
 
-## 4. Selector de sede global
+## Flujo (tal como lo pediste)
 
-- **`src/context/LocationContext.tsx`** — provee `{ locations, activeLocationId, setActiveLocationId, activeLocation }`. Fetch a `locations` filtrado por RLS del negocio del usuario. Persiste `activeLocationId` en `localStorage("dash.location")`; si no existe, usa la primera sede o `null` = "Todas".
-- **`src/components/layout/LocationSwitcher.tsx`** — `Popover` con lista buscable, muestra nombre + ciudad, ítem "Todas las sedes" al inicio.
-- Consumo: `Screens.tsx`, `Content.tsx`, `Playlists.tsx`, `Schedule.tsx`, `Analytics.tsx` leen `activeLocationId` y añaden `.eq("location_id", …)` cuando no es null. Se hace de forma no intrusiva: hook `useLocationFilter()` que devuelve el filtro a aplicar en cada query.
+```text
+Dashboard  ──clic pin mini-mapa──▶  /dashboard/mapa  ──clic marker──▶  /dashboard/pantallas/:id
+    │                                                                        ▲
+    ├──"Crear con IA"──▶ /dashboard/generar-ia ──preview──▶ enviar ─────────┘
+    │                                              │
+    │                                              └──▶ scheduler (Schedule.tsx prellenado)
+    │
+    ├──"Emparejar" (sheet, código 6 dígitos, auto-avance) ──▶ /dashboard/pantallas
+    │
+    └──"QR" ──▶ /dashboard/qr ──clic fila──▶ panel lateral (Sheet) con escaneos + link al lead
+```
 
-## 5. Command Palette (⌘K)
+## Vistas — comportamiento
 
-- Trigger: atajo global `⌘K` / `Ctrl+K` (listener en AppShell) o click en el botón del topbar.
-- Registro base:
-  - **Navegación**: cada ítem del sidebar.
-  - **Acciones rápidas**: "Nueva pantalla", "Subir contenido", "Crear playlist", "Ir a suscripción".
-  - **Sedes**: cambio directo desde ⌘K.
-- Extensible: `registerCommand()` para que páginas específicas agreguen entradas contextuales.
+- **Dashboard (hub)**: 4 KPIs (pantallas online/total, contenidos, escaneos QR 7d, próximos bloques). Mini-mapa Leaflet a la derecha con pins por `locations.lat/lng` coloreados por estado de sus screens; pin → navega a `/dashboard/pantallas/:id` (o al mapa si la sede tiene varias). Accesos rápidos: "Crear con IA", "Ver QR", "Emparejar pantalla".
+- **Screens (grid Apple TV)**: cards grandes con thumb del contenido actual, badge de estado (`StatusBadge` live). `Sheet` de emparejamiento: código de 6 caracteres con inputs auto-avance (focus salta al siguiente), copiar, QR a `/descargar-apk`, y polling de `screens` filtrando por `pairing_code` para auto-cerrar cuando el device se registra.
+- **ScreenDetail**: preview en iframe (`/player/:deviceId`), timeline semanal (bloques de `schedule_blocks` en grilla 7×24), historial (últimos `screen_commands`), acciones remotas (**reiniciar**, **recargar**, **apagar**) con confirmación en `Sheet` que inserta en `screen_commands`.
+- **Content**: grilla con acciones "Enviar a pantalla" → `Sheet` selector de pantalla + fecha → redirige a `/dashboard/programacion?content=…&screen=…`.
+- **GenerateAI**: mantener generación; al finalizar, botón "Enviar a pantalla" reutiliza el mismo Sheet de Content.
+- **QRCodes**: tabla `qr_codes` con columnas (nombre, destino, escaneos 7d, creado). Clic en fila → `Sheet` lateral con serie temporal (recharts) desde `qr_scans` y CTA a copiar/descargar SVG.
+- **DashboardMap**: mapa full-height + panel de filtros (estado: online/offline/sin emparejar, sede). Marker → navega a `/dashboard/pantallas/:id`.
 
-## 6. Reemplazos visuales concretos (sin cambiar lógica)
+## Datos que faltan (una sola migración)
 
-- `DashboardSidebar.tsx` → deprecado; su lógica migra a `AppShell`.
-- `StatusBadge` reemplaza los puntos `bg-green-500`/`bg-red-500` sueltos en `ScreenCard`, `ScreensList`, `ScreenSelector`. Pantallas online = variante `live` con pulso.
-- `SegmentedControl` reemplaza tabs simples en Schedule (vista diaria/semanal) y Analytics (rango de fechas).
+Creamos dos tablas mínimas para QR con RLS por business, más el endpoint público de escaneo.
 
-## 7. Dependencias
+```sql
+-- qr_codes: uno por business/pantalla/contenido
+CREATE TABLE public.qr_codes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_id uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
+  screen_id uuid REFERENCES public.screens(id) ON DELETE SET NULL,
+  label text NOT NULL,
+  target_url text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 
-- `bun add framer-motion` (~50KB gzip). No hay conflicto con React 18.
-- `cmdk` ya presente.
+-- qr_scans: se inserta desde una Edge Function pública /qr/:slug que redirige
+CREATE TABLE public.qr_scans (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  qr_code_id uuid NOT NULL REFERENCES public.qr_codes(id) ON DELETE CASCADE,
+  scanned_at timestamptz NOT NULL DEFAULT now(),
+  user_agent text,
+  referrer text
+);
+```
 
-## 8. Archivos creados / modificados
+GRANT + RLS: `authenticated` puede leer/administrar filas donde `is_member_of_business(business_id)`; `service_role` full. `anon` sin acceso; el conteo público lo hace la Edge Function `qr-redirect` con service role.
 
-**Nuevos**
-- `src/components/layout/AppShell.tsx`
-- `src/components/layout/Breadcrumbs.tsx`
-- `src/components/layout/LocationSwitcher.tsx`
-- `src/components/ui/status-badge.tsx`
-- `src/components/ui/segmented-control.tsx`
-- `src/components/ui/command-palette.tsx`
-- `src/components/ui/page-transition.tsx`
-- `src/context/LocationContext.tsx`
-- `src/hooks/useLocationFilter.ts`
-- `src/hooks/useCommandRegistry.ts`
+## Detalles técnicos
 
-**Modificados**
-- `tailwind.config.ts` (tokens nuevos, no destructivo)
-- `src/index.css` (scope `.dash-scope`, vars `--live`, `--ease-ios`)
-- `src/components/layout/DashboardLayout.tsx` (delega a AppShell)
-- Consumidores puntuales de status/tabs en Screens, Schedule, Analytics para adoptar los componentes nuevos.
+- **Command Palette**: extendemos `commandRegistry` con acciones que hacen `navigate()` y abren sheets vía un `useUIStore` (Zustand ligero) para poder disparar "abrir emparejamiento" desde cualquier lado.
+- **Mapa**: reusar `react-leaflet` que ya está instalado en `/admin/mapa`; nuevo componente `MiniMap.tsx` compartido.
+- **Sheets**: usar `@/components/ui/sheet` existente. Todos los sheets destructivos requieren confirmación (`AlertDialog`).
+- **Realtime**: canal `screens` para actualizar estado online en Dashboard, Screens y ScreenDetail; cleanup con `removeChannel` dentro de `useEffect`.
+- **Diseño**: se mantiene el `.dash-scope` (violeta + verde live, radios 16–24, sombras soft-*). Sin cambios en el shell público.
 
-**Sin tocar**: `/`, `/studio`, `/admin`, `/precios`, auth, edge functions, RLS, esquema de DB.
+## Fuera de alcance
 
-## 9. Criterios de aceptación
+- No tocamos landing pública, admin, ni Studio.
+- No cambiamos el modelo de suscripción/pagos.
+- No renombramos rutas existentes; agregamos las nuevas.
 
-1. `/dashboard` renderiza con AppShell nuevo, sidebar colapsable persistente, breadcrumbs y ⌘K funcional.
-2. Cambiar sede en el switcher filtra Pantallas, Contenido, Listas, Horarios y Analíticas.
-3. StatusBadge `live` pulsa en verde solo para pantallas online.
-4. Transiciones entre páginas del dashboard son fade+slide 240ms sin flicker.
-5. Landing público, `/studio` y `/admin` visualmente idénticos a ahora.
-6. Sin errores TS y build production ok.
+## Entregables
 
-## 10. Actualización de memoria
+1. Migración: `qr_codes`, `qr_scans`, GRANTs, RLS y trigger `updated_at`.
+2. Edge Function `qr-redirect` (público, 302 al `target_url` e inserta `qr_scans`).
+3. Nuevas páginas: `ScreenDetail.tsx`, `QRCodes.tsx`, `DashboardMap.tsx` + rutas en `App.tsx`.
+4. Refactor de: `Dashboard.tsx` (hub + mini-mapa), `Screens.tsx` (grid + sheet auto-avance), `Content.tsx` (acción enviar), `GenerateAI.tsx` (CTA enviar), `DashboardSidebar.tsx` (nuevas entradas), `command-palette.tsx` (comandos nuevos).
+5. Nuevos componentes compartidos: `MiniMap.tsx`, `SendToScreenSheet.tsx`, `PairScreenSheet.tsx`, `ScreenActionsSheet.tsx`.
 
-Al finalizar, actualizo `mem://style/visual-identity` para reflejar: "violeta primario global, verde `--live` reservado a estados en tiempo real dentro del dashboard".
+¿Apruebas el plan para implementarlo tal cual, o querés ajustar algo (por ejemplo, dejar QR con placeholder y no crear las tablas todavía)?
