@@ -1171,6 +1171,7 @@ export type Database = {
       }
       qr_codes: {
         Row: {
+          active: boolean
           business_id: string
           created_at: string
           id: string
@@ -1181,6 +1182,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active?: boolean
           business_id: string
           created_at?: string
           id?: string
@@ -1191,6 +1193,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active?: boolean
           business_id?: string
           created_at?: string
           id?: string
@@ -1219,24 +1222,36 @@ export type Database = {
       }
       qr_scans: {
         Row: {
+          city: string | null
+          country: string | null
+          device_type: string | null
           id: string
           qr_code_id: string
           referrer: string | null
           scanned_at: string
+          screen_id: string | null
           user_agent: string | null
         }
         Insert: {
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
           id?: string
           qr_code_id: string
           referrer?: string | null
           scanned_at?: string
+          screen_id?: string | null
           user_agent?: string | null
         }
         Update: {
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
           id?: string
           qr_code_id?: string
           referrer?: string | null
           scanned_at?: string
+          screen_id?: string | null
           user_agent?: string | null
         }
         Relationships: [
@@ -1245,6 +1260,13 @@ export type Database = {
             columns: ["qr_code_id"]
             isOneToOne: false
             referencedRelation: "qr_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_scans_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
             referencedColumns: ["id"]
           },
         ]
