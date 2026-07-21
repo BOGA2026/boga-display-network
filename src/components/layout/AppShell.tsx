@@ -54,6 +54,9 @@ import {
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
 import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
+import { ContentSkeleton } from "./ContentSkeleton";
+import { prefetch } from "@/lib/routePrefetch";
+
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard", end: true },
