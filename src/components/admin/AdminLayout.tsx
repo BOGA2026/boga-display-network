@@ -309,8 +309,11 @@ export default function AdminLayout() {
             </div>
           </div>
         ) : (
-          <Outlet />
+          <Suspense fallback={<ContentSkeleton />}>
+            <Outlet />
+          </Suspense>
         )}
+
       </main>
     </div>
   );
