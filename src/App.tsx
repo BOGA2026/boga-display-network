@@ -105,6 +105,9 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="pantallas" element={<Screens />} />
+              <Route path="pantallas/:id" element={<DashboardScreenDetail />} />
+              <Route path="mapa" element={<DashboardMap />} />
+              <Route path="qr" element={<QRCodes />} />
               <Route path="contenido" element={<Content />} />
               <Route path="playlists" element={<Playlists />} />
               <Route path="programacion" element={<Schedule />} />
