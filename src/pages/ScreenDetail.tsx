@@ -140,7 +140,7 @@ export default function ScreenDetail() {
   const timeline = useMemo(() => {
     const byDay: Record<number, Block[]> = {};
     for (let d = 0; d < 7; d++) byDay[d] = [];
-    blocks.forEach((b) => byDay[b.day_of_week]?.push(b));
+    blocks.forEach((b) => b.days_of_week?.forEach((d) => byDay[d]?.push(b)));
     return byDay;
   }, [blocks]);
 
