@@ -65,6 +65,48 @@
     --surface-glow: 252 100% 57%;
     --neon-purple: 252 100% 57%;
     --neon-magenta: 254 71% 78%;
+
+    /*
+     * Dashboard-only tokens.
+     * `--live` = green reserved for real-time states (online screens, streaming).
+     * Never used as brand. Never used outside `.dash-scope`.
+     * Dashboard surfaces use slightly warmer neutrals over the violet-black
+     * base to create hierarchy without leaving the brand.
+     */
+    --live: 142 76% 45%;
+    --live-foreground: 0 0% 100%;
+    --live-glow: 142 90% 60%;
+    --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /*
+   * `.dash-scope` — applied on <AppShell> root only. Overrides tokens so
+   * dashboard surfaces get a distinct, warmer premium feel while the rest
+   * of the app keeps its landing aesthetic.
+   */
+  .dash-scope {
+    --background: 260 22% 5%;
+    --card: 260 18% 7%;
+    --card-foreground: 0 0% 100%;
+    --popover: 260 18% 8%;
+    --muted: 260 14% 11%;
+    --muted-foreground: 260 10% 68%;
+    --accent: 260 20% 12%;
+    --border: 260 14% 16%;
+    --input: 260 14% 16%;
+    --radius: 1rem; /* 16px */
+    --sidebar-background: 260 24% 4%;
+    --sidebar-accent: 260 20% 10%;
+    --sidebar-border: 260 14% 14%;
+  }
+
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition:
+      background-color 300ms var(--ease-ios),
+      border-color 300ms var(--ease-ios),
+      color 300ms var(--ease-ios) !important;
   }
 }
 
