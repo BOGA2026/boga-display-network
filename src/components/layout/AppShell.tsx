@@ -9,10 +9,15 @@
  * - Sidebar width is spring-animated with Framer Motion. Collapse state
  *   persists in localStorage so power users don't re-collapse it every visit.
  * - Command Palette listens for ⌘K / Ctrl+K globally.
+ * - Un `<Suspense>` interno envuelve al `<Outlet />`: sólo el área de
+ *   contenido cae en skeleton al cargar un chunk de página; sidebar y
+ *   topbar permanecen montados → sin parpadeo de shell.
  */
 import * as React from "react";
+import { Suspense } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+
 import {
   LayoutDashboard,
   Monitor,
