@@ -45,10 +45,8 @@ export default function QRCodes() {
         setCounts({});
         return;
       }
-      const [qrs, scr] = await Promise.all([
-        listQRCodes(bizId),
-        supabase.from("screens").select("id, name").eq("business_id", bizId).order("name"),
-      ]);
+      const qrs = await listQRCodes(bizId);
+      const scr = await supabase.from("screens").select("id, name").eq("business_id", bizId).order("name");
       setItems(qrs);
       setScreens((scr.data ?? []) as Screen[]);
 
