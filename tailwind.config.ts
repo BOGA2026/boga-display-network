@@ -1,5 +1,15 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Design tokens rationale:
+ * - `live` accent (green): reserved for real-time states inside /dashboard only
+ *   (online screens, streaming, heartbeat). Never used as brand.
+ * - `soft-*` shadows: layered ambient + key light to give cards depth without
+ *   contrast noise on dark surfaces.
+ * - `ios` easing: cubic-bezier(0.32,0.72,0,1) mirrors Apple's spring feel and
+ *   is our single source of truth for interactive motion.
+ * - Radii scale up (16/20/24) — generous corners read as "premium SaaS".
+ */
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -53,6 +63,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        live: {
+          DEFAULT: "hsl(var(--live))",
+          foreground: "hsl(var(--live-foreground))",
+          glow: "hsl(var(--live-glow))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -68,6 +83,17 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl2: "20px",
+        xl3: "24px",
+      },
+      boxShadow: {
+        "soft-1": "0 1px 2px hsl(0 0% 0% / 0.4), 0 1px 0 hsl(0 0% 100% / 0.03) inset",
+        "soft-2": "0 4px 12px hsl(0 0% 0% / 0.35), 0 1px 0 hsl(0 0% 100% / 0.04) inset",
+        "soft-3": "0 20px 40px -12px hsl(0 0% 0% / 0.6), 0 1px 0 hsl(0 0% 100% / 0.05) inset",
+        "live-pulse": "0 0 0 4px hsl(var(--live) / 0.18), 0 0 16px hsl(var(--live-glow) / 0.5)",
+      },
+      transitionTimingFunction: {
+        ios: "cubic-bezier(0.32, 0.72, 0, 1)",
       },
       keyframes: {
         "accordion-down": {
@@ -98,6 +124,15 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-6px)" },
         },
+        "live-pulse": {
+          "0%": { boxShadow: "0 0 0 0 hsl(var(--live) / 0.55)" },
+          "70%": { boxShadow: "0 0 0 8px hsl(var(--live) / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(var(--live) / 0)" },
+        },
+        "page-in": {
+          from: { opacity: "0", transform: "translateY(6px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -107,6 +142,8 @@ export default {
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "neon-breathe": "neon-breathe 4s ease-in-out infinite",
         "float": "float 6s ease-in-out infinite",
+        "live-pulse": "live-pulse 2s cubic-bezier(0.32, 0.72, 0, 1) infinite",
+        "page-in": "page-in 0.24s cubic-bezier(0.32, 0.72, 0, 1) both",
       },
     },
   },
