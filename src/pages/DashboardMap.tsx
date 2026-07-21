@@ -20,7 +20,7 @@ type Row = {
   name: string;
   status: string;
   location_id: string;
-  locations: { id: string; name: string; lat: number | null; lng: number | null } | null;
+  locations: { id: string; name: string; latitude: number | null; longitude: number | null } | null;
 };
 
 export default function DashboardMap() {
@@ -33,7 +33,7 @@ export default function DashboardMap() {
     supabase
       .from("screens")
       .select(
-        "id, name, status, location_id, locations!inner(id, name, lat, lng)",
+        "id, name, status, location_id, locations!inner(id, name, latitude, longitude)",
       )
       .then(({ data, error }) => {
         if (error) console.error(error);
@@ -50,7 +50,7 @@ export default function DashboardMap() {
 
   const points: MiniMapPoint[] = useMemo(() => {
     return rows
-      .filter((r) => r.locations?.lat && r.locations?.lng)
+      .filter((r) => r.locations?.latitude && r.locations?.longitude)
       .filter((r) => statusFilter === "all" || r.status === statusFilter)
       .filter(
         (r) => locationFilter === "all" || r.location_id === locationFilter,
@@ -58,8 +58,8 @@ export default function DashboardMap() {
       .map((r) => ({
         id: r.id,
         name: `${r.name} · ${r.locations?.name ?? ""}`,
-        lat: r.locations!.lat!,
-        lng: r.locations!.lng!,
+        lat: r.locations!.latitude!,
+        lng: r.locations!.longitude!,
         status:
           r.status === "online"
             ? "online"
