@@ -28,6 +28,8 @@ import {
   Command as CommandIcon,
   Plus,
   Upload,
+  Map as MapIcon,
+  QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
