@@ -187,9 +187,7 @@ export default function ScreenDetail() {
           </Button>
           <h1 className="text-2xl font-bold">{screen.name}</h1>
           <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
-            <StatusBadge variant={statusVariant as never}>
-              {screen.status}
-            </StatusBadge>
+            <StatusBadge variant={statusVariant} label={screen.status} />
             {screen.last_seen_at && (
               <span>
                 Última señal{" "}
