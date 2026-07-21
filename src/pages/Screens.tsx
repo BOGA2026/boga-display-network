@@ -873,6 +873,13 @@ const Screens = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ─── PAIR EXISTING DEVICE MODAL ─── */}
+      <PairDeviceModal
+        open={pairModalOpen}
+        onOpenChange={setPairModalOpen}
+        onPaired={() => { setSuccessScreen("Pantalla"); fetchData(); }}
+      />
     </div>
   );
 };
