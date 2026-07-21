@@ -48,6 +48,7 @@ import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
+import { PairDeviceModal } from "@/features/pairing";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
