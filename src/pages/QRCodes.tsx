@@ -1,207 +1,176 @@
 /**
- * QRCodes — /dashboard/qr
- * List of QR codes with a side sheet showing scan analytics per row.
+ * /dashboard/qr — QR codes hub.
+ *
+ * List on the left, side sheet with QRBuilder + QRAnalytics on the right.
+ * The list refreshes counters live (Realtime `qr_scans` INSERTs) so the
+ * dashboard reflects field activity without reload.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
-import { Plus, QrCode, Copy } from "lucide-react";
-import { toast } from "sonner";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip as RTooltip,
-} from "recharts";
-import { format, subDays } from "date-fns";
+  Tabs, TabsList, TabsTrigger, TabsContent,
+} from "@/components/ui/tabs";
+import { Plus, QrCode as QrIcon, Trash2, PencilLine } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { QRBuilder, QRAnalytics, listQRCodes, deleteQRCode, type QRCode } from "@/features/qr";
 
-type QR = {
-  id: string;
-  label: string;
-  target_url: string;
-  slug: string;
-  screen_id: string | null;
-  created_at: string;
-};
-
-type Scan = { scanned_at: string };
-
-const FUNCTIONS_BASE = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1`;
-
-function randomSlug() {
-  return Math.random().toString(36).slice(2, 10);
-}
+type Screen = { id: string; name: string };
 
 export default function QRCodes() {
-  const [items, setItems] = useState<QR[]>([]);
+  const [items, setItems] = useState<QRCode[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<QR | null>(null);
-  const [scans, setScans] = useState<Scan[]>([]);
-  const [showCreate, setShowCreate] = useState(false);
-  const [label, setLabel] = useState("");
-  const [targetUrl, setTargetUrl] = useState("");
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [screens, setScreens] = useState<Screen[]>([]);
+  const [selected, setSelected] = useState<QRCode | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<QRCode | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
-    const { data: qrs, error } = await supabase
-      .from("qr_codes")
-      .select("id, label, target_url, slug, screen_id, created_at")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast.error("No se pudieron cargar los códigos QR");
+    try {
+      const { data: biz } = await supabase.rpc("get_user_business_id");
+      const bizId = biz as string | null;
+      setBusinessId(bizId);
+      if (!bizId) {
+        setItems([]);
+        setCounts({});
+        return;
+      }
+      const [qrs, scr] = await Promise.all([
+        listQRCodes(bizId),
+        supabase.from("screens").select("id, name").eq("business_id", bizId).order("name"),
+      ]);
+      setItems(qrs);
+      setScreens((scr.data ?? []) as Screen[]);
+
+      // Aggregate scan counts for the last 7 days per QR — cheap projection.
+      const ids = qrs.map((q) => q.id);
+      if (ids.length) {
+        const since = new Date();
+        since.setDate(since.getDate() - 7);
+        const { data: scans } = await supabase
+          .from("qr_scans")
+          .select("qr_code_id")
+          .in("qr_code_id", ids)
+          .gte("scanned_at", since.toISOString());
+        const map: Record<string, number> = {};
+        (scans ?? []).forEach((s: { qr_code_id: string }) => {
+          map[s.qr_code_id] = (map[s.qr_code_id] ?? 0) + 1;
+        });
+        setCounts(map);
+      } else {
+        setCounts({});
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudieron cargar los códigos QR");
+    } finally {
       setLoading(false);
-      return;
     }
-    setItems((qrs ?? []) as QR[]);
-
-    // scan counts (last 7d)
-    const since = subDays(new Date(), 7).toISOString();
-    const ids = (qrs ?? []).map((q) => q.id);
-    if (ids.length) {
-      const { data: allScans } = await supabase
-        .from("qr_scans")
-        .select("qr_code_id")
-        .in("qr_code_id", ids)
-        .gte("scanned_at", since);
-      const map: Record<string, number> = {};
-      (allScans ?? []).forEach((s: { qr_code_id: string }) => {
-        map[s.qr_code_id] = (map[s.qr_code_id] ?? 0) + 1;
-      });
-      setCounts(map);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    load();
   }, []);
 
-  const openDetail = async (qr: QR) => {
-    setSelected(qr);
-    const since = subDays(new Date(), 30).toISOString();
-    const { data } = await supabase
-      .from("qr_scans")
-      .select("scanned_at")
-      .eq("qr_code_id", qr.id)
-      .gte("scanned_at", since)
-      .order("scanned_at");
-    setScans((data as Scan[]) ?? []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Live counter: on any qr_scans insert for one of *our* QRs, bump its counter.
+  // The detail sheet has its own targeted subscription for the chart.
+  useEffect(() => {
+    if (items.length === 0) return;
+    const ids = new Set(items.map((q) => q.id));
+    const channel = supabase
+      .channel("qr-scans-hub")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "qr_scans" },
+        (payload) => {
+          const row = payload.new as { qr_code_id: string };
+          if (!ids.has(row.qr_code_id)) return;
+          setCounts((prev) => ({ ...prev, [row.qr_code_id]: (prev[row.qr_code_id] ?? 0) + 1 }));
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [items]);
+
+  const sorted = useMemo(
+    () => [...items].sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0) || b.created_at.localeCompare(a.created_at)),
+    [items, counts],
+  );
+
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteQRCode(confirmDelete.id);
+      toast.success("QR eliminado");
+      setSelected(null);
+      setConfirmDelete(null);
+      void load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+    }
   };
-
-  const series = useMemo(() => {
-    const days: Record<string, number> = {};
-    for (let i = 29; i >= 0; i--) {
-      const key = format(subDays(new Date(), i), "MM-dd");
-      days[key] = 0;
-    }
-    scans.forEach((s) => {
-      const key = format(new Date(s.scanned_at), "MM-dd");
-      if (key in days) days[key]++;
-    });
-    return Object.entries(days).map(([day, count]) => ({ day, count }));
-  }, [scans]);
-
-  const handleCreate = async () => {
-    if (!label.trim() || !targetUrl.trim()) {
-      toast.error("Completá etiqueta y URL destino");
-      return;
-    }
-    const { data: bizId } = await supabase.rpc("get_user_business_id");
-    if (!bizId) {
-      toast.error("No se encontró tu negocio");
-      return;
-    }
-    const { error } = await supabase.from("qr_codes").insert({
-      business_id: bizId,
-      label: label.trim(),
-      target_url: targetUrl.trim(),
-      slug: randomSlug(),
-    });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("QR creado");
-    setLabel("");
-    setTargetUrl("");
-    setShowCreate(false);
-    load();
-  };
-
-  const redirectUrl = (slug: string) =>
-    `${FUNCTIONS_BASE}/qr-redirect?slug=${slug}`;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between gap-4">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Códigos QR</h1>
           <p className="text-sm text-muted-foreground">
-            Creá códigos QR que redirigen a lo que quieras y medí sus escaneos.
+            Códigos dinámicos: cambiá el destino cuando quieras sin reimprimir. Cada escaneo se registra en tiempo real.
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
+        <Button onClick={() => { setSelected(null); setCreating(true); }} disabled={!businessId}>
           <Plus className="mr-2 h-4 w-4" /> Nuevo QR
         </Button>
       </div>
 
       <Card className="overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Cargando…
-          </div>
-        ) : items.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">Cargando…</div>
+        ) : sorted.length === 0 ? (
           <div className="p-12 text-center">
-            <QrCode className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Todavía no tenés códigos QR. Creá el primero.
-            </p>
+            <QrIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Todavía no tenés códigos QR. Creá el primero.</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b bg-muted/30 text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Etiqueta</th>
+                <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Destino</th>
+                <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Escaneos (7d)</th>
                 <th className="px-4 py-3">Creado</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((q) => (
+              {sorted.map((q) => (
                 <tr
                   key={q.id}
-                  onClick={() => openDetail(q)}
-                  className="cursor-pointer border-b hover:bg-muted/30"
+                  onClick={() => { setCreating(false); setSelected(q); }}
+                  className="cursor-pointer border-b transition-colors hover:bg-muted/30"
                 >
                   <td className="px-4 py-3 font-medium">{q.label}</td>
-                  <td className="px-4 py-3 max-w-xs truncate text-muted-foreground">
-                    {q.target_url}
+                  <td className="max-w-xs truncate px-4 py-3 text-muted-foreground">{q.target_url}</td>
+                  <td className="px-4 py-3">
+                    <span className={q.active ? "inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 dark:text-emerald-400" : "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"}>
+                      {q.active ? "Activo" : "Inactivo"}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">{counts[q.id] ?? 0}</td>
+                  <td className="px-4 py-3 tabular-nums">{counts[q.id] ?? 0}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {format(new Date(q.created_at), "dd MMM yyyy")}
+                    {format(new Date(q.created_at), "d MMM yyyy", { locale: es })}
                   </td>
                 </tr>
               ))}
@@ -210,102 +179,87 @@ export default function QRCodes() {
         )}
       </Card>
 
-      {/* Create */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nuevo código QR</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label>Etiqueta</Label>
-              <Input
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                placeholder="Menú desayuno"
+      {/* Create sheet */}
+      <Sheet open={creating} onOpenChange={(o) => !o && setCreating(false)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
+          <SheetHeader>
+            <SheetTitle>Nuevo código QR</SheetTitle>
+            <SheetDescription>
+              Guardá el QR una sola vez. Podés cambiar el destino más adelante sin reimprimirlo.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {businessId && (
+              <QRBuilder
+                businessId={businessId}
+                screens={screens}
+                onSaved={(qr) => { setCreating(false); setSelected(qr); void load(); }}
+                onCancel={() => setCreating(false)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>URL destino</Label>
-              <Input
-                value={targetUrl}
-                onChange={(e) => setTargetUrl(e.target.value)}
-                placeholder="https://tunegocio.com/menu"
-              />
-            </div>
+            )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCreate}>Crear</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
-      {/* Detail Sheet */}
-      <Sheet
-        open={selected !== null}
-        onOpenChange={(o) => !o && setSelected(null)}
-      >
-        <SheetContent className="sm:max-w-lg overflow-y-auto">
+      {/* Detail sheet */}
+      <Sheet open={selected !== null} onOpenChange={(o) => !o && setSelected(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-3xl">
           {selected && (
             <>
               <SheetHeader>
-                <SheetTitle>{selected.label}</SheetTitle>
-                <SheetDescription className="break-all">
-                  {selected.target_url}
-                </SheetDescription>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <SheetTitle className="flex items-center gap-2">
+                      <QrIcon className="h-5 w-5 text-primary" /> {selected.label}
+                    </SheetTitle>
+                    <SheetDescription className="break-all">{selected.target_url}</SheetDescription>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(selected)} className="text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </SheetHeader>
 
-              <div className="mt-6 flex flex-col items-center gap-3">
-                <div className="rounded-xl border bg-white p-4">
-                  <QRCodeSVG
-                    value={redirectUrl(selected.slug)}
-                    size={192}
-                    level="M"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(redirectUrl(selected.slug));
-                    toast.success("Enlace copiado");
-                  }}
-                >
-                  <Copy className="mr-2 h-3.5 w-3.5" /> Copiar enlace
-                </Button>
-              </div>
-
-              <div className="mt-8">
-                <h3 className="mb-3 text-sm font-semibold">
-                  Escaneos (30 días)
-                </h3>
-                <div className="h-40">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={series}>
-                      <XAxis dataKey="day" hide />
-                      <YAxis allowDecimals={false} width={24} />
-                      <RTooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="count"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Total 30 días: {scans.length}
-                </p>
-              </div>
+              <Tabs defaultValue="analytics" className="mt-6">
+                <TabsList>
+                  <TabsTrigger value="analytics">Escaneos</TabsTrigger>
+                  <TabsTrigger value="edit"><PencilLine className="mr-1 h-3.5 w-3.5" /> Editar</TabsTrigger>
+                </TabsList>
+                <TabsContent value="analytics" className="mt-4">
+                  <QRAnalytics qrId={selected.id} qrLabel={selected.label} />
+                </TabsContent>
+                <TabsContent value="edit" className="mt-4">
+                  {businessId && (
+                    <QRBuilder
+                      businessId={businessId}
+                      screens={screens}
+                      existing={selected}
+                      onSaved={(qr) => { setSelected(qr); void load(); }}
+                    />
+                  )}
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={confirmDelete !== null} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar código QR</AlertDialogTitle>
+            <AlertDialogDescription>
+              El QR "{confirmDelete?.label}" dejará de funcionar de inmediato. Los materiales impresos con este código quedarán inservibles. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
