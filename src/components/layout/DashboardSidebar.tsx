@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   LifeBuoy,
   Map,
+  Radio,
   QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ const navItems = [
   { icon: ListVideo, label: "Listas", path: "/dashboard/playlists" },
   { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
   { icon: Map, label: "Mapa", path: "/dashboard/mapa" },
+  { icon: Radio, label: "Monitoreo", path: "/dashboard/monitoreo" },
   { icon: QrCode, label: "QR", path: "/dashboard/qr" },
   { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
   { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
