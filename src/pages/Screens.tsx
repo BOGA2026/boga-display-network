@@ -19,6 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import {
   Monitor,
@@ -121,6 +128,29 @@ const Screens = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-advance: when the TV claims the pairing code, close sheet and celebrate.
+  useEffect(() => {
+    if (!generatedCode) return;
+    const channel = supabase
+      .channel(`pairing-${generatedCode}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "devices", filter: `device_code=eq.${generatedCode}` },
+        (payload) => {
+          const status = (payload.new as { status?: string })?.status;
+          if (status && status !== "pending") {
+            setSuccessScreen(screenName.trim());
+            setDialogOpen(false);
+            resetForm();
+            fetchData();
+          }
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generatedCode]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -419,72 +449,68 @@ const Screens = () => {
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       ) : screens.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-border/30 bg-card/40">
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 border-b border-border/20 px-5 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <span>Nombre</span>
-            <span>Estado</span>
-            <span>Última conexión</span>
-            <span></span>
-          </div>
-          {/* Rows */}
-          <div className="divide-y divide-border/10">
-            {screens.map((screen) => {
-              const online = isOnline(screen.last_seen_at);
-              return (
-                <div key={screen.id} className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 px-5 py-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}>
-                  {/* Name */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/60">
-                      <Monitor className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <span className="font-medium truncate">{screen.name}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {screens.map((screen) => {
+            const online = isOnline(screen.last_seen_at);
+            return (
+              <div
+                key={screen.id}
+                onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-card/40 transition-all hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_-16px_rgba(138,0,255,0.35)]"
+              >
+                {/* Tile preview area (Apple TV style) */}
+                <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-secondary/40 via-secondary/20 to-background">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Monitor className="h-14 w-14 text-muted-foreground/30 transition-transform duration-500 group-hover:scale-110" />
                   </div>
-
-                  {/* Status */}
-                  <div>
+                  {/* Status pill (top-left) */}
+                  <div className="absolute top-3 left-3">
                     {online || screen.status === "online" ? (
-                      <Badge className="bg-primary/15 text-primary border-primary/25 text-xs gap-1.5">
-                        <Wifi className="h-3 w-3" />
-                        Activa
+                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-[11px] gap-1.5 shadow-sm">
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                        </span>
+                        En vivo
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="text-muted-foreground text-xs gap-1.5">
+                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-[11px] gap-1.5">
                         <WifiOff className="h-3 w-3" />
                         Offline
                       </Badge>
                     )}
                   </div>
-
-                  {/* Last seen */}
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3 shrink-0" />
-                    {screen.last_seen_at
-                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
-                      : "Sin sincronizar"}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1">
+                  {/* Actions (top-right, appear on hover) */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => { setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      onClick={(e) => { e.stopPropagation(); setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
                       title="Editar"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      onClick={() => setDeleteConfirmId(screen.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(screen.id); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-destructive hover:bg-background transition-colors"
                       title="Eliminar"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                {/* Meta footer */}
+                <div className="p-4 border-t border-border/20">
+                  <div className="font-semibold text-sm truncate mb-1">{screen.name}</div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    {screen.last_seen_at
+                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
+                      : "Sin sincronizar"}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : (
         /* Empty state */
@@ -519,19 +545,19 @@ const Screens = () => {
         </div>
       )}
 
-      {/* ─── ADD SCREEN DIALOG ─── */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
+      {/* ─── ADD SCREEN SHEET ─── */}
+      <Sheet open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto surface-elevated border-border/30">
           {!generatedCode ? (
             <>
-              <DialogHeader className="pb-1">
-                <DialogTitle className="font-display text-lg">Agregar pantalla</DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
+              <SheetHeader className="pb-1">
+                <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
+                <SheetDescription className="text-sm text-muted-foreground">
                   Dale un nombre a tu pantalla y te generaremos un código para conectarla desde el dispositivo.
-                </DialogDescription>
-              </DialogHeader>
+                </SheetDescription>
+              </SheetHeader>
 
-              <div className="space-y-5 py-2">
+              <div className="space-y-5 py-4">
                 {/* Field — Name */}
                 <div className="space-y-1.5">
                   <Label htmlFor="screen-name" className="text-sm font-medium">
@@ -616,26 +642,31 @@ const Screens = () => {
             </>
           ) : (
           <>
-            <DialogHeader className="pb-1">
-              <DialogTitle className="font-display text-lg">Tu código de vinculación</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Ingresa este código en la app de Visualia instalada en tu pantalla o TV para conectarla.
-              </DialogDescription>
-            </DialogHeader>
+            <SheetHeader className="pb-1">
+              <SheetTitle className="font-display text-lg">Tu código de vinculación</SheetTitle>
+              <SheetDescription className="text-sm text-muted-foreground">
+                Ingresa este código en la app de Visualia instalada en tu pantalla o TV. Detectaremos la conexión automáticamente.
+              </SheetDescription>
+            </SheetHeader>
 
-            <div className="space-y-6 py-2">
-              {/* Code display */}
+            <div className="space-y-6 py-4">
+              {/* Code display — 6 individual digit tiles */}
               <div className="flex flex-col items-center gap-4">
-                <div
-                  className="rounded-2xl px-12 py-8 font-mono text-5xl md:text-6xl font-bold tracking-[0.3em] text-center select-all"
-                  style={{
-                    background: "rgba(138,0,255,0.08)",
-                    border: "1px solid rgba(138,0,255,0.25)",
-                    color: "hsl(var(--primary))",
-                    textShadow: "0 0 24px rgba(192,0,255,0.5)",
-                  }}
-                >
-                  {generatedCode}
+                <div className="flex gap-2 sm:gap-3">
+                  {generatedCode.split("").map((ch, i) => (
+                    <div
+                      key={i}
+                      className="flex h-14 w-11 sm:h-16 sm:w-14 items-center justify-center rounded-xl font-mono text-3xl sm:text-4xl font-bold select-all"
+                      style={{
+                        background: "rgba(138,0,255,0.08)",
+                        border: "1px solid rgba(138,0,255,0.28)",
+                        color: "hsl(var(--primary))",
+                        textShadow: "0 0 20px rgba(192,0,255,0.5)",
+                      }}
+                    >
+                      {ch}
+                    </div>
+                  ))}
                 </div>
                 <Button
                   variant="ghost"
@@ -651,44 +682,42 @@ const Screens = () => {
                 </Button>
               </div>
 
+              {/* Waiting indicator */}
+              <div className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span className="text-muted-foreground">Esperando conexión de tu pantalla…</span>
+              </div>
+
               {/* Instructions */}
               <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-3">
                 <p className="font-semibold text-sm text-foreground">Cómo conectar tu pantalla:</p>
                 <ol className="space-y-3">
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      1
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">1</span>
                     <span className="text-muted-foreground">
                       Abre la app Visualia en tu TV.{" "}
-                      <span className="text-muted-foreground">
-                        (¿No la tienes?{" "}
-                        <Link
-                          to="/descargar-apk"
-                          className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
-                          onClick={() => setDialogOpen(false)}
-                        >
-                          <Download className="h-3 w-3" />
-                          Descárgala aquí
-                        </Link>
-                        )
-                      </span>
+                      (¿No la tienes?{" "}
+                      <Link
+                        to="/descargar-apk"
+                        className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        <Download className="h-3 w-3" />
+                        Descárgala aquí
+                      </Link>
+                      )
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      2
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">2</span>
                     <span className="text-muted-foreground">
                       Ingresa este código de <span className="font-semibold text-foreground">6 caracteres</span> con el control remoto.
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      3
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">3</span>
                     <span className="text-muted-foreground">
-                      ¡Listo! Tu pantalla quedará vinculada en segundos.
+                      Cuando la pantalla se conecte, esta ventana se cerrará sola.
                     </span>
                   </li>
                 </ol>
@@ -697,11 +726,7 @@ const Screens = () => {
               {/* QR code */}
               <div className="flex flex-col items-center gap-3">
                 <div className="bg-white p-4 rounded-xl">
-                  <QRCodeSVG
-                    value={`${window.location.origin}/descargar-apk`}
-                    size={160}
-                    level="H"
-                  />
+                  <QRCodeSVG value={`${window.location.origin}/descargar-apk`} size={140} level="H" />
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Smartphone className="h-3.5 w-3.5" />
@@ -716,16 +741,18 @@ const Screens = () => {
 
             <div className="flex gap-3 pt-1">
               <Button
+                variant="ghost"
                 onClick={handleFinishPairing}
-                className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+                className="flex-1"
               >
-                Listo
+                Cerrar
               </Button>
             </div>
           </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
+
 
       {/* ─── EDIT DIALOG ─── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
