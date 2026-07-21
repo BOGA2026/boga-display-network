@@ -9,8 +9,12 @@ const corsHeaders = {
 // In-memory sliding-window rate limiter (per instance, per IP+path).
 // Not a substitute for a WAF but blocks trivial abuse from a single origin.
 const RL_WINDOW_MS = 60_000;
-const RL_MAX = { register: 20, checkin: 120 } as const;
+const RL_MAX = { register: 10, checkin: 120, status: 60, claim: 20 } as const;
 const rlBuckets = new Map<string, number[]>();
+
+// Brute-force detector: >N failed claim attempts / 10 min from same IP → block.
+const BF_WINDOW_MS = 10 * 60_000;
+const BF_MAX_FAILURES = 8;
 
 function rateLimited(key: string, max: number): boolean {
   const now = Date.now();
@@ -31,6 +35,38 @@ function clientIp(req: Request): string {
     "unknown"
   );
 }
+
+// Log a pairing attempt (audit). Never throws.
+async function logAttempt(
+  supabase: any,
+  opts: { ip: string; code: string | null; businessId: string | null; success: boolean; reason: string; ua: string | null }
+) {
+  try {
+    await supabase.from("pairing_attempts").insert({
+      ip: opts.ip === "unknown" ? null : opts.ip,
+      device_code_attempted: opts.code,
+      business_id_target: opts.businessId,
+      success: opts.success,
+      reason: opts.reason,
+      user_agent: opts.ua,
+    });
+  } catch (e) {
+    console.warn("pairing_attempts insert failed", e);
+  }
+}
+
+async function isBruteForced(supabase: any, ip: string): Promise<boolean> {
+  if (ip === "unknown") return false;
+  const since = new Date(Date.now() - BF_WINDOW_MS).toISOString();
+  const { count } = await supabase
+    .from("pairing_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("ip", ip)
+    .eq("success", false)
+    .gte("created_at", since);
+  return (count ?? 0) >= BF_MAX_FAILURES;
+}
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
