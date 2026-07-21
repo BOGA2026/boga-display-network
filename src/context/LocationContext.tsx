@@ -12,7 +12,7 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import type { Session } from "@supabase/supabase-js";
 
 export type Location = {
   id: string;
@@ -34,8 +34,15 @@ const LocationContext = React.createContext<Ctx | null>(null);
 const STORAGE_KEY = "dash.location";
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
-  const { session } = useAuth();
-  const userId = session?.user?.id;
+  const [userId, setUserId] = React.useState<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s: Session | null) => {
+      setUserId(s?.user?.id);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["locations", userId],
