@@ -655,6 +655,13 @@ const Content = () => {
         </DialogContent>
       </Dialog>
 
+      <SendToScreenSheet
+        open={!!sendTarget}
+        onOpenChange={(o) => !o && setSendTarget(null)}
+        contentId={sendTarget?.id}
+        contentLabel={sendTarget?.name}
+      />
+
     </div>
   );
 };
