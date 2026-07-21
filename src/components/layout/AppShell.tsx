@@ -46,6 +46,7 @@ import {
 } from "@/hooks/useCommandRegistry";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
+import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard", end: true },
