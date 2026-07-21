@@ -43,10 +43,10 @@ type Cmd = {
 
 type Block = {
   id: string;
-  day_of_week: number;
+  days_of_week: number[];
   start_time: string;
   end_time: string;
-  content_id: string | null;
+  name: string;
 };
 
 const DAYS = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
