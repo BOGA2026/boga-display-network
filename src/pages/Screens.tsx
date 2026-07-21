@@ -545,19 +545,19 @@ const Screens = () => {
         </div>
       )}
 
-      {/* ─── ADD SCREEN DIALOG ─── */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="surface-elevated border-border/30 sm:max-w-lg">
+      {/* ─── ADD SCREEN SHEET ─── */}
+      <Sheet open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto surface-elevated border-border/30">
           {!generatedCode ? (
             <>
-              <DialogHeader className="pb-1">
-                <DialogTitle className="font-display text-lg">Agregar pantalla</DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">
+              <SheetHeader className="pb-1">
+                <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
+                <SheetDescription className="text-sm text-muted-foreground">
                   Dale un nombre a tu pantalla y te generaremos un código para conectarla desde el dispositivo.
-                </DialogDescription>
-              </DialogHeader>
+                </SheetDescription>
+              </SheetHeader>
 
-              <div className="space-y-5 py-2">
+              <div className="space-y-5 py-4">
                 {/* Field — Name */}
                 <div className="space-y-1.5">
                   <Label htmlFor="screen-name" className="text-sm font-medium">
@@ -642,26 +642,31 @@ const Screens = () => {
             </>
           ) : (
           <>
-            <DialogHeader className="pb-1">
-              <DialogTitle className="font-display text-lg">Tu código de vinculación</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Ingresa este código en la app de Visualia instalada en tu pantalla o TV para conectarla.
-              </DialogDescription>
-            </DialogHeader>
+            <SheetHeader className="pb-1">
+              <SheetTitle className="font-display text-lg">Tu código de vinculación</SheetTitle>
+              <SheetDescription className="text-sm text-muted-foreground">
+                Ingresa este código en la app de Visualia instalada en tu pantalla o TV. Detectaremos la conexión automáticamente.
+              </SheetDescription>
+            </SheetHeader>
 
-            <div className="space-y-6 py-2">
-              {/* Code display */}
+            <div className="space-y-6 py-4">
+              {/* Code display — 6 individual digit tiles */}
               <div className="flex flex-col items-center gap-4">
-                <div
-                  className="rounded-2xl px-12 py-8 font-mono text-5xl md:text-6xl font-bold tracking-[0.3em] text-center select-all"
-                  style={{
-                    background: "rgba(138,0,255,0.08)",
-                    border: "1px solid rgba(138,0,255,0.25)",
-                    color: "hsl(var(--primary))",
-                    textShadow: "0 0 24px rgba(192,0,255,0.5)",
-                  }}
-                >
-                  {generatedCode}
+                <div className="flex gap-2 sm:gap-3">
+                  {generatedCode.split("").map((ch, i) => (
+                    <div
+                      key={i}
+                      className="flex h-14 w-11 sm:h-16 sm:w-14 items-center justify-center rounded-xl font-mono text-3xl sm:text-4xl font-bold select-all"
+                      style={{
+                        background: "rgba(138,0,255,0.08)",
+                        border: "1px solid rgba(138,0,255,0.28)",
+                        color: "hsl(var(--primary))",
+                        textShadow: "0 0 20px rgba(192,0,255,0.5)",
+                      }}
+                    >
+                      {ch}
+                    </div>
+                  ))}
                 </div>
                 <Button
                   variant="ghost"
@@ -677,44 +682,42 @@ const Screens = () => {
                 </Button>
               </div>
 
+              {/* Waiting indicator */}
+              <div className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span className="text-muted-foreground">Esperando conexión de tu pantalla…</span>
+              </div>
+
               {/* Instructions */}
               <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-3">
                 <p className="font-semibold text-sm text-foreground">Cómo conectar tu pantalla:</p>
                 <ol className="space-y-3">
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      1
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">1</span>
                     <span className="text-muted-foreground">
                       Abre la app Visualia en tu TV.{" "}
-                      <span className="text-muted-foreground">
-                        (¿No la tienes?{" "}
-                        <Link
-                          to="/descargar-apk"
-                          className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
-                          onClick={() => setDialogOpen(false)}
-                        >
-                          <Download className="h-3 w-3" />
-                          Descárgala aquí
-                        </Link>
-                        )
-                      </span>
+                      (¿No la tienes?{" "}
+                      <Link
+                        to="/descargar-apk"
+                        className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        <Download className="h-3 w-3" />
+                        Descárgala aquí
+                      </Link>
+                      )
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      2
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">2</span>
                     <span className="text-muted-foreground">
                       Ingresa este código de <span className="font-semibold text-foreground">6 caracteres</span> con el control remoto.
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">
-                      3
-                    </span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">3</span>
                     <span className="text-muted-foreground">
-                      ¡Listo! Tu pantalla quedará vinculada en segundos.
+                      Cuando la pantalla se conecte, esta ventana se cerrará sola.
                     </span>
                   </li>
                 </ol>
@@ -723,11 +726,7 @@ const Screens = () => {
               {/* QR code */}
               <div className="flex flex-col items-center gap-3">
                 <div className="bg-white p-4 rounded-xl">
-                  <QRCodeSVG
-                    value={`${window.location.origin}/descargar-apk`}
-                    size={160}
-                    level="H"
-                  />
+                  <QRCodeSVG value={`${window.location.origin}/descargar-apk`} size={140} level="H" />
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Smartphone className="h-3.5 w-3.5" />
@@ -742,16 +741,18 @@ const Screens = () => {
 
             <div className="flex gap-3 pt-1">
               <Button
+                variant="ghost"
                 onClick={handleFinishPairing}
-                className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity"
+                className="flex-1"
               >
-                Listo
+                Cerrar
               </Button>
             </div>
           </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
+
 
       {/* ─── EDIT DIALOG ─── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
