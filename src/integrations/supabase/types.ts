@@ -820,6 +820,7 @@ export type Database = {
         Row: {
           content_id: string
           created_at: string
+          duration_seconds: number
           id: string
           playlist_id: string
           sort_order: number
@@ -827,6 +828,7 @@ export type Database = {
         Insert: {
           content_id: string
           created_at?: string
+          duration_seconds?: number
           id?: string
           playlist_id: string
           sort_order?: number
@@ -834,6 +836,7 @@ export type Database = {
         Update: {
           content_id?: string
           created_at?: string
+          duration_seconds?: number
           id?: string
           playlist_id?: string
           sort_order?: number
@@ -1251,6 +1254,60 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_publications: {
+        Row: {
+          business_id: string
+          error: string | null
+          id: string
+          playing_at: string | null
+          received_at: string | null
+          schedule_version: number
+          screen_id: string
+          sent_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          error?: string | null
+          id?: string
+          playing_at?: string | null
+          received_at?: string | null
+          schedule_version: number
+          screen_id: string
+          sent_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          error?: string | null
+          id?: string
+          playing_at?: string | null
+          received_at?: string | null
+          schedule_version?: number
+          screen_id?: string
+          sent_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_publications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_publications_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
             referencedColumns: ["id"]
           },
         ]
