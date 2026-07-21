@@ -449,72 +449,68 @@ const Screens = () => {
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       ) : screens.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-border/30 bg-card/40">
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 border-b border-border/20 px-5 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <span>Nombre</span>
-            <span>Estado</span>
-            <span>Última conexión</span>
-            <span></span>
-          </div>
-          {/* Rows */}
-          <div className="divide-y divide-border/10">
-            {screens.map((screen) => {
-              const online = isOnline(screen.last_seen_at);
-              return (
-                <div key={screen.id} className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-4 px-5 py-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}>
-                  {/* Name */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/60">
-                      <Monitor className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <span className="font-medium truncate">{screen.name}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {screens.map((screen) => {
+            const online = isOnline(screen.last_seen_at);
+            return (
+              <div
+                key={screen.id}
+                onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-card/40 transition-all hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_-16px_rgba(138,0,255,0.35)]"
+              >
+                {/* Tile preview area (Apple TV style) */}
+                <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-secondary/40 via-secondary/20 to-background">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Monitor className="h-14 w-14 text-muted-foreground/30 transition-transform duration-500 group-hover:scale-110" />
                   </div>
-
-                  {/* Status */}
-                  <div>
+                  {/* Status pill (top-left) */}
+                  <div className="absolute top-3 left-3">
                     {online || screen.status === "online" ? (
-                      <Badge className="bg-primary/15 text-primary border-primary/25 text-xs gap-1.5">
-                        <Wifi className="h-3 w-3" />
-                        Activa
+                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-[11px] gap-1.5 shadow-sm">
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                        </span>
+                        En vivo
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="text-muted-foreground text-xs gap-1.5">
+                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-[11px] gap-1.5">
                         <WifiOff className="h-3 w-3" />
                         Offline
                       </Badge>
                     )}
                   </div>
-
-                  {/* Last seen */}
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3 shrink-0" />
-                    {screen.last_seen_at
-                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
-                      : "Sin sincronizar"}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1">
+                  {/* Actions (top-right, appear on hover) */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => { setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      onClick={(e) => { e.stopPropagation(); setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
                       title="Editar"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      onClick={() => setDeleteConfirmId(screen.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(screen.id); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-destructive hover:bg-background transition-colors"
                       title="Eliminar"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                {/* Meta footer */}
+                <div className="p-4 border-t border-border/20">
+                  <div className="font-semibold text-sm truncate mb-1">{screen.name}</div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    {screen.last_seen_at
+                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
+                      : "Sin sincronizar"}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : (
         /* Empty state */
