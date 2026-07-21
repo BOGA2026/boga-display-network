@@ -9,8 +9,12 @@ const corsHeaders = {
 // In-memory sliding-window rate limiter (per instance, per IP+path).
 // Not a substitute for a WAF but blocks trivial abuse from a single origin.
 const RL_WINDOW_MS = 60_000;
-const RL_MAX = { register: 20, checkin: 120 } as const;
+const RL_MAX = { register: 10, checkin: 120, status: 60, claim: 20 } as const;
 const rlBuckets = new Map<string, number[]>();
+
+// Brute-force detector: >N failed claim attempts / 10 min from same IP → block.
+const BF_WINDOW_MS = 10 * 60_000;
+const BF_MAX_FAILURES = 8;
 
 function rateLimited(key: string, max: number): boolean {
   const now = Date.now();
@@ -32,6 +36,38 @@ function clientIp(req: Request): string {
   );
 }
 
+// Log a pairing attempt (audit). Never throws.
+async function logAttempt(
+  supabase: any,
+  opts: { ip: string; code: string | null; businessId: string | null; success: boolean; reason: string; ua: string | null }
+) {
+  try {
+    await supabase.from("pairing_attempts").insert({
+      ip: opts.ip === "unknown" ? null : opts.ip,
+      device_code_attempted: opts.code,
+      business_id_target: opts.businessId,
+      success: opts.success,
+      reason: opts.reason,
+      user_agent: opts.ua,
+    });
+  } catch (e) {
+    console.warn("pairing_attempts insert failed", e);
+  }
+}
+
+async function isBruteForced(supabase: any, ip: string): Promise<boolean> {
+  if (ip === "unknown") return false;
+  const since = new Date(Date.now() - BF_WINDOW_MS).toISOString();
+  const { count } = await supabase
+    .from("pairing_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("ip", ip)
+    .eq("success", false)
+    .gte("created_at", since);
+  return (count ?? 0) >= BF_MAX_FAILURES;
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -47,7 +83,10 @@ Deno.serve(async (req) => {
 
     const ip = clientIp(req);
 
-    // POST /pair-device/register — device self-registers with a code
+    const ua = req.headers.get("user-agent");
+
+    // POST /pair-device/register — TV publishes its 6-digit code.
+    // Creates a pending device row with a 10-minute expiration.
     if (req.method === "POST" && path === "register") {
       if (rateLimited(`register:${ip}`, RL_MAX.register)) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
@@ -55,33 +94,309 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { device_code, app_version } = await req.json();
-      if (!device_code || typeof device_code !== "string" || device_code.length < 4) {
-        return new Response(JSON.stringify({ error: "Invalid device_code" }), {
+      const body = await req.json().catch(() => ({}));
+      const { device_code, app_version, resolution, network_type } = body ?? {};
+      // TV codes are 6 numeric digits; panel codes remain alphanumeric.
+      if (!device_code || typeof device_code !== "string" || !/^[0-9]{6}$/.test(device_code)) {
+        return new Response(JSON.stringify({ error: "Invalid device_code (expected 6 digits)" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Check if code already exists
+      const nowMs = Date.now();
+      const expiresIso = new Date(nowMs + 10 * 60_000).toISOString();
+
       const { data: existing } = await supabase
         .from("devices")
-        .select("id, status")
-        .eq("device_code", device_code.toUpperCase())
+        .select("id, status, code_expires_at, business_id")
+        .eq("device_code", device_code)
         .maybeSingle();
 
       if (existing) {
-        return new Response(JSON.stringify({ id: existing.id, status: existing.status }), {
+        // Already claimed → tell TV to regenerate
+        if (existing.business_id) {
+          return new Response(JSON.stringify({ error: "code_in_use" }), {
+            status: 409,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        // Refresh expiration for idle pending row
+        await supabase
+          .from("devices")
+          .update({
+            code_expires_at: expiresIso,
+            app_version: app_version ?? null,
+            resolution: resolution ?? null,
+            network_type: network_type ?? null,
+            ip: ip === "unknown" ? null : ip,
+          })
+          .eq("id", existing.id);
+        return new Response(JSON.stringify({ id: existing.id, status: "awaiting_pairing", expires_at: expiresIso }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // We don't create yet — the device just shows its code. 
-      // The CMS admin will create the record when pairing.
-      return new Response(JSON.stringify({ status: "awaiting_pairing" }), {
+      const { data: inserted, error: insertErr } = await supabase
+        .from("devices")
+        .insert({
+          device_code,
+          status: "pending",
+          code_source: "tv",
+          code_expires_at: expiresIso,
+          app_version: app_version ?? null,
+          resolution: resolution ?? null,
+          network_type: network_type ?? null,
+          ip: ip === "unknown" ? null : ip,
+        })
+        .select("id")
+        .single();
+
+      if (insertErr) {
+        return new Response(JSON.stringify({ error: insertErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ id: inserted.id, status: "awaiting_pairing", expires_at: expiresIso }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // GET /pair-device/status?code=XXXXXX — TV polls to see if it's been claimed.
+    // Returns the heartbeat_token exactly once, then wipes it from the row.
+    if (req.method === "GET" && path === "status") {
+      if (rateLimited(`status:${ip}`, RL_MAX.status)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const code = url.searchParams.get("code");
+      if (!code || !/^[0-9]{6}$/.test(code)) {
+        return new Response(JSON.stringify({ error: "Invalid code" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: device } = await supabase
+        .from("devices")
+        .select("id, status, business_id, screen_id, heartbeat_token, code_expires_at")
+        .eq("device_code", code)
+        .maybeSingle();
+      if (!device) {
+        return new Response(JSON.stringify({ error: "not_found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (device.code_expires_at && new Date(device.code_expires_at).getTime() < Date.now() && !device.business_id) {
+        return new Response(JSON.stringify({ status: "expired" }), {
+          status: 410,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!device.business_id) {
+        return new Response(JSON.stringify({ status: "awaiting_pairing" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Claimed — release token exactly once, then null it in the row and clear the code.
+      const token = device.heartbeat_token;
+      if (token) {
+        await supabase
+          .from("devices")
+          .update({ heartbeat_token: null, device_code: null })
+          .eq("id", device.id);
+      }
+      return new Response(JSON.stringify({
+        status: "paired",
+        device_id: device.id,
+        business_id: device.business_id,
+        screen_id: device.screen_id,
+        heartbeat_token: token,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /pair-device/claim — dashboard claims a code for its business.
+    // Requires the caller's Supabase JWT (Authorization: Bearer <access_token>).
+    if (req.method === "POST" && path === "claim") {
+      if (rateLimited(`claim:${ip}`, RL_MAX.claim)) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (await isBruteForced(supabase, ip)) {
+        return new Response(JSON.stringify({ error: "Too many failed attempts. Try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const authHeader = req.headers.get("authorization") ?? "";
+      const jwt = authHeader.replace(/^Bearer\s+/i, "").trim();
+      if (!jwt) {
+        await logAttempt(supabase, { ip, code: null, businessId: null, success: false, reason: "no_jwt", ua });
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: userRes, error: userErr } = await supabase.auth.getUser(jwt);
+      if (userErr || !userRes?.user) {
+        await logAttempt(supabase, { ip, code: null, businessId: null, success: false, reason: "invalid_jwt", ua });
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const userId = userRes.user.id;
+
+      const body = await req.json().catch(() => ({}));
+      const { device_code, screen_name, location_id } = body ?? {};
+      if (!device_code || !/^[0-9]{6}$/.test(device_code)) {
+        await logAttempt(supabase, { ip, code: device_code ?? null, businessId: null, success: false, reason: "bad_code_format", ua });
+        return new Response(JSON.stringify({ error: "Invalid code" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Resolve caller's business + membership role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("business_id")
+        .eq("id", userId)
+        .maybeSingle();
+      const businessId = profile?.business_id;
+      if (!businessId) {
+        await logAttempt(supabase, { ip, code: device_code, businessId: null, success: false, reason: "no_business", ua });
+        return new Response(JSON.stringify({ error: "No business associated with user" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: membership } = await supabase
+        .from("business_memberships")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("business_id", businessId)
+        .maybeSingle();
+      if (!membership || !["admin", "manager"].includes(membership.role)) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "insufficient_role", ua });
+        return new Response(JSON.stringify({ error: "Only admin or manager can pair devices" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: device } = await supabase
+        .from("devices")
+        .select("id, status, business_id, code_expires_at, code_source")
+        .eq("device_code", device_code)
+        .maybeSingle();
+      if (!device) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "not_found", ua });
+        return new Response(JSON.stringify({ error: "code_not_found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (device.business_id) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "already_claimed", ua });
+        return new Response(JSON.stringify({ error: "code_already_used" }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (device.code_expires_at && new Date(device.code_expires_at).getTime() < Date.now()) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "expired", ua });
+        return new Response(JSON.stringify({ error: "code_expired" }), {
+          status: 410,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Resolve or create location
+      let locId = location_id as string | undefined;
+      if (!locId) {
+        const { data: loc } = await supabase
+          .from("locations")
+          .select("id")
+          .eq("business_id", businessId)
+          .limit(1)
+          .maybeSingle();
+        locId = loc?.id;
+        if (!locId) {
+          const { data: newLoc } = await supabase
+            .from("locations")
+            .insert({ name: "Principal", business_id: businessId })
+            .select("id")
+            .single();
+          locId = newLoc?.id;
+        }
+      }
+      if (!locId) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "no_location", ua });
+        return new Response(JSON.stringify({ error: "Location unavailable" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Create the screen this device will drive
+      const finalName = (typeof screen_name === "string" && screen_name.trim()) ? screen_name.trim().slice(0, 40) : "Pantalla";
+      const { data: screen, error: screenErr } = await supabase
+        .from("screens")
+        .insert({ name: finalName, location_id: locId })
+        .select("id")
+        .single();
+      if (screenErr || !screen) {
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "screen_create_failed", ua });
+        return new Response(JSON.stringify({ error: "Screen creation failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Generate heartbeat token (returned once to the TV via /status)
+      const heartbeatToken = crypto.randomUUID() + crypto.randomUUID().replace(/-/g, "");
+
+      const { error: updErr } = await supabase
+        .from("devices")
+        .update({
+          business_id: businessId,
+          location_id: locId,
+          screen_id: screen.id,
+          screen_name: finalName,
+          status: "paired",
+          paired_at: new Date().toISOString(),
+          heartbeat_token: heartbeatToken,
+        })
+        .eq("id", device.id);
+      if (updErr) {
+        await supabase.from("screens").delete().eq("id", screen.id);
+        await logAttempt(supabase, { ip, code: device_code, businessId, success: false, reason: "device_update_failed", ua });
+        return new Response(JSON.stringify({ error: updErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      await logAttempt(supabase, { ip, code: device_code, businessId, success: true, reason: "ok", ua });
+      return new Response(JSON.stringify({
+        device_id: device.id,
+        screen_id: screen.id,
+        business_id: businessId,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     // POST /pair-device/checkin — device heartbeat
     if (req.method === "POST" && path === "checkin") {

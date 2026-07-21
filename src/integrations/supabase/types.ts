@@ -248,13 +248,20 @@ export type Database = {
         Row: {
           app_version: string | null
           business_id: string
+          code_expires_at: string | null
+          code_source: string | null
           created_at: string
           device_code: string
           heartbeat_token: string | null
           id: string
+          ip: unknown
           last_seen_at: string | null
+          latitude: number | null
           location_id: string | null
+          longitude: number | null
+          network_type: string | null
           paired_at: string | null
+          resolution: string | null
           screen_id: string | null
           screen_name: string | null
           status: string
@@ -263,13 +270,20 @@ export type Database = {
         Insert: {
           app_version?: string | null
           business_id: string
+          code_expires_at?: string | null
+          code_source?: string | null
           created_at?: string
           device_code: string
           heartbeat_token?: string | null
           id?: string
+          ip?: unknown
           last_seen_at?: string | null
+          latitude?: number | null
           location_id?: string | null
+          longitude?: number | null
+          network_type?: string | null
           paired_at?: string | null
+          resolution?: string | null
           screen_id?: string | null
           screen_name?: string | null
           status?: string
@@ -278,13 +292,20 @@ export type Database = {
         Update: {
           app_version?: string | null
           business_id?: string
+          code_expires_at?: string | null
+          code_source?: string | null
           created_at?: string
           device_code?: string
           heartbeat_token?: string | null
           id?: string
+          ip?: unknown
           last_seen_at?: string | null
+          latitude?: number | null
           location_id?: string | null
+          longitude?: number | null
+          network_type?: string | null
           paired_at?: string | null
+          resolution?: string | null
           screen_id?: string | null
           screen_name?: string | null
           status?: string
@@ -582,6 +603,39 @@ export type Database = {
           name?: string
           thumbnail_url?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      pairing_attempts: {
+        Row: {
+          business_id_target: string | null
+          created_at: string
+          device_code_attempted: string | null
+          id: string
+          ip: unknown
+          reason: string | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          business_id_target?: string | null
+          created_at?: string
+          device_code_attempted?: string | null
+          id?: string
+          ip?: unknown
+          reason?: string | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          business_id_target?: string | null
+          created_at?: string
+          device_code_attempted?: string | null
+          id?: string
+          ip?: unknown
+          reason?: string | null
+          success?: boolean
+          user_agent?: string | null
         }
         Relationships: []
       }

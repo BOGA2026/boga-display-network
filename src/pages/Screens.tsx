@@ -48,6 +48,7 @@ import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
+import { PairDeviceModal } from "@/features/pairing";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -109,6 +110,7 @@ const Screens = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [subscriptionGateOpen, setSubscriptionGateOpen] = useState(false);
   const [limitGateOpen, setLimitGateOpen] = useState(false);
+  const [pairModalOpen, setPairModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -434,13 +436,23 @@ const Screens = () => {
           <h1 className="font-display text-2xl font-bold">Pantallas</h1>
           <p className="text-sm text-muted-foreground">Gestiona tus pantallas de señalización digital</p>
         </div>
-        <Button
-          onClick={handleAddScreenClick}
-          className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          <Plus className="h-4 w-4" />
-          Agregar pantalla
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setPairModalOpen(true)}
+            className="border-primary/30 text-primary hover:bg-primary/10 gap-2 px-4 py-2.5 text-sm font-medium"
+          >
+            <MonitorSmartphone className="h-4 w-4" />
+            Ya tengo la app en mi TV
+          </Button>
+          <Button
+            onClick={handleAddScreenClick}
+            className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            <Plus className="h-4 w-4" />
+            Agregar pantalla
+          </Button>
+        </div>
       </div>
 
       {/* Content */}
@@ -861,6 +873,13 @@ const Screens = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ─── PAIR EXISTING DEVICE MODAL ─── */}
+      <PairDeviceModal
+        open={pairModalOpen}
+        onOpenChange={setPairModalOpen}
+        onPaired={() => { setSuccessScreen("Pantalla"); fetchData(); }}
+      />
     </div>
   );
 };
