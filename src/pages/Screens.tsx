@@ -129,6 +129,29 @@ const Screens = () => {
     fetchData();
   }, []);
 
+  // Auto-advance: when the TV claims the pairing code, close sheet and celebrate.
+  useEffect(() => {
+    if (!generatedCode) return;
+    const channel = supabase
+      .channel(`pairing-${generatedCode}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "devices", filter: `device_code=eq.${generatedCode}` },
+        (payload) => {
+          const status = (payload.new as { status?: string })?.status;
+          if (status && status !== "pending") {
+            setSuccessScreen(screenName.trim());
+            setDialogOpen(false);
+            resetForm();
+            fetchData();
+          }
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generatedCode]);
+
   const fetchData = async () => {
     setLoading(true);
     const { data: user } = await supabase.auth.getUser();
