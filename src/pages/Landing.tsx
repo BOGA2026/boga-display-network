@@ -510,6 +510,9 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Client screens showcase (TV mockup) */}
+      <ClientScreensShowcase />
+
       {/* 2. SOCIAL PROOF */}
       <ClientLogosStrip />
 
