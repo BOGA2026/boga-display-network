@@ -114,6 +114,53 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          business_id: string | null
+          created_at: string
+          details: Json
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip: unknown
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          business_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip?: unknown
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          business_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip?: unknown
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_kits: {
         Row: {
           accent_color: string | null
@@ -2024,13 +2071,23 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      log_audit: {
+        Args: {
+          _action: string
+          _business_id: string
+          _details?: Json
+          _entity_id?: string
+          _entity_type?: string
+        }
+        Returns: string
+      }
       sweep_offline_devices: {
         Args: { _threshold_seconds?: number }
         Returns: number
       }
     }
     Enums: {
-      app_role: "admin" | "manager" | "content_editor"
+      app_role: "admin" | "manager" | "content_editor" | "owner" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2158,7 +2215,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "manager", "content_editor"],
+      app_role: ["admin", "manager", "content_editor", "owner", "viewer"],
     },
   },
 } as const
