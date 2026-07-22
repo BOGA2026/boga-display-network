@@ -815,7 +815,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 px-4 py-12 md:px-6">
+      <footer className="px-4 py-12 md:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-4">
             <div className="md:col-span-2">
