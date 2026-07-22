@@ -82,6 +82,16 @@ const RouteFallback = () => (
   </div>
 );
 
+// Rutas donde NO se renderizan las partículas (áreas de app privadas / pantallas full-screen).
+const PARTICLES_EXCLUDE_PREFIXES = ["/dashboard", "/admin", "/player", "/digital-signage", "/templates", "/tv"];
+
+const GlobalParticles = () => {
+  const { pathname } = useLocation();
+  const excluded = PARTICLES_EXCLUDE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (excluded) return null;
+  return <ParticlesBackground />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
