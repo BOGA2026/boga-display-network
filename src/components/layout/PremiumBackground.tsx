@@ -11,10 +11,7 @@ interface PremiumBackgroundProps {
 
 const PremiumBackground = ({ children, className = '' }: PremiumBackgroundProps) => {
   return (
-    <div
-      className={`relative min-h-screen ${className}`}
-      style={{ background: 'hsl(var(--background))' }}
-    >
+    <div className={`relative min-h-screen bg-transparent ${className}`}>
       <div className="relative z-10">{children}</div>
     </div>
   );
