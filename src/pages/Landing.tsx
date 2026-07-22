@@ -21,7 +21,7 @@ import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import WorkflowDemoModal from "@/components/landing/WorkflowDemoModal";
 import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
-import ClientLogosStrip from "@/components/landing/ClientLogosStrip";
+
 import ClientScreensShowcase from "@/components/landing/ClientScreensShowcase";
 import Testimonials from "@/components/landing/Testimonials";
 import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
@@ -517,8 +517,6 @@ const Landing = () => {
       {/* Client screens showcase (TV mockup) */}
       <ClientScreensShowcase />
 
-      {/* 2. SOCIAL PROOF */}
-      <ClientLogosStrip />
 
       <section className="px-4 py-16 md:px-6 md:py-20" aria-labelledby="video-explicativo-title">
         <div className="mx-auto max-w-5xl">
