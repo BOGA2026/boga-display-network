@@ -347,7 +347,7 @@ const Landing = () => {
 
 
       {/* 1. HERO */}
-      <section className="relative overflow-hidden px-4 pb-10 pt-24 md:px-6 md:pt-28" aria-labelledby="hero-title">
+      <section className="relative overflow-x-clip overflow-y-visible px-4 pb-10 pt-24 md:px-6 md:pt-28" aria-labelledby="hero-title">
         <div className="section-glow" aria-hidden="true" />
         {/* Aurora background */}
         <div className="hero-aurora" aria-hidden="true">
