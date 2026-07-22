@@ -11,11 +11,11 @@ type Slide = {
 };
 
 const SLIDES: Slide[] = [
-  { client: "La Esquina · Restaurante", src: combo1.url },
-  { client: "Bar Andino", src: combo2.url },
-  { client: "Panadería Doña Rosa", src: combo3.url },
-  { client: "GymFit", src: combo4.url },
-  { client: "Café Central", src: combo5.url },
+  { client: "El Carnal · Comida mexicana", src: combo1.url },
+  { client: "El Carnal · Comida mexicana", src: combo2.url },
+  { client: "El Carnal · Comida mexicana", src: combo3.url },
+  { client: "Mochisand", src: combo4.url },
+  { client: "Mochisand", src: combo5.url },
 ];
 
 const ROTATION_MS = 5000;
