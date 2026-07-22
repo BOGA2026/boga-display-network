@@ -207,6 +207,11 @@ const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasOpenedRef = useRef(false);
+
+  useEffect(() => {
+    if (open) hasOpenedRef.current = true;
+  }, [open]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
