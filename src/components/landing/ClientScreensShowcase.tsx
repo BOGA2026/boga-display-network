@@ -96,18 +96,17 @@ export default function ClientScreensShowcase() {
           <div
             className="relative rounded-[24px] border border-white/10 p-2 sm:p-3"
             style={{
-              background: "#0a0a0a",
               boxShadow:
-                "0 30px 80px -20px rgba(0,0,0,0.7), 0 12px 40px -12px rgba(82,39,255,0.25), inset 0 0 0 1px rgba(255,255,255,0.04)",
+                "0 30px 80px -20px rgba(0,0,0,0.35), 0 12px 40px -12px rgba(82,39,255,0.25), inset 0 0 0 1px rgba(255,255,255,0.04)",
             }}
           >
             <div
               className="relative overflow-hidden rounded-[16px]"
-              style={{ aspectRatio: "16 / 9", background: "#000" }}
+              style={{ aspectRatio: "16 / 9" }}
             >
               {SLIDES.map((slide, i) => (
                 <video
-                  key={slide.client}
+                  key={`${slide.client}-${i}`}
                   ref={(el) => (videoRefs.current[i] = el)}
                   src={slide.src}
                   muted
@@ -149,7 +148,7 @@ export default function ClientScreensShowcase() {
               const isActive = i === active;
               return (
                 <button
-                  key={s.client}
+                  key={`${s.client}-${i}`}
                   role="tab"
                   aria-selected={isActive}
                   aria-label={`Ver ${s.client}`}
