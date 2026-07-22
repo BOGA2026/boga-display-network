@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, MessageCircle, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { X, Send, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import ChatFloatingButton from "./ChatFloatingButton";
 import { z } from "zod";
 import { toast } from "sonner";
 import logoVisualia from "@/assets/simbolo-visualia.webp";
@@ -206,6 +207,11 @@ const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasOpenedRef = useRef(false);
+
+  useEffect(() => {
+    if (open) hasOpenedRef.current = true;
+  }, [open]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -319,17 +325,7 @@ const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
     <>
       {/* Floating icon button */}
       {!open && (
-        <button
-          onClick={() => onOpenChange(true)}
-          className="fixed bottom-5 right-5 z-[999] flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-110 sm:bottom-6 sm:right-6"
-          style={{
-            background: "linear-gradient(135deg, hsl(270 80% 55%), hsl(290 80% 50%))",
-            boxShadow: "0 0 24px 4px hsl(270 100% 50% / 0.35), 0 8px 24px -4px hsl(0 0% 0% / 0.4)",
-          }}
-          aria-label="Abrir chat con un experto"
-        >
-          <MessageCircle className="h-6 w-6 text-white" />
-        </button>
+        <ChatFloatingButton onClick={() => onOpenChange(true)} hasOpened={hasOpenedRef.current} />
       )}
 
       {/* Backdrop */}
