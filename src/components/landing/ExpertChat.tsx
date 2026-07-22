@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, MessageCircle, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { X, Send, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import ChatFloatingButton from "./ChatFloatingButton";
 import { z } from "zod";
 import { toast } from "sonner";
 import logoVisualia from "@/assets/simbolo-visualia.webp";
