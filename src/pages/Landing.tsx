@@ -787,7 +787,7 @@ const Landing = () => {
       <Faq />
 
       {/* 7. FINAL CTA */}
-      <section className="px-4 py-20 md:px-6 md:py-28 border-t border-border/40">
+      <section className="px-4 py-20 md:px-6 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-5xl">
             {HEADLINE.split(",")[0]},{" "}
