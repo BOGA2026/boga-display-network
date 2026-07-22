@@ -1,7 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
-import { ChevronDown, ChevronRight, Grid, Layers, Tag, Info, Monitor, Download } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Grid,
+  Layers,
+  Tag,
+  Info,
+  Monitor,
+  Download,
+  LayoutDashboard,
+  Palette,
+  UtensilsCrossed,
+  Stethoscope,
+  Building2,
+  LogIn,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { prefetchRoute } from "@/lib/prefetch";
 
@@ -10,17 +25,17 @@ const menuItems = [
     id: "productos" as const,
     label: "Productos",
     children: [
-      { label: "Panel de control", href: "/precios", disabled: false },
-      { label: "Crea tu contenido", href: "/studio", disabled: false },
+      { label: "Panel de control", href: "/precios", disabled: false, icon: LayoutDashboard },
+      { label: "Crea tu contenido", href: "/studio", disabled: false, icon: Palette },
     ],
   },
   {
     id: "soluciones" as const,
     label: "Soluciones",
     children: [
-      { label: "Restaurantes", href: "/soluciones/restaurantes", disabled: false },
-      { label: "Clínicas", href: "#", disabled: true },
-      { label: "Hoteles", href: "#", disabled: true },
+      { label: "Restaurantes", href: "/soluciones/restaurantes", disabled: false, icon: UtensilsCrossed },
+      { label: "Clínicas", href: "#", disabled: true, icon: Stethoscope },
+      { label: "Hoteles", href: "#", disabled: true, icon: Building2 },
     ],
   },
 ];
@@ -28,17 +43,26 @@ const menuItems = [
 const directLinks = [
   { label: "Precios", href: "/precios" },
   { label: "Acerca de Visualia", href: "/acerca" },
-  { label: "Vincula tu pantalla", href: "/descargar-apk" },
+  { label: "Vincula tu pantalla", href: "/descargar-apk", featured: true },
 ];
 
 type MenuId = (typeof menuItems)[number]["id"];
+
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+const SPRING = "cubic-bezier(0.34, 1.36, 0.64, 1)";
 
 const LandingHeader = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuId | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<MenuId | null>(null);
+  const [hoverPill, setHoverPill] = useState<{ left: number; width: number; visible: boolean }>({
+    left: 0,
+    width: 0,
+    visible: false,
+  });
   const headerRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const menuTriggersRef = useRef<Record<MenuId, HTMLButtonElement | null>>({
     productos: null,
@@ -77,14 +101,8 @@ const LandingHeader = () => {
   }, [activeMenu]);
 
   useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
   const openMenu = useCallback((id: MenuId) => {
@@ -103,237 +121,314 @@ const LandingHeader = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
+  const handleItemEnter = (el: HTMLElement) => {
+    if (!navRef.current) return;
+    const navRect = navRef.current.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    setHoverPill({
+      left: rect.left - navRect.left,
+      width: rect.width,
+      visible: true,
+    });
+  };
+
+  const handleNavLeave = () => setHoverPill((p) => ({ ...p, visible: false }));
+
   const pillLink =
-    "relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-medium transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)]";
+    "relative z-[1] inline-flex items-center rounded-full px-4 py-2 text-[14px] font-medium transition-colors duration-200 ease-out";
 
   return (
     <>
-    <header
-      ref={headerRef}
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        background: scrolled ? "rgba(6,0,16,0.92)" : "rgba(6,0,16,0.8)",
-        backdropFilter: "saturate(180%) blur(16px)",
-        WebkitBackdropFilter: "saturate(180%) blur(16px)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-      }}
-    >
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 lg:px-6 h-[60px] lg:h-[68px]">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center transition-transform duration-[250ms] hover:scale-105"
-        >
-          <img src={simboloVisualia} alt="Visualia" className="h-8 lg:h-9 w-auto" />
-        </Link>
+      <style>{`
+        @keyframes visualia-header-shine {
+          0% { transform: translateX(-120%) skewX(-20deg); }
+          100% { transform: translateX(220%) skewX(-20deg); }
+        }
+        .visualia-logo-shine { position: relative; overflow: hidden; }
+        .visualia-logo-shine::after {
+          content: "";
+          position: absolute; inset: 0;
+          background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+          transform: translateX(-120%) skewX(-20deg);
+          pointer-events: none;
+        }
+        .visualia-logo-shine:hover::after {
+          animation: visualia-header-shine 700ms ease-out;
+        }
+        @keyframes visualia-live-pulse-nav {
+          0%, 100% { transform: scale(1); opacity: 0.9; }
+          50% { transform: scale(1.6); opacity: 0.35; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .visualia-logo-shine:hover::after { animation: none; }
+          .visualia-live-ring { animation: none !important; }
+          .visualia-hover-pill { transition: opacity 150ms ease-out !important; }
+        }
+      `}</style>
 
-        {/* Desktop Nav — Pill container */}
-        <nav
-          className="hidden lg:flex items-center gap-1 rounded-full"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            padding: 6,
-          }}
-        >
-          {menuItems.map((item) => (
-            <div
-              key={item.id}
-              className="relative"
-              onMouseEnter={() => openMenu(item.id)}
-              onMouseLeave={closeMenu}
-            >
-              <button
-                ref={(el) => { menuTriggersRef.current[item.id] = el; }}
-                className={cn(
-                  pillLink,
-                  "gap-1",
-                  activeMenu === item.id
-                    ? "text-white"
-                    : "text-white/65 hover:text-white"
-                )}
-                style={
-                  activeMenu === item.id
-                    ? { background: "rgba(255,255,255,0.06)" }
-                    : undefined
-                }
-                onMouseEnter={(e) => {
-                  if (activeMenu !== item.id)
-                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-                }}
-                onMouseLeave={(e) => {
-                  if (activeMenu !== item.id)
-                    (e.currentTarget as HTMLElement).style.background = "";
-                }}
-                onClick={() => toggleMenu(item.id)}
-                aria-expanded={activeMenu === item.id}
-                aria-haspopup="true"
-              >
-                {item.label}
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-200",
-                    activeMenu === item.id && "rotate-180"
-                  )}
-                />
-              </button>
+      <header
+        ref={headerRef}
+        className="fixed top-0 left-0 right-0 z-50"
+        style={{
+          background: scrolled ? "rgba(6,0,16,0.75)" : "rgba(6,0,16,0.55)",
+          backdropFilter: "saturate(180%) blur(22px)",
+          WebkitBackdropFilter: "saturate(180%) blur(22px)",
+          borderBottom: scrolled ? "1px solid rgba(255,255,255,0.05)" : "1px solid transparent",
+          boxShadow: scrolled ? "0 8px 32px -12px rgba(0,0,0,0.5)" : "none",
+          transition: `background 250ms ${EASE}, border-color 250ms ${EASE}, box-shadow 250ms ${EASE}`,
+        }}
+      >
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 lg:px-6 h-[60px] lg:h-[68px]">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="visualia-logo-shine flex items-center rounded-md"
+            aria-label="Ir al inicio"
+          >
+            <img src={simboloVisualia} alt="Visualia" className="h-8 lg:h-9 w-auto" />
+          </Link>
 
+          {/* Desktop Nav — Pill container with sliding hover indicator */}
+          <nav
+            ref={navRef}
+            onMouseLeave={handleNavLeave}
+            className="hidden lg:flex relative items-center gap-0.5 rounded-full"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              padding: 5,
+            }}
+          >
+            {/* Sliding hover pill */}
+            <span
+              aria-hidden="true"
+              className="visualia-hover-pill absolute top-[5px] bottom-[5px] rounded-full pointer-events-none"
+              style={{
+                left: hoverPill.left,
+                width: hoverPill.width,
+                background: "rgba(255,255,255,0.08)",
+                opacity: hoverPill.visible ? 1 : 0,
+                transition: `left 320ms ${SPRING}, width 320ms ${SPRING}, opacity 200ms ease-out`,
+              }}
+            />
+
+            {menuItems.map((item) => (
               <div
-                className={cn(
-                  "absolute left-1/2 top-full -translate-x-1/2 pt-3 transition-all duration-200",
-                  activeMenu === item.id
-                    ? "pointer-events-auto opacity-100 translate-y-0"
-                    : "pointer-events-none opacity-0 -translate-y-1.5"
-                )}
+                key={item.id}
+                className="relative"
+                onMouseEnter={(e) => {
+                  openMenu(item.id);
+                  handleItemEnter(e.currentTarget);
+                }}
+                onMouseLeave={closeMenu}
               >
+                <button
+                  ref={(el) => { menuTriggersRef.current[item.id] = el; }}
+                  className={cn(
+                    pillLink,
+                    "gap-1",
+                    activeMenu === item.id ? "text-white" : "text-white/65 hover:text-white"
+                  )}
+                  onClick={() => toggleMenu(item.id)}
+                  aria-expanded={activeMenu === item.id}
+                  aria-haspopup="true"
+                >
+                  {item.label}
+                  <ChevronDown
+                    className="h-3.5 w-3.5"
+                    style={{
+                      transition: `transform 200ms ${EASE}`,
+                      transform: activeMenu === item.id ? "rotate(180deg)" : "rotate(0)",
+                    }}
+                  />
+                </button>
+
                 <div
-                  className="min-w-[240px] p-2"
+                  className="absolute left-1/2 top-full -translate-x-1/2 pt-3"
                   style={{
-                    background: "#0B0518",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 16,
-                    boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+                    opacity: activeMenu === item.id ? 1 : 0,
+                    transform: activeMenu === item.id
+                      ? "translate(-50%, 0)"
+                      : "translate(-50%, -6px)",
+                    pointerEvents: activeMenu === item.id ? "auto" : "none",
+                    transition: `opacity 200ms ${EASE}, transform 200ms ${EASE}`,
                   }}
                 >
-                  {item.children.map((child) =>
-                    child.disabled ? (
-                      <span
-                        key={child.label}
-                        className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm text-white/50 cursor-default"
-                      >
-                        {child.label}
+                  <div
+                    className="min-w-[260px] p-2"
+                    style={{
+                      background: "rgba(11, 5, 24, 0.85)",
+                      backdropFilter: "saturate(180%) blur(24px)",
+                      WebkitBackdropFilter: "saturate(180%) blur(24px)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 16,
+                      boxShadow: "0 20px 60px -10px rgba(0,0,0,0.7), 0 0 0 1px rgba(82,39,255,0.04)",
+                    }}
+                  >
+                    {item.children.map((child) => {
+                      const ChildIcon = child.icon;
+                      return child.disabled ? (
                         <span
-                          className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60"
-                          style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+                          key={child.label}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/45 cursor-default"
                         >
-                          Próximamente
+                          <ChildIcon className="h-4 w-4" />
+                          <span className="flex-1">{child.label}</span>
+                          <span
+                            className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60"
+                            style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+                          >
+                            Próximamente
+                          </span>
                         </span>
-                      </span>
-                    ) : (
-                      <Link
-                        key={child.label}
-                        to={child.href}
-                        onMouseEnter={(e) => {
-                          prefetchRoute(child.href);
-                          (e.currentTarget as HTMLElement).style.background = "rgba(82,39,255,0.12)";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "";
-                        }}
-                        onFocus={() => prefetchRoute(child.href)}
-                        className="block rounded-lg px-3 py-2 text-sm text-white/75 hover:text-white transition-colors"
-                      >
-                        {child.label}
-                      </Link>
-                    )
-                  )}
+                      ) : (
+                        <Link
+                          key={child.label}
+                          to={child.href}
+                          onMouseEnter={(e) => {
+                            prefetchRoute(child.href);
+                            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = "";
+                          }}
+                          onFocus={() => prefetchRoute(child.href)}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/75 hover:text-white"
+                          style={{ transition: `background 180ms ${EASE}, color 180ms ${EASE}` }}
+                        >
+                          <ChildIcon className="h-4 w-4" style={{ color: "#B19EEF" }} />
+                          <span>{child.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {directLinks.map((link) => {
-            const active = isActive(link.href);
-            return (
-              <Link
-                key={link.label}
-                to={link.href}
-                onMouseEnter={(e) => {
-                  prefetchRoute(link.href);
-                  if (!active)
-                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) (e.currentTarget as HTMLElement).style.background = "";
-                }}
-                onFocus={() => prefetchRoute(link.href)}
-                className={cn(pillLink, active ? "text-white" : "text-white/65 hover:text-white")}
-                style={active ? { background: "rgba(255,255,255,0.06)" } : undefined}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+            {directLinks.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  onMouseEnter={(e) => {
+                    prefetchRoute(link.href);
+                    handleItemEnter(e.currentTarget);
+                  }}
+                  onFocus={() => prefetchRoute(link.href)}
+                  className={cn(
+                    pillLink,
+                    "gap-1.5",
+                    active ? "text-white" : "text-white/65 hover:text-white"
+                  )}
+                >
+                  {link.featured && <Monitor className="h-3.5 w-3.5" style={{ color: "#B19EEF" }} />}
+                  <span className="relative">
+                    {link.label}
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-1/2 -translate-x-1/2 rounded-full"
+                        style={{
+                          bottom: -6,
+                          width: 3,
+                          height: 3,
+                          background: "linear-gradient(135deg, #7C3AED, #EC4899)",
+                          boxShadow: "0 0 6px rgba(236,72,153,0.7)",
+                        }}
+                      />
+                    )}
+                  </span>
+                  {link.featured && (
+                    <span className="relative inline-flex h-2 w-2" aria-hidden="true">
+                      <span
+                        className="visualia-live-ring absolute inline-flex h-full w-full rounded-full"
+                        style={{
+                          background: "hsl(158 80% 50%)",
+                          animation: "visualia-live-pulse-nav 2s ease-in-out infinite",
+                        }}
+                      />
+                      <span
+                        className="relative inline-flex h-2 w-2 rounded-full"
+                        style={{
+                          background: "hsl(158 85% 55%)",
+                          boxShadow: "0 0 6px hsl(158 90% 55% / 0.9)",
+                        }}
+                      />
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Right — Actions */}
-        <div className="hidden items-center gap-4 lg:flex">
-          <Link
-            to="/descargar-apk"
-            className="text-[14px] font-medium text-white/80 hover:text-white transition-colors"
-          >
-            Descargar app
-          </Link>
-          <Link
-            to="/login"
-            className="inline-flex items-center rounded-full font-semibold text-white transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03]"
-            style={{
-              background: "#5227FF",
-              padding: "10px 22px",
-              fontSize: 14,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 0 20px rgba(82,39,255,0.5)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.boxShadow = "";
-            }}
-          >
-            Entrar
-          </Link>
+          {/* Right — Actions */}
+          <div className="hidden items-center gap-2 lg:flex">
+            <Link
+              to="/descargar-apk"
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "";
+              }}
+              className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[14px] font-medium text-white/80 hover:text-white"
+              style={{ transition: `background 200ms ${EASE}, color 200ms ${EASE}` }}
+            >
+              <Download className="h-4 w-4" />
+              Descargar app
+            </Link>
+            <GradientCTA to="/login">
+              <LogIn className="h-4 w-4" />
+              Entrar
+            </GradientCTA>
+          </div>
+
+          {/* Mobile right cluster */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <GradientCTA to="/login" compact>Entrar</GradientCTA>
+            <button
+              className="mobile-hamburger relative inline-flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={mobileOpen}
+            >
+              <span className={cn("hamburger-line hamburger-line-top", mobileOpen && "is-open")} />
+              <span className={cn("hamburger-line hamburger-line-bottom", mobileOpen && "is-open")} />
+            </button>
+          </div>
         </div>
+      </header>
 
-        {/* Mobile right cluster */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <Link
-            to="/login"
-            className="inline-flex items-center rounded-full font-semibold text-white transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-[0.97]"
-            style={{
-              background: "#5227FF",
-              padding: "8px 16px",
-              fontSize: 13,
-              boxShadow: "0 0 16px rgba(82,39,255,0.35)",
-            }}
-          >
-            Entrar
-          </Link>
-          <button
-            className="mobile-hamburger relative inline-flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-            }}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={mobileOpen}
-          >
-            <span className={cn("hamburger-line hamburger-line-top", mobileOpen && "is-open")} />
-            <span className={cn("hamburger-line hamburger-line-bottom", mobileOpen && "is-open")} />
-          </button>
-        </div>
-      </div>
-    </header>
-
-    {/* Mobile fullscreen panel — rendered outside the header so `fixed` positions against the viewport (header's backdrop-filter creates a containing block that would clip it) */}
-    <div
-      className={cn(
-        "lg:hidden fixed inset-0 top-[60px] z-40",
-        mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
-      )}
-      style={{ background: "#060010" }}
-      aria-hidden={!mobileOpen}
-    >
-        {/* Radial violet glow — top right */}
+      {/* Mobile fullscreen panel */}
+      <div
+        className={cn(
+          "lg:hidden fixed inset-0 top-[60px] z-40",
+          mobileOpen ? "mobile-panel-in pointer-events-auto" : "mobile-panel-out pointer-events-none"
+        )}
+        style={{
+          background: "rgba(6,0,16,0.92)",
+          backdropFilter: "saturate(180%) blur(24px)",
+          WebkitBackdropFilter: "saturate(180%) blur(24px)",
+        }}
+        aria-hidden={!mobileOpen}
+      >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute right-[-80px] top-[-80px] h-[360px] w-[360px]"
           style={{
-            background:
-              "radial-gradient(circle, rgba(82,39,255,0.15) 0%, rgba(82,39,255,0) 70%)",
-            filter: "blur(130px)",
+            background: "radial-gradient(circle, rgba(124,58,237,0.2) 0%, rgba(236,72,153,0.05) 60%, transparent 100%)",
+            filter: "blur(120px)",
           }}
         />
-        <div className="relative h-full overflow-y-auto pt-4 pb-8">
+        <div className="relative flex h-full flex-col overflow-y-auto pt-4 pb-8">
           {(() => {
             const menuIcons: Record<string, typeof Grid> = {
               productos: Grid,
@@ -348,7 +443,7 @@ const LandingHeader = () => {
               "mobile-nav-card flex w-full items-center gap-3 rounded-2xl text-left text-white transition-colors";
             const cardStyle: React.CSSProperties = {
               background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.08)",
               padding: "18px 20px",
               fontSize: 18,
               fontWeight: 600,
@@ -357,17 +452,17 @@ const LandingHeader = () => {
               width: 36,
               height: 36,
               borderRadius: 10,
-              background: "rgba(82,39,255,0.15)",
+              background: "rgba(124,58,237,0.15)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             };
             let staggerIdx = 0;
-            const nextDelay = () => `${staggerIdx++ * 70}ms`;
+            const nextDelay = () => `${staggerIdx++ * 40}ms`;
 
             return (
-              <div className="flex flex-col gap-[10px] px-5">
+              <div className="flex flex-1 flex-col gap-[10px] px-5">
                 {menuItems.map((item) => {
                   const Icon = menuIcons[item.id] ?? Grid;
                   const expanded = mobileExpanded === item.id;
@@ -380,9 +475,7 @@ const LandingHeader = () => {
                       <button
                         className={cardBase}
                         style={cardStyle}
-                        onClick={() =>
-                          setMobileExpanded(expanded ? null : item.id)
-                        }
+                        onClick={() => setMobileExpanded(expanded ? null : item.id)}
                         aria-expanded={expanded}
                       >
                         <span style={iconWrap}>
@@ -390,10 +483,7 @@ const LandingHeader = () => {
                         </span>
                         <span className="flex-1">{item.label}</span>
                         <ChevronDown
-                          className={cn(
-                            "h-5 w-5 transition-transform",
-                            expanded && "rotate-180"
-                          )}
+                          className={cn("h-5 w-5 transition-transform", expanded && "rotate-180")}
                           style={{ color: "rgba(255,255,255,0.4)" }}
                         />
                       </button>
@@ -403,10 +493,7 @@ const LandingHeader = () => {
                           expanded ? "max-h-96 opacity-100 mt-[6px]" : "max-h-0 opacity-0"
                         )}
                       >
-                        <div
-                          className="flex flex-col gap-1 rounded-2xl p-2"
-                          style={{ background: "rgba(255,255,255,0.03)" }}
-                        >
+                        <div className="flex flex-col gap-1 rounded-2xl p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
                           {item.children.map((child) =>
                             child.disabled ? (
                               <span
@@ -447,88 +534,119 @@ const LandingHeader = () => {
                       key={link.label}
                       to={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        cardBase,
-                        "mobile-stagger",
-                        mobileOpen && "mobile-stagger-in"
-                      )}
+                      className={cn(cardBase, "mobile-stagger", mobileOpen && "mobile-stagger-in")}
                       style={{ ...cardStyle, animationDelay: nextDelay() }}
                     >
                       <span style={iconWrap}>
                         <Icon size={18} color="#B19EEF" />
                       </span>
                       <span className="flex-1">{link.label}</span>
-                      <ChevronRight
-                        className="h-5 w-5"
-                        style={{ color: "rgba(255,255,255,0.4)" }}
-                      />
+                      {link.featured && (
+                        <span className="relative inline-flex h-2.5 w-2.5" aria-hidden="true">
+                          <span
+                            className="visualia-live-ring absolute inline-flex h-full w-full rounded-full"
+                            style={{
+                              background: "hsl(158 80% 50%)",
+                              animation: "visualia-live-pulse-nav 2s ease-in-out infinite",
+                            }}
+                          />
+                          <span
+                            className="relative inline-flex h-2.5 w-2.5 rounded-full"
+                            style={{ background: "hsl(158 85% 55%)" }}
+                          />
+                        </span>
+                      )}
+                      <ChevronRight className="h-5 w-5" style={{ color: "rgba(255,255,255,0.4)" }} />
                     </Link>
                   );
                 })}
 
-                {/* Descargar app — featured card with gradient border */}
-                <div
-                  className={cn("mobile-stagger mt-4", mobileOpen && "mobile-stagger-in")}
-                  style={{ animationDelay: nextDelay() }}
-                >
+                {/* Bottom actions — full width */}
+                <div className="mt-auto flex flex-col gap-3 pt-6">
                   <div
-                    style={{
-                      borderRadius: 18,
-                      padding: 1,
-                      background:
-                        "linear-gradient(135deg, #5227FF 0%, #B19EEF 100%)",
-                    }}
+                    className={cn("mobile-stagger", mobileOpen && "mobile-stagger-in")}
+                    style={{ animationDelay: nextDelay() }}
                   >
                     <Link
                       to="/descargar-apk"
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 text-left text-white"
+                      className="flex w-full items-center justify-center gap-2 rounded-full font-semibold text-white"
                       style={{
-                        background: "#0B0518",
-                        borderRadius: 17,
-                        padding: "18px 20px",
-                        fontSize: 18,
-                        fontWeight: 600,
+                        height: 52,
+                        fontSize: 16,
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.12)",
                       }}
                     >
-                      <span style={iconWrap}>
-                        <Download size={18} color="#B19EEF" />
-                      </span>
-                      <span className="flex-1">Descargar app</span>
-                      <ChevronRight
-                        className="h-5 w-5"
-                        style={{ color: "rgba(255,255,255,0.4)" }}
-                      />
+                      <Download className="h-4 w-4" />
+                      Descargar app
                     </Link>
                   </div>
-                </div>
-
-                <div
-                  className={cn("mobile-stagger mt-2", mobileOpen && "mobile-stagger-in")}
-                  style={{ animationDelay: nextDelay() }}
-                >
-                  <Link
-                    to="/register"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex w-full items-center justify-center rounded-full font-semibold text-white transition-transform active:scale-[0.98]"
-                    style={{
-                      background: "#5227FF",
-                      height: 52,
-                      fontSize: 16,
-                      boxShadow: "0 0 24px rgba(82,39,255,0.4)",
-                    }}
+                  <div
+                    className={cn("mobile-stagger", mobileOpen && "mobile-stagger-in")}
+                    style={{ animationDelay: nextDelay() }}
                   >
-                    Crea tu cuenta gratis
-                  </Link>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex w-full items-center justify-center gap-2 rounded-full font-semibold text-white transition-transform active:scale-[0.97]"
+                      style={{
+                        height: 52,
+                        fontSize: 16,
+                        background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
+                        boxShadow: "0 0 28px rgba(168,85,247,0.45), 0 8px 24px -6px rgba(236,72,153,0.35)",
+                      }}
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Entrar
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
           })()}
         </div>
-    </div>
+      </div>
     </>
   );
 };
 
-export default LandingHeader;
+/* Gradient CTA button — Entrar */
+const GradientCTA = ({
+  to,
+  children,
+  compact = false,
+}: {
+  to: string;
+  children: React.ReactNode;
+  compact?: boolean;
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  return (
+    <Link
+      to={to}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setPressed(false); }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      onTouchStart={() => setPressed(true)}
+      onTouchEnd={() => setPressed(false)}
+      className="inline-flex items-center gap-1.5 rounded-full font-semibold text-white"
+      style={{
+        background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)",
+        padding: compact ? "8px 16px" : "10px 22px",
+        fontSize: compact ? 13 : 14,
+        transform: `scale(${pressed ? 0.97 : hovered ? 1.04 : 1})`,
+        boxShadow: hovered
+          ? "0 0 34px rgba(168,85,247,0.65), 0 0 12px rgba(236,72,153,0.5), 0 6px 20px -4px rgba(124,58,237,0.5)"
+          : "0 0 20px rgba(168,85,247,0.35), 0 4px 14px -4px rgba(124,58,237,0.4)",
+        transition: `transform 200ms ${EASE}, box-shadow 250ms ${EASE}`,
+      }}
+    >
+      {children}
+    </Link>
+  );
+};
 
+export default LandingHeader;
