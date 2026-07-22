@@ -697,7 +697,7 @@ const Landing = () => {
 
 
       {/* 5. PRICING */}
-      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24">
         <div className="section-glow" aria-hidden="true" />
         <div className="relative z-10 mx-auto max-w-6xl">
           <div className="mb-10 text-center">
