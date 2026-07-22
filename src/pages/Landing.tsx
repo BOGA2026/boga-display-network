@@ -601,7 +601,7 @@ const Landing = () => {
       </section>
 
       {/* 4. HOW IT WORKS — connected glass cards */}
-      <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+      <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
             <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
