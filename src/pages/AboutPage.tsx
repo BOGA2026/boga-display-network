@@ -104,7 +104,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen" style={{ background: "hsl(260 30% 6%)" }}>
+    <div className="min-h-screen">
       <Seo
         title="Acerca de Visualia | Menús digitales para negocios en Colombia"
         description="Conoce Visualia: plataforma colombiana de menús digitales y cartelería para restaurantes y comercios. Nuestra misión, equipo y respuestas frecuentes."
