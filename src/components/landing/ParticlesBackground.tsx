@@ -172,7 +172,7 @@ const ParticlesBackground = () => {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full"
+      className="pointer-events-none fixed inset-0 h-screen w-screen"
       style={{ zIndex: 0 }}
     />
   );
