@@ -342,6 +342,7 @@ const Landing = () => {
         path="/"
       />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
+      <ParticlesBackground />
       <LandingHeader />
 
 
@@ -352,7 +353,7 @@ const Landing = () => {
         <div className="hero-aurora" aria-hidden="true">
           <div className="hero-aurora-3" />
         </div>
-        <ParticlesBackground />
+
 
         <div className="relative z-10 mx-auto max-w-5xl text-center">
           <h1
