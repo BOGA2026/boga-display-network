@@ -50,7 +50,7 @@ export function Faq() {
       </Helmet>
       <section
         id="faq"
-        className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40"
+        className="px-4 py-16 md:px-6 md:py-24"
         aria-labelledby="faq-title"
       >
         <div className="mx-auto max-w-3xl">
