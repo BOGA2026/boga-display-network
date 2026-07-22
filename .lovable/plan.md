@@ -1,75 +1,29 @@
+## Objetivo
+Agregar un fondo animado de partículas flotantes (estilo reactbits.dev) detrás del hero de la landing, sin tocar textos ni otras secciones.
 
-## Nueva sección: "Así se ven las pantallas de nuestros clientes"
+## Archivos
+1. **Nuevo:** `src/components/landing/ParticlesBackground.tsx` — componente canvas standalone.
+2. **Editar:** `src/pages/Landing.tsx` — insertar el componente dentro del contenedor del hero (posición absoluta, detrás del contenido). Solo se agrega el nuevo elemento; no se toca copy ni layout existente.
 
-Se agrega una sección aislada debajo del hero en `src/pages/Landing.tsx`, sin tocar nada existente.
+## Detalles técnicos de `ParticlesBackground`
 
-### Archivos
+- `<canvas>` con `position: absolute; inset: 0; z-index: 0; pointer-events: none`. El contenido del hero se asegura con `position: relative; z-index: 1`.
+- Al montar: crear ~150 partículas con `{x, y, vx, vy, r (1–2.5px), phase (para opacidad), noiseSeed}`.
+- Loop con `requestAnimationFrame`:
+  - Actualizar posición: `x += vx + sin(t * 0.001 + seed) * 0.15` (mismo para y con cos) → deriva ondulante.
+  - Wrap-around en los 4 bordes.
+  - Opacidad respirando: `0.2 + (sin(t*0.0008 + phase)+1)/2 * 0.4` → rango 0.2–0.6.
+  - Interacción mouse: si `dist < 120px` → aplicar vector de repulsión suave (`vx += dx/dist * force`, con damping para volver a la deriva base), pintar en verde esmeralda (`#10b981`) y aumentar radio ~1.5x. Fuera del radio, color base gris cálido (`stone-400` `#a8a29e`).
+- Listeners: `mousemove` en el canvas (rect-relative), `resize` en window para recalcular `canvas.width/height` × `devicePixelRatio`.
+- Cleanup: `cancelAnimationFrame` + remover listeners al desmontar.
+- `prefers-reduced-motion`: si activo, pintar una sola vez las partículas estáticas y no arrancar el loop.
+- Tema: el proyecto es dark-only (según `index.css`), así que uso stone-500 (`#78716c`) como color base y verde esmeralda como acento del cursor. Sin lógica de tema dinámico.
 
-**Nuevo:** `src/components/landing/ClientScreensShowcase.tsx`
-- Componente autónomo con el encabezado, TV mockup y dots.
-- Sin dependencias externas nuevas.
+## Integración en Landing
+- Localizar el bloque del hero en `src/pages/Landing.tsx` (contenedor que ya tiene `hero-aurora`).
+- Insertar `<ParticlesBackground />` como primer hijo del contenedor relativo, antes del contenido, dejando la aurora existente intacta. Si el contenido no tiene `z-index`, agregar `relative z-10` al wrapper del texto (solo si es necesario para legibilidad).
+- Opcional: pequeño gradiente radial detrás del H1 solo si la lectura se ve afectada (evaluar visualmente).
 
-**Modificado:** `src/pages/Landing.tsx`
-- Importar `ClientScreensShowcase` y renderizarlo inmediatamente después del `<section>` del hero. Ningún otro cambio.
-
-### Estructura del componente
-
-```
-<section> (con reveal-on-scroll fade-up al entrar en viewport via IntersectionObserver)
-  <header centrado>
-    <h2>Así se ven las pantallas de nuestros clientes</h2>
-    <p>Menús, promos y precios que se actualizan solos, a la hora exacta.</p>
-  </header>
-
-  <div class="tv-frame">   // marco negro, rounded-[24px], border, shadow multicapa, max-w-[900px], aspect-video, mx-auto
-    <div class="tv-screen"> // inset, rounded-[16px], overflow-hidden, relative
-      {SLIDES.map(s => (
-        <div style={{opacity: i===active?1:0, transition:'opacity 500ms ease'}} className="absolute inset-0 ...gradiente...">
-          {contenido tipográfico de la cartelera}
-        </div>
-      ))}
-
-      <BadgeEnVivo />   // top-right: punto verde con animate-pulse + texto "EN VIVO", glass chip
-      <ClienteChip />   // bottom-left: nombre del cliente activo, glass chip
-    </div>
-  </div>
-
-  <Dots />  // 4 puntos; el activo verde esmeralda w-6 rounded-full pill, otros grises w-1.5
-</section>
-```
-
-### Datos (constante interna)
-
-```ts
-const SLIDES = [
-  { client: "La Esquina · Restaurante", bg: "from-amber-400 via-orange-500 to-orange-700",
-    render: menú almuerzo con 3 platos (Bandeja paisa $28.000, ...) },
-  { client: "Bar Andino", bg: "from-violet-700 via-fuchsia-700 to-purple-900",
-    render: "HAPPY HOUR 2×1" grande + "Todos los días · 5 a 8 p.m." },
-  { client: "Panadería Doña Rosa", bg: "from-amber-100 via-orange-200 to-amber-800",
-    render: "PAN RECIÉN HORNEADO" + "Croissant + café $9.900" },
-  { client: "GymFit", bg: "from-emerald-400 via-teal-500 to-emerald-800",
-    render: "PLAN TRIMESTRE −30%" + "Solo esta semana" },
-];
-```
-
-Cada slide se compone 100% en CSS/tipografía (sin imágenes). Uso de `bg-gradient-to-br`, tipografías grandes (`text-5xl`/`text-7xl`), tracking ajustado, y filas simples para los precios del restaurante.
-
-### Rotación
-
-- `useState` para `active` (0..3).
-- `useEffect` con `setInterval` de 3500ms → `active = (active+1) % 4`.
-- Se pausa cuando `document.hidden` (limpieza estándar del interval al desmontar).
-- Respeta `prefers-reduced-motion`: si está activo, no rota (queda fijo en slide 0) y sin pulso.
-
-### Estilos
-
-- Solo Tailwind + tokens existentes. Verde esmeralda (`emerald-500`) SOLO para el punto de "EN VIVO" y el dot activo.
-- Marco TV: `bg-black`, `border border-white/10`, `shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6),0_10px_30px_-10px_rgba(82,39,255,0.25)]`, `p-2 sm:p-3`.
-- Reveal: clase `reveal-on-scroll` (ya existe en `index.css`) con IntersectionObserver que agrega `is-visible`.
-- Responsive: `max-w-[900px] w-full px-4 sm:px-6`, tipografías con `clamp` o breakpoints `sm:`/`md:`.
-
-### Fuera de alcance
-
-- No se modifica el hero ni ninguna otra sección.
-- No se agregan imágenes, dependencias, ni tokens de diseño nuevos.
+## Fuera de alcance
+- No se modifica ningún texto, botón, video ni otra sección.
+- No se agrega toggle ni configuración.
