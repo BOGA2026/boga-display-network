@@ -341,7 +341,6 @@ const Landing = () => {
         path="/"
       />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
-      <ParticlesBackground />
       <LandingHeader />
 
 
