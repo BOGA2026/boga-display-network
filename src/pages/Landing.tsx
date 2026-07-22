@@ -24,7 +24,6 @@ import PremiumBackground from "@/components/layout/PremiumBackground";
 
 import ClientScreensShowcase from "@/components/landing/ClientScreensShowcase";
 import Testimonials from "@/components/landing/Testimonials";
-import WhatsAppFloatingButton from "@/components/landing/WhatsAppFloatingButton";
 import {
   ArrowRight,
   Star,
@@ -880,7 +879,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <WhatsAppFloatingButton />
+      
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
       <WorkflowDemoModal open={workflowOpen} onClose={() => setWorkflowOpen(false)} />
