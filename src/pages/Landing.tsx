@@ -394,7 +394,11 @@ const Landing = () => {
           {/* Product mockup: hero video */}
           <div
             id="demo"
-            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative border border-border shadow-lg scroll-mt-24"
+            className="mx-auto mt-10 w-full overflow-hidden rounded-2xl relative scroll-mt-24"
+            style={{
+              boxShadow:
+                "0 30px 80px -20px rgba(0,0,0,0.35), 0 12px 40px -12px rgba(82,39,255,0.28), inset 0 0 0 1px rgba(255,255,255,0.06)",
+            }}
           >
 
             {videoFailed && (
