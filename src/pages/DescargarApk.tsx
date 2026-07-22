@@ -63,7 +63,7 @@ export default function DescargarApk() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground">
       <Seo
         title="Instalar Visualia en tu TV | Android TV, Google TV y Fire TV"
         description="Instalá Visualia en tu Smart TV en menos de 5 minutos. Guía paso a paso, app oficial verificada y soporte humano para dueños de restaurantes."
