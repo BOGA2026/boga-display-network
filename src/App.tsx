@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Landing from "./pages/Landing";
+import ParticlesBackground from "./components/landing/ParticlesBackground";
 import NotFound from "./pages/NotFound";
 // Layouts se importan eager para que el "chrome" (sidebar + topbar) sea
 // PERSISTENTE entre rutas hijas. Así, al navegar dentro del dashboard, sólo
@@ -81,12 +82,23 @@ const RouteFallback = () => (
   </div>
 );
 
+// Rutas donde NO se renderizan las partículas (áreas de app privadas / pantallas full-screen).
+const PARTICLES_EXCLUDE_PREFIXES = ["/dashboard", "/admin", "/player", "/digital-signage", "/templates", "/tv"];
+
+const GlobalParticles = () => {
+  const { pathname } = useLocation();
+  const excluded = PARTICLES_EXCLUDE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (excluded) return null;
+  return <ParticlesBackground />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <GlobalParticles />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />

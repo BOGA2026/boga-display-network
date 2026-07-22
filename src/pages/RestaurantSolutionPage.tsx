@@ -9,7 +9,7 @@ const RestaurantSolutionPage = () => {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen" style={{ background: "hsl(var(--background))" }}>
+    <div className="relative min-h-screen">
       <Seo
         title="Menús digitales para restaurantes | Visualia"
         description="Convierte las pantallas de tu restaurante en menús digitales dinámicos: cambia precios, programa horarios y aumenta ventas. Solución probada en Colombia."
