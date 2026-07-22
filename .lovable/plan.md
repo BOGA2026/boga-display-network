@@ -1,28 +1,20 @@
-## Problema
+## Plan: Arreglar el corte visual del mockup de TV
 
-Al volver transparentes las secciones sobre la capa de partículas, los `border-t border-border/40` que separaban cada bloque quedaron visibles como líneas horizontales flotando sobre el canvas. Ese borde antes no se notaba porque cada sección tenía fondo opaco propio.
+### Objetivo
+Eliminar el fondo negro sólido del contenedor del video/mockup para que flote directamente sobre la capa de partículas y el glow morado del fondo, sin líneas de corte rectas.
 
-## Causa confirmada
+### Archivo a modificar
+- `src/components/landing/ClientScreensShowcase.tsx`
 
-Grep sobre `src/pages/Landing.tsx` y `src/components/landing/*` muestra que las líneas provienen de un `border-t border-border/40` aplicado directamente al `<section>` / `<footer>` de cada bloque de la landing pública:
+### Cambios concretos
+1. **Quitar el fondo sólido del marco exterior** (actualmente `background: #0a0a0a` en el div redondeado con `border border-white/10`). Dejarlo transparente o con fondo semitransparente (`bg-black/20` o similar) para que el video se integre con el fondo animado.
 
-- `src/pages/Landing.tsx:604` — sección "Cómo funciona"
-- `src/pages/Landing.tsx:700` — sección "Precios"
-- `src/pages/Landing.tsx:790` — sección CTA final
-- `src/pages/Landing.tsx:818` — `<footer>`
-- `src/components/landing/Testimonials.tsx:33` — sección testimonios
-- `src/components/Faq.tsx:53` — sección FAQ
-- `src/components/landing/LegalFooter.tsx:8` — footer legal
+2. **Quitar el fondo negro sólido del contenedor interno del video** (actualmente `background: #000` en el div con `aspectRatio: 16/9`). Si se necesita un marco oscuro, reemplazarlo por un gradiente radial que se desvanezca hacia los bordes, en lugar de un rectángulo sólido.
 
-El `ParticlesBackground` ya es un único canvas `fixed` global (verificado en el turno anterior), así que no hay canvas apilados. Ninguna sección de la landing tiene fondo opaco propio — solo cards internos, que sí deben conservar su borde.
+3. **Mantener lo que sí funciona**: esquinas redondeadas (`rounded-[24px]` / `rounded-[16px]`), el padding, el glow/box-shadow, y el badge "En vivo". No se tocan textos, espaciados, lógica de rotación de videos ni interacciones.
 
-## Cambios
+4. **Verificar legibilidad del video**: si al quitar el fondo oscuro el video pierde contraste con la página, se ajusta el gradiente radial para oscurecer ligeramente el área del video sin crear un borde recto.
 
-1. **Eliminar el `border-t border-border/40`** de los `<section>` / `<footer>` listados arriba. No tocar `padding`, `margin`, ni ninguna otra clase.
-2. **Conservar** los bordes internos de tarjetas, diálogos, mockups, calculadora, `GrowthBenefits` (divisor interno de tarjeta), y el `border-t` interno del bloque legal dentro del footer (`Landing.tsx:869`) — ese separa contenido dentro del mismo bloque, no dos secciones.
-3. No modificar textos, espaciados, componentes, ni el canvas de partículas.
-
-## Verificación
-
-- Repaso visual con Playwright (screenshots top-to-bottom del landing en `/`) confirmando que no queda ninguna línea horizontal entre secciones sobre las partículas.
-- Verificar que tarjetas, mockup de TV y calculadora conservan sus bordes propios.
+### Verificación
+- Ejecutar `bun run build` o `tsgo` para confirmar que no hay errores de tipo.
+- Revisar visualmente en el preview que el mockup ya no presente la línea de corte negra arriba/abajo.
