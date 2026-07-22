@@ -53,6 +53,7 @@ import destacaPromociones from "@/assets/destaca-promociones.mp4";
 import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
 import vendeMasRapido from "@/assets/vende-mas-rapido.mp4";
 import vendeMasRapidoWebm from "@/assets/vende-mas-rapido.webm";
+import ParticlesBackground from "@/components/landing/ParticlesBackground";
 
 
 // ---------- Content ----------
