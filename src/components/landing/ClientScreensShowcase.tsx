@@ -1,106 +1,30 @@
 import { useEffect, useRef, useState } from "react";
+import combo1 from "@/assets/combo1.mp4.asset.json";
+import combo2 from "@/assets/combo2.mp4.asset.json";
+import combo3 from "@/assets/combo3.mp4.asset.json";
+import combo4 from "@/assets/combo4.mp4.asset.json";
+import combo5 from "@/assets/combo5.mp4.asset.json";
 
 type Slide = {
   client: string;
-  gradient: string;
-  render: React.ReactNode;
+  src: string;
 };
 
 const SLIDES: Slide[] = [
-  {
-    client: "La Esquina · Restaurante",
-    gradient: "linear-gradient(135deg, #f59e0b 0%, #ea580c 55%, #9a3412 100%)",
-    render: (
-      <div className="flex h-full w-full flex-col justify-center px-[6%] text-white">
-        <p className="text-[clamp(10px,1.2vw,14px)] font-medium uppercase tracking-[0.3em] opacity-80">
-          Hoy · Almuerzo
-        </p>
-        <h3 className="mt-2 font-display text-[clamp(28px,5.2vw,64px)] font-bold leading-none tracking-tight">
-          MENÚ ALMUERZO
-        </h3>
-        <div className="mt-[clamp(12px,2.5vw,28px)] space-y-[clamp(6px,1.2vw,14px)] text-[clamp(13px,1.9vw,22px)]">
-          {[
-            ["Bandeja paisa", "$28.000"],
-            ["Ajiaco santafereño", "$26.000"],
-            ["Pechuga a la plancha", "$24.000"],
-          ].map(([name, price]) => (
-            <div key={name} className="flex items-baseline justify-between gap-6 border-b border-white/20 pb-[clamp(4px,0.8vw,8px)]">
-              <span className="font-medium">{name}</span>
-              <span className="font-semibold tabular-nums">{price}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    client: "Bar Andino",
-    gradient: "linear-gradient(135deg, #4c1d95 0%, #a21caf 55%, #3b0764 100%)",
-    render: (
-      <div className="flex h-full w-full flex-col items-center justify-center px-[6%] text-center text-white">
-        <p className="text-[clamp(10px,1.3vw,14px)] font-semibold uppercase tracking-[0.4em] opacity-80">
-          Bar Andino
-        </p>
-        <h3 className="mt-3 font-display text-[clamp(48px,10vw,140px)] font-black leading-none tracking-tight">
-          HAPPY HOUR
-        </h3>
-        <p className="mt-1 font-display text-[clamp(56px,11vw,160px)] font-black leading-none tracking-tight text-fuchsia-200">
-          2×1
-        </p>
-        <p className="mt-[clamp(10px,2vw,22px)] text-[clamp(13px,1.9vw,22px)] opacity-90">
-          Todos los días · 5 a 8 p.m.
-        </p>
-      </div>
-    ),
-  },
-  {
-    client: "Panadería Doña Rosa",
-    gradient: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 45%, #78350f 100%)",
-    render: (
-      <div className="flex h-full w-full flex-col justify-center px-[6%] text-[#3b1f05]">
-        <p className="text-[clamp(10px,1.2vw,14px)] font-semibold uppercase tracking-[0.35em] opacity-70">
-          Panadería Doña Rosa
-        </p>
-        <h3 className="mt-3 font-display text-[clamp(30px,5.6vw,72px)] font-black leading-[0.95] tracking-tight">
-          PAN RECIÉN
-          <br />
-          HORNEADO
-        </h3>
-        <p className="mt-[clamp(10px,2vw,20px)] text-[clamp(14px,2vw,24px)] font-medium">
-          Croissant + café{" "}
-          <span className="font-bold">$9.900</span>
-        </p>
-      </div>
-    ),
-  },
-  {
-    client: "GymFit",
-    gradient: "linear-gradient(135deg, #34d399 0%, #0d9488 55%, #064e3b 100%)",
-    render: (
-      <div className="flex h-full w-full flex-col items-center justify-center px-[6%] text-center text-white">
-        <p className="text-[clamp(10px,1.2vw,14px)] font-semibold uppercase tracking-[0.4em] opacity-80">
-          GymFit
-        </p>
-        <h3 className="mt-3 font-display text-[clamp(30px,5.8vw,76px)] font-black leading-none tracking-tight">
-          PLAN TRIMESTRE
-        </h3>
-        <p className="mt-2 font-display text-[clamp(72px,14vw,180px)] font-black leading-none tracking-tighter">
-          −30%
-        </p>
-        <p className="mt-[clamp(8px,1.6vw,18px)] text-[clamp(13px,1.9vw,22px)] opacity-90">
-          Solo esta semana
-        </p>
-      </div>
-    ),
-  },
+  { client: "La Esquina · Restaurante", src: combo1.url },
+  { client: "Bar Andino", src: combo2.url },
+  { client: "Panadería Doña Rosa", src: combo3.url },
+  { client: "GymFit", src: combo4.url },
+  { client: "Café Central", src: combo5.url },
 ];
 
-const ROTATION_MS = 3500;
+const ROTATION_MS = 5000;
 
 export default function ClientScreensShowcase() {
   const [active, setActive] = useState(0);
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -129,6 +53,19 @@ export default function ClientScreensShowcase() {
     }, ROTATION_MS);
     return () => window.clearInterval(id);
   }, []);
+
+  // Play only the active video, pause others
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === active) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, [active]);
 
   return (
     <section
@@ -169,18 +106,21 @@ export default function ClientScreensShowcase() {
               style={{ aspectRatio: "16 / 9", background: "#000" }}
             >
               {SLIDES.map((slide, i) => (
-                <div
+                <video
                   key={slide.client}
+                  ref={(el) => (videoRefs.current[i] = el)}
+                  src={slide.src}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
                   aria-hidden={i !== active}
-                  className="absolute inset-0"
+                  className="absolute inset-0 h-full w-full object-cover"
                   style={{
-                    background: slide.gradient,
                     opacity: i === active ? 1 : 0,
                     transition: "opacity 500ms ease",
                   }}
-                >
-                  {slide.render}
-                </div>
+                />
               ))}
 
               {/* EN VIVO badge */}
