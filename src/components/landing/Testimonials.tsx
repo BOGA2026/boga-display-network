@@ -30,7 +30,7 @@ export default function Testimonials() {
   return (
     <section
       aria-labelledby="testimonios-title"
-      className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40"
+      className="px-4 py-16 md:px-6 md:py-24"
     >
       <div className="mx-auto max-w-5xl">
         <div className="mb-10 max-w-2xl">

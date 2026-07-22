@@ -1,29 +1,28 @@
-## Objetivo
-Agregar un fondo animado de partículas flotantes (estilo reactbits.dev) detrás del hero de la landing, sin tocar textos ni otras secciones.
+## Problema
 
-## Archivos
-1. **Nuevo:** `src/components/landing/ParticlesBackground.tsx` — componente canvas standalone.
-2. **Editar:** `src/pages/Landing.tsx` — insertar el componente dentro del contenedor del hero (posición absoluta, detrás del contenido). Solo se agrega el nuevo elemento; no se toca copy ni layout existente.
+Al volver transparentes las secciones sobre la capa de partículas, los `border-t border-border/40` que separaban cada bloque quedaron visibles como líneas horizontales flotando sobre el canvas. Ese borde antes no se notaba porque cada sección tenía fondo opaco propio.
 
-## Detalles técnicos de `ParticlesBackground`
+## Causa confirmada
 
-- `<canvas>` con `position: absolute; inset: 0; z-index: 0; pointer-events: none`. El contenido del hero se asegura con `position: relative; z-index: 1`.
-- Al montar: crear ~150 partículas con `{x, y, vx, vy, r (1–2.5px), phase (para opacidad), noiseSeed}`.
-- Loop con `requestAnimationFrame`:
-  - Actualizar posición: `x += vx + sin(t * 0.001 + seed) * 0.15` (mismo para y con cos) → deriva ondulante.
-  - Wrap-around en los 4 bordes.
-  - Opacidad respirando: `0.2 + (sin(t*0.0008 + phase)+1)/2 * 0.4` → rango 0.2–0.6.
-  - Interacción mouse: si `dist < 120px` → aplicar vector de repulsión suave (`vx += dx/dist * force`, con damping para volver a la deriva base), pintar en verde esmeralda (`#10b981`) y aumentar radio ~1.5x. Fuera del radio, color base gris cálido (`stone-400` `#a8a29e`).
-- Listeners: `mousemove` en el canvas (rect-relative), `resize` en window para recalcular `canvas.width/height` × `devicePixelRatio`.
-- Cleanup: `cancelAnimationFrame` + remover listeners al desmontar.
-- `prefers-reduced-motion`: si activo, pintar una sola vez las partículas estáticas y no arrancar el loop.
-- Tema: el proyecto es dark-only (según `index.css`), así que uso stone-500 (`#78716c`) como color base y verde esmeralda como acento del cursor. Sin lógica de tema dinámico.
+Grep sobre `src/pages/Landing.tsx` y `src/components/landing/*` muestra que las líneas provienen de un `border-t border-border/40` aplicado directamente al `<section>` / `<footer>` de cada bloque de la landing pública:
 
-## Integración en Landing
-- Localizar el bloque del hero en `src/pages/Landing.tsx` (contenedor que ya tiene `hero-aurora`).
-- Insertar `<ParticlesBackground />` como primer hijo del contenedor relativo, antes del contenido, dejando la aurora existente intacta. Si el contenido no tiene `z-index`, agregar `relative z-10` al wrapper del texto (solo si es necesario para legibilidad).
-- Opcional: pequeño gradiente radial detrás del H1 solo si la lectura se ve afectada (evaluar visualmente).
+- `src/pages/Landing.tsx:604` — sección "Cómo funciona"
+- `src/pages/Landing.tsx:700` — sección "Precios"
+- `src/pages/Landing.tsx:790` — sección CTA final
+- `src/pages/Landing.tsx:818` — `<footer>`
+- `src/components/landing/Testimonials.tsx:33` — sección testimonios
+- `src/components/Faq.tsx:53` — sección FAQ
+- `src/components/landing/LegalFooter.tsx:8` — footer legal
 
-## Fuera de alcance
-- No se modifica ningún texto, botón, video ni otra sección.
-- No se agrega toggle ni configuración.
+El `ParticlesBackground` ya es un único canvas `fixed` global (verificado en el turno anterior), así que no hay canvas apilados. Ninguna sección de la landing tiene fondo opaco propio — solo cards internos, que sí deben conservar su borde.
+
+## Cambios
+
+1. **Eliminar el `border-t border-border/40`** de los `<section>` / `<footer>` listados arriba. No tocar `padding`, `margin`, ni ninguna otra clase.
+2. **Conservar** los bordes internos de tarjetas, diálogos, mockups, calculadora, `GrowthBenefits` (divisor interno de tarjeta), y el `border-t` interno del bloque legal dentro del footer (`Landing.tsx:869`) — ese separa contenido dentro del mismo bloque, no dos secciones.
+3. No modificar textos, espaciados, componentes, ni el canvas de partículas.
+
+## Verificación
+
+- Repaso visual con Playwright (screenshots top-to-bottom del landing en `/`) confirmando que no queda ninguna línea horizontal entre secciones sobre las partículas.
+- Verificar que tarjetas, mockup de TV y calculadora conservan sus bordes propios.

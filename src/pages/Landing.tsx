@@ -601,7 +601,7 @@ const Landing = () => {
       </section>
 
       {/* 4. HOW IT WORKS — connected glass cards */}
-      <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+      <section id="como-funciona" className="px-4 py-16 md:px-6 md:py-24">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 max-w-2xl">
             <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
@@ -697,7 +697,7 @@ const Landing = () => {
 
 
       {/* 5. PRICING */}
-      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24 border-t border-border/40">
+      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24">
         <div className="section-glow" aria-hidden="true" />
         <div className="relative z-10 mx-auto max-w-6xl">
           <div className="mb-10 text-center">
@@ -787,7 +787,7 @@ const Landing = () => {
       <Faq />
 
       {/* 7. FINAL CTA */}
-      <section className="px-4 py-20 md:px-6 md:py-28 border-t border-border/40">
+      <section className="px-4 py-20 md:px-6 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-5xl">
             {HEADLINE.split(",")[0]},{" "}
@@ -815,7 +815,7 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 px-4 py-12 md:px-6">
+      <footer className="px-4 py-12 md:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-4">
             <div className="md:col-span-2">
