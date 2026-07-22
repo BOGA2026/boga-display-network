@@ -106,7 +106,7 @@ export default function ClientScreensShowcase() {
             >
               {SLIDES.map((slide, i) => (
                 <video
-                  key={slide.client}
+                  key={`${slide.client}-${i}`}
                   ref={(el) => (videoRefs.current[i] = el)}
                   src={slide.src}
                   muted
