@@ -148,7 +148,7 @@ export default function ClientScreensShowcase() {
               const isActive = i === active;
               return (
                 <button
-                  key={s.client}
+                  key={`${s.client}-${i}`}
                   role="tab"
                   aria-selected={isActive}
                   aria-label={`Ver ${s.client}`}
