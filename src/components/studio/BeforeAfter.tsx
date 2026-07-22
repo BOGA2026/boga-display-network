@@ -1,5 +1,6 @@
 import { useState } from "react";
-import caso1Antes from "@/assets/studio-caso1-antes.jpg";
+import caso1AntesAsset from "@/assets/studio-caso1-antes.png.asset.json";
+const caso1Antes = caso1AntesAsset.url;
 import caso1Despues from "@/assets/studio-caso1-despues.jpg";
 
 export type BeforeAfterCase = {
