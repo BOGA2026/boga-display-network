@@ -336,8 +336,57 @@ Cada propuesta debe tener mínimo 3 elementos_decorativos diferentes.`;
 
 type DetectedType = "menu" | "promo" | "bienvenida" | "evento" | "generico";
 
+type MenuItem = {
+  name: string;
+  description?: string | null;
+  price?: number | string | null;
+  currency?: string | null;
+  category?: string | null;
+  sort_order?: number | null;
+};
+
+type BrandKit = {
+  primary_color?: string | null;
+  secondary_color?: string | null;
+  accent_color?: string | null;
+  font_family?: string | null;
+  logo_url?: string | null;
+};
+
+/** Colombian price format: $12.900 — no decimals, dot as thousands separator. */
+const formatCOP = (value: number | string | null | undefined) => {
+  const num = typeof value === "number" ? value : Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+  if (!Number.isFinite(num)) return "";
+  return `$${Math.round(num).toLocaleString("es-CO", { maximumFractionDigits: 0 }).replace(/,/g, ".")}`;
+};
+
+/** Groups real menu items by category, preserving sort_order inside each group. */
+const buildRealSections = (items: MenuItem[]) => {
+  const groups = new Map<string, { plato: string; descripcion: string; precio: string }[]>();
+  for (const item of items) {
+    const key = (item.category ?? "").trim() || "Menú";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push({
+      plato: item.name,
+      descripcion: item.description ?? "",
+      precio: formatCOP(item.price),
+    });
+  }
+  return [...groups.entries()].map(([nombre, itemsGrupo]) => ({ nombre, items: itemsGrupo }));
+};
+
+const buildMenuBlock = (sections: ReturnType<typeof buildRealSections>) =>
+  sections
+    .map(
+      (s) =>
+        `SECCIÓN "${s.nombre}":\n` +
+        s.items.map((i) => `  - ${i.plato} | ${i.descripcion || "sin descripción"} | ${i.precio}`).join("\n"),
+    )
+    .join("\n");
+
 const normalizeText = (value: string = "") =>
   value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 
 const extractBriefingFacts = (prompt: string, cliente: string) => {
   const combined = `${cliente ? `Cliente: ${cliente}. ` : ""}${prompt}`.trim();
@@ -449,7 +498,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, tipo, formato, estilo, cliente } = await req.json();
+    const { prompt, tipo, formato, estilo, cliente, menu_items, brand_kit } = await req.json();
+    const menuItems: MenuItem[] = Array.isArray(menu_items)
+      ? menu_items.filter((i: MenuItem) => i && typeof i.name === "string" && i.name.trim()).slice(0, 8)
+      : [];
+    const brandKit: BrandKit | null = brand_kit && typeof brand_kit === "object" ? brand_kit : null;
+    const realSections = buildRealSections(menuItems);
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
     const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
@@ -498,6 +552,17 @@ serve(async (req) => {
     console.log("TIPO NORMALIZADO:", tipoNormalizado);
     console.log("TIPO DETECTADO:", detectedType);
 
+    // Never invent menu content: a menu design with fake dishes is worse than no design.
+    if (detectedType === "menu" && menuItems.length === 0) {
+      return new Response(
+        JSON.stringify({
+          error: "Tu menú aún no tiene platos activos. Carga el menú antes de generar la pieza.",
+          code: "MENU_EMPTY",
+        }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const systemPrompt = detectedType === "menu" ? PROMPT_MENU
       : detectedType === "promo" ? PROMPT_PROMO
       : detectedType === "bienvenida" ? PROMPT_BIENVENIDA
@@ -505,6 +570,30 @@ serve(async (req) => {
       : PROMPT_GENERICO;
 
     console.log("USANDO PROMPT:", detectedType.toUpperCase());
+
+    const menuBlock = realSections.length
+      ? `
+DATOS REALES DEL MENÚ DEL NEGOCIO — OBLIGATORIOS, NO LOS MODIFIQUES:
+${buildMenuBlock(realSections)}
+
+REGLAS DEL MENÚ:
+- Usa EXACTAMENTE estos nombres, descripciones y precios en "secciones".
+- Respeta el orden y las secciones tal como aparecen arriba.
+- Los precios son obligatorios y ya vienen en formato colombiano ($12.900). No los recalcules ni les agregues decimales.
+- PROHIBIDO inventar platos, precios o descripciones que no estén en esta lista.
+`
+      : "";
+
+    const brandBlock = brandKit
+      ? `
+BRAND KIT DEL NEGOCIO — APLÍCALO DESDE LA GENERACIÓN:
+- Color primario (acento): ${brandKit.primary_color ?? "no definido"}
+- Color secundario (fondo): ${brandKit.secondary_color ?? "no definido"}
+- Color de realce: ${brandKit.accent_color ?? "no definido"}
+- Tipografía de marca: ${brandKit.font_family ?? "no definida"}
+Usa estos colores en background_color, color_acento y color_texto manteniendo buen contraste.
+`
+      : "";
 
     const userPrompt = `
 BRIEFING DEL CLIENTE — SIGUE ESTAS INSTRUCCIONES AL PIE DE LA LETRA:
@@ -514,7 +603,7 @@ Descripción exacta del cliente: "${prompt}"
 Tipo de contenido: ${tipo}
 Formato de pantalla: ${formato}
 Estilo visual solicitado: ${estilo}
-
+${menuBlock}${brandBlock}
 OBLIGATORIO:
 - El texto_principal DEBE referirse directamente a: "${prompt}"
 - El texto_secundario DEBE complementar la descripción del cliente
@@ -534,9 +623,11 @@ PROHIBIDO:
 - Usar placeholders literales como "TEXTO PRINCIPAL", "Subtítulo del diseño", "Ver más", "Lorem ipsum"
 - Alterar cifras, precios, porcentajes, fechas, horas o marcas del briefing
 - Añadir claims, promociones, artistas, zonas, slogans o condiciones que el cliente no mencionó
+- Inventar platos o precios cuando se entregaron datos reales del menú
 
 Genera las 3 propuestas ahora.
 `;
+
 
     const parsed = await callAnthropicJson({
       apiKey: ANTHROPIC_API_KEY,
@@ -600,7 +691,10 @@ REGLAS:
         tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
         size: p.header?.size ?? 48,
       };
-      const normalizedSections = hasValidSections ? rawSections : [];
+      // Real menu data always wins over anything the model wrote.
+      const normalizedSections = realSections.length
+        ? realSections
+        : (hasValidSections ? rawSections : []);
       const normalizedFooter = p.footer_texto ?? (isPlaceholderText(p.texto_cta) ? null : p.texto_cta) ?? null;
 
       console.log("RESPUESTA CLAUDE:", JSON.stringify({
@@ -616,7 +710,7 @@ REGLAS:
         nombre: p.nombre ?? `Propuesta ${i + 1}`,
         concepto: p.concepto ?? "",
         tipo_layout: isMenuResponse && normalizedSections.length > 0 ? "menu_dos_columnas" : (p.tipo_layout ?? null),
-        background_color: p.background_color ?? "#0a0a0a",
+        background_color: brandKit?.secondary_color ?? p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
         overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
@@ -631,7 +725,7 @@ REGLAS:
           ? (normalizedFooter ?? "")
           : (isPlaceholderText(p.texto_cta) ? "Descubre más" : p.texto_cta),
         color_texto: p.color_texto ?? "#FFFFFF",
-        color_acento: p.color_acento ?? "#00e5c4",
+        color_acento: brandKit?.accent_color ?? brandKit?.primary_color ?? p.color_acento ?? "#00e5c4",
         fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
         fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
         titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
