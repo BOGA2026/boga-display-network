@@ -49,7 +49,7 @@ import { BaselineCommands } from "@/components/dashboard/BaselineCommands";
 import {
   CommandRegistryProvider,
   useCommandRegistry,
-  useRegisterCommand,
+
   type CommandItem,
 } from "@/hooks/useCommandRegistry";
 import { CommandPalette } from "@/components/ui/command-palette";
