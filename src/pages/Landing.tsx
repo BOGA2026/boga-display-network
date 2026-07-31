@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Seo from "@/components/Seo";
 import { prefetchPublicRoutes } from "@/lib/prefetch";
+import { attemptAutoplay } from "@/lib/autoplay";
 import LazyVideo from "@/components/landing/LazyVideo";
 import InitialsAvatar from "@/components/ui/InitialsAvatar";
 
