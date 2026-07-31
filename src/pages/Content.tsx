@@ -69,7 +69,7 @@ import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/
 import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
 import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
 import { ContentTable } from "@/components/content/ContentTable";
-import { MediaDims, orientationOf } from "@/components/content/mediaMeta";
+import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate } from "@/components/content/mediaMeta";
 
 
 interface ContentItem {
@@ -130,6 +130,7 @@ const Content = () => {
   const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
   const [assigning, setAssigning] = useState(false);
+  const [bulkAssign, setBulkAssign] = useState(false);
 
   // Send to screen state
   const [sendTarget, setSendTarget] = useState<ContentItem | null>(null);
@@ -225,7 +226,30 @@ const Content = () => {
     setDeleteTarget(null);
   };
 
+  const openBulkAssign = async () => {
+    setBulkAssign(true);
+    setSelectedPlaylistId("");
+    const { data } = await supabase.from("playlists").select("id, name").order("name");
+    setPlaylists(data ?? []);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("content").delete().in("id", ids);
+    setBulkDeleting(false);
+    if (error) {
+      toast({ title: "Error al eliminar", description: error.message, variant: "destructive" });
+      return;
+    }
+    setItems((prev) => prev.filter((x) => !selectedIds.has(x.id)));
+    clearSelection();
+    toast({ title: `${ids.length} ${ids.length === 1 ? "pieza eliminada" : "piezas eliminadas"}` });
+  };
+
   const openAssignDialog = async (item: ContentItem) => {
+    setBulkAssign(false);
     setAssignTarget(item);
     setSelectedPlaylistId("");
     const { data } = await supabase.from("playlists").select("id, name").order("name");
@@ -233,7 +257,13 @@ const Content = () => {
   };
 
   const handleAssign = async () => {
-    if (!assignTarget || !selectedPlaylistId) return;
+    if (!selectedPlaylistId) return;
+    const targets = bulkAssign
+      ? items.filter((i) => selectedIds.has(i.id))
+      : assignTarget
+        ? [assignTarget]
+        : [];
+    if (targets.length === 0) return;
     setAssigning(true);
     // Get max sort_order
     const { data: existing } = await supabase
@@ -243,18 +273,28 @@ const Content = () => {
       .order("sort_order", { ascending: false })
       .limit(1);
     const nextOrder = (existing?.[0]?.sort_order ?? -1) + 1;
-    const { error } = await supabase.from("playlist_items").insert({
-      playlist_id: selectedPlaylistId,
-      content_id: assignTarget.id,
-      sort_order: nextOrder,
-    });
+    const { error } = await supabase.from("playlist_items").insert(
+      targets.map((t, idx) => ({
+        playlist_id: selectedPlaylistId,
+        content_id: t.id,
+        sort_order: nextOrder + idx,
+      })),
+    );
     setAssigning(false);
     if (error) {
-      toast({ title: "Error al asignar", description: error.message, variant: "destructive" });
+      toast({ title: "Error al agregar", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Asignado a playlist", description: `"${assignTarget.name}" agregado correctamente.` });
+      toast({
+        title: "Agregado a la lista",
+        description:
+          targets.length === 1
+            ? `"${targets[0].name}" agregado correctamente.`
+            : `${targets.length} piezas agregadas correctamente.`,
+      });
+      if (bulkAssign) clearSelection();
     }
     setAssignTarget(null);
+    setBulkAssign(false);
   };
 
   const resetUploadForm = () => {
@@ -755,12 +795,19 @@ const Content = () => {
       </AlertDialog>
 
       {/* ========== Assign to Playlist ========== */}
-      <Dialog open={!!assignTarget} onOpenChange={(open) => !open && setAssignTarget(null)}>
+      <Dialog
+        open={!!assignTarget || bulkAssign}
+        onOpenChange={(open) => {
+          if (!open) { setAssignTarget(null); setBulkAssign(false); }
+        }}
+      >
         <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display text-lg">Asignar a playlist</DialogTitle>
+            <DialogTitle className="font-display text-lg">Agregar a lista</DialogTitle>
             <DialogDescription>
-              Agrega "{assignTarget?.name}" a una playlist existente.
+              {bulkAssign
+                ? `Agrega ${selectedIds.size} piezas a una lista existente.`
+                : `Agrega "${assignTarget?.name}" a una lista existente.`}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -780,16 +827,50 @@ const Content = () => {
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setAssignTarget(null)}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => { setAssignTarget(null); setBulkAssign(false); }}>Cancelar</Button>
             <Button
               onClick={handleAssign}
               disabled={assigning || !selectedPlaylistId}
               className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2"
             >
               <ListPlus className="h-4 w-4" />
-              {assigning ? "Asignando…" : "Asignar"}
+              {assigning ? "Agregando…" : "Agregar"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========== Vista previa ========== */}
+      <Dialog open={!!previewTarget} onOpenChange={(o) => !o && setPreviewTarget(null)}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg">{previewTarget?.name}</DialogTitle>
+            <DialogDescription>
+              {previewTarget
+                ? [
+                    typeLabel(previewTarget.type),
+                    formatDims(dims[previewTarget.id]),
+                    formatDuration(previewTarget.duration_seconds),
+                    relativeDate(previewTarget.created_at),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                : null}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-[hsl(var(--admin-surface-2,var(--muted)))]">
+            {previewTarget?.type === "video" && previewTarget.file_url ? (
+              <video src={previewTarget.file_url} className="h-full w-full object-contain" controls autoPlay muted />
+            ) : previewTarget?.thumbnail_url || previewTarget?.file_url ? (
+              <img
+                src={previewTarget.thumbnail_url ?? previewTarget.file_url ?? ""}
+                alt={previewTarget.name}
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <ImageIcon className="h-10 w-10 text-muted-foreground opacity-30" />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
