@@ -204,8 +204,9 @@ export function ContentCard({
         <div className="min-w-0">
           <p className="truncate text-[13px] font-medium leading-tight">{item.name}</p>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-            {metaLine([formatDims(dims), duration, relativeDate(item.created_at)])}
+            {metaLine([formatDims(dims), duration, sizeLabel, relativeDate(item.created_at)])}
           </p>
+
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
