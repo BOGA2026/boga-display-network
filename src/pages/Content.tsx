@@ -140,13 +140,16 @@ const Content = () => {
 
   const fetchContent = async () => {
     setLoading(true);
-    const { data } = await supabase
+    setLoadError(false);
+    const { data, error } = await supabase
       .from("content")
       .select("*")
       .order("created_at", { ascending: false });
+    if (error) setLoadError(true);
     setItems(data ?? []);
     setLoading(false);
   };
+
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
