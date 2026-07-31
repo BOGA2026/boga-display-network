@@ -39,22 +39,22 @@ export interface TvTypography {
 /** Computes concrete pixel sizes for a canvas height, always above the minimums. */
 export function tvTypography(canvasHeight: number, canvasWidth = canvasHeight * 16 / 9): TvTypography {
   const h = Math.max(1, canvasHeight);
-  const plato = Math.round(h * TV_RULES.minPlatoPct);
-  const precio = Math.round(h * TV_RULES.minPrecioPct);
-  const descripcion = Math.round(h * TV_RULES.minDescripcionPct);
-  const restaurante = Math.round(h * TV_RULES.restauranteMinPct);
+  const plato = Math.ceil(h * TV_RULES.minPlatoPct);
+  const precio = Math.ceil(h * TV_RULES.minPrecioPct);
+  const descripcion = Math.ceil(h * TV_RULES.minDescripcionPct);
+  const restaurante = Math.ceil(h * TV_RULES.restauranteMinPct);
   const safeMargin = Math.round(Math.min(canvasWidth, h) * TV_RULES.safeMarginPct);
   // Rough char budget for 2 lines inside a single column.
   const columnWidth = canvasWidth / 2 - safeMargin * 1.5;
   const charsPerLine = Math.max(12, Math.floor(columnWidth / (descripcion * 0.52)));
   return {
     restaurante,
-    seccion: Math.max(Math.round(h * TV_RULES.absoluteMinPct), Math.round(descripcion * 1.05)),
+    seccion: Math.max(Math.ceil(h * TV_RULES.absoluteMinPct), Math.round(descripcion * 1.05)),
     plato,
     precio,
     descripcion,
-    tagline: Math.max(Math.round(h * 0.026), Math.round(h * TV_RULES.absoluteMinPct)),
-    footer: Math.round(h * TV_RULES.absoluteMinPct),
+    tagline: Math.max(Math.ceil(h * 0.026), Math.ceil(h * TV_RULES.absoluteMinPct)),
+    footer: Math.ceil(h * TV_RULES.absoluteMinPct),
     safeMargin,
     maxDescChars: charsPerLine * TV_RULES.maxDescLines,
   };
@@ -211,10 +211,10 @@ export function enforceTvProposal<T extends LooseProposal>(p: T, canvasHeight: n
     tagline: out.header?.tagline ?? "",
     size: Math.min(
       Math.round(canvasHeight * TV_RULES.restauranteMaxPct),
-      Math.max(Math.round(canvasHeight * TV_RULES.restauranteMinPct), out.header?.size ?? 0),
+      Math.max(Math.ceil(canvasHeight * TV_RULES.restauranteMinPct), out.header?.size ?? 0),
     ),
   };
-  out.titulo_size = Math.max(out.titulo_size ?? 0, Math.round(canvasHeight * TV_RULES.restauranteMinPct));
+  out.titulo_size = Math.max(out.titulo_size ?? 0, Math.ceil(canvasHeight * TV_RULES.restauranteMinPct));
   out.subtitulo_size = Math.max(out.subtitulo_size ?? 0, t.plato);
   (out as Record<string, unknown>).tv_typography = t;
 
