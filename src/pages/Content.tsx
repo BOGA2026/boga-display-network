@@ -58,7 +58,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { NAV } from "@/config/lexicon";
+import { NAV, COPY } from "@/config/lexicon";
+import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 
 
 interface ContentItem {
@@ -96,6 +97,7 @@ const SAMPLE_CONTENT = [
 const Content = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   
   const [uploading, setUploading] = useState(false);
@@ -140,13 +142,16 @@ const Content = () => {
 
   const fetchContent = async () => {
     setLoading(true);
-    const { data } = await supabase
+    setLoadError(false);
+    const { data, error } = await supabase
       .from("content")
       .select("*")
       .order("created_at", { ascending: false });
+    if (error) setLoadError(true);
     setItems(data ?? []);
     setLoading(false);
   };
+
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -342,9 +347,9 @@ const Content = () => {
 
       {/* Main area */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
+        <CardGridSkeleton count={8} columns={4} className="gap-4" />
+      ) : loadError ? (
+        <ErrorState description={COPY.error.content} onRetry={fetchContent} />
       ) : hasContent ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((item) => {
@@ -428,27 +433,11 @@ const Content = () => {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="relative mb-8">
-            <div className="flex h-24 w-24 items-center justify-center rounded-2xl gradient-primary glow-primary animate-pulse-glow">
-              <Upload className="h-12 w-12 text-primary-foreground" />
-            </div>
-            {/* Floating accent icons */}
-            <div className="absolute -top-2 -right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-secondary border border-border/50">
-              <ImageIcon className="h-4 w-4 text-primary/70" />
-            </div>
-            <div className="absolute -bottom-2 -left-4 flex h-8 w-8 items-center justify-center rounded-lg bg-secondary border border-border/50">
-              <Film className="h-4 w-4 text-accent/70" />
-            </div>
-          </div>
-
-          <h2 className="font-display text-xl font-bold mb-2">Subir contenido</h2>
-          <p className="text-sm text-muted-foreground mb-10 max-w-md leading-relaxed">
-            Agrega imágenes, videos, archivos HTML o contenido multimedia para tus pantallas.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4">
+        <EmptyState
+          icon={<Upload className="h-9 w-9" />}
+          title={COPY.empty.contentTitle}
+          description={COPY.empty.content}
+          action={
             <Button
               onClick={() => { resetUploadForm(); setUploadOpen(true); }}
               className="gradient-primary hover:gradient-primary-hover glow-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold"
@@ -457,6 +446,8 @@ const Content = () => {
               <FileUp className="h-5 w-5" />
               Agregar contenido
             </Button>
+          }
+          secondaryAction={
             <Button
               variant="outline"
               onClick={handleAddSampleContent}
@@ -467,8 +458,9 @@ const Content = () => {
               <Layers className="h-5 w-5" />
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
-          </div>
-        </div>
+          }
+        />
+
       )}
 
       {/* ========== Upload Dialog ========== */}

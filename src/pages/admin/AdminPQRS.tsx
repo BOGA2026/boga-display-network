@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Inbox, Loader2, RefreshCw, Send } from "lucide-react";
+import { TableSkeleton } from "@/components/feedback/states";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
@@ -258,9 +259,7 @@ export default function AdminPQRS() {
                   <div className="text-sm whitespace-pre-wrap">{selected.message}</div>
                 </div>
                 {responsesLoading && (
-                  <div className="flex items-center gap-2 text-sm admin-muted py-3" role="status">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Cargando respuestas…
-                  </div>
+                  <TableSkeleton rows={3} columns={1} showHeader={false} />
                 )}
                 {responsesError && (
                   <div role="alert" className="rounded-md border border-amber-500/40 p-3 flex items-center justify-between gap-3 text-sm text-amber-400">

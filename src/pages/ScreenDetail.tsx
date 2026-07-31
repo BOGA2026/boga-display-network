@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { BlockSkeleton, KpiGridSkeleton, TableSkeleton } from "@/components/feedback/states";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -146,8 +147,10 @@ export default function ScreenDetail() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="space-y-6">
+        <BlockSkeleton height={220} />
+        <KpiGridSkeleton count={4} />
+        <TableSkeleton rows={5} columns={4} />
       </div>
     );
   }

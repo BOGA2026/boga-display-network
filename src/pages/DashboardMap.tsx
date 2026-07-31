@@ -7,8 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
 import { NAV } from "@/config/lexicon";
+import {
   Select,
   SelectContent,
   SelectItem,

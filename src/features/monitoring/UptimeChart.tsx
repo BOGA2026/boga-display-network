@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUptimeByDay } from "./api";
 import { filterQueryOptions } from "@/lib/query-client";
+import { BlockSkeleton } from "@/components/feedback/states";
 import { Loader2 } from "lucide-react";
 import DeferredMount from "@/components/system/DeferredMount";
 import ChartSkeleton from "@/components/system/ChartSkeleton";
@@ -17,11 +18,7 @@ export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; 
   });
 
   if (isLoading) {
-    return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <BlockSkeleton height={160} className="rounded-xl" />;
   }
 
   const rows = (data ?? []).map((d) => ({

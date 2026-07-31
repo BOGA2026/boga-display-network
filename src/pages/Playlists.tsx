@@ -25,8 +25,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import {
 import { NAV, COPY } from "@/config/lexicon";
+import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
+import {
   ListVideo,
   Plus,
   LayoutGrid,
@@ -62,7 +63,7 @@ const Playlists = () => {
   const [loopEnabled, setLoopEnabled] = useState(true);
 
   // Fetch playlists
-  const { data: playlists = [], isLoading } = useQuery({
+  const { data: playlists = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["playlists"],
     queryFn: async () => {
       const { data: profile } = await supabase
@@ -333,8 +334,8 @@ const Playlists = () => {
     );
   }
 
-  // ── EMPTY STATE ──
-  if (!isLoading && playlists.length === 0) {
+  // ── LOADING / ERROR / EMPTY ──
+  if (isLoading || isError || playlists.length === 0) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -344,33 +345,26 @@ const Playlists = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center text-center max-w-md space-y-6">
-            {/* Illustration */}
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-3xl opacity-20 gradient-primary" />
-              <div className="relative h-28 w-28 rounded-2xl surface-elevated flex items-center justify-center border border-border/60">
-                <ListVideo className="h-14 w-14 text-primary animate-pulse" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="font-display text-2xl font-bold">Crear playlists</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                Organiza tu contenido, define el orden y la duración de cada elemento para tus
-                pantallas.
-              </p>
-            </div>
-
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="gradient-primary glow-primary text-primary-foreground font-semibold text-base px-8 py-6 rounded-xl hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Agregar playlist
-            </Button>
-          </div>
-        </div>
+        {isLoading ? (
+          <CardGridSkeleton count={6} columns={3} className="gap-4" />
+        ) : isError ? (
+          <ErrorState description={COPY.error.playlists} onRetry={() => refetch()} />
+        ) : (
+          <EmptyState
+            icon={<ListVideo className="h-9 w-9 text-primary" />}
+            title={COPY.empty.playlistsTitle}
+            description={COPY.empty.playlists}
+            action={
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="gradient-primary glow-primary text-primary-foreground font-semibold text-base px-8 py-6 rounded-xl hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                {COPY.actions.newPlaylist}
+              </Button>
+            }
+          />
+        )}
 
         {/* Create Modal */}
         <CreatePlaylistModal
@@ -384,6 +378,7 @@ const Playlists = () => {
       </div>
     );
   }
+
 
   // ── LIST VIEW ──
   return (

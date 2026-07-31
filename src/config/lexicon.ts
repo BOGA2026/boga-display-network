@@ -219,13 +219,33 @@ export const COPY = {
     expand: "Expandir menú",
     search: "Buscar",
   },
+  loading: {
+    generic: "Cargando…",
+  },
   empty: {
     screens: "Todavía no tienes pantallas conectadas.",
     content: "Todavía no has subido contenido.",
     playlists: "Todavía no tienes listas. Crea la primera para empezar.",
     qr: "Todavía no tienes códigos QR. Crea el primero.",
     aiGenerations: "Todavía no tienes generaciones. Crea la primera arriba.",
+    screensTitle: "Sin pantallas registradas",
+    contentTitle: "Sin contenido todavía",
+    playlistsTitle: "Sin listas todavía",
+    invoices: "Todavía no tienes facturas. Aparecerán aquí después del primer cobro.",
+    invoicesTitle: "Sin facturas",
+    payments: "Todavía no registramos pagos en esta cuenta.",
+    paymentsTitle: "Sin pagos",
   },
+  error: {
+    title: "No pudimos cargar esta sección",
+    description:
+      "Algo falló al traer la información. Revisa tu conexión e inténtalo de nuevo.",
+    screens: "No pudimos cargar tus pantallas.",
+    content: "No pudimos cargar tu contenido.",
+    playlists: "No pudimos cargar tus listas.",
+    subscription: "No pudimos cargar los datos de tu suscripción.",
+  },
+
   toasts: {
     aiReady: {
       title: "Generación lista",

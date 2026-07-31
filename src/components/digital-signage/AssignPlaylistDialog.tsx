@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ListMusic, Check, Loader2 } from "lucide-react";
+import { TableSkeleton } from "@/components/feedback/states";
 import { toast } from "@/hooks/use-toast";
 
 interface Playlist {
@@ -125,9 +126,7 @@ export default function AssignPlaylistDialog({
         </DialogHeader>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
+          <TableSkeleton rows={4} columns={2} showHeader={false} />
         ) : playlists.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <ListMusic className="mb-3 h-10 w-10 text-muted-foreground/40" />

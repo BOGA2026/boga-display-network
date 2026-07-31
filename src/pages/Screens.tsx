@@ -49,7 +49,8 @@ import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
-import { NAV } from "@/config/lexicon";
+import { NAV, COPY } from "@/config/lexicon";
+import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -105,6 +106,7 @@ const Screens = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successScreen, setSuccessScreen] = useState<string | null>(null);
@@ -157,26 +159,35 @@ const Screens = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
-    if (!businessId) { setLoading(false); return; }
+    setLoadError(false);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      const profileRes = await supabase
+        .from("profiles")
+        .select("business_id")
+        .eq("id", user.user?.id ?? "")
+        .maybeSingle();
+      if (profileRes.error) throw profileRes.error;
+      const businessId = profileRes.data?.business_id;
+      if (!businessId) { setLoading(false); return; }
 
-    const [screensRes, locationsRes, subRes] = await Promise.all([
-      supabase.from("screens").select("*").order("created_at", { ascending: false }),
-      supabase.from("locations").select("id, name").eq("business_id", businessId),
-      supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
-    ]);
+      const [screensRes, locationsRes, subRes] = await Promise.all([
+        supabase.from("screens").select("*").order("created_at", { ascending: false }),
+        supabase.from("locations").select("id, name").eq("business_id", businessId),
+        supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
+      ]);
+      if (screensRes.error) throw screensRes.error;
 
-    setScreens(screensRes.data ?? []);
-    setLocations(locationsRes.data ?? []);
-    setSubscription(subRes.data ?? null);
-    setLoading(false);
+      setScreens(screensRes.data ?? []);
+      setLocations(locationsRes.data ?? []);
+      setSubscription(subRes.data ?? null);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const hasActiveSubscription = () => {
     if (!subscription) return false;
@@ -458,9 +469,9 @@ const Screens = () => {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
+        <CardGridSkeleton count={8} columns={4} />
+      ) : loadError ? (
+        <ErrorState description={COPY.error.screens} onRetry={fetchData} />
       ) : screens.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {screens.map((screen) => {
@@ -526,24 +537,21 @@ const Screens = () => {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/60">
-            <MonitorSmartphone className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="font-display text-xl font-bold mb-2">Sin pantallas registradas</h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-            Conecta tu primera pantalla para comenzar a gestionar tu red de señalización digital.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <EmptyState
+          icon={<MonitorSmartphone className="h-9 w-9" />}
+          title={COPY.empty.screensTitle}
+          description={COPY.empty.screens}
+          action={
             <Button
               onClick={handleAddScreenClick}
               className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
               size="lg"
             >
               <Plus className="h-5 w-5" />
-              Agregar pantalla
+              {COPY.actions.connectScreen}
             </Button>
+          }
+          secondaryAction={
             <Button
               variant="outline"
               onClick={handleAddDemoScreen}
@@ -554,8 +562,9 @@ const Screens = () => {
               <MonitorSmartphone className="h-5 w-5" />
               Agregar pantalla demo
             </Button>
-          </div>
-        </div>
+          }
+        />
+
       )}
 
       {/* ─── ADD SCREEN SHEET ─── */}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { TableSkeleton, EmptyState } from "@/components/feedback/states";
 import type { Tables } from "@/integrations/supabase/types";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -119,14 +120,13 @@ export default function AdminLeadsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
+        <TableSkeleton rows={8} columns={5} />
       ) : leads.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-20 text-center">
-          <User className="h-10 w-10 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">Aún no hay leads. Llegarán desde el chatbot.</p>
-        </div>
+        <EmptyState
+          icon={<User className="h-9 w-9" />}
+          title="Sin leads todavía"
+          description="Aún no hay leads. Llegarán desde el chatbot."
+        />
       ) : filtered.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
           Sin resultados con los filtros actuales
