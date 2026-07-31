@@ -9,17 +9,9 @@
 
 type Metrics = (text: string, fontSizePx: number, fontFamily: string, weight?: number) => number;
 
-let ctx: CanvasRenderingContext2D | null | undefined;
-
-function getCtx(): CanvasRenderingContext2D | null {
-  if (ctx !== undefined) return ctx;
-  try {
-    const canvas = typeof document !== "undefined" ? document.createElement("canvas") : null;
-    ctx = canvas ? canvas.getContext("2d") : null;
-  } catch {
-    ctx = null;
-  }
-  return ctx;
+/** No canvas in Deno: the server always uses the font-ratio fallback. */
+function getCtx(): null {
+  return null;
 }
 
 /** Fallback ratio (em per character) when no canvas exists — server side only. */
@@ -39,10 +31,7 @@ export const measureText: Metrics = (text, fontSizePx, fontFamily, weight = 400)
   const value = text ?? "";
   if (!value) return 0;
   const c = getCtx();
-  if (c) {
-    c.font = `${weight} ${fontSizePx}px "${fontFamily}", sans-serif`;
-    return c.measureText(value).width;
-  }
+  if (c) return 0;
   const ratio = FALLBACK_RATIO[fontFamily] ?? 0.52;
   return value.length * fontSizePx * ratio;
 };
