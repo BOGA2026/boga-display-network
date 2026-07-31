@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ContentSkeleton } from "@/components/layout/ContentSkeleton";
-import { prefetch } from "@/lib/routePrefetch";
+import { prefetchHandlers } from "@/lib/routePrefetch";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -213,10 +213,9 @@ export default function AdminLayout() {
                     to={to}
                     className="admin-nav-item"
                     data-active={active}
-                    onMouseEnter={() => prefetch(to)}
-                    onFocus={() => prefetch(to)}
-                    onTouchStart={() => prefetch(to)}
+                    {...prefetchHandlers(to)}
                   >
+
 
                     <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.75} />
                     <span className="flex-1 truncate">{label}</span>
