@@ -52,9 +52,10 @@ export default defineConfig(({ mode }) => ({
     // Sube los sourcemaps ocultos a Sentry y los borra del dist, así los stack
     // traces quedan legibles sin publicar el código.
     mode !== "development" &&
-      process.env.SENTRY_AUTH_TOKEN &&
-      process.env.SENTRY_ORG &&
-      process.env.SENTRY_PROJECT &&
+      Boolean(
+        process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
+      ) &&
+
       sentryVitePlugin({
         org: process.env.SENTRY_ORG,
         project: process.env.SENTRY_PROJECT,
