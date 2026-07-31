@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import introVideo from "@/assets/intro-animation.mp4";
 import introVideoWebm from "@/assets/intro-animation.webm";
+import { attemptAutoplay } from "@/lib/autoplay";
 
 interface PlayerSplashProps {
   minDuration?: number;
@@ -12,12 +13,17 @@ const PlayerSplash = ({ minDuration = 4000, ready, onComplete }: PlayerSplashPro
   const [minElapsed, setMinElapsed] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const [scaleUp, setScaleUp] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Autoplay escalation for the intro video (muted fallback + retry on gesture).
+  useEffect(() => attemptAutoplay(videoRef.current), []);
 
   useEffect(() => {
-    // Play intro sound
+    // Play intro sound (audio can't be muted-fallback: retry only on interaction)
     const audio = new Audio("/audio/intro-sound.wav");
     audio.volume = 0.6;
-    audio.play().catch(() => {});
+    const stopAudioRetry = attemptAutoplay(audio, { allowMutedFallback: false });
+
 
     const t = setTimeout(() => setMinElapsed(true), minDuration);
 
