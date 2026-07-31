@@ -145,10 +145,10 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
 
 // ─── Quick Actions ──────────────────────────────────────
 const quickActions = [
-  { label: COPY.actions.connectScreen, icon: Plus, path: NAV.pantallas.path },
-  { label: COPY.actions.upload, icon: Upload, path: NAV.contenido.path },
-  { label: COPY.actions.newPlaylist, icon: ListVideo, path: NAV.listas.path },
-  { label: "Programar contenido", icon: Calendar, path: NAV.horarios.path },
+  { label: COPY.actions.connectScreen, icon: Plus, path: NAV.pantallas.path, primary: true },
+  { label: COPY.actions.upload, icon: Upload, path: NAV.contenido.path, primary: false },
+  { label: COPY.actions.newPlaylist, icon: ListVideo, path: NAV.listas.path, primary: false },
+  { label: "Programar contenido", icon: Calendar, path: NAV.horarios.path, primary: false },
 ];
 
 // ─── Activity types ─────────────────────────────────────
