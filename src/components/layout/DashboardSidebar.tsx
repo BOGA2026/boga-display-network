@@ -13,6 +13,7 @@ import {
   Map,
   Radio,
   QrCode,
+  CircleHelp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -98,6 +99,15 @@ const DashboardSidebar = () => {
 
       {/* Footer */}
       <div className="p-2 space-y-0.5">
+        <a
+          href="https://wa.me/573000000000?text=Hola%2C%20necesito%20ayuda%20con%20Visualia"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+        >
+          <CircleHelp className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Ayuda</span>}
+        </a>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
