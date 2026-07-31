@@ -271,10 +271,39 @@ export default function GenerateAI() {
               />
             </div>
 
-            <Button onClick={generate} disabled={loading} className="gradient-primary glow-primary-sm w-full sm:w-auto" size="lg">
+            {menuVacio && (
+              <EmptyState
+                icon={<UtensilsCrossed className="h-9 w-9" />}
+                title="Tu menú aún no tiene platos"
+                description="Para no generar platos inventados, primero carga tu menú real con nombres, descripciones y precios."
+                action={
+                  <Button asChild className="gradient-primary glow-primary-sm">
+                    <Link to="/dashboard/contenido">Cargar mi menú</Link>
+                  </Button>
+                }
+                className="py-10"
+              />
+            )}
+
+            {menuRecortado && (
+              <div className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                <p className="text-muted-foreground">
+                  Se muestran {MENU_LIMIT} de {menuTotal} platos. Crea varias piezas o usa una lista para rotarlos.
+                </p>
+              </div>
+            )}
+
+            <Button
+              onClick={generate}
+              disabled={loading || menuVacio}
+              className="gradient-primary glow-primary-sm w-full sm:w-auto"
+              size="lg"
+            >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Generar diseño
             </Button>
+
           </CardContent>
         </Card>
       )}
