@@ -10,7 +10,7 @@
 import { lazy, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, Clock, Download, QrCode, ScanLine, MonitorPlay, Inbox } from "lucide-react";
+import { Activity, Clock, Download, QrCode, ScanLine, MonitorPlay, Inbox, FileWarning } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { NAV } from "@/config/lexicon";
