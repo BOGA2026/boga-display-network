@@ -17,6 +17,7 @@ import { Link, useSearchParams, Navigate } from "react-router-dom";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
+import StickyCtaBar from "@/components/landing/StickyCtaBar";
 import IntroSplash, { hasSeenIntro } from "@/components/landing/IntroSplash";
 import DemoRequestDialog from "@/components/landing/DemoRequestDialog";
 import WorkflowDemoModal from "@/components/landing/WorkflowDemoModal";
@@ -892,8 +893,10 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+      <div className="h-20" aria-hidden="true" />
 
       
+      <StickyCtaBar />
       <DemoRequestDialog open={demoOpen} onOpenChange={setDemoOpen} />
       <ExpertChat open={chatOpen} onOpenChange={setChatOpen} />
       <WorkflowDemoModal open={workflowOpen} onClose={() => setWorkflowOpen(false)} />
