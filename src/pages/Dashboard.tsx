@@ -404,7 +404,7 @@ const Dashboard = () => {
           <h1 className="font-display text-2xl font-bold tracking-tight">{NAV.inicio.pageTitle}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{NAV.inicio.pageSubtitle}</p>
         </div>
-        {stats?.lastSync && (
+        {stats?.lastSync && staleScreens.length === 0 && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RefreshCw className="h-3 w-3" />
             <LastSyncLabel lastSeenAt={stats.lastSync} prefix={COPY.sync.label} />
