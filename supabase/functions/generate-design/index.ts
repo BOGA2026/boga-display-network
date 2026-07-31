@@ -691,7 +691,10 @@ REGLAS:
         tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
         size: p.header?.size ?? 48,
       };
-      const normalizedSections = hasValidSections ? rawSections : [];
+      // Real menu data always wins over anything the model wrote.
+      const normalizedSections = realSections.length
+        ? realSections
+        : (hasValidSections ? rawSections : []);
       const normalizedFooter = p.footer_texto ?? (isPlaceholderText(p.texto_cta) ? null : p.texto_cta) ?? null;
 
       console.log("RESPUESTA CLAUDE:", JSON.stringify({
