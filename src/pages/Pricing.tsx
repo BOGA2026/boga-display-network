@@ -171,7 +171,7 @@ const Pricing = () => {
           <p className="mx-auto mb-12 max-w-xl text-center text-muted-foreground">Herramientas profesionales para gestionar tu red de señalización digital.</p>
           <div className="grid gap-6 sm:grid-cols-2">
             {valueCards.map((c) => (
-              <div key={c.title} className="group glass-card hover:glass-card-hover rounded-xl p-8 transition-all duration-300 hover-lift">
+              <div key={c.title} className="group v-card v-card-interactive p-8 hover-lift">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl neon-border bg-primary/10 transition-all duration-300 group-hover:glow-primary-sm">
                   <c.icon className="h-6 w-6 text-primary icon-neon transition-all duration-300 group-hover:icon-neon-hover" />
                 </div>

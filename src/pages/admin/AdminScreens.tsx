@@ -202,7 +202,7 @@ export default function AdminScreens() {
                           <td className="px-4 py-2 text-muted-foreground">{s.locations?.name ?? "—"}</td>
                           <td className="px-4 py-2">
                             <span className="inline-flex items-center gap-1.5">
-                              <span className={`h-2 w-2 rounded-full ${on ? "bg-emerald-400 shadow-[0_0_8px_currentColor]" : "bg-red-400"}`} />
+                              <span className={`v-dot ${on ? "v-dot-live" : "v-dot-error"}`} />
                               <span className={on ? "text-emerald-400" : "text-red-400"}>{on ? "Online" : "Offline"}</span>
                             </span>
                           </td>

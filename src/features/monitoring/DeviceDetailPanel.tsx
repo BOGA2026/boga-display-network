@@ -69,11 +69,11 @@ export default function DeviceDetailPanel() {
   };
 
   return (
-    <aside className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0F1115]">
+    <aside className="v-card flex h-full w-full flex-col overflow-hidden">
       <header className="flex items-start justify-between gap-3 border-b border-white/10 p-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`inline-block h-2.5 w-2.5 rounded-full ${STATUS_DOT[device.status] ?? STATUS_DOT.pending}`} />
+            <span className={`v-dot v-dot-lg ${STATUS_DOT[device.status] ?? STATUS_DOT.pending}`} />
             <span className="text-xs uppercase tracking-wide text-muted-foreground">{STATUS_LABEL[device.status] ?? device.status}</span>
           </div>
           <h3 className="mt-1 truncate text-base font-semibold">{device.screen_name ?? "Pantalla sin nombre"}</h3>
@@ -96,7 +96,7 @@ export default function DeviceDetailPanel() {
 
         <OfflineHistory deviceId={device.id} />
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <section className="v-card p-4">
           <div className="mb-3 flex items-center gap-2 text-sm font-medium"><MapPin className="h-4 w-4" /> Ubicación</div>
           <div className="grid grid-cols-2 gap-3">
             <div>

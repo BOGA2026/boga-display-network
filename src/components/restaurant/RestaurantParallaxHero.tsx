@@ -80,8 +80,8 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
           transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1s ease, translate 1s ease",
         }}
       >
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-widest glass-card border border-primary/20 text-primary">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+        <div className="v-card mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-widest border-primary/20 text-primary">
+          <span className="v-dot v-dot-sm v-dot-accent" />
           Solución para Restaurantes
         </div>
 
@@ -107,7 +107,7 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
           </button>
           <a
             href="#como-funciona"
-            className="group flex items-center gap-2 rounded-xl px-8 py-4 text-base font-semibold text-foreground border border-border/60 hover:border-primary/40 transition-colors glass-card"
+            className="group v-card v-card-interactive flex items-center gap-2 px-8 py-4 text-base font-semibold text-foreground"
           >
             <Play className="h-4 w-4 text-primary" />
             Ver cómo funciona

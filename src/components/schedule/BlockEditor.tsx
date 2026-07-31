@@ -132,7 +132,7 @@ const BlockEditor = ({ block, layers, playlists, onSave, onDuplicate, onDelete, 
               {layers.map((l) => (
                 <SelectItem key={l.id} value={l.id}>
                   <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
+                    <span className="v-dot" style={{ background: l.color }} />
                     {l.name} (P{l.priority})
                   </span>
                 </SelectItem>

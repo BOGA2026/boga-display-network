@@ -183,7 +183,7 @@ export default function Soporte() {
               <div className="space-y-2">
                 {pqrsList.map(p => (
                   <button key={p.id} onClick={() => { setSelectedPqrs(p); loadPqrsResponses(p.id); }}
-                    className="w-full text-left p-3 rounded-lg border border-border/50 bg-background/40 hover:bg-white/5">
+                    className="v-card v-card-interactive w-full p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{p.subject}</span>
                       <span className="text-[10px] uppercase text-muted-foreground">{p.status}</span>

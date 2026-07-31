@@ -61,7 +61,7 @@ export function PriceCalculator() {
   return (
     <section aria-labelledby="calc-title" className="px-6 pb-20">
       <div className="mx-auto max-w-5xl">
-        <div className="glass-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
+        <div className="v-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
           <div className="grid gap-10 lg:grid-cols-2">
             <div>
               <h2

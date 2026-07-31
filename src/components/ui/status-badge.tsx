@@ -11,18 +11,18 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const dotVariants = cva("inline-block rounded-full", {
+const dotVariants = cva("v-dot", {
   variants: {
     variant: {
-      live: "bg-live shadow-live-pulse animate-live-pulse",
-      online: "bg-live",
-      offline: "bg-muted-foreground/50",
-      idle: "bg-yellow-400",
-      warning: "bg-orange-400",
+      live: "v-dot-live",
+      online: "v-dot-online",
+      offline: "v-dot-offline",
+      idle: "v-dot-idle",
+      warning: "v-dot-warning",
     },
     size: {
-      sm: "h-1.5 w-1.5",
-      md: "h-2 w-2",
+      sm: "v-dot-sm",
+      md: "",
     },
   },
   defaultVariants: { variant: "offline", size: "md" },

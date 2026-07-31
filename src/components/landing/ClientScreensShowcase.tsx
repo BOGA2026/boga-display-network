@@ -129,7 +129,7 @@ export default function ClientScreensShowcase() {
               <div className="absolute right-3 top-3 flex items-center gap-2 rounded-full border border-white/15 bg-black/45 px-3 py-1.5 backdrop-blur-md sm:right-4 sm:top-4">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="v-dot v-dot-live" />
                 </span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white sm:text-xs">
                   En vivo

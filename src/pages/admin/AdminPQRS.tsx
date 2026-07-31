@@ -220,7 +220,7 @@ export default function AdminPQRS() {
                   <span className={`text-[10px] ${PRIORITY_CLS[p.priority]}`}>● {p.priority}</span>
                 </div>
                 <div className="text-sm font-medium truncate flex items-center gap-2">
-                  {!p.read_by_admin && <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0" />}
+                  {!p.read_by_admin && <span className="v-dot v-dot-accent" />}
                   {p.subject}
                 </div>
                 <div className="text-xs admin-muted truncate">{p.businesses?.name ?? "—"}</div>
@@ -254,7 +254,7 @@ export default function AdminPQRS() {
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                <div className="rounded-lg bg-white/5 border border-border/50 p-3">
+                <div className="v-card p-3">
                   <div className="text-[10px] uppercase admin-muted mb-1">Usuario • {new Date(selected.created_at).toLocaleString("es-CO")}</div>
                   <div className="text-sm whitespace-pre-wrap">{selected.message}</div>
                 </div>

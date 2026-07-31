@@ -57,7 +57,7 @@ const SimpleScheduleHeader = ({
                 <SelectItem key={s.id} value={s.id} className="text-base py-3">
                   <span className="flex items-center gap-3">
                     <span
-                      className="h-2.5 w-2.5 rounded-full shrink-0"
+                      className="v-dot v-dot-lg"
                       style={{ background: s.status === "online" ? "hsl(142 71% 45%)" : "hsl(var(--muted-foreground))" }}
                     />
                     {s.name}

@@ -2,7 +2,14 @@
 
 @tailwind base;
 @tailwind components;
+
+/* Primitivas de app (.v-card / .v-numeric / .v-dot / .v-kpi-*).
+   Va después del base+components de shadcn y antes de las utilidades,
+   para que cualquier utilidad puntual de Tailwind siga ganando. */
+@import "./styles/tokens.css";
+
 @tailwind utilities;
+
 
 /*
  * Visualia Design System — Light, minimal, single accent.

@@ -165,7 +165,7 @@ export default function ScreenSettingsPanel({ screen, onChange, onDelete, onSync
   const anyLoading = syncing || sendingRecovery || takingScreenshot;
 
   return (
-    <aside className="glass-card rounded-xl space-y-5 p-4">
+    <aside className="v-card space-y-5 p-4">
       <h3 className="text-sm font-semibold text-foreground">Ajustes de pantalla</h3>
 
       <fieldset className="space-y-1.5">

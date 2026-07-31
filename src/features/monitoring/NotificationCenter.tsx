@@ -39,7 +39,7 @@ export default function NotificationCenter() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-foreground hover:bg-white/10"
+        className="v-card v-card-interactive relative inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground"
         aria-label="Notificaciones"
       >
         <Bell className="h-4 w-4" />
@@ -50,7 +50,7 @@ export default function NotificationCenter() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-white/10 bg-[#0F1115] shadow-xl">
+        <div className="v-card absolute right-0 z-50 mt-2 w-80 overflow-hidden bg-popover shadow-xl">
           <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
             <span className="text-sm font-medium">Notificaciones</span>
             {unread > 0 && (

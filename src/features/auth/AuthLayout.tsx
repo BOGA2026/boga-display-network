@@ -23,7 +23,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
         >
           ← Volver a Visualia
         </Link>
-        <div className="glass-card w-full max-w-md rounded-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="v-card w-full max-w-md rounded-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           {subtitle && <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>}
           <div className="mt-6 space-y-4">{children}</div>

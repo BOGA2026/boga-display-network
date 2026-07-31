@@ -78,7 +78,7 @@ const RealLifeScenario = () => {
           {/* Final punch */}
           <div className="mt-10 md:ml-16">
             <div
-              className="rounded-2xl p-6 md:p-8 glass-card neon-border"
+              className="v-card rounded-2xl p-6 md:p-8 neon-border"
               style={{
                 background:
                   "linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--card)) 100%)",
