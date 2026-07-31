@@ -155,10 +155,11 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
             {/* Image area */}
             <div className="relative aspect-[16/7] w-full overflow-hidden flex-shrink-0">
               {slides.map((slide, i) => (
-                <img
+                <PictureImage
                   key={i}
                   src={slide.src}
-                  srcSet={slide.srcSet}
+                  webpSrcSet={slide.srcSet}
+                  avifSrcSet={slide.avifSrcSet}
                   sizes="(min-width: 1024px) 900px, 100vw"
                   alt={`Pantalla digital de Visualia para ${slide.label.toLowerCase()}`}
                   width={1600}
@@ -173,6 +174,7 @@ const ShowcaseCarousel = ({ onOpenChat }: ShowcaseCarouselProps) => {
                     transitionTimingFunction: "cubic-bezier(0.4,0,0.2,1)",
                   }}
                 />
+
 
               ))}
               {/* CORRECCIÓN 10 — CTA slide: "¿Tu negocio no está aquí?" */}
