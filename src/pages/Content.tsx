@@ -359,6 +359,27 @@ const Content = () => {
         </div>
       </div>
 
+      {/* Filtro activo (llega desde Analíticas: archivos sin reproducir) */}
+      {filtroIds && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-3">
+          <p className="text-sm text-foreground">
+            Mostrando {visibleItems.length} {visibleItems.length === 1 ? "archivo" : "archivos"} sin
+            reproducciones en los últimos 30 días.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete("ids");
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            Quitar filtro
+          </Button>
+        </div>
+      )}
+
       {/* Main area */}
       {loading ? (
         <CardGridSkeleton count={8} columns={4} className="gap-4" />
@@ -366,7 +387,8 @@ const Content = () => {
         <ErrorState description={COPY.error.content} onRetry={fetchContent} />
       ) : hasContent ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((item) => {
+          {visibleItems.map((item) => {
+
             const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
             return (
               <Card
