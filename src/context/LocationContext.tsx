@@ -11,6 +11,7 @@
  */
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 
@@ -55,7 +56,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       return (data ?? []) as Location[];
     },
-    staleTime: 60_000,
+    ...staticQueryOptions,
   });
 
   const [activeLocationId, setActiveLocationIdState] = React.useState<string | null>(() => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { invalidate } from "@/lib/query-client";
+import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,6 +97,7 @@ const Playlists = () => {
   // Fetch available content for adding to playlist
   const { data: availableContent = [] } = useQuery({
     queryKey: ["available-content"],
+    ...staticQueryOptions,
     enabled: !!editingPlaylistId,
     queryFn: async () => {
       const { data: profile } = await supabase
