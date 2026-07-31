@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { captureElement, preloadCapture } from "@/components/system/DeferredMount";
 import {
   Undo2,
   Redo2,
@@ -78,6 +79,7 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
   const [saving, setSaving] = useState(false);
+  const [capturing, setCapturing] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveFileName, setSaveFileName] = useState("");
   const [presetDialogOpen, setPresetDialogOpen] = useState(false);
@@ -653,18 +655,21 @@ export default function EditorPage() {
 
   const generateThumbnail = useCallback(async (): Promise<string | null> => {
     if (!canvasRef.current) return null;
+    setCapturing(true);
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(canvasRef.current, {
+      // html2canvas se importa dentro del handler (captureElement) para no
+      // arrastrarlo al bundle inicial del editor.
+      return await captureElement(canvasRef.current, {
         scale: 0.35,
-        useCORS: true,
-        allowTaint: true,
         backgroundColor: background,
+        type: "image/jpeg",
+        quality: 0.7,
       });
-      return canvas.toDataURL("image/jpeg", 0.7);
     } catch (e) {
       console.warn("Thumbnail generation failed:", e);
       return null;
+    } finally {
+      setCapturing(false);
     }
   }, [background]);
 
@@ -807,6 +812,7 @@ export default function EditorPage() {
         onSaveContent={onSaveContent}
         onSavePreset={onSavePreset}
         saving={saving}
+        capturing={capturing}
       />
 
       <div className="grid h-[calc(100%-56px)] grid-cols-[56px_1fr_320px]">
@@ -1455,7 +1461,7 @@ export default function EditorPage() {
               disabled={saving || !saveFileName.trim()}
               className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {saving ? "Guardando…" : "Guardar"}
+              {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar"}
             </button>
           </DialogFooter>
         </DialogContent>
@@ -1490,7 +1496,7 @@ export default function EditorPage() {
               disabled={saving || !presetName.trim()}
               className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {saving ? "Guardando…" : "Guardar preset"}
+              {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar preset"}
             </button>
           </DialogFooter>
         </DialogContent>
