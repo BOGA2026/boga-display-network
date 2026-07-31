@@ -375,7 +375,7 @@ const Content = () => {
     if (selectedFile.size > MAX_UPLOAD_BYTES) {
       toast({
         title: "Archivo demasiado pesado",
-        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es 250 MB. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
+        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es ${formatBytes(MAX_UPLOAD_BYTES)}. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
         variant: "destructive",
       });
       return;
