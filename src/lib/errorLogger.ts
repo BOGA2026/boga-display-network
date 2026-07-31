@@ -1,9 +1,9 @@
-// Lightweight client-side error logger. Sentry-compatible surface so the app
-// can later drop in @sentry/react by only changing this file.
-//
-// For now we log to console (grouped, deduped) and expose a `logError` helper
-// that admin fetches / try-catch blocks call directly. Global listeners
-// capture unhandled errors + rejected promises.
+// Client-side error logger. Logs to console (grouped, deduped) and forwards to
+// Sentry when a DSN is configured, preserving the `scope` / `section` tags used
+// by the error boundaries. Known noise (stale chunks, offline network failures,
+// browser extensions) is filtered out in src/lib/sentry.ts.
+
+import { Sentry, isIgnoredError, isSentryEnabled } from "./sentry";
 
 type Extra = Record<string, unknown>;
 
@@ -29,16 +29,26 @@ export function logError(err: unknown, extra?: Extra) {
     ...extra,
   });
 
-  // Placeholder — swap for Sentry.captureException in the future.
-  const w = window as any;
-  if (typeof w.Sentry?.captureException === "function") {
-    try {
-      w.Sentry.captureException(err, { extra });
-    } catch {
-      /* noop */
-    }
-  }
+  reportError(err, extra);
 }
+
+/**
+ * Forward an error to Sentry with `scope` / `section` tags. Safe to call even
+ * when Sentry is disabled or the error is filtered noise.
+ */
+export function reportError(err: unknown, extra?: Extra) {
+  if (!isSentryEnabled()) return;
+  if (isIgnoredError(err)) return;
+
+  const scope = (extra?.scope ?? extra?.label ?? "app") as string;
+  const section = (extra?.section ?? extra?.route ?? "unknown") as string;
+
+  Sentry.captureException(err, {
+    tags: { scope, section },
+    extra,
+  });
+}
+
 
 let installed = false;
 export function installGlobalErrorHandlers() {

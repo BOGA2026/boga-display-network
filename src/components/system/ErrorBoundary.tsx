@@ -25,9 +25,12 @@ export class AppErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     logError(error, {
       label: this.props.label ?? "app-error-boundary",
+      scope: this.props.label ?? "app-error-boundary",
+      section: this.props.resetKey ?? "app",
       info: info.componentStack,
     });
   }
+
 
   componentDidUpdate(prev: Props) {
     if (prev.resetKey !== this.props.resetKey && this.state.error) {

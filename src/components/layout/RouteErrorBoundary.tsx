@@ -16,8 +16,15 @@ export class RouteErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    logError(error, { label: "route-error", route: this.props.routeKey, info: info.componentStack });
+    logError(error, {
+      label: "route-error",
+      scope: "route-error",
+      section: this.props.routeKey ?? "unknown",
+      route: this.props.routeKey,
+      info: info.componentStack,
+    });
   }
+
 
   componentDidUpdate(prev: Props) {
     if (prev.routeKey !== this.props.routeKey && this.state.error) {

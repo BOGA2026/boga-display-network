@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 import { imagetools } from "vite-imagetools";
 import { visualizer } from "rollup-plugin-visualizer";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+
 
 
 // https://vitejs.dev/config/
@@ -47,7 +49,24 @@ export default defineConfig(({ mode }) => ({
         brotliSize: true,
         template: "treemap",
       }),
+    // Sube los sourcemaps ocultos a Sentry y los borra del dist, así los stack
+    // traces quedan legibles sin publicar el código.
+    mode !== "development" &&
+      Boolean(
+        process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
+      ) &&
+
+      sentryVitePlugin({
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        telemetry: false,
+        sourcemaps: {
+          filesToDeleteAfterUpload: ["dist/**/*.map"],
+        },
+      }),
   ].filter(Boolean),
+
   resolve: {
     dedupe: ["react", "react-dom"],
     alias: {
@@ -58,7 +77,7 @@ export default defineConfig(({ mode }) => ({
     target: "es2020",
     minify: "terser",
     cssCodeSplit: true,
-    sourcemap: false,
+    sourcemap: "hidden",
     chunkSizeWarningLimit: 900,
     terserOptions: {
       compress: {
