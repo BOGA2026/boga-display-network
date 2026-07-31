@@ -244,8 +244,9 @@ export function enforceTvProposal<T extends LooseProposal>(p: T, canvasHeight: n
 export function clampMenuSections(
   secciones: { nombre?: string; items?: { plato?: string; descripcion?: string; precio?: string }[] }[],
   maxDescChars: number,
+  maxItems: number = TV_RULES.maxItems,
 ) {
-  let budget = TV_RULES.maxItems;
+  let budget = Math.min(TV_RULES.maxItems, Math.max(0, maxItems));
   return secciones
     .map((s) => {
       const items = (s.items || []).slice(0, Math.max(0, budget)).map((item) => ({

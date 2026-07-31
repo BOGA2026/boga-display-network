@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES, ALL_FONTS, SVG_ICONS } from "./types";
 import { TV_RULES, tvTypography, clampMenuSections } from "@/lib/tvLegibility";
+import { ARCHETYPES, type ArchetypeId } from "@/lib/designArchetypes";
 
 interface LayerItem {
   id: number;
@@ -424,8 +425,8 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     }
   }, [size]);
 
-  // ─── Menu two-column renderer (TV legibility: sizes relative to canvas height) ───
-  const renderMenuDosColumnas = useCallback((fc: fabric.Canvas, p: Proposal) => {
+  // ─── LISTA LIMPIA — sin foto, dos columnas, hasta 7 platos ───
+  const renderListaLimpia = useCallback((fc: fabric.Canvas, p: Proposal) => {
     const W = size.w;
     const H = size.h;
     const acento = p.color_acento;
@@ -579,6 +580,155 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     }
   }, [size, nextId]);
 
+  /** Shared dish list block: name left, price right, optional 2-line description. */
+  const renderDishBlock = useCallback((
+    fc: fabric.Canvas,
+    p: Proposal,
+    opts: { x: number; y: number; width: number; bottom: number; maxItems: number; showDesc: boolean },
+  ) => {
+    const t = tvTypography(size.h, size.w);
+    const secciones = clampMenuSections(p.secciones || [], t.maxDescChars, opts.maxItems);
+    let y = opts.y;
+
+    for (const seccion of secciones) {
+      for (const item of seccion.items || []) {
+        if (y > opts.bottom - t.plato) return y;
+
+        const precioObj = new fabric.IText(item.precio || "", {
+          left: opts.x + opts.width, top: y, originX: "right",
+          fontSize: t.precio, fontFamily: p.fuente_cuerpo,
+          fontWeight: "800", fill: p.color_acento,
+          selectable: true, editable: true,
+        } as any);
+        (precioObj as any)._customName = `Precio ${item.plato}`;
+        (precioObj as any)._layerId = nextId();
+
+        const platoObj = new fabric.IText(item.plato || "", {
+          left: opts.x, top: y,
+          fontSize: t.plato, fontFamily: p.fuente_cuerpo,
+          fontWeight: "700", fill: p.color_texto,
+          selectable: true, editable: true,
+        } as any);
+        (platoObj as any)._customName = `Plato ${item.plato}`;
+        (platoObj as any)._layerId = nextId();
+        fc.add(platoObj);
+        fc.add(precioObj);
+        y += t.plato * 1.2;
+
+        if (opts.showDesc && item.descripcion) {
+          const descObj = new fabric.Textbox(item.descripcion, {
+            left: opts.x, top: y, width: opts.width,
+            fontSize: t.descripcion, fontFamily: p.fuente_cuerpo,
+            fill: p.color_texto, opacity: 0.85,
+            splitByGrapheme: false, selectable: true, editable: true,
+          } as any);
+          (descObj as any)._customName = `Desc ${item.plato}`;
+          (descObj as any)._layerId = nextId();
+          fc.add(descObj);
+          y += t.descripcion * 1.35 * TV_RULES.maxDescLines;
+        }
+        y += t.descripcion * 0.6;
+      }
+    }
+    return y;
+  }, [size, nextId]);
+
+  // ─── FOTO PROTAGONISTA — imagen a sangre + banda sólida inferior con máx. 4 platos ───
+  const renderFotoProtagonista = useCallback((fc: fabric.Canvas, p: Proposal) => {
+    const W = size.w;
+    const H = size.h;
+    const t = tvTypography(H, W);
+    const M = t.safeMargin;
+    const maxItems = ARCHETYPES.foto_protagonista.maxItems;
+    const totalItems = clampMenuSections(p.secciones || [], t.maxDescChars, maxItems)
+      .reduce((n, sec) => n + (sec.items?.length ?? 0), 0);
+    const showDesc = totalItems <= 2;
+    const rowH = t.plato * 1.2 + (showDesc ? t.descripcion * 1.35 * TV_RULES.maxDescLines : 0) + t.descripcion * 0.6;
+    const bandH = Math.min(H * 0.55, M * 2 + rowH * Math.max(1, totalItems));
+    const bandTop = H - bandH;
+
+    // Título sobre la foto (arriba, fuera de la banda)
+    const headerObj = new fabric.IText((p.header?.nombre_restaurante || p.texto_principal || "").toUpperCase(), {
+      left: W / 2, top: M, originX: "center",
+      fontSize: Math.min(Math.round(H * TV_RULES.restauranteMaxPct), Math.max(t.restaurante, p.header?.size || 0)),
+      fontFamily: p.fuente_titulo, fontWeight: "700",
+      fill: p.color_texto, selectable: true, editable: true,
+    } as any);
+    (headerObj as any)._customName = "Nombre restaurante";
+    (headerObj as any)._layerId = nextId();
+    fc.add(headerObj);
+
+    // Banda sólida: los platos NUNCA van sueltos sobre la foto
+    const band = new fabric.Rect({
+      left: 0, top: bandTop, width: W, height: bandH,
+      fill: p.background_color, opacity: 0.96,
+      selectable: false, evented: false,
+    } as any);
+    (band as any)._customName = "Banda inferior";
+    (band as any)._layerId = nextId();
+    fc.add(band);
+
+    renderDishBlock(fc, p, {
+      x: M, y: bandTop + M * 0.8, width: W - M * 2,
+      bottom: H - M * 0.5, maxItems, showDesc,
+    });
+  }, [size, nextId, renderDishBlock]);
+
+  // ─── DIVIDIDO — mitad imagen, mitad menú, separación neta, máx. 5 platos ───
+  const renderDividido = useCallback((fc: fabric.Canvas, p: Proposal) => {
+    const W = size.w;
+    const H = size.h;
+    const t = tvTypography(H, W);
+    const M = t.safeMargin;
+    const splitX = Math.round(W / 2);
+
+    // Mitad sólida derecha
+    const panel = new fabric.Rect({
+      left: splitX, top: 0, width: W - splitX, height: H,
+      fill: p.background_color, selectable: false, evented: false,
+    } as any);
+    (panel as any)._customName = "Panel menú";
+    (panel as any)._layerId = nextId();
+    fc.add(panel);
+
+    const splitLine = new fabric.Line([splitX, 0, splitX, H], {
+      stroke: p.color_acento, strokeWidth: 4, selectable: false, evented: false,
+    } as any);
+    (splitLine as any)._customName = "Separación";
+    (splitLine as any)._layerId = nextId();
+    fc.add(splitLine);
+
+    const x = splitX + M;
+    const width = W - splitX - M * 2;
+
+    const headerObj = new fabric.IText((p.header?.nombre_restaurante || p.texto_principal || "").toUpperCase(), {
+      left: x, top: M,
+      fontSize: Math.min(Math.round(H * TV_RULES.restauranteMaxPct), Math.max(t.restaurante, p.header?.size || 0)),
+      fontFamily: p.fuente_titulo, fontWeight: "700",
+      fill: p.color_texto, selectable: true, editable: true,
+    } as any);
+    (headerObj as any)._customName = "Nombre restaurante";
+    (headerObj as any)._layerId = nextId();
+    fc.add(headerObj);
+
+    let y = M + (headerObj.fontSize as number) * 1.3;
+    const tagline = p.header?.tagline || p.texto_secundario;
+    if (tagline) {
+      const tagObj = new fabric.IText(tagline, {
+        left: x, top: y, fontSize: t.tagline, fontFamily: p.fuente_cuerpo,
+        fill: p.color_acento, selectable: true, editable: true,
+      } as any);
+      (tagObj as any)._customName = "Tagline";
+      (tagObj as any)._layerId = nextId();
+      fc.add(tagObj);
+      y += t.tagline * 1.6;
+    }
+
+    renderDishBlock(fc, p, {
+      x, y, width, bottom: H - M, maxItems: ARCHETYPES.dividido.maxItems, showDesc: false,
+    });
+  }, [size, nextId, renderDishBlock]);
+
 
   // Initialize canvas
   useEffect(() => {
@@ -619,19 +769,27 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       (fc as any)._keyHandler = handleKeyDown;
 
       // Load background image
-      const bgImageUrl = proposal.image_url;
+      const archetypeId: ArchetypeId = (proposal.arquetipo && ARCHETYPES[proposal.arquetipo])
+        ? proposal.arquetipo
+        : "lista_limpia";
+      const isSplit = archetypeId === "dividido";
+      const bgImageUrl = ARCHETYPES[archetypeId].usaFoto ? proposal.image_url : null;
       if (bgImageUrl) {
         fabric.Image.fromURL(
           bgImageUrl,
           (img) => {
             if (!img || !img.width) return;
-            const scaleX = size.w / (img.width || 1);
+            const targetW = isSplit ? size.w / 2 : size.w;
+            const scaleX = targetW / (img.width || 1);
             const scaleY = size.h / (img.height || 1);
             const scale = Math.max(scaleX, scaleY);
             img.set({
+              clipPath: isSplit
+                ? new fabric.Rect({ left: 0, top: 0, width: size.w / 2, height: size.h, absolutePositioned: true } as any)
+                : undefined,
               scaleX: scale,
               scaleY: scale,
-              left: (size.w - (img.width || 0) * scale) / 2,
+              left: (targetW - (img.width || 0) * scale) / 2,
               top: (size.h - (img.height || 0) * scale) / 2,
               originX: "left",
               originY: "top",
@@ -644,9 +802,9 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
             const overlayColor = proposal.overlay_color ?? "#000000";
             const overlay = new fabric.Rect({
-              left: 0, top: 0, width: size.w, height: size.h,
+              left: 0, top: 0, width: isSplit ? size.w / 2 : size.w, height: size.h,
               fill: overlayColor,
-              opacity: proposal.overlay_opacity,
+              opacity: isSplit ? 0 : proposal.overlay_opacity,
               selectable: false, evented: false,
             } as any);
             (overlay as any)._customName = "__overlay";
@@ -666,11 +824,13 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       const isMenuLayout = proposal.tipo_layout === "menu_dos_columnas" || hasSections;
 
       console.log("PROPUESTA RECIBIDA:", serializedProposal);
-      console.log("TIPO LAYOUT:", proposal.tipo_layout);
+      console.log("ARQUETIPO:", archetypeId);
       console.log("SECCIONES:", proposal.secciones);
 
       if (isMenuLayout) {
-        renderMenuDosColumnas(fc, proposal);
+        if (archetypeId === "foto_protagonista") renderFotoProtagonista(fc, proposal);
+        else if (archetypeId === "dividido") renderDividido(fc, proposal);
+        else renderListaLimpia(fc, proposal);
       } else {
         // Generic text layout
         const align = proposal.layout;

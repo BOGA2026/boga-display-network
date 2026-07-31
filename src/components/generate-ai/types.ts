@@ -22,10 +22,14 @@ export interface MenuHeader {
   size: number;
 }
 
+import type { ArchetypeId } from "@/lib/designArchetypes";
+
 export interface Proposal {
   id: number;
   nombre: string;
   concepto: string;
+  /** Structural archetype: foto_protagonista | lista_limpia | dividido */
+  arquetipo?: ArchetypeId;
   tipo_layout?: string | null;
   background_color: string;
   background_image_query: string;

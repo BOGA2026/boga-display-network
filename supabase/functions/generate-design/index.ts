@@ -5,6 +5,13 @@ import {
   enforceTvProposal,
   validateTvProposal,
 } from "../_shared/tv-legibility.ts";
+import {
+  ARCHETYPES,
+  buildArchetypePrompt,
+  enforceArchetype,
+  normalizeArchetypeOrder,
+  type ArchetypeId,
+} from "../_shared/design-archetypes.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -531,7 +538,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, tipo, formato, estilo, cliente, menu_items, brand_kit } = await req.json();
+    const { prompt, tipo, formato, estilo, cliente, menu_items, brand_kit, arquetipos } = await req.json();
+    // The archetype the user picks most often is generated first.
+    const archetypeOrder: ArchetypeId[] = normalizeArchetypeOrder(arquetipos);
     const menuItems: MenuItem[] = Array.isArray(menu_items)
       ? menu_items.filter((i: MenuItem) => i && typeof i.name === "string" && i.name.trim()).slice(0, TV_RULES.maxItems)
       : [];
@@ -601,7 +610,7 @@ serve(async (req) => {
       : detectedType === "bienvenida" ? PROMPT_BIENVENIDA
       : detectedType === "evento" ? PROMPT_EVENTO
       : PROMPT_GENERICO;
-    const systemPrompt = `${basePrompt}\n${TV_LEGIBILITY_RULES}`;
+    const systemPrompt = `${basePrompt}\n${TV_LEGIBILITY_RULES}\n${buildArchetypePrompt(archetypeOrder)}`;
 
     const canvas = CANVAS[(formato as keyof typeof CANVAS)] ?? CANVAS["16:9"];
     const typo = tvTypography(canvas.h, canvas.w);
@@ -709,6 +718,8 @@ REGLAS:
 
     const sanitized = propuestas.slice(0, 3).map((p: any, i: number) => {
       const isMenuResponse = detectedType === "menu";
+      const archetypeId = archetypeOrder[i] ?? archetypeOrder[0];
+      const archetype = ARCHETYPES[archetypeId];
       const rawSections = Array.isArray(p.secciones)
         ? p.secciones.map((s: any) => ({
             nombre: s.nombre ?? "",
@@ -745,11 +756,12 @@ REGLAS:
         footer_texto: normalizedFooter,
       }));
 
-      return {
+      return enforceArchetype({
         id: i + 1,
-        nombre: p.nombre ?? `Propuesta ${i + 1}`,
+        nombre: p.nombre ?? archetype.label,
+        arquetipo: archetypeId,
         concepto: p.concepto ?? "",
-        tipo_layout: isMenuResponse && normalizedSections.length > 0 ? "menu_dos_columnas" : (p.tipo_layout ?? null),
+        tipo_layout: archetypeId,
         background_color: brandKit?.secondary_color ?? p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
@@ -782,7 +794,7 @@ REGLAS:
         header: isMenuResponse ? normalizedHeader : (p.header ?? null),
         secciones: isMenuResponse ? normalizedSections : rawSections,
         footer_texto: isMenuResponse ? normalizedFooter : (p.footer_texto ?? null),
-      };
+      }, archetypeId);
     });
     return sanitized;
     };
@@ -792,7 +804,9 @@ REGLAS:
     let feedback = "";
     for (let attempt = 1; attempt <= 2; attempt++) {
       const candidates = await runGeneration(feedback);
-      const repaired = candidates.map((p) => enforceTvProposal(p, canvas.h, canvas.w));
+      const repaired = candidates.map((p: any) =>
+        enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo as ArchetypeId),
+      );
       const violations = repaired.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
       sanitized = repaired;
       if (violations.length === 0) break;
@@ -804,6 +818,8 @@ REGLAS:
     const orientation = formato === "9:16" ? "portrait" : "landscape";
     const withImages = await Promise.all(
       sanitized.map(async (p: any) => {
+        // "Lista limpia" is defined by the absence of photography.
+        if (!ARCHETYPES[p.arquetipo as ArchetypeId]?.usaFoto) return { ...p, image_url: null };
         if (!p.background_image_query) return { ...p, image_url: null };
         try {
           const unsplashRes = await fetch(
@@ -824,7 +840,9 @@ REGLAS:
     );
 
     // Re-enforce after images: text over a photo needs the 60% darkening layer.
-    const finalProposals = withImages.map((p: any) => enforceTvProposal(p, canvas.h, canvas.w));
+    const finalProposals = withImages.map((p: any) =>
+      enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo as ArchetypeId),
+    );
 
     return new Response(
       JSON.stringify({ propuestas: finalProposals, tv_typography: typo }),
