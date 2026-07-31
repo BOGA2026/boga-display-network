@@ -96,6 +96,7 @@ const SAMPLE_CONTENT = [
 const Content = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   
   const [uploading, setUploading] = useState(false);
