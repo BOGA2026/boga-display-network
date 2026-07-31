@@ -315,7 +315,11 @@ const Landing = () => {
       video.currentTime = 0;
       video.muted = muted;
       video.volume = volume;
-      video.play().catch(() => {});
+      attemptAutoplay(video, {
+        onPlaying: ({ muted: fellBackToMuted }) => {
+          if (fellBackToMuted) setMuted(true);
+        },
+      });
     }
   }, [muted, volume]);
 
