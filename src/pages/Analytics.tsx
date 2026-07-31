@@ -26,6 +26,8 @@ import {
   useAirtime,
   useOrphanContent,
   useTelemetryDays,
+  useScanDays,
+  useScanHeatmap,
   formatHoras,
   formatEscaneosHora,
   type AirtimeRow,
@@ -33,6 +35,8 @@ import {
 
 
 const EmptyAxesChart = lazy(() => import("@/features/analytics/EmptyAxesChart"));
+const ScanHeatmap = lazy(() => import("@/features/analytics/ScanHeatmap"));
+
 
 const DIAS_PERIODO = 7;
 const SIN_DATO = "—";
