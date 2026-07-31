@@ -110,34 +110,34 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
       accent && "glow-primary-sm",
       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
     )}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+      <CardContent className="v-kpi-card">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-1">
             <p className="v-kpi-label">{label}</p>
             <div className="flex items-baseline gap-2">
               <p className="v-kpi-value text-3xl">{value}</p>
               {trend !== undefined && <TrendBadge value={trend} suffix="%" />}
             </div>
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+            {status && (
+              <div className="flex items-center gap-1.5">
+                <span className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  status === "ok" ? "bg-primary" : status === "warn" ? "bg-accent" : "bg-destructive"
+                )} />
+                <span className="text-xs text-muted-foreground">
+                  {status === "ok" ? "Operativo" : status === "warn" ? "Alerta" : "Inactivo"}
+                </span>
+              </div>
+            )}
           </div>
           <div className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
             accent ? "gradient-primary glow-primary-sm" : "bg-secondary"
           )}>
             <Icon className={cn("h-5 w-5", accent ? "text-primary-foreground" : "text-muted-foreground")} />
           </div>
         </div>
-        {status && (
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className={cn(
-              "h-1.5 w-1.5 rounded-full",
-              status === "ok" ? "bg-primary" : status === "warn" ? "bg-accent" : "bg-destructive"
-            )} />
-            <span className="text-xs text-muted-foreground">
-              {status === "ok" ? "Operativo" : status === "warn" ? "Alerta" : "Inactivo"}
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
