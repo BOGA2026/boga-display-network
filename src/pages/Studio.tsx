@@ -376,8 +376,8 @@ const Studio = () => {
                     <div
                       className="rounded-xl px-5 py-4"
                       style={{
-                        background: plan.highlighted ? "hsl(270 100% 50% / 0.08)" : "hsl(260 20% 12%)",
-                        border: plan.highlighted ? "1px solid hsl(270 100% 50% / 0.2)" : "1px solid hsl(260 15% 16%)",
+                        background: plan.highlighted ? "hsl(270 100% 55% / 0.12)" : "hsl(260 22% 16%)",
+                        border: plan.highlighted ? "1px solid hsl(270 100% 60% / 0.3)" : "1px solid hsl(260 18% 24%)",
                       }}
                     >
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Servicio mensual</span>
