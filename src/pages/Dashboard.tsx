@@ -145,10 +145,10 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
 
 // ─── Quick Actions ──────────────────────────────────────
 const quickActions = [
-  { label: COPY.actions.connectScreen, icon: Plus, path: NAV.pantallas.path },
-  { label: COPY.actions.upload, icon: Upload, path: NAV.contenido.path },
-  { label: COPY.actions.newPlaylist, icon: ListVideo, path: NAV.listas.path },
-  { label: "Programar contenido", icon: Calendar, path: NAV.horarios.path },
+  { label: COPY.actions.connectScreen, icon: Plus, path: NAV.pantallas.path, primary: true },
+  { label: COPY.actions.upload, icon: Upload, path: NAV.contenido.path, primary: false },
+  { label: COPY.actions.newPlaylist, icon: ListVideo, path: NAV.listas.path, primary: false },
+  { label: "Programar contenido", icon: Calendar, path: NAV.horarios.path, primary: false },
 ];
 
 // ─── Activity types ─────────────────────────────────────
@@ -500,23 +500,20 @@ const Dashboard = () => {
 
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-        {quickActions.map((a, i) => (
+      <div className="flex flex-wrap items-center gap-2">
+        {quickActions.map((a) => (
           <Button
             key={a.label}
-            variant="outline"
+            variant={a.primary ? "default" : "outline"}
             className={cn(
-              "h-auto flex-col gap-2 py-4 border-border/40 bg-card hover:border-primary/40 hover:bg-secondary/80 transition-all duration-300",
-              "opacity-0 animate-fade-in"
+              "h-11 gap-2 px-4 text-sm font-medium md:h-10",
+              !a.primary && "border-border/50 text-foreground hover:bg-secondary hover:text-foreground"
             )}
-            style={{ animationDelay: `${300 + i * 60}ms`, animationFillMode: "forwards" }}
             asChild
           >
             <Link to={a.path}>
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
-                <a.icon className="h-4 w-4" />
-              </div>
-              <span className="text-xs font-medium">{a.label}</span>
+              <a.icon className={cn("h-4 w-4", a.primary ? "text-primary-foreground" : "text-muted-foreground")} />
+              {a.label}
             </Link>
           </Button>
         ))}
