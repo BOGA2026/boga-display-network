@@ -2,8 +2,10 @@ import { ArrowRight, Play } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import PictureImage from "@/components/system/PictureImage";
 import heroRestaurantBg from "@/assets/hero-restaurant-bg.webp";
 import heroRestaurantBgSrcSet from "@/assets/hero-restaurant-bg.webp?responsive-hero";
+import heroRestaurantBgAvif from "@/assets/hero-restaurant-bg.webp?responsive-hero-avif";
 
 interface Props {
   onDemo: () => void;
@@ -22,9 +24,10 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
         className="absolute inset-0 z-0"
         style={bgParallax.style}
       >
-        <img
+        <PictureImage
           src={heroRestaurantBg}
-          srcSet={heroRestaurantBgSrcSet}
+          avifSrcSet={heroRestaurantBgAvif}
+          webpSrcSet={heroRestaurantBgSrcSet}
           sizes="100vw"
           alt="Interior de restaurante moderno con pantallas digitales"
           width={1920}
@@ -34,6 +37,7 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
           fetchPriority="high"
           decoding="async"
         />
+
 
         <div
           className="absolute inset-0"
