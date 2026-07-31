@@ -8,11 +8,11 @@ import {
   Monitor, MonitorOff, MapPin, Image, Zap, TrendingUp, TrendingDown,
   Clock, Plus, Upload, ListVideo, Calendar, Activity, Wifi, WifiOff,
   RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User, Circle, ArrowRight,
-  MonitorSmartphone,
+  MonitorSmartphone, AlertTriangle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { liveQueryOptions } from "@/lib/query-client";
@@ -381,6 +381,8 @@ const Dashboard = () => {
         { label: "Programa qué mostrar", path: "/dashboard/programacion", done: stats.schedules > 0 },
       ]
     : [];
+
+  const navigate = useNavigate();
 
   const staleScreens = ((stats?.screens ?? []) as any[]).filter((s) => {
     const sev = syncSeverity(s.last_seen_at).severity;
