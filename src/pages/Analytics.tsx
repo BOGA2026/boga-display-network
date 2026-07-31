@@ -22,6 +22,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState, BlockSkeleton, TableSkeleton } from "@/components/feedback/states";
 import DeferredMount from "@/components/system/DeferredMount";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
+import {
+  useAirtime,
+  useOrphanContent,
+  useTelemetryDays,
+  formatHoras,
+  formatEscaneosHora,
+  type AirtimeRow,
+} from "@/hooks/useAnalytics";
+
 
 const EmptyAxesChart = lazy(() => import("@/features/analytics/EmptyAxesChart"));
 
