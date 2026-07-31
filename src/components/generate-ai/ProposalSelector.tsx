@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Maximize2, RotateCcw, Pencil, Check, X } from "lucide-react";
+import { Maximize2, RotateCcw, Pencil, Check, X, AlertTriangle, Loader2 } from "lucide-react";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES } from "./types";
 import { tvTypography, clampMenuSections } from "@/lib/tvLegibility";
