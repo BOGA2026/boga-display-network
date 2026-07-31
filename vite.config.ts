@@ -78,6 +78,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("recharts") || id.includes("d3-")) return "charts";
           if (id.includes("framer-motion")) return "motion";
           if (id.includes("@supabase")) return "supabase";
+          if (id.includes("mapbox-gl")) return "mapbox";
+          if (id.includes("html2canvas")) return "html2canvas";
         },
       },
     },
