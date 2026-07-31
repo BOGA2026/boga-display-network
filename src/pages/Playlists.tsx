@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { NAV, COPY } from "@/config/lexicon";
+import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import {
   ListVideo,
   Plus,
@@ -62,7 +63,7 @@ const Playlists = () => {
   const [loopEnabled, setLoopEnabled] = useState(true);
 
   // Fetch playlists
-  const { data: playlists = [], isLoading } = useQuery({
+  const { data: playlists = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["playlists"],
     queryFn: async () => {
       const { data: profile } = await supabase
