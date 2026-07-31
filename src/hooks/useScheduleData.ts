@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { invalidate } from "@/lib/query-client";
+import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -51,6 +51,7 @@ export function useBusinessId() {
 export function useScreens(businessId: string | undefined) {
   return useQuery({
     queryKey: ["screens-for-schedule", businessId],
+    ...staticQueryOptions,
     enabled: !!businessId,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,6 +67,7 @@ export function useScreens(businessId: string | undefined) {
 export function usePlaylists(businessId: string | undefined) {
   return useQuery({
     queryKey: ["playlists-for-schedule", businessId],
+    ...staticQueryOptions,
     enabled: !!businessId,
     queryFn: async () => {
       const { data, error } = await supabase
