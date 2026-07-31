@@ -909,6 +909,8 @@ const Content = () => {
         onOpenChange={(o) => !o && setSendTarget(null)}
         contentId={sendTarget?.id}
         contentLabel={sendTarget?.name}
+        contentSizeBytes={sendTarget?.file_size_bytes}
+
       />
 
     </div>
