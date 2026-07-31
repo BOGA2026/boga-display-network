@@ -15,7 +15,7 @@ const MapView = lazy(() => import("@/features/monitoring/MapView"));
 
 function MapSkeleton() {
   return (
-    <div className="flex h-full min-h-[420px] items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+    <div className="v-card flex h-full min-h-[420px] items-center justify-center">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <MapPin className="h-4 w-4 animate-pulse" /> Cargando mapa…
       </div>
@@ -37,7 +37,7 @@ function DeviceList() {
   const select = useMonitoringStore((s) => s.select);
   if (devices.length === 0) return null;
   return (
-    <ul className="max-h-[220px] space-y-1 overflow-auto rounded-2xl border border-white/10 bg-white/5 p-2">
+    <ul className="v-card max-h-[220px] space-y-1 overflow-auto p-2">
       {devices.map((d) => (
         <li key={d.id}>
           <button
@@ -59,11 +59,11 @@ function DeviceList() {
 
 function KpiCard({ label, value, dotClass }: { label: string; value: number; dotClass: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-      <span className={`h-2.5 w-2.5 rounded-full ${dotClass}`} />
+    <div className="v-card flex items-center gap-3 px-4 py-3">
+      <span className={`v-dot v-dot-lg ${dotClass}`} />
       <div>
-        <div className="text-lg font-semibold leading-none">{value}</div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+        <div className="v-kpi-value v-kpi-value-sm text-lg leading-none">{value}</div>
+        <div className="v-kpi-label">{label}</div>
       </div>
     </div>
   );
@@ -85,12 +85,12 @@ function LivePulse() {
   const gap = Math.floor((now - lastUpdate) / 1000);
   const fresh = gap < 30;
   return (
-    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs">
+    <div className="v-card flex items-center gap-2 rounded-full px-3 py-1 text-xs">
       <span className={`relative flex h-2 w-2`}>
         <span
           className={`absolute inline-flex h-full w-full rounded-full ${fresh ? "bg-emerald-500 opacity-75 animate-ping" : ""}`}
         />
-        <span className={`relative inline-flex h-2 w-2 rounded-full ${fresh ? "bg-emerald-500" : "bg-neutral-500"}`} />
+        <span className={`v-dot ${fresh ? "v-dot-online" : "v-dot-offline"}`} />
       </span>
       <span className="text-muted-foreground">
         {fresh ? `Actualizado hace ${gap}s` : `Sin cambios hace ${gap}s`}
@@ -151,7 +151,7 @@ export default function Monitoring() {
         </div>
 
         {counts.total === 0 && (
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-3 v-card p-4 text-sm text-muted-foreground">
             <Activity className="h-4 w-4" />
             Aún no hay pantallas emparejadas. Vincula la primera desde “Pantallas”.
           </div>

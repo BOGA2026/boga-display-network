@@ -71,7 +71,7 @@ const ConflictResolverModal = ({
             return (
               <div key={i} className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
                 <div className="flex items-center gap-2 text-xs text-amber-400 mb-2">
-                  <span className="h-2 w-2 rounded-full" style={{ background: layerA?.color }} />
+                  <span className="v-dot" style={{ background: layerA?.color }} />
                   {layerA?.name} · Solapamiento #{i + 1}
                 </div>
                 <div className="flex items-center gap-3">

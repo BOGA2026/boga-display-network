@@ -62,7 +62,7 @@ const ScheduleHeader = ({
               <SelectItem key={s.id} value={s.id}>
                 <span className="flex items-center gap-2">
                   <span
-                    className="h-2 w-2 rounded-full shrink-0"
+                    className="v-dot"
                     style={{ background: s.status === "online" ? "hsl(142 71% 45%)" : "hsl(var(--muted-foreground))" }}
                   />
                   {s.name}

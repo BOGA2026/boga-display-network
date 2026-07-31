@@ -18,7 +18,7 @@ export function FeatureCard({ icon, title, explanation }: FeatureCardProps) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="feature-trigger flex w-full items-center gap-4 rounded-xl glass-card hover:glass-card-hover px-5 py-4 text-left transition-all duration-300 hover-lift min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="feature-trigger v-card v-card-interactive flex w-full items-center gap-4 px-5 py-4 hover-lift min-h-11"
       >
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 neon-border">
           {icon}

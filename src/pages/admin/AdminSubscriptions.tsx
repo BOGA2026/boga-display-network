@@ -178,16 +178,16 @@ export default function AdminSubscriptions() {
                           {st.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-right tabular-nums" style={{ color: "hsl(var(--admin-fg))" }}>
+                      <td className="px-4 py-3.5 text-right v-numeric" style={{ color: "hsl(var(--admin-fg))" }}>
                         {s.screens_count}
                       </td>
-                      <td className="px-4 py-3.5 text-right tabular-nums font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
+                      <td className="px-4 py-3.5 text-right v-numeric font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
                         {fmtCOP(Number(s.total_amount))}
                       </td>
-                      <td className="px-4 py-3.5 admin-muted tabular-nums">
+                      <td className="px-4 py-3.5 admin-muted v-numeric">
                         {s.next_billing_date ? new Date(s.next_billing_date).toLocaleDateString("es-CO") : "—"}
                       </td>
-                      <td className="px-4 py-3.5 admin-muted tabular-nums">
+                      <td className="px-4 py-3.5 admin-muted v-numeric">
                         {new Date(s.created_at).toLocaleDateString("es-CO")}
                       </td>
                     </tr>

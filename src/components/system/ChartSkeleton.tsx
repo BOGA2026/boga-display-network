@@ -2,7 +2,7 @@
 export default function ChartSkeleton({ height = 180, label }: { height?: number; label?: string }) {
   return (
     <div
-      className="flex flex-col justify-end gap-2 rounded-xl border border-white/10 bg-white/5 p-4"
+      className="flex flex-col justify-end gap-2 v-card p-4"
       style={{ height }}
       aria-hidden="true"
     >

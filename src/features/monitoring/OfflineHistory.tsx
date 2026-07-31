@@ -20,18 +20,18 @@ export default function OfflineHistory({ deviceId }: { deviceId: string }) {
   });
 
   if (isLoading) {
-    return <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-muted-foreground">Cargando historial…</div>;
+    return <div className="v-card p-4 text-sm text-muted-foreground">Cargando historial…</div>;
   }
   if (!data || data.length === 0) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-muted-foreground">
+      <div className="v-card p-4 text-sm text-muted-foreground">
         Sin caídas registradas. La pantalla ha estado estable.
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5">
+    <div className="v-card">
       <div className="border-b border-white/10 px-4 py-3 text-sm font-medium">Historial de caídas</div>
       <ul className="divide-y divide-white/5">
         {data.map((ev) => {

@@ -270,7 +270,7 @@ export default function ScreenDetail() {
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground truncate max-w-[200px]">{screen.name}</span>
           <span className={`ml-1 flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${health.className}`}>
-            <span className={`h-2 w-2 rounded-full ${health.dotClass} ${health.status === "online" ? "animate-pulse" : ""}`} />
+            <span className={`v-dot ${health.status === "online" ? "v-dot-live" : health.dotClass}`} />
             {health.label}
           </span>
           <span className="ml-1 text-xs text-muted-foreground">· {formatLastSeen(screen.lastSyncAt)}</span>
@@ -289,7 +289,7 @@ export default function ScreenDetail() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           {/* Location */}
-          <div className="glass-card rounded-xl overflow-hidden">
+          <div className="v-card overflow-hidden">
             <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2.5">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -376,7 +376,7 @@ export default function ScreenDetail() {
           )}
 
           {fromDashboard && (
-            <div className="glass-card rounded-xl overflow-hidden">
+            <div className="v-card overflow-hidden">
               <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
                 <Smartphone className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Información del dispositivo</h3>

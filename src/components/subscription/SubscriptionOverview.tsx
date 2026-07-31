@@ -106,8 +106,8 @@ function KpiCard({ icon: Icon, label, value, subtitle }: { icon: any; label: str
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-            <p className="font-display text-xl font-bold">{value}</p>
+            <p className="v-kpi-label">{label}</p>
+            <p className="v-kpi-value font-display text-xl">{value}</p>
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">

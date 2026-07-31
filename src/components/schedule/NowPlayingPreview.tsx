@@ -88,7 +88,7 @@ const NowPlayingPreview = ({ blocks, layers, selectedBlockId }: Props) => {
           >
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="h-3 w-3 rounded-full animate-pulse"
+                className="v-dot v-dot-lg v-dot-live"
                 style={{ background: activeLayer?.color || "#8A00FF" }}
               />
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">

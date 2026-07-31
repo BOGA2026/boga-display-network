@@ -113,7 +113,7 @@ export default function MapView() {
 
   if (pins.length === 0) {
     return (
-      <div className="flex h-full min-h-[420px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+      <div className="v-card flex h-full min-h-[420px] items-center justify-center p-8 text-center">
         <div className="max-w-md space-y-3">
           <MapPin className="mx-auto h-8 w-8 text-muted-foreground" />
           <h3 className="text-lg font-semibold">Todavía no hay pantallas ubicadas</h3>
@@ -126,7 +126,7 @@ export default function MapView() {
   }
 
   return (
-    <div className="h-full min-h-[420px] w-full overflow-hidden rounded-2xl border border-white/10">
+    <div className="v-card h-full min-h-[420px] w-full overflow-hidden">
       <MapContainer
         center={pins[0].position}
         zoom={pins.length === 1 ? 15 : 5}

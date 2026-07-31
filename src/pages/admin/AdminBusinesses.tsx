@@ -93,9 +93,9 @@ export default function AdminBusinesses() {
                     <td className="px-4 py-3.5 font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
                       {r.name}
                     </td>
-                    <td className="px-4 py-3.5 text-right tabular-nums">{r.screenCount}</td>
-                    <td className="px-4 py-3.5 text-right tabular-nums">{r.memberCount}</td>
-                    <td className="px-4 py-3.5 admin-muted tabular-nums">
+                    <td className="px-4 py-3.5 text-right v-numeric">{r.screenCount}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{r.memberCount}</td>
+                    <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(r.created_at).toLocaleDateString("es-CO")}
                     </td>
                     <td className="px-4 py-3.5 font-mono text-[11px] admin-dim">

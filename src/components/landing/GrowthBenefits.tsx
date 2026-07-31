@@ -41,10 +41,10 @@ const GrowthBenefits = () => (
         {cards.map((card) => (
           <div
             key={card.title}
-            className="card-subtle flex flex-col gap-4 p-6 hover-lift"
+            className="v-card flex flex-col gap-4 p-6 hover-lift"
           >
             <div>
-              <p className="text-3xl font-semibold tabular-nums text-primary">{card.stat}</p>
+              <p className="text-3xl font-semibold v-numeric text-primary">{card.stat}</p>
               <p className="mt-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                 {card.statLabel}
               </p>

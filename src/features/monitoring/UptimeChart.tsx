@@ -28,12 +28,12 @@ export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; 
   }));
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="v-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <h4 className="text-sm font-medium">Horas encendida (últimos {days} días)</h4>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Encendida</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-neutral-500" /> Apagada</span>
+          <span className="flex items-center gap-1"><span className="v-dot v-dot-online" /> Encendida</span>
+          <span className="flex items-center gap-1"><span className="v-dot v-dot-offline" /> Apagada</span>
         </div>
       </div>
       <DeferredMount minHeight={180} placeholder={<ChartSkeleton height={180} label="Cargando gráfico de uptime" />}>

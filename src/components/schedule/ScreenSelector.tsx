@@ -26,7 +26,7 @@ const ScreenSelector = ({ screens, selectedId, onSelect }: Props) => (
           <SelectItem key={s.id} value={s.id}>
             <span className="flex items-center gap-2">
               <span
-                className="h-2 w-2 rounded-full"
+                className="v-dot"
                 style={{ background: s.status === "online" ? "#8A00FF" : "hsl(var(--muted-foreground))" }}
               />
               {s.name}

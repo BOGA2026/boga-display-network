@@ -165,7 +165,7 @@ export default function QRCodes() {
                       {q.active ? "Activo" : "Inactivo"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 tabular-nums">{counts[q.id] ?? 0}</td>
+                  <td className="px-4 py-3 v-numeric">{counts[q.id] ?? 0}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {format(new Date(q.created_at), "d MMM yyyy", { locale: es })}
                   </td>

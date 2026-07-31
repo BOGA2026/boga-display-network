@@ -29,7 +29,7 @@ export function AdminKpiCard({
   return (
     <div className="admin-card p-5 flex flex-col gap-3 min-h-[112px]">
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[12px] font-medium admin-muted leading-tight">{label}</span>
+        <span className="v-kpi-label admin-muted">{label}</span>
         <span
           className="flex h-8 w-8 items-center justify-center rounded-md shrink-0"
           style={{
@@ -44,7 +44,7 @@ export function AdminKpiCard({
           <div className="h-8 w-24 rounded animate-pulse" style={{ background: "hsl(var(--admin-surface-2))" }} />
         ) : (
           <div
-            className="text-[26px] font-semibold leading-none tracking-tight"
+            className="v-kpi-value text-[26px] leading-none"
             style={{ color: "hsl(var(--admin-fg))" }}
           >
             {value}

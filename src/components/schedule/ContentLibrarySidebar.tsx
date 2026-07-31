@@ -104,7 +104,7 @@ const ContentLibrarySidebar = ({
             {layers.map((l) => (
               <SelectItem key={l.id} value={String(l.priority)}>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
+                  <span className="v-dot" style={{ background: l.color }} />
                   P{l.priority}
                 </span>
               </SelectItem>
@@ -147,7 +147,7 @@ const ContentLibrarySidebar = ({
             )}
             style={filterLayerId === l.id ? { background: l.color } : undefined}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: l.color }} />
+            <span className="v-dot v-dot-sm" style={{ background: l.color }} />
             {l.name}
           </button>
         ))}

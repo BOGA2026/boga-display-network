@@ -63,14 +63,14 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
         <div>
           <p className="text-sm text-muted-foreground">Escaneos {qrLabel ? `de "${qrLabel}"` : ""}</p>
           <div className="flex items-baseline gap-3">
-            <p key={total} className="motion-pop text-4xl font-bold tabular-nums">
+            <p key={total} className="motion-pop text-4xl font-bold v-numeric">
               {total.toLocaleString("es-CO")}
             </p>
             {liveCount > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span className="v-dot v-dot-sm v-dot-online" />
                 </span>
                 +{liveCount} en vivo
               </span>
@@ -132,7 +132,7 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
                       <div className="flex-1">
                         <div className="flex items-baseline justify-between text-sm">
                           <span>{DEVICE_LABEL[row.key] ?? row.key}</span>
-                          <span className="tabular-nums text-muted-foreground">{row.count} · {pct}%</span>
+                          <span className="v-numeric text-muted-foreground">{row.count} · {pct}%</span>
                         </div>
                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                           <div

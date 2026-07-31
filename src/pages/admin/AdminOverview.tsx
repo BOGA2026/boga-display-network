@@ -186,9 +186,9 @@ export default function AdminOverview() {
                     <td className="px-4 py-3.5 font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
                       {b.name}
                     </td>
-                    <td className="px-4 py-3.5 text-right tabular-nums">{b.screenCount}</td>
-                    <td className="px-4 py-3.5 text-right tabular-nums">{b.memberCount}</td>
-                    <td className="px-4 py-3.5 admin-muted tabular-nums">
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.screenCount}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.memberCount}</td>
+                    <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(b.created_at).toLocaleDateString("es-CO")}
                     </td>
                   </tr>

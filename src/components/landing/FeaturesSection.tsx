@@ -46,7 +46,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
             className="flex flex-col gap-4 p-8"
             style={{ background: "hsl(260 20% 7%)" }}
           >
-            <span className="text-xs font-medium tabular-nums" style={{ color: "hsl(270 60% 60%)" }}>
+            <span className="text-xs font-medium v-numeric" style={{ color: "hsl(270 60% 60%)" }}>
               0{i + 1}
             </span>
             <h3 className="text-lg font-semibold text-white leading-snug">
@@ -70,7 +70,7 @@ const FeaturesSection = ({ onDemo }: { onDemo: () => void }) => (
             className="px-6 py-10 text-center"
             style={{ borderRight: i < results.length - 1 ? "1px solid hsl(270 15% 14%)" : "none" }}
           >
-            <p className="text-4xl font-black text-white tabular-nums">
+            <p className="text-4xl font-black text-white v-numeric">
               {r.value}
             </p>
             <p className="mt-2 text-xs" style={{ color: "hsl(0 0% 40%)" }}>{r.label}</p>

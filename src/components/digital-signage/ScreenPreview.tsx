@@ -21,12 +21,12 @@ export default function ScreenPreview({ screen }: { screen: ScreenData }) {
   }, [screen.id]);
 
   return (
-    <div className="glass-card rounded-xl overflow-hidden">
+    <div className="v-card overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="v-dot v-dot-live" />
           </span>
           <h3 className="text-sm font-semibold text-foreground">Reproduciendo ahora</h3>
         </div>

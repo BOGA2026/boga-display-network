@@ -110,9 +110,9 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+            <p className="v-kpi-label">{label}</p>
             <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-bold tracking-tight">{value}</p>
+              <p className="v-kpi-value text-3xl">{value}</p>
               {trend !== undefined && <TrendBadge value={trend} suffix="%" />}
             </div>
             {subtitle && <p className="text-[10px] text-muted-foreground">{subtitle}</p>}

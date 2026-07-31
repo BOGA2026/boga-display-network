@@ -493,7 +493,7 @@ const Screens = () => {
                       <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-[11px] gap-1.5 shadow-sm">
                         <span className="relative flex h-2 w-2">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                          <span className="v-dot v-dot-accent" />
                         </span>
                         En vivo
                       </Badge>

@@ -150,7 +150,7 @@ const VisualiaStudio = () => {
             return (
               <div
                 key={card.title}
-                className="group relative overflow-hidden glass-card hover:glass-card-hover rounded-2xl p-7 transition-all duration-300 hover-lift flex flex-col gap-5"
+                className="group v-card v-card-interactive relative overflow-hidden rounded-2xl p-7 hover-lift flex flex-col gap-5"
               >
                 <div className="relative flex items-start gap-4">
                   <div

@@ -76,7 +76,7 @@ export const VoiceAgentDock = () => {
           aria-label="Abrir agente de voz Visualia"
         >
           <Sparkles className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
-          <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-400 animate-pulse" />
+          <span className="v-dot v-dot-live v-dot-lg absolute -top-1 -right-1" />
         </button>
       )}
 
@@ -167,7 +167,7 @@ export const VoiceAgentDock = () => {
 
             {isProcessing && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground px-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                <div className="v-dot v-dot-sm v-dot-accent" />
                 Pensando…
               </div>
             )}

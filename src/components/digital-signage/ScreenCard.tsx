@@ -17,12 +17,12 @@ export function ScreenCard({ screen, onClick }: ScreenCardProps) {
   return (
     <button
       onClick={onClick}
-      className="group glass-card rounded-xl overflow-hidden text-left transition-all hover:glass-card-hover hover-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group v-card v-card-interactive overflow-hidden hover-lift"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
         <img src={screen.currentContent.thumbnailUrl} alt={screen.currentContent.assetName} className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" loading="lazy" />
         <span className={`absolute right-2 top-2 flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${health.className}`}>
-          <span className={`h-2 w-2 rounded-full ${health.dotClass} ${health.status === "online" ? "animate-pulse" : ""}`} />
+          <span className={`v-dot ${health.status === "online" ? "v-dot-live" : health.dotClass}`} />
           {health.label}
         </span>
       </div>
@@ -44,7 +44,7 @@ export function ScreenCard({ screen, onClick }: ScreenCardProps) {
 
 export function ScreenCardSkeleton() {
   return (
-    <div className="glass-card rounded-xl overflow-hidden">
+    <div className="v-card overflow-hidden">
       <Skeleton className="aspect-video w-full" />
       <div className="p-3 space-y-2">
         <Skeleton className="h-4 w-3/4" />

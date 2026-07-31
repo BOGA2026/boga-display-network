@@ -22,7 +22,7 @@ export default function ScreenTimeline({ screen }: { screen: ScreenData }) {
   }, {});
 
   return (
-    <div className="glass-card rounded-xl overflow-hidden">
+    <div className="v-card overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <h3 className="text-sm font-semibold text-foreground">Programación semanal</h3>
       </div>

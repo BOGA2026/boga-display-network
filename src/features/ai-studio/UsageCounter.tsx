@@ -21,7 +21,7 @@ export function UsageCounter({ usage, className }: { usage: UsageState | null; c
         <span className="text-sm font-medium text-foreground">
           Generaciones IA este mes
         </span>
-        <span className="text-sm tabular-nums text-muted-foreground">
+        <span className="text-sm v-numeric text-muted-foreground">
           <strong className="text-foreground">{usage.used}</strong> / {usage.limit}
         </span>
       </div>
