@@ -1457,11 +1457,15 @@ export default function EditorPage() {
               Cancelar
             </button>
             <button
+              {...preloadCapture()}
               onClick={confirmSaveContent}
               disabled={saving || !saveFileName.trim()}
               className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar"}
+              <span className="inline-flex items-center gap-2">
+                {(saving || capturing) && <Loader2 className="h-4 w-4 animate-spin" />}
+                {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar"}
+              </span>
             </button>
           </DialogFooter>
         </DialogContent>
@@ -1492,11 +1496,15 @@ export default function EditorPage() {
               Cancelar
             </button>
             <button
+              {...preloadCapture()}
               onClick={confirmSavePreset}
               disabled={saving || !presetName.trim()}
               className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar preset"}
+              <span className="inline-flex items-center gap-2">
+                {(saving || capturing) && <Loader2 className="h-4 w-4 animate-spin" />}
+                {capturing ? "Generando vista previa…" : saving ? "Guardando…" : "Guardar preset"}
+              </span>
             </button>
           </DialogFooter>
         </DialogContent>
