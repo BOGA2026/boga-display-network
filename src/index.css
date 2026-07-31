@@ -789,3 +789,52 @@ body > div button {
   border-color: rgba(82,39,255,0.6) !important;
   background: rgba(82,39,255,0.08) !important;
 }
+
+/* ============================================================
+   Motion utilities (CSS replacement for framer-motion)
+   Fades, rises and slides driven by --duration-fast/--duration-medium.
+   ============================================================ */
+@keyframes motion-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes motion-slide-left {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes motion-pop {
+  from { opacity: 0; transform: scale(1.12); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes motion-pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50%      { transform: scale(1.3); opacity: 0.7; }
+}
+
+.motion-rise {
+  animation: motion-rise var(--duration-medium) var(--ease-ios) both;
+}
+.motion-slide-left {
+  animation: motion-slide-left var(--duration-medium) var(--ease-ios) both;
+}
+.motion-pop {
+  animation: motion-pop var(--duration-medium) var(--ease-ios) both;
+}
+.motion-pulse-glow {
+  animation: motion-pulse-glow 2.2s ease-in-out infinite;
+}
+/* Width bar that grows to its --bar-width */
+.motion-bar {
+  width: var(--bar-width, 0%);
+  transition: width calc(var(--duration-medium) * 2) var(--ease-ios);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-rise,
+  .motion-slide-left,
+  .motion-pop,
+  .motion-pulse-glow {
+    animation: none;
+  }
+  .motion-bar { transition: none; }
+}
