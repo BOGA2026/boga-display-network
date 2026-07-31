@@ -19,6 +19,8 @@ import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { signOut } from "@/hooks/useAuth";
+import { prefetchHandlers } from "@/lib/routePrefetch";
+
 
 const navItems = [
   { icon: LayoutDashboard, label: "Inicio", path: "/dashboard" },
@@ -73,6 +75,8 @@ const DashboardSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
+              {...prefetchHandlers(item.path)}
+
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
