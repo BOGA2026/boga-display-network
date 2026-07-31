@@ -24,9 +24,10 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
         className="absolute inset-0 z-0"
         style={bgParallax.style}
       >
-        <img
+        <PictureImage
           src={heroRestaurantBg}
-          srcSet={heroRestaurantBgSrcSet}
+          avifSrcSet={heroRestaurantBgAvif}
+          webpSrcSet={heroRestaurantBgSrcSet}
           sizes="100vw"
           alt="Interior de restaurante moderno con pantallas digitales"
           width={1920}
@@ -36,6 +37,7 @@ const RestaurantParallaxHero = ({ onDemo }: Props) => {
           fetchPriority="high"
           decoding="async"
         />
+
 
         <div
           className="absolute inset-0"
