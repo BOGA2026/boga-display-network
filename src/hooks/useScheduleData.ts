@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 export interface ScheduleLayer {
   id: string;
@@ -41,9 +42,7 @@ export interface ScheduleTemplate {
 export const businessIdQuery = {
   queryKey: ["user-business-id"] as const,
   queryFn: async () => {
-    const { data, error } = await supabase.rpc("get_user_business_id");
-    if (error) throw error;
-    return data as string;
+    return (await getBusinessId()) as string;
   },
 };
 
@@ -154,10 +153,6 @@ export function useUpsertBlock() {
       } else {
         const { error } = await supabase.from("schedule_blocks").insert(rest);
         if (error) throw error;
-      }
-      // Increment screen schedule_version
-      if (rest.screen_id) {
-        await supabase.rpc("get_user_business_id"); // just to keep session alive
       }
     },
     onSuccess: () => {

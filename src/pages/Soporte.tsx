@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { NAV, COPY } from "@/config/lexicon";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 type Msg = { id: string; author_role: "admin" | "user"; body: string; created_at: string };
 type Pqrs = { id: string; type: string; subject: string; message: string; status: string; created_at: string };
@@ -57,17 +58,17 @@ export default function Soporte() {
   // bootstrap
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUserId(user.id);
-      const { data: prof } = await supabase.from("profiles").select("business_id").eq("id", user.id).maybeSingle();
-      if (!prof?.business_id) return;
-      setBusinessId(prof.business_id);
+      const uid = await getUserId();
+      if (!uid) return;
+      setUserId(uid);
+      const bizId = await getBusinessId();
+      if (!bizId) return;
+      setBusinessId(bizId);
 
       // ensure thread
-      let { data: t } = await supabase.from("support_threads").select("id").eq("business_id", prof.business_id).maybeSingle();
+      let { data: t } = await supabase.from("support_threads").select("id").eq("business_id", bizId).maybeSingle();
       if (!t) {
-        const ins = await supabase.from("support_threads").insert({ business_id: prof.business_id }).select("id").single();
+        const ins = await supabase.from("support_threads").insert({ business_id: bizId }).select("id").single();
         t = ins.data as any;
       }
       setThreadId(t!.id);
@@ -76,7 +77,7 @@ export default function Soporte() {
       setMessages((msgs as any) ?? []);
       await supabase.from("support_threads").update({ unread_by_user: 0 }).eq("id", t!.id);
 
-      const { data: pq } = await supabase.from("pqrs").select("id, type, subject, message, status, created_at").eq("business_id", prof.business_id).order("created_at", { ascending: false });
+      const { data: pq } = await supabase.from("pqrs").select("id, type, subject, message, status, created_at").eq("business_id", bizId).order("created_at", { ascending: false });
       setPqrsList((pq as any) ?? []);
     })();
   }, []);

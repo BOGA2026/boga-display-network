@@ -21,6 +21,7 @@ import { NAV, COPY } from "@/config/lexicon";
 import { syncSeverity } from "@/hooks/useAnalytics";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { NetworkStatusCard, UptimeCard, InventoryStrip } from "@/components/dashboard/NetworkOverview";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -316,13 +317,7 @@ const Dashboard = () => {
   const { toast } = useToast();
 
   const handleAddDemoScreen = async () => {
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
+    const businessId = await getBusinessId();
     if (!businessId) {
       toast({ title: "No se encontró tu negocio", variant: "destructive" });
       return;

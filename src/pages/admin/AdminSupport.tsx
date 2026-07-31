@@ -18,6 +18,7 @@ import { MessageSquare, Send, WifiOff, RefreshCw, Power, Activity } from "lucide
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 type Thread = {
   id: string;
@@ -99,10 +100,10 @@ export default function AdminSupport() {
   const send = async () => {
     if (!selected || !input.trim()) return;
     setSending(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setSending(false); return; }
+    const uid = await getUserId();
+    if (!uid) { setSending(false); return; }
     const { error } = await supabase.from("support_messages").insert({
-      thread_id: selected.id, author_id: user.id, author_role: "admin", body: input.trim(),
+      thread_id: selected.id, author_id: uid, author_role: "admin", body: input.trim(),
     });
     if (error) toast.error(error.message);
     else setInput("");

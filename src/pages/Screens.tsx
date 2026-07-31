@@ -53,6 +53,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -250,13 +251,7 @@ const Screens = () => {
     if (!validateForm()) return;
     setSaving(true);
 
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
+    const businessId = await getBusinessId();
 
     if (!businessId) {
       toast({ title: "No se encontró tu negocio", variant: "destructive" });
@@ -352,13 +347,7 @@ const Screens = () => {
 
   const handleAddDemoScreen = async () => {
     setSaving(true);
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
+    const businessId = await getBusinessId();
     if (!businessId) { setSaving(false); return; }
 
     let locationId = locations[0]?.id;

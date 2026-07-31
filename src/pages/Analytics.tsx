@@ -23,6 +23,7 @@ import { EmptyState, BlockSkeleton, TableSkeleton } from "@/components/feedback/
 import DeferredMount from "@/components/system/DeferredMount";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import {
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
   useAirtime,
   useOrphanContent,
   useTelemetryDays,
@@ -55,7 +56,7 @@ function useAnalyticsScreens() {
   return useQuery({
     queryKey: ["analytics", "shell", "screens"],
     queryFn: async () => {
-      const { data: businessId } = await supabase.rpc("get_user_business_id");
+      const businessId = await getBusinessId();
       if (!businessId) return { businessId: null as string | null, screens: [] as ScreenRow[], telemetryActive: false };
 
       const { data, error } = await supabase

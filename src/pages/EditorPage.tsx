@@ -49,6 +49,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { storageThumb } from "@/lib/storageImage";
 import { cn } from "@/lib/utils";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -321,9 +322,9 @@ export default function EditorPage() {
     e.target.value = "";
     setUploadingVideo(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("No auth");
-      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      const userId = await getUserId();
+      if (!userId) throw new Error("No auth");
+      const bizId = await getBusinessId();
       if (!bizId) throw new Error("No business");
       const ext = file.name.split(".").pop();
       const filePath = `${bizId}/${crypto.randomUUID()}.${ext}`;
@@ -678,7 +679,7 @@ export default function EditorPage() {
     if (!saveFileName.trim()) return;
     setSaving(true);
     try {
-      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      const bizId = await getBusinessId();
       if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
 
       const payload = buildLayoutPayload();
@@ -704,7 +705,7 @@ export default function EditorPage() {
           file_url: dataUri,
           thumbnail_url: thumbnailDataUrl,
           business_id: bizId,
-          created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+          created_by: await getUserId(),
         }).select("id").single();
         if (insertError) throw insertError;
         if (inserted) setContentId(inserted.id);
@@ -744,7 +745,7 @@ export default function EditorPage() {
     if (!presetName.trim()) return;
     setSaving(true);
     try {
-      const { data: bizId } = await supabase.rpc("get_user_business_id");
+      const bizId = await getBusinessId();
       if (!bizId) { toast.error("No estás asociado a un negocio"); return; }
 
       const payload = buildLayoutPayload();
@@ -758,7 +759,7 @@ export default function EditorPage() {
         file_url: dataUri,
         thumbnail_url: thumbnailDataUrl,
         business_id: bizId,
-        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+        created_by: await getUserId(),
       });
       if (error) throw error;
 

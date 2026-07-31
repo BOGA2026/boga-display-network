@@ -32,6 +32,7 @@ import { toast } from "@/hooks/use-toast";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import {
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
   ListVideo,
   Plus,
   LayoutGrid,
@@ -112,15 +113,12 @@ const Playlists = () => {
     ...staticQueryOptions,
     enabled: !!editingPlaylistId,
     queryFn: async () => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("business_id")
-        .single();
-      if (!profile?.business_id) return [];
+      const businessId = await getBusinessId();
+      if (!businessId) return [];
       const { data, error } = await supabase
         .from("content")
         .select("id, name, type, duration_seconds, thumbnail_url")
-        .eq("business_id", profile.business_id);
+        .eq("business_id", businessId);
       if (error) throw error;
       return data || [];
     },
@@ -129,16 +127,13 @@ const Playlists = () => {
   // Create playlist
   const createMutation = useMutation({
     mutationFn: async (payload: { name: string }) => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("business_id")
-        .single();
-      if (!profile?.business_id) throw new Error("No business");
+      const businessId = await getBusinessId();
+      if (!businessId) throw new Error("No business");
       const { data, error } = await supabase
         .from("playlists")
         .insert({
           name: payload.name,
-          business_id: profile.business_id,
+          business_id: businessId,
         })
         .select()
         .single();
