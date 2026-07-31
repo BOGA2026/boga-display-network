@@ -23,24 +23,25 @@ export default defineConfig(({ mode }) => ({
     mcpPlugin(),
     imagetools({
       defaultDirectives: (url) => {
-        // Two responsive presets; use ?responsive-hero for above-the-fold
-        // hero images and ?responsive for the rest.
-        const buildSet = (widths: string) => {
+        // Presets responsive: ?responsive-hero (above the fold) y ?responsive.
+        // Sufijo -avif para la fuente AVIF del <picture>; sin sufijo = WebP.
+        const buildSet = (widths: string, format: "webp" | "avif") => {
           const params = new URLSearchParams();
           params.set("w", widths);
-          params.set("format", "webp");
+          params.set("format", format);
           params.set("as", "srcset");
           return params;
         };
-        if (url.searchParams.has("responsive-hero")) {
-          return buildSet("640;960;1280;1600;1920");
-        }
-        if (url.searchParams.has("responsive")) {
-          return buildSet("480;768;1200;1600");
-        }
+        const HERO = "640;960;1280;1600;1920";
+        const STD = "480;768;1200;1600";
+        if (url.searchParams.has("responsive-hero-avif")) return buildSet(HERO, "avif");
+        if (url.searchParams.has("responsive-avif")) return buildSet(STD, "avif");
+        if (url.searchParams.has("responsive-hero")) return buildSet(HERO, "webp");
+        if (url.searchParams.has("responsive")) return buildSet(STD, "webp");
         return new URLSearchParams();
       },
     }),
+
     mode === "development" && componentTagger(),
     mode !== "development" &&
       visualizer({
