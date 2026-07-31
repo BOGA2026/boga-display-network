@@ -86,8 +86,15 @@ export function normalizeProposalVisuals<T extends LayoutInput & Record<string, 
   const archetype: ArchetypeId = out.arquetipo && ARCHETYPES[out.arquetipo] ? out.arquetipo : "lista_limpia";
   const spec = ARCHETYPES[archetype];
 
+  const logo = out.logo_url || brand?.logo_url || null;
+
   if (spec.usaFoto) {
-    if (!out.image_url) {
+    if (!out.image_url && archetype === "dividido" && logo) {
+      // Dividido sin foto: bloque de color de marca con el logo centrado, nunca vacío negro.
+      out.bloque_marca = true;
+      out.overlay_opacity = 0;
+      out.background_color = out.background_color || brand?.secondary || "#101014";
+    } else if (!out.image_url) {
       // Never a failed photo: a well-resolved solid background always looks intentional.
       out.arquetipo = "lista_limpia";
       out.tipo_layout = "lista_limpia";
