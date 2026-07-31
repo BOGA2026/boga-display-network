@@ -288,6 +288,12 @@ export const COPY = {
     qrCreated: "QR creado: ya puedes imprimirlo o proyectarlo.",
     qrUpdated: "QR actualizado",
   },
+  sync: {
+    tooltipWarn:
+      "Esta pantalla lleva rato sin reportarse. Revisa que esté encendida y con internet.",
+    never: "Nunca",
+    label: "Última sincronización:",
+  },
   hints: {
     qrScreenAttribution:
       "Si asignas una pantalla, los escaneos quedan atribuidos a ella y puedes ver qué TV vende más.",

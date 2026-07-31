@@ -8,16 +8,18 @@ import {
   Monitor, MonitorOff, MapPin, Image, Zap, TrendingUp, TrendingDown,
   Clock, Plus, Upload, ListVideo, Calendar, Activity, Wifi, WifiOff,
   RefreshCw, PlayCircle, AlertCircle, CheckCircle2, User, Circle, ArrowRight,
-  MonitorSmartphone,
+  MonitorSmartphone, AlertTriangle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { liveQueryOptions } from "@/lib/query-client";
 import { useToast } from "@/hooks/use-toast";
 import { NAV, COPY } from "@/config/lexicon";
+import { syncSeverity } from "@/hooks/useAnalytics";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -380,6 +382,13 @@ const Dashboard = () => {
       ]
     : [];
 
+  const navigate = useNavigate();
+
+  const staleScreens = ((stats?.screens ?? []) as any[]).filter((s) => {
+    const sev = syncSeverity(s.last_seen_at).severity;
+    return sev === "critical" || sev === "never";
+  });
+
   const showPrimerosPasos =
     !isLoading &&
     !primerosPasosDismissed &&
@@ -397,7 +406,7 @@ const Dashboard = () => {
         {stats?.lastSync && (
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <RefreshCw className="h-3 w-3" />
-            Última sincronización: {timeAgo(stats.lastSync)}
+            <LastSyncLabel lastSeenAt={stats.lastSync} prefix={COPY.sync.label} />
           </div>
         )}
       </div>
@@ -410,6 +419,41 @@ const Dashboard = () => {
           steps={steps}
           onDismiss={() => setPrimerosPasosDismissed(true)}
         />
+      )}
+
+      {/* Pantallas sin reportar hace más de 48 h */}
+      {staleScreens.length > 0 && (
+        <div className="v-card flex flex-col gap-2 border-rose-400/40 bg-rose-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+            <div>
+              <p className="text-sm font-semibold text-rose-300">
+                {staleScreens.length === 1
+                  ? "Una pantalla lleva más de 48 h sin reportar"
+                  : `${staleScreens.length} pantallas llevan más de 48 h sin reportar`}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {staleScreens.slice(0, 3).map((s: any) => s.name).join(", ")}
+                {staleScreens.length > 3 ? ` y ${staleScreens.length - 3} más` : ""}
+                {" · "}Revisa que estén encendidas y con internet.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-rose-400/40 text-rose-300 hover:bg-rose-500/10"
+            onClick={() =>
+              navigate(
+                staleScreens.length === 1
+                  ? `/dashboard/pantallas/${staleScreens[0].id}`
+                  : "/dashboard/pantallas",
+              )
+            }
+          >
+            {staleScreens.length === 1 ? "Ver pantalla" : "Ver pantallas"}
+          </Button>
+        </div>
       )}
 
       {/* Subscription Alerts */}
@@ -610,12 +654,8 @@ const Dashboard = () => {
                       <p className="text-sm font-medium truncate">{screen.name}</p>
                       <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                         {screen.locations?.name && <span>{screen.locations.name}</span>}
-                        {screen.last_seen_at && (
-                          <>
-                            <span>·</span>
-                            <span>{timeAgo(screen.last_seen_at)}</span>
-                          </>
-                        )}
+                        <span>·</span>
+                        <LastSyncLabel lastSeenAt={screen.last_seen_at} />
                       </div>
                     </div>
                     <span className={cn(

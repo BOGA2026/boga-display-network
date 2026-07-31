@@ -12,6 +12,7 @@
  */
 import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -161,7 +162,12 @@ export default function MapView() {
                   />
                   {PIN_LABEL[p.status]}
                 </div>
-                <div className="text-xs opacity-70">Última conexión: {formatLastSeen(p.lastSeenAt)}</div>
+                <div className="text-xs opacity-70">
+                  Última conexión:{" "}
+                  {p.lastSeenAt ? formatLastSeen(p.lastSeenAt) : null}
+                  {p.lastSeenAt ? " · " : " "}
+                  <LastSyncLabel lastSeenAt={p.lastSeenAt} />
+                </div>
                 {p.screenId && (
                   <Link
                     to={`/dashboard/pantallas/${p.screenId}`}

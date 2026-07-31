@@ -88,3 +88,46 @@ export function useScreenTable(businessId?: string, range?: Range) {
     },
   });
 }
+
+/* ── Severidad de última sincronización ───────────────────────────────
+ * Una pantalla que lleva horas (o meses) sin reportar es un problema y
+ * debe verse como tal en toda la app. Fuente única de verdad.
+ */
+export type SyncSeverity = "ok" | "warn" | "critical" | "never";
+
+export interface SyncSeverityInfo {
+  severity: SyncSeverity;
+  /** Clase de color de texto para el label. */
+  className: string;
+  /** Si debe mostrarse icono de advertencia + tooltip. */
+  warn: boolean;
+  hoursSince: number | null;
+  /** Texto relativo listo para pintar. */
+  label: string;
+}
+
+export function syncSeverity(
+  lastSeenAt: string | Date | null | undefined,
+  now: number = Date.now(),
+): SyncSeverityInfo {
+  if (!lastSeenAt) {
+    return { severity: "never", className: "text-rose-400", warn: true, hoursSince: null, label: "Nunca" };
+  }
+  const ts = lastSeenAt instanceof Date ? lastSeenAt.getTime() : new Date(lastSeenAt).getTime();
+  if (Number.isNaN(ts)) {
+    return { severity: "never", className: "text-rose-400", warn: true, hoursSince: null, label: "Nunca" };
+  }
+  const hours = Math.max(0, (now - ts) / 3_600_000);
+  const label = formatSyncAgo(hours);
+  if (hours < 2) return { severity: "ok", className: "text-muted-foreground", warn: false, hoursSince: hours, label };
+  if (hours <= 48) return { severity: "warn", className: "text-amber-400", warn: true, hoursSince: hours, label };
+  return { severity: "critical", className: "text-rose-400", warn: true, hoursSince: hours, label };
+}
+
+function formatSyncAgo(hours: number): string {
+  const minutes = hours * 60;
+  if (minutes < 1) return "Hace un momento";
+  if (minutes < 60) return `Hace ${Math.round(minutes)} min`;
+  if (hours < 24) return `Hace ${Math.round(hours)} h`;
+  return `Hace ${Math.round(hours / 24)} d`;
+}

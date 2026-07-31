@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { useMonitoringStore, selectDevicesArray } from "./store";
-import { formatRelative } from "./useDeviceMonitoring";
 import UptimeChart from "./UptimeChart";
 import OfflineHistory from "./OfflineHistory";
 import { updateDeviceLocation } from "./api";
@@ -77,7 +77,7 @@ export default function DeviceDetailPanel() {
             <span className="text-xs uppercase tracking-wide text-muted-foreground">{STATUS_LABEL[device.status] ?? device.status}</span>
           </div>
           <h3 className="mt-1 truncate text-base font-semibold">{device.screen_name ?? "Pantalla sin nombre"}</h3>
-          <p className="text-xs text-muted-foreground">Última señal: {formatRelative(device.last_seen_at, now)}</p>
+          <p key={now} className="text-xs"><LastSyncLabel lastSeenAt={device.last_seen_at} prefix="Última señal:" /></p>
         </div>
         <button onClick={() => select(null)} className="rounded-md p-1 text-muted-foreground hover:bg-white/5 hover:text-foreground" aria-label="Cerrar">
           <X className="h-4 w-4" />

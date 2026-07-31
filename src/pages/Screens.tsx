@@ -26,6 +26,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { Badge } from "@/components/ui/badge";
 import {
   Monitor,
@@ -44,8 +45,6 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
@@ -525,11 +524,9 @@ const Screens = () => {
                 {/* Meta footer */}
                 <div className="p-4 border-t border-border/20">
                   <div className="font-semibold text-sm truncate mb-1">{screen.name}</div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <Clock className="h-3 w-3 shrink-0" />
-                    {screen.last_seen_at
-                      ? formatDistanceToNow(new Date(screen.last_seen_at), { addSuffix: true, locale: es })
-                      : "Sin sincronizar"}
+                  <div className="flex items-center gap-1.5 text-[11px]">
+                    <Clock className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <LastSyncLabel lastSeenAt={screen.last_seen_at} />
                   </div>
                 </div>
               </div>
