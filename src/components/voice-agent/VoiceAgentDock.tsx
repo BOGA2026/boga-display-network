@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useVoiceAgent } from "@/hooks/useVoiceAgent";
+import { useTenant } from "@/features/auth/useTenant";
 import { ActionPreviewCard } from "./ActionPreviewCard";
 import { toast } from "sonner";
 
