@@ -178,40 +178,52 @@ function ShellInner() {
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.end}
-              onMouseEnter={() => prefetch(item.path)}
-              onFocus={() => prefetch(item.path)}
-              onTouchStart={() => prefetch(item.path)}
-              className={({ isActive }) =>
-                cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
-                  isActive
-                    ? "bg-primary/12 text-foreground shadow-soft-1"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                )
-              }
-            >
-
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <span
-                      aria-hidden
-                      className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
-                    />
-                  )}
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                </>
+        <nav className="flex-1 space-y-4 overflow-y-auto p-2">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.id} className="space-y-1">
+              {!collapsed && (
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                  {group.label}
+                </p>
               )}
-            </NavLink>
+              {group.items.map((key) => {
+                const item = NAV[key];
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.end}
+                    onMouseEnter={() => prefetch(item.path)}
+                    onFocus={() => prefetch(item.path)}
+                    onTouchStart={() => prefetch(item.path)}
+                    className={({ isActive }) =>
+                      cn(
+                        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
+                        isActive
+                          ? "bg-primary/12 text-foreground shadow-soft-1"
+                          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      )
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <span
+                            aria-hidden
+                            className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
+                          />
+                        )}
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
           ))}
         </nav>
+
 
         <div className="border-t border-border p-2 space-y-1">
           <button
