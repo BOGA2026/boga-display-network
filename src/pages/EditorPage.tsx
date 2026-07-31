@@ -1391,7 +1391,7 @@ export default function EditorPage() {
                         )}
                       </div>
                       <div className="p-1.5 flex items-center justify-between">
-                        <span className="text-[10px] font-medium truncate">{p.name}</span>
+                        <span className="text-xs font-medium truncate">{p.name}</span>
                         <button
                           onClick={(e) => { e.stopPropagation(); deletePreset(p.id); }}
                           className="opacity-0 group-hover:opacity-100 rounded p-0.5 hover:bg-destructive/10 text-destructive transition-opacity"

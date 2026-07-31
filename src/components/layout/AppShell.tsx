@@ -253,7 +253,7 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
     >
       <CommandIcon className="h-3.5 w-3.5" />
       <span className="hidden md:inline">{COPY.actions.search}</span>
-      <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium md:inline">
+      <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-xs font-medium md:inline">
         {isMac ? "⌘" : "Ctrl"} K
       </kbd>
     </button>

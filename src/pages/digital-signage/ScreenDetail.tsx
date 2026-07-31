@@ -297,7 +297,7 @@ export default function ScreenDetail() {
                 <h3 className="text-sm font-semibold text-foreground">Ubicación</h3>
                 {locationSource !== "none" && (
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                       locationSource === "gps"
                         ? "bg-emerald-400/15 text-emerald-300"
                         : locationSource === "manual"

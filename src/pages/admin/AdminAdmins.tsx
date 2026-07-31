@@ -112,7 +112,7 @@ export default function AdminAdmins() {
                 <span className="font-mono text-sm">
                   {r.email}
                   {currentEmail && r.email.toLowerCase() === currentEmail.toLowerCase() && (
-                    <span className="ml-2 text-[10px] uppercase tracking-wider admin-muted">
+                    <span className="ml-2 text-xs uppercase tracking-wider admin-muted">
                       (tú)
                     </span>
                   )}

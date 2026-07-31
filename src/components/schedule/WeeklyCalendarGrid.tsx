@@ -157,7 +157,7 @@ const WeeklyCalendarGrid = ({
         {timeLabels.map((label, i) => (
           <div
             key={i}
-            className="flex items-start justify-end pr-2 text-[10px] font-medium border-b"
+            className="flex items-start justify-end pr-2 text-xs font-medium border-b"
             style={{
               height: slotHeight,
               color: label ? "hsl(var(--foreground))" : "transparent",
@@ -193,7 +193,7 @@ const WeeklyCalendarGrid = ({
                 {viewMode === "day" ? DAYS_FULL[colIdx] : DAYS[colIdx]}
               </span>
               {dayBlocks.length > 0 && (
-                <span className="ml-1.5 text-[10px] text-muted-foreground">
+                <span className="ml-1.5 text-xs text-muted-foreground">
                   ({dayBlocks.length})
                 </span>
               )}
@@ -283,10 +283,10 @@ const WeeklyCalendarGrid = ({
                         </div>
                       </div>
                       {hasConflict && (
-                        <span className="text-amber-400 text-[10px] font-medium">Conflicto</span>
+                        <span className="text-amber-400 text-xs font-medium">Conflicto</span>
                       )}
                       {!block.is_enabled && (
-                        <span className="text-muted-foreground text-[10px]">Inactivo</span>
+                        <span className="text-muted-foreground text-xs">Inactivo</span>
                       )}
                     </button>
                   );
@@ -310,15 +310,15 @@ const WeeklyCalendarGrid = ({
         {/* View switcher */}
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
           <TabsList className="h-8 bg-secondary/40">
-            <TabsTrigger value="week" className="text-[11px] gap-1 h-6 px-2.5">
+            <TabsTrigger value="week" className="text-xs gap-1 h-6 px-2.5">
               <CalendarDays className="h-3 w-3" />
               Semana
             </TabsTrigger>
-            <TabsTrigger value="day" className="text-[11px] gap-1 h-6 px-2.5">
+            <TabsTrigger value="day" className="text-xs gap-1 h-6 px-2.5">
               <Calendar className="h-3 w-3" />
               Día
             </TabsTrigger>
-            <TabsTrigger value="list" className="text-[11px] gap-1 h-6 px-2.5">
+            <TabsTrigger value="list" className="text-xs gap-1 h-6 px-2.5">
               <List className="h-3 w-3" />
               Lista
             </TabsTrigger>
@@ -333,7 +333,7 @@ const WeeklyCalendarGrid = ({
                 key={i}
                 onClick={() => setFocusDay(i)}
                 className={cn(
-                  "h-7 px-2.5 rounded-md text-[11px] font-medium transition-colors",
+                  "h-7 px-2.5 rounded-md text-xs font-medium transition-colors",
                   focusDay === i
                     ? "gradient-primary text-primary-foreground"
                     : "bg-secondary/40 text-muted-foreground hover:text-foreground"
@@ -351,7 +351,7 @@ const WeeklyCalendarGrid = ({
             <Button size="icon" variant="ghost" className="h-6 w-6" onClick={zoomOut} disabled={zoom === 60}>
               <ZoomOut className="h-3 w-3" />
             </Button>
-            <span className="text-[11px] text-muted-foreground w-7 text-center font-medium">{zoom}m</span>
+            <span className="text-xs text-muted-foreground w-7 text-center font-medium">{zoom}m</span>
             <Button size="icon" variant="ghost" className="h-6 w-6" onClick={zoomIn} disabled={zoom === 15}>
               <ZoomIn className="h-3 w-3" />
             </Button>

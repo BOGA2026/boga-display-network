@@ -167,7 +167,7 @@ export default function AdminOverview() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr
-                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  className="text-xs uppercase tracking-wider admin-dim"
                   style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
                 >
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>

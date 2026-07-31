@@ -177,9 +177,9 @@ export default function AdminSupport() {
                 className={`w-full text-left p-3 border-b border-border/30 hover:bg-white/5 ${selectedId === t.id ? "bg-primary/10" : ""}`}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium truncate">{t.businesses?.name ?? "—"}</span>
-                  {t.unread_by_admin > 0 && <span className="text-[10px] bg-red-500 text-white rounded-full px-1.5">{t.unread_by_admin}</span>}
+                  {t.unread_by_admin > 0 && <span className="text-xs bg-red-500 text-white rounded-full px-1.5">{t.unread_by_admin}</span>}
                 </div>
-                <div className="text-[10px] text-muted-foreground mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {t.last_message_at ? formatDistanceToNow(new Date(t.last_message_at), { addSuffix: true, locale: es }) : "Sin mensajes"}
                 </div>
               </button>
@@ -201,7 +201,7 @@ export default function AdminSupport() {
                   <div className="text-center text-sm text-muted-foreground">Aún no hay mensajes</div>
                 ) : messages.map(m => (
                   <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.author_role === "admin" ? "ml-auto bg-primary/20 border border-primary/30" : "bg-background/70 border border-border/50"}`}>
-                    <div className="text-[10px] uppercase text-muted-foreground mb-0.5">{m.author_role === "admin" ? "Admin" : "Usuario"} • {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</div>
+                    <div className="text-xs uppercase text-muted-foreground mb-0.5">{m.author_role === "admin" ? "Admin" : "Usuario"} • {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</div>
                     <div className="whitespace-pre-wrap">{m.body}</div>
                   </div>
                 ))}
@@ -226,15 +226,15 @@ export default function AdminSupport() {
             ) : offlineScreens.map(s => (
               <div key={s.id} className="p-3 border-b border-border/30">
                 <div className="text-sm font-medium">{s.name}</div>
-                <div className="text-[10px] text-muted-foreground truncate">{s.locations?.businesses?.name} · {s.locations?.name}</div>
-                <div className="text-[10px] text-muted-foreground">
+                <div className="text-xs text-muted-foreground truncate">{s.locations?.businesses?.name} · {s.locations?.name}</div>
+                <div className="text-xs text-muted-foreground">
                   {s.last_seen_at ? `Última: ${formatDistanceToNow(new Date(s.last_seen_at), { addSuffix: true, locale: es })}` : "Nunca conectada"}
                 </div>
                 <div className="flex gap-1 mt-2">
-                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => setConfirm({ screen: s, command: "force_sync" })}>
+                  <Button size="sm" variant="outline" className="h-6 text-xs flex-1" onClick={() => setConfirm({ screen: s, command: "force_sync" })}>
                     <RefreshCw className="h-3 w-3 mr-1" /> Sync
                   </Button>
-                  <Button size="sm" variant="outline" className="h-6 text-[10px] flex-1" onClick={() => setConfirm({ screen: s, command: "restart_playback" })}>
+                  <Button size="sm" variant="outline" className="h-6 text-xs flex-1" onClick={() => setConfirm({ screen: s, command: "restart_playback" })}>
                     <Power className="h-3 w-3 mr-1" /> Reiniciar
                   </Button>
                 </div>

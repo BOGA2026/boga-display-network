@@ -141,7 +141,7 @@ export default function AdminSubscriptions() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr
-                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  className="text-xs uppercase tracking-wider admin-dim"
                   style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
                 >
                   <th className="text-left px-4 py-3 font-medium">Negocio</th>
@@ -172,7 +172,7 @@ export default function AdminSubscriptions() {
                       <td className="px-4 py-3.5 admin-muted">{s.plan}</td>
                       <td className="px-4 py-3.5">
                         <span
-                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                           style={{ background: st.bg, color: st.fg }}
                         >
                           {st.label}

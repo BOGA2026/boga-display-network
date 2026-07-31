@@ -78,7 +78,7 @@ const ConflictResolverModal = ({
                   {/* Block A */}
                   <div className="flex-1 rounded-md bg-secondary/40 p-2">
                     <div className="text-xs font-medium truncate">{a.name || "Sin nombre"}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {a.start_time.slice(0, 5)}–{a.end_time.slice(0, 5)}
                     </div>
                   </div>
@@ -86,7 +86,7 @@ const ConflictResolverModal = ({
                   {/* Block B */}
                   <div className="flex-1 rounded-md bg-secondary/40 p-2">
                     <div className="text-xs font-medium truncate">{b.name || "Sin nombre"}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}
                     </div>
                   </div>

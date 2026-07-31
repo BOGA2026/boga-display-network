@@ -173,7 +173,7 @@ const BlockEditor = ({ block, layers, playlists, onSave, onDuplicate, onDelete, 
               <button
                 key={d.value}
                 onClick={() => toggleDay(d.value)}
-                className={`h-7 w-9 rounded text-[10px] font-medium transition-colors ${
+                className={`h-7 w-9 rounded text-xs font-medium transition-colors ${
                   form.days_of_week.includes(d.value)
                     ? "gradient-primary text-primary-foreground"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -237,9 +237,9 @@ const BlockEditor = ({ block, layers, playlists, onSave, onDuplicate, onDelete, 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Zap className="h-3.5 w-3.5" />
             <span className="font-medium">Triggers</span>
-            <span className="ml-auto rounded bg-accent/20 px-1.5 py-0.5 text-[9px] text-accent">Próximamente</span>
+            <span className="ml-auto rounded bg-accent/20 px-1.5 py-0.5 text-xs text-accent">Próximamente</span>
           </div>
-          <p className="mt-1 text-[10px] text-muted-foreground/70">
+          <p className="mt-1 text-xs text-muted-foreground/70">
             Clima, hora del día, eventos, POS, activación manual.
           </p>
         </div>

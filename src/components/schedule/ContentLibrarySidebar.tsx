@@ -96,7 +96,7 @@ const ContentLibrarySidebar = ({
       {/* Filters */}
       <div className="px-3 pb-2 flex gap-2">
         <Select value={filterPriority} onValueChange={setFilterPriority}>
-          <SelectTrigger className="h-7 text-[11px] bg-secondary/40 border-border flex-1">
+          <SelectTrigger className="h-7 text-xs bg-secondary/40 border-border flex-1">
             <SelectValue placeholder="Prioridad" />
           </SelectTrigger>
           <SelectContent>
@@ -112,7 +112,7 @@ const ContentLibrarySidebar = ({
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="h-7 text-[11px] bg-secondary/40 border-border flex-1">
+          <SelectTrigger className="h-7 text-xs bg-secondary/40 border-border flex-1">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
@@ -129,7 +129,7 @@ const ContentLibrarySidebar = ({
         <button
           onClick={() => onFilterLayer(null)}
           className={cn(
-            "rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors",
+            "rounded-full px-2 py-0.5 text-xs font-medium transition-colors",
             filterLayerId === null
               ? "gradient-primary text-primary-foreground"
               : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -142,7 +142,7 @@ const ContentLibrarySidebar = ({
             key={l.id}
             onClick={() => onFilterLayer(l.id)}
             className={cn(
-              "rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors flex items-center gap-1",
+              "rounded-full px-2 py-0.5 text-xs font-medium transition-colors flex items-center gap-1",
               filterLayerId === l.id ? "text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
             )}
             style={filterLayerId === l.id ? { background: l.color } : undefined}
@@ -156,15 +156,15 @@ const ContentLibrarySidebar = ({
       {/* Tabs */}
       <Tabs defaultValue="blocks" className="flex-1 flex flex-col min-h-0">
         <TabsList className="mx-3 mb-0 h-8 bg-secondary/40">
-          <TabsTrigger value="blocks" className="text-[11px] gap-1 h-6">
+          <TabsTrigger value="blocks" className="text-xs gap-1 h-6">
             <LayoutGrid className="h-3 w-3" />
             Bloques
           </TabsTrigger>
-          <TabsTrigger value="presets" className="text-[11px] gap-1 h-6">
+          <TabsTrigger value="presets" className="text-xs gap-1 h-6">
             <Clock className="h-3 w-3" />
             Presets
           </TabsTrigger>
-          <TabsTrigger value="templates" className="text-[11px] gap-1 h-6">
+          <TabsTrigger value="templates" className="text-xs gap-1 h-6">
             <FileText className="h-3 w-3" />
             Plantillas
           </TabsTrigger>
@@ -202,12 +202,12 @@ const ContentLibrarySidebar = ({
                     </span>
                     {hasConflict && <AlertTriangle className="h-3 w-3 text-amber-400 shrink-0" />}
                     {!b.is_enabled && (
-                      <Badge variant="outline" className="text-[9px] h-4 px-1 border-muted-foreground/30 text-muted-foreground">
+                      <Badge variant="outline" className="text-xs h-4 px-1 border-muted-foreground/30 text-muted-foreground">
                         Off
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground pl-3.5">
+                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground pl-3.5">
                     <span>{b.start_time.slice(0, 5)}–{b.end_time.slice(0, 5)}</span>
                     <span>·</span>
                     <span className="truncate">{b.playlist?.name || "—"}</span>
@@ -227,7 +227,7 @@ const ContentLibrarySidebar = ({
               className="w-full text-left rounded-lg p-3 border border-border/50 bg-secondary/30 hover:bg-secondary/60 hover:border-border transition-all"
             >
               <div className="text-xs font-medium">{p.label}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
+              <div className="text-xs text-muted-foreground mt-0.5">
                 {p.start} – {p.end}
               </div>
             </button>
@@ -252,7 +252,7 @@ const ContentLibrarySidebar = ({
                   {t.name}
                 </div>
                 {t.description && (
-                  <div className="text-[10px] text-muted-foreground mt-0.5 pl-5 truncate">
+                  <div className="text-xs text-muted-foreground mt-0.5 pl-5 truncate">
                     {t.description}
                   </div>
                 )}
@@ -264,13 +264,13 @@ const ContentLibrarySidebar = ({
 
       {/* Legend */}
       <div className="px-3 py-2 border-t border-border/50">
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
           <Layers className="h-3 w-3" />
           Leyenda
         </div>
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           {layers.map((l) => (
-            <span key={l.id} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span key={l.id} className="flex items-center gap-1 text-xs text-muted-foreground">
               <span className="h-2 w-2 rounded-sm" style={{ background: l.color }} />
               {l.name}
             </span>

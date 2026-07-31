@@ -31,7 +31,7 @@ export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; 
     <div className="v-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <h4 className="text-sm font-medium">Horas encendida (últimos {days} días)</h4>
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1"><span className="v-dot v-dot-online" /> Encendida</span>
           <span className="flex items-center gap-1"><span className="v-dot v-dot-offline" /> Apagada</span>
         </div>

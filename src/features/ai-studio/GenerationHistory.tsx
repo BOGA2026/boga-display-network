@@ -91,7 +91,7 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
                 {row.status === "pending" ? <Loader2 className="h-5 w-5 animate-spin" /> : <X className="h-5 w-5" />}
               </div>
             )}
-            <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
+            <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-white">
               {TOOL_LABEL[row.tool]}
             </span>
             <StatusPill status={row.status} />
@@ -101,7 +101,7 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
             <p className="line-clamp-2 min-h-[2.5em] text-xs text-muted-foreground">
               {row.prompt ?? "—"}
             </p>
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground/80">
+            <div className="flex items-center justify-between text-xs text-muted-foreground/80">
               <span>{formatDistanceToNow(new Date(row.created_at), { addSuffix: true, locale: es })}</span>
               <span>{row.tokens_used > 0 ? `${row.tokens_used} tk` : ""}</span>
             </div>
@@ -141,7 +141,7 @@ function StatusPill({ status }: { status: GenerationRow["status"] }) {
   }[status];
   const Icon = map.icon;
   return (
-    <span className={`absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-white ${map.cls}`}>
+    <span className={`absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white ${map.cls}`}>
       <Icon className="h-3 w-3" /> {map.label}
     </span>
   );

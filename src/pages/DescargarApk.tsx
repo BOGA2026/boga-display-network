@@ -267,7 +267,7 @@ export default function DescargarApk() {
                 Ver hash SHA-256 (verificación de integridad)
               </summary>
               <div className="mt-3">
-                <code className="block bg-muted px-3 py-2 rounded text-[11px] break-all font-mono">
+                <code className="block bg-muted px-3 py-2 rounded text-xs break-all font-mono">
                   {APK.sha256}
                 </code>
                 <p className="text-xs text-muted-foreground mt-2">

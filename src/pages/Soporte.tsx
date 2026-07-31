@@ -142,7 +142,7 @@ export default function Soporte() {
                 </div>
               ) : messages.map(m => (
                 <div key={m.id} className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${m.author_role === "user" ? "ml-auto bg-primary/20 border border-primary/30" : "bg-background/70 border border-border/50"}`}>
-                  <div className="text-[10px] uppercase text-muted-foreground mb-0.5">{m.author_role === "user" ? "Tú" : "Visualia"} • {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</div>
+                  <div className="text-xs uppercase text-muted-foreground mb-0.5">{m.author_role === "user" ? "Tú" : "Visualia"} • {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</div>
                   <div className="whitespace-pre-wrap">{m.body}</div>
                 </div>
               ))}
@@ -205,14 +205,14 @@ export default function Soporte() {
                   <button onClick={() => { setSelectedPqrs(null); setPqrsResponses([]); }} className="text-xs text-primary mb-2 hover:underline">{COPY.soporte.pqrsBack}</button>
                   <div className="flex items-center gap-2">
                     <Badge variant={statusVariant(selectedPqrs.status)}>{statusLabel(selectedPqrs.status)}</Badge>
-                    <span className="text-[10px] uppercase text-muted-foreground">{selectedPqrs.type}</span>
+                    <span className="text-xs uppercase text-muted-foreground">{selectedPqrs.type}</span>
                   </div>
                   <h3 className="mt-2 font-semibold text-sm">{selectedPqrs.subject}</h3>
                   <div className="text-sm mt-1 whitespace-pre-wrap text-muted-foreground">{selectedPqrs.message}</div>
                   <div className="mt-3 space-y-2">
                     {pqrsResponses.map(r => (
                       <div key={r.id} className={`rounded-lg p-3 border text-sm ${r.author_role === "admin" ? "bg-primary/10 border-primary/30" : "bg-background/60 border-border/50 ml-6"}`}>
-                        <div className="text-[10px] uppercase text-muted-foreground mb-1">{r.author_role === "admin" ? "Visualia" : "Tú"} • {new Date(r.created_at).toLocaleString("es-CO")}</div>
+                        <div className="text-xs uppercase text-muted-foreground mb-1">{r.author_role === "admin" ? "Visualia" : "Tú"} • {new Date(r.created_at).toLocaleString("es-CO")}</div>
                         <div className="whitespace-pre-wrap">{r.message}</div>
                       </div>
                     ))}
@@ -235,7 +235,7 @@ export default function Soporte() {
                         <span className="text-sm font-medium truncate">{p.subject}</span>
                         <Badge variant={statusVariant(p.status)}>{statusLabel(p.status)}</Badge>
                       </div>
-                      <div className="text-[10px] text-muted-foreground mt-1">{p.type} • {formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: es })}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{p.type} • {formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: es })}</div>
                     </button>
                   ))}
                 </div>

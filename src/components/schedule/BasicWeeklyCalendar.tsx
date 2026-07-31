@@ -294,7 +294,7 @@ const BasicWeeklyCalendar = ({
             {/* Day header */}
             <div className="sticky top-0 z-10 h-12 flex flex-col items-center justify-center bg-card/95 backdrop-blur-sm border-b border-border/50">
               <span className="text-sm font-bold text-foreground">{DAYS[di]}</span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {dayBlocks.length > 0 ? `${dayBlocks.length} contenido${dayBlocks.length > 1 ? "s" : ""}` : "Vacío"}
               </span>
             </div>
@@ -309,7 +309,7 @@ const BasicWeeklyCalendar = ({
                   onClick={() => onSelectBlock(null)}
                 >
                   {/* Debug hour marker inside each slot */}
-                  <span className="absolute top-0 left-1 text-[9px] text-muted-foreground/30 font-mono pointer-events-none select-none">
+                  <span className="absolute top-0 left-1 text-xs text-muted-foreground/30 font-mono pointer-events-none select-none">
                     {label}
                   </span>
                 </div>

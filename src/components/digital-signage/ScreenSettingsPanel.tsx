@@ -374,7 +374,7 @@ function RotationControl({
       {/* Visual preview of the pending rotation */}
       <div className="relative mx-auto flex h-24 w-full items-center justify-center rounded-md border border-border bg-secondary/40 overflow-hidden">
         <div
-          className="flex items-center justify-center rounded-sm bg-gradient-to-br from-primary/80 to-fuchsia-500 text-[10px] font-bold text-white shadow-lg transition-transform duration-300"
+          className="flex items-center justify-center rounded-sm bg-gradient-to-br from-primary/80 to-fuchsia-500 text-xs font-bold text-white shadow-lg transition-transform duration-300"
           style={{
             width: 84,
             height: 48,
@@ -384,7 +384,7 @@ function RotationControl({
           ▲ ARRIBA
         </div>
         {dirty && (
-          <span className="absolute right-2 top-1.5 rounded bg-amber-400/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-300">
+          <span className="absolute right-2 top-1.5 rounded bg-amber-400/20 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
             Vista previa
           </span>
         )}
@@ -410,7 +410,7 @@ function RotationControl({
       >
         {dirty ? `Aplicar ${pending}°` : "Sin cambios"}
       </Button>
-      <p className="text-[10px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Al aplicar, el Fire TV recargará automáticamente para reflejar la nueva rotación.
       </p>
     </fieldset>
