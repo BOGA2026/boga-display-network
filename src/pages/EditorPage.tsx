@@ -655,25 +655,15 @@ export default function EditorPage() {
     setSaveDialogOpen(true);
   }, [contentName]);
 
-  const generateThumbnail = useCallback(async (): Promise<string | null> => {
-    if (!canvasRef.current) return null;
-    setCapturing(true);
-    try {
-      // html2canvas se importa dentro del handler (captureElement) para no
-      // arrastrarlo al bundle inicial del editor.
-      return await captureElement(canvasRef.current, {
-        scale: 0.35,
-        backgroundColor: background,
-        type: "image/jpeg",
-        quality: 0.7,
-      });
-    } catch (e) {
-      console.warn("Thumbnail generation failed:", e);
-      return null;
-    } finally {
-      setCapturing(false);
-    }
-  }, [background]);
+  /**
+   * Dispara la generación de la miniatura en el servidor (satori + resvg).
+   * Es asíncrona a propósito: el usuario no espera a que termine.
+   */
+  const requestThumbnail = useCallback((id: string) => {
+    supabase.functions
+      .invoke("render-thumbnail", { body: { content_id: id } })
+      .catch((e) => console.warn("render-thumbnail:", e));
+  }, []);
 
   const confirmSaveContent = useCallback(async () => {
     if (!saveFileName.trim()) return;
@@ -686,30 +676,31 @@ export default function EditorPage() {
       const layoutJson = JSON.stringify({ ...payload, name: saveFileName.trim() });
       const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
 
-      // Generate thumbnail from canvas
-      const thumbnailDataUrl = await generateThumbnail();
-
+      let savedId = contentId;
       if (contentId) {
-        // Update existing layout
+        // La miniatura se regenera en cada guardado: una desactualizada
+        // hace que el usuario elija la pieza equivocada.
         const { error } = await supabase.from("content").update({
           name: saveFileName.trim(),
           file_url: dataUri,
-          thumbnail_url: thumbnailDataUrl,
+          thumbnail_url: null,
+          thumbnail_status: "pendiente",
         }).eq("id", contentId);
         if (error) throw error;
       } else {
-        // Insert new layout
         const { data: inserted, error: insertError } = await supabase.from("content").insert({
           name: saveFileName.trim(),
           type: "layout",
           file_url: dataUri,
-          thumbnail_url: thumbnailDataUrl,
+          thumbnail_status: "pendiente",
           business_id: bizId,
           created_by: await getUserId(),
         }).select("id").single();
         if (insertError) throw insertError;
-        if (inserted) setContentId(inserted.id);
+        if (inserted) { setContentId(inserted.id); savedId = inserted.id; }
       }
+
+      if (savedId) requestThumbnail(savedId);
 
       setContentName(saveFileName.trim());
       toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
@@ -720,7 +711,8 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [saveFileName, buildLayoutPayload, contentId, generateThumbnail]);
+  }, [saveFileName, buildLayoutPayload, contentId, requestThumbnail]);
+
 
   // Presets: fetch on mount
   useEffect(() => {
