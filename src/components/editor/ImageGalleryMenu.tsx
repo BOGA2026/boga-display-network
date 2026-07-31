@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Cloud, Monitor, Sparkles, Loader2 } from "lucide-react";
+import { CardGridSkeleton } from "@/components/feedback/states";
 import { cn } from "@/lib/utils";
 
 type GalleryImage = { id: string; name: string; url: string };

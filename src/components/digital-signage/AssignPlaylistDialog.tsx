@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ListMusic, Check, Loader2 } from "lucide-react";
+import { TableSkeleton } from "@/components/feedback/states";
 import { toast } from "@/hooks/use-toast";
 
 interface Playlist {
