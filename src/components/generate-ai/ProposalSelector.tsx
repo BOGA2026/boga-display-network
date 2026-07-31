@@ -27,137 +27,151 @@ const archetypeOf = (p: Proposal): ArchetypeId =>
   p.arquetipo && ARCHETYPES[p.arquetipo] ? p.arquetipo : "lista_limpia";
 
 /**
- * Renders a proposal at the exact aspect ratio of the target screen.
- * Everything inside is expressed in canvas pixels and scaled with a single
- * transform, so a 280px thumbnail and a fullscreen preview are pixel-identical.
+ * Renders a proposal at the exact aspect ratio of the target screen using the
+ * shared layout engine: the geometry drawn here is the same geometry
+ * validarPropuesta() checks, so nothing is truncated, nothing overlaps and the
+ * darkening layer only covers the text zone.
  */
 function Piece({ p, formato, width }: { p: Proposal; formato: string; width: number }) {
   const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
   const scale = width / size.w;
-  const t = tvTypography(size.h, size.w);
-  const px = (v: number) => v; // canvas-space sizes; the wrapper scales them
+  const layout = useMemo(() => buildPieceLayout(p as any, size.w, size.h), [p, size.w, size.h]);
+  const { fonts, colors, margin, region } = layout;
+  const archetype = ARCHETYPES[archetypeOf(p)];
+  const overlay = Math.min(0.65, Math.max(0.45, p.overlay_opacity ?? 0.5));
+  const logo = (p as any).logo_url as string | undefined;
 
-  const itemsOf = (max: number) =>
-    clampMenuSections(p.secciones ?? [], t.maxDescChars, max).flatMap((s) =>
-      (s.items ?? []).map((i) => ({ ...i, seccion: s.nombre })),
-    );
-
-  const Header = ({ align = "center" }: { align?: "center" | "left" }) => (
+  const Header = ({ align = "center" as "center" | "left" }) => (
     <div style={{ textAlign: align }}>
-      <p
-        className="font-bold uppercase leading-none"
-        style={{ fontFamily: p.fuente_titulo, fontSize: px(Math.max(p.header?.size ?? 0, t.restaurante)) }}
-      >
-        {p.header?.nombre_restaurante || p.texto_principal}
+      <p className="font-bold uppercase leading-none" style={{ fontFamily: p.fuente_titulo, fontSize: fonts.header, color: colors.texto }}>
+        {layout.headerTitle}
       </p>
-      {(p.header?.tagline || p.texto_secundario) && (
-        <p className="mt-1 truncate" style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.tagline), color: p.color_acento }}>
-          {p.header?.tagline || p.texto_secundario}
+      {layout.headerSubtitle && (
+        <p style={{ fontFamily: p.fuente_cuerpo, fontSize: fonts.tagline, color: colors.precio, marginTop: fonts.tagline * 0.3 }}>
+          {layout.headerSubtitle}
         </p>
       )}
     </div>
   );
 
-  const DishRow = ({ item, showDesc = true }: { item: any; showDesc?: boolean }) => (
-    <div className="space-y-[1%]">
-      <div className="flex items-start justify-between gap-2">
-        <span className="truncate font-bold" style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.plato) }}>
-          {item.plato}
+  /** Dish row: name and price share baseline and size; the name never truncates. */
+  const DishRow = ({ dish }: { dish: (typeof layout.columns)[number][number] }) => (
+    <div style={{ marginBottom: 0 }}>
+      <div className="flex items-baseline justify-between" style={{ gap: fonts.name * 0.5 }}>
+        <span
+          className="font-bold"
+          style={{ fontFamily: p.fuente_cuerpo, fontSize: fonts.name, lineHeight: 1.15, color: colors.texto }}
+        >
+          {dish.lines.map((line, i) => (
+            <span key={i} className="block">{line}</span>
+          ))}
         </span>
-        <span className="shrink-0 font-extrabold" style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.precio), color: p.color_acento }}>
-          {item.precio}
+        <span
+          className="shrink-0 font-extrabold"
+          style={{ fontFamily: p.fuente_cuerpo, fontSize: fonts.price, lineHeight: 1.15, color: colors.precio }}
+        >
+          {dish.precio}
         </span>
       </div>
-      {showDesc && item.descripcion && (
-        <p className="line-clamp-2 opacity-80" style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.descripcion) }}>
-          {item.descripcion}
+      {dish.descripcion && (
+        <p style={{ fontFamily: p.fuente_cuerpo, fontSize: fonts.desc, lineHeight: 1.2, color: colors.texto, opacity: 0.8, marginTop: fonts.name * 0.15 }}>
+          {dish.descripcion}
         </p>
       )}
     </div>
   );
 
-  const hasMenu = (p.secciones?.length ?? 0) > 0;
-  const archetype = ARCHETYPES[archetypeOf(p)];
+  const Closing = () =>
+    logo ? (
+      <img src={logo} alt="" crossOrigin="anonymous" style={{ height: fonts.closing * 1.6, objectFit: "contain" }} />
+    ) : layout.closingText ? (
+      <p className="uppercase" style={{ fontFamily: p.fuente_cuerpo, fontSize: fonts.closing, color: colors.precio, letterSpacing: "0.08em" }}>
+        {layout.closingText}
+      </p>
+    ) : (
+      <p className="font-bold uppercase" style={{ fontFamily: p.fuente_titulo, fontSize: fonts.closing, color: colors.precio }}>
+        {layout.headerTitle}
+      </p>
+    );
+
+  const DishColumns = ({ justify = "space-between" }: { justify?: string }) => (
+    <div className="flex flex-1" style={{ gap: size.w * 0.02 }}>
+      {layout.columns.map((column, i) => (
+        <div key={i} className="flex flex-1 flex-col" style={{ justifyContent: justify }}>
+          {column.map((dish) => (
+            <DishRow key={`${i}-${dish.plato}`} dish={dish} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 
   let content: JSX.Element;
 
-  if (!hasMenu) {
-    const textAlign = p.layout === "izquierda" ? "left" : p.layout === "derecha" ? "right" : "center";
+  if (archetype.id === "foto_protagonista" && p.image_url) {
     content = (
       <>
-        {p.image_url && (
-          <img src={p.image_url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" crossOrigin="anonymous" />
-        )}
-        <div className="absolute inset-0" style={{ backgroundColor: p.overlay_color || "#000", opacity: p.overlay_opacity ?? 0.55 }} />
-        <div className="absolute inset-0 flex flex-col justify-center p-[10%]" style={{ textAlign }}>
-          <p className="font-bold leading-tight" style={{ fontFamily: p.fuente_titulo, fontSize: p.titulo_size ?? 84, color: p.color_texto, fontWeight: 800 }}>
-            {p.texto_principal}
-          </p>
-          <p className="leading-snug opacity-85" style={{ fontFamily: p.fuente_cuerpo, fontSize: p.subtitulo_size ?? 28, color: p.color_texto, fontWeight: 300, marginTop: 8 }}>
-            {p.texto_secundario}
-          </p>
-        </div>
-      </>
-    );
-  } else if (archetype.id === "foto_protagonista") {
-    const items = itemsOf(ARCHETYPES.foto_protagonista.maxItems);
-    content = (
-      <>
-        {p.image_url && (
-          <img src={p.image_url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" crossOrigin="anonymous" />
-        )}
-        <div className="absolute inset-0" style={{ backgroundColor: p.overlay_color || "#000", opacity: p.overlay_opacity ?? 0.6 }} />
-        <div className="absolute inset-x-0 top-0 p-[5%]" style={{ color: p.color_texto }}>
+        <img src={p.image_url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" crossOrigin="anonymous" />
+        {/* Oscurecimiento SOLO en la zona del texto: degradado desde abajo + banda superior. */}
+        <div
+          className="absolute inset-x-0 bottom-0"
+          style={{
+            height: size.h - region.y + margin,
+            background: `linear-gradient(to top, ${p.overlay_color || "#000"} ${Math.round(overlay * 100)}%, transparent)`,
+            opacity: 0.98,
+          }}
+        />
+        <div
+          className="absolute inset-x-0 top-0"
+          style={{ height: fonts.header * 2.4, background: `linear-gradient(to bottom, rgba(0,0,0,${overlay}), transparent)` }}
+        />
+        <div className="absolute" style={{ left: margin, right: margin, top: margin }}>
           <Header />
         </div>
-        <div className="absolute inset-x-0 bottom-0 space-y-[3%] p-[5%]" style={{ backgroundColor: p.background_color, color: p.color_texto }}>
-          {items.map((item) => (
-            <DishRow key={item.plato} item={item} showDesc={items.length <= 2} />
-          ))}
+        <div className="absolute flex flex-col" style={{ left: region.x, top: region.y, width: region.w, height: region.h }}>
+          <DishColumns />
+          <div className="flex items-center justify-center" style={{ height: size.h * 0.08 }}>
+            <Closing />
+          </div>
         </div>
       </>
     );
   } else if (archetype.id === "dividido") {
-    const items = itemsOf(ARCHETYPES.dividido.maxItems);
+    const marca = (p as any).bloque_marca && !p.image_url;
     content = (
       <div className="absolute inset-0 flex">
-        <div className="relative w-1/2 overflow-hidden" style={{ backgroundColor: p.overlay_color || "#000" }}>
-          {p.image_url && (
+        <div className="relative flex w-1/2 items-center justify-center overflow-hidden" style={{ backgroundColor: marca ? p.color_acento : p.background_color }}>
+          {p.image_url ? (
             <img src={p.image_url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" crossOrigin="anonymous" />
+          ) : logo ? (
+            <img src={logo} alt="" crossOrigin="anonymous" style={{ width: "55%", objectFit: "contain" }} />
+          ) : (
+            <p className="px-[8%] text-center font-bold uppercase leading-tight" style={{ fontFamily: p.fuente_titulo, fontSize: fonts.header, color: colors.texto }}>
+              {layout.headerTitle}
+            </p>
           )}
         </div>
-        <div className="flex w-1/2 flex-col gap-[4%] p-[5%]" style={{ backgroundColor: p.background_color, color: p.color_texto, borderLeft: `2px solid ${p.color_acento}` }}>
+        <div className="w-1/2" style={{ backgroundColor: p.background_color, borderLeft: `2px solid ${colors.precio}` }} />
+        <div className="absolute flex flex-col" style={{ left: region.x, top: region.y, width: region.w, height: region.h }}>
           <Header align="left" />
-          <div className="flex-1 space-y-[4%] overflow-hidden">
-            {items.map((item) => (
-              <DishRow key={item.plato} item={item} showDesc={false} />
-            ))}
+          <DishColumns />
+          <div className="flex items-center" style={{ height: size.h * 0.08 }}>
+            <Closing />
           </div>
         </div>
       </div>
     );
   } else {
-    const items = itemsOf(ARCHETYPES.lista_limpia.maxItems);
-    const half = Math.ceil(items.length / 2);
-    const columns = items.length > 4 ? [items.slice(0, half), items.slice(half)] : [items];
     content = (
-      <div className="absolute inset-0 flex flex-col p-[5%]" style={{ backgroundColor: p.background_color, color: p.color_texto }}>
-        <Header />
-        <div className="mt-[4%] h-px" style={{ backgroundColor: p.color_acento, opacity: 0.45 }} />
-        <div className={cn("mt-[4%] grid flex-1 gap-[6%] overflow-hidden", columns.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
-          {columns.map((column, i) => (
-            <div key={i} className="space-y-[4%]">
-              {column.map((item) => (
-                <DishRow key={item.plato} item={item} showDesc={items.length <= 5} />
-              ))}
-            </div>
-          ))}
+      <div className="absolute inset-0" style={{ backgroundColor: p.background_color }}>
+        <div className="absolute flex flex-col" style={{ left: region.x, top: region.y, width: region.w, height: region.h }}>
+          <Header />
+          <div style={{ height: 2, backgroundColor: colors.precio, opacity: 0.4, margin: `${fonts.header * 0.3}px 0` }} />
+          <DishColumns />
+          <div className="flex items-center justify-center" style={{ height: size.h * 0.08 }}>
+            <Closing />
+          </div>
         </div>
-        {p.footer_texto && (
-          <p className="mt-[3%] text-center uppercase" style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.footer), color: p.color_acento }}>
-            {p.footer_texto}
-          </p>
-        )}
       </div>
     );
   }
@@ -165,7 +179,7 @@ function Piece({ p, formato, width }: { p: Proposal; formato: string; width: num
   return (
     <div
       className="absolute left-0 top-0 origin-top-left overflow-hidden"
-      style={{ width: size.w, height: size.h, backgroundColor: p.background_color, transform: `scale(${scale})` }}
+      style={{ width: size.w, height: size.h, backgroundColor: p.background_color, color: colors.texto, transform: `scale(${scale})` }}
     >
       {content}
     </div>
