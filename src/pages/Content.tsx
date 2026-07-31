@@ -79,8 +79,11 @@ interface ContentItem {
   file_url: string | null;
   thumbnail_url: string | null;
   duration_seconds: number | null;
+  file_size_bytes?: number | null;
+  thumbnail_status?: string | null;
   created_at: string;
 }
+
 
 const ACCEPT_MAP: Record<string, string> = {
   image: "image/jpeg,image/png,image/gif,image/webp,image/svg+xml",
