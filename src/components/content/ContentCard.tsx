@@ -127,6 +127,10 @@ export function ContentCard({
               if (el.videoWidth) onDims(item.id, { width: el.videoWidth, height: el.videoHeight });
             }}
           />
+        ) : thumbPending ? (
+          // La miniatura se está generando en el servidor: comunicamos
+          // "viene en camino" en vez de mostrar un vacío.
+          <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         ) : (
           <Icon className="h-10 w-10 text-muted-foreground opacity-30" />
         )}
@@ -141,6 +145,23 @@ export function ContentCard({
         {item.type === "video" && duration && (
           <span className="v-thumb-chip bottom-2 right-2 bg-black/60">{duration}</span>
         )}
+
+        {/* Archivo pesado */}
+        {heavy && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                data-card-action
+                className="v-thumb-chip left-2 top-9 flex items-center gap-1 bg-amber-500/90 text-black"
+              >
+                <AlertTriangle className="h-3 w-3" />
+                {sizeLabel}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{HEAVY_FILE_TOOLTIP}</TooltipContent>
+          </Tooltip>
+        )}
+
 
         {/* Checkbox de selección */}
         <button
