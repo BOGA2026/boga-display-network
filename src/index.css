@@ -77,6 +77,10 @@
     --live-foreground: 0 0% 100%;
     --live-glow: 142 90% 60%;
     --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+    /* Motion durations — single source of truth for CSS transitions.
+       Replaces framer-motion for fades/slides (saves ~40 kB gzip). */
+    --duration-fast: 160ms;
+    --duration-medium: 260ms;
   }
 
   /*
