@@ -627,6 +627,8 @@ const Content = () => {
                     ? () => openInEditor(item.id)
                     : undefined
                 }
+                onRetryThumb={() => retryThumbnail(item.id)}
+
               />
             ))}
           </div>
