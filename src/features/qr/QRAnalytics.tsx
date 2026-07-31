@@ -167,22 +167,13 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
               <p className="text-sm text-muted-foreground">Sin ubicaciones detectadas todavía.</p>
             ) : (
               <div className="h-40">
-                <ResponsiveContainer>
-                  <BarChart data={locationBreakdown} layout="vertical" margin={{ top: 4, right: 12, left: 4, bottom: 0 }}>
-                    <XAxis type="number" hide />
-                    <YAxis type="category" dataKey="key" width={130} stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
-                    />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} isAnimationActive />
-                  </BarChart>
-                </ResponsiveContainer>
+                <DeferredMount minHeight={160} placeholder={<ChartSkeleton height={160} label="Cargando gráfico de ubicaciones" />}>
+                  <Suspense fallback={<ChartSkeleton height={160} />}>
+                    <QrChart variant="locations" data={locationBreakdown} />
+                  </Suspense>
+                </DeferredMount>
               </div>
+
             )}
           </BreakdownCard>
         </div>
