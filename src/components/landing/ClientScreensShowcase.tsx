@@ -57,15 +57,17 @@ export default function ClientScreensShowcase() {
 
   // Play only the active video, pause others
   useEffect(() => {
+    const cleanups: Array<() => void> = [];
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
       if (i === active) {
         v.currentTime = 0;
-        v.play().catch(() => {});
+        cleanups.push(attemptAutoplay(v));
       } else {
         v.pause();
       }
     });
+    return () => cleanups.forEach((c) => c());
   }, [active]);
 
   return (
