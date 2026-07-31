@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
+import { pageQueryKeys } from "@/lib/routePrefetch";
+import { PAGE_STALE_TIME, fetchPlaylists } from "@/lib/pageQueries";
 import { storageThumb } from "@/lib/storageImage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,21 +86,9 @@ const Playlists = () => {
 
   // Fetch playlists
   const { data: playlists = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ["playlists"],
-    queryFn: async () => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("business_id")
-        .single();
-      if (!profile?.business_id) return [];
-      const { data, error } = await supabase
-        .from("playlists")
-        .select("id, name, created_at")
-        .eq("business_id", profile.business_id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
+    queryKey: pageQueryKeys.playlists,
+    queryFn: fetchPlaylists,
+    staleTime: PAGE_STALE_TIME,
   });
 
   // Fetch playlist items for editor
