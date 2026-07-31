@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { queryClient } from "@/lib/query-client";
+import { pageQueryKeys } from "@/lib/routePrefetch";
+import { PAGE_STALE_TIME, fetchScreensPage } from "@/lib/pageQueries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -130,7 +133,7 @@ const Screens = () => {
   const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchData({ fresh: false });
   }, []);
 
   // Auto-advance: when the TV claims the pairing code, close sheet and celebrate.
@@ -156,30 +159,23 @@ const Screens = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generatedCode]);
 
-  const fetchData = async () => {
+  /**
+   * Lee la consulta de la sección desde el caché de react-query, así el
+   * prefetch del hover del menú se reutiliza tal cual (misma queryKey).
+   * `fresh: true` (default en mutaciones) fuerza red.
+   */
+  const fetchData = async ({ fresh = true }: { fresh?: boolean } = {}) => {
     setLoading(true);
     setLoadError(false);
     try {
-      const { data: user } = await supabase.auth.getUser();
-      const profileRes = await supabase
-        .from("profiles")
-        .select("business_id")
-        .eq("id", user.user?.id ?? "")
-        .maybeSingle();
-      if (profileRes.error) throw profileRes.error;
-      const businessId = profileRes.data?.business_id;
-      if (!businessId) { setLoading(false); return; }
-
-      const [screensRes, locationsRes, subRes] = await Promise.all([
-        supabase.from("screens").select("id, name, status, location_id, device_token, last_seen_at, created_at").order("created_at", { ascending: false }),
-        supabase.from("locations").select("id, name").eq("business_id", businessId),
-        supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
-      ]);
-      if (screensRes.error) throw screensRes.error;
-
-      setScreens(screensRes.data ?? []);
-      setLocations(locationsRes.data ?? []);
-      setSubscription(subRes.data ?? null);
+      const data = await queryClient.fetchQuery({
+        queryKey: pageQueryKeys.screensPage,
+        queryFn: fetchScreensPage,
+        staleTime: fresh ? 0 : PAGE_STALE_TIME,
+      });
+      setScreens((data.screens ?? []) as Screen[]);
+      setLocations((data.locations ?? []) as Location[]);
+      setSubscription((data.subscription ?? null) as Subscription | null);
     } catch {
       setLoadError(true);
     } finally {

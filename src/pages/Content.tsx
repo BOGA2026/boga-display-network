@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { queryClient } from "@/lib/query-client";
+import { pageQueryKeys } from "@/lib/routePrefetch";
+import { PAGE_STALE_TIME, fetchContentList } from "@/lib/pageQueries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -139,19 +142,24 @@ const Content = () => {
   };
 
   useEffect(() => {
-    fetchContent();
+    fetchContent({ fresh: false });
   }, []);
 
-  const fetchContent = async () => {
+  const fetchContent = async ({ fresh = true }: { fresh?: boolean } = {}) => {
     setLoading(true);
     setLoadError(false);
-    const { data, error } = await supabase
-      .from("content")
-      .select("id, name, type, file_url, thumbnail_url, duration_seconds, created_at")
-      .order("created_at", { ascending: false });
-    if (error) setLoadError(true);
-    setItems(data ?? []);
-    setLoading(false);
+    try {
+      const data = await queryClient.fetchQuery({
+        queryKey: pageQueryKeys.contentList,
+        queryFn: fetchContentList,
+        staleTime: fresh ? 0 : PAGE_STALE_TIME,
+      });
+      setItems(data as any);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
 

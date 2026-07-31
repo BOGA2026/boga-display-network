@@ -50,6 +50,8 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
 const cache = new Map<string, Promise<unknown>>();
 
 export function prefetch(key: string) {
+  // Código y datos en paralelo, desde el mismo hover.
+  prefetchData(key);
   const load = routeLoaders[key];
   if (!load || cache.has(key)) return;
   cache.set(
@@ -82,3 +84,95 @@ export const prefetchRoute: Record<string, () => void> = Object.keys(routeLoader
   },
   {} as Record<string, () => void>
 );
+
+/* ------------------------------------------------------------------ *
+ * Prefetch de DATOS
+ *
+ * El chunk resuelve en 2-3 ms en producción; lo que queda es la cascada
+ * chunk → montar → consultar Supabase. En el mismo hover adelantamos la
+ * consulta principal de la sección con EXACTAMENTE la misma queryKey que
+ * usa el hook de la página (si no coincide al carácter, react-query no
+ * reutiliza la caché y el prefetch no sirve de nada).
+ *
+ * Analíticas y Monitoreo quedan fuera a propósito: son consultas caras,
+ * se visitan menos y no vale gastarlas en un hover accidental.
+ * ------------------------------------------------------------------ */
+import { queryClient, staticQueryOptions } from "@/lib/query-client";
+import {
+  PAGE_STALE_TIME,
+  fetchScreensPage,
+  fetchContentList,
+  fetchPlaylists,
+} from "@/lib/pageQueries";
+import {
+  businessIdQuery,
+  screensForScheduleQuery,
+  playlistsForScheduleQuery,
+} from "@/hooks/useScheduleData";
+import { subscriptionQuery } from "@/hooks/useSubscriptionData";
+
+/** Keys compartidas entre el prefetch y las páginas. */
+export const pageQueryKeys = {
+  screensPage: ["screens-page"] as const,
+  contentList: ["content-list"] as const,
+  playlists: ["playlists"] as const,
+};
+
+const dataLoaders: Record<string, () => Promise<unknown>> = {
+  "/dashboard/pantallas": () =>
+    queryClient.prefetchQuery({
+      queryKey: pageQueryKeys.screensPage,
+      queryFn: fetchScreensPage,
+      staleTime: PAGE_STALE_TIME,
+    }),
+
+  "/dashboard/contenido": () =>
+    queryClient.prefetchQuery({
+      queryKey: pageQueryKeys.contentList,
+      queryFn: fetchContentList,
+      staleTime: PAGE_STALE_TIME,
+    }),
+
+  "/dashboard/listas": () =>
+    queryClient.prefetchQuery({
+      queryKey: pageQueryKeys.playlists,
+      queryFn: fetchPlaylists,
+      staleTime: PAGE_STALE_TIME,
+    }),
+
+  "/dashboard/programacion": async () => {
+    const businessId = await queryClient.fetchQuery({
+      ...businessIdQuery,
+      staleTime: PAGE_STALE_TIME,
+    });
+    await Promise.all([
+      queryClient.prefetchQuery({
+        ...screensForScheduleQuery(businessId),
+        staleTime: staticQueryOptions.staleTime,
+      }),
+      queryClient.prefetchQuery({
+        ...playlistsForScheduleQuery(businessId),
+        staleTime: staticQueryOptions.staleTime,
+      }),
+    ]);
+  },
+
+  "/dashboard/suscripcion": () =>
+    queryClient.prefetchQuery({
+      ...subscriptionQuery,
+      staleTime: staticQueryOptions.staleTime,
+    }),
+};
+
+/** Un solo prefetch de datos por clave por sesión. */
+const dataPrefetched = new Set<string>();
+
+export function prefetchData(key: string) {
+  const load = dataLoaders[key];
+  if (!load || dataPrefetched.has(key)) return;
+  dataPrefetched.add(key);
+  // Si falla, falla en silencio: el componente reintenta al montar.
+  void Promise.resolve()
+    .then(load)
+    .catch(() => dataPrefetched.delete(key));
+}

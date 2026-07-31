@@ -46,11 +46,15 @@ export interface PaymentMethodRow {
   is_default: boolean;
 }
 
-export function useSubscriptionData() {
-  return useQuery({
-    queryKey: ["subscription-full"],
-    ...staticQueryOptions,
-    queryFn: async () => {
+/**
+ * Consulta principal de /dashboard/suscripcion.
+ * Exportada para que el hover del menú pueda adelantarla con la misma key.
+ */
+export const subscriptionQuery = {
+  queryKey: ["subscription-full"] as const,
+  staleTime: staticQueryOptions.staleTime,
+  queryFn: async () => {
+
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error("No user");
 
@@ -92,7 +96,14 @@ export function useSubscriptionData() {
         paymentMethods: (pmRes.data ?? []) as PaymentMethodRow[],
         payments: (paymentsRes.data ?? []) as any[],
       };
-    },
+  },
+};
+
+export function useSubscriptionData() {
+  return useQuery({
+    ...staticQueryOptions,
+    ...subscriptionQuery,
     refetchInterval: 30000,
   });
 }
+
