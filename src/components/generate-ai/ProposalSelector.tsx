@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES } from "./types";
+import { tvTypography, clampMenuSections } from "@/lib/tvLegibility";
 
 interface Props {
   propuestas: Proposal[];
@@ -20,18 +21,20 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
   const scale = previewW / size.w;
 
   const renderMenuPreview = (p: Proposal) => {
-    const sections = p.secciones ?? [];
+    const t = tvTypography(size.h, size.w);
+    const sections = clampMenuSections(p.secciones ?? [], t.maxDescChars);
     const halfway = Math.ceil(sections.length / 2);
     const columns = [sections.slice(0, halfway), sections.slice(halfway)];
+    const px = (v: number) => Math.max(v * scale, 5.5);
 
     return (
-      <div className="absolute inset-0 flex flex-col px-[7%] py-[6%]" style={{ color: p.color_texto }}>
+      <div className="absolute inset-0 flex flex-col p-[5%]" style={{ color: p.color_texto }}>
         <div className="text-center">
           <p
             className="font-bold uppercase leading-none"
             style={{
               fontFamily: p.fuente_titulo,
-              fontSize: Math.max(((p.header?.size ?? 48) * scale), 12),
+              fontSize: px(Math.max(p.header?.size ?? 0, t.restaurante)),
             }}
           >
             {p.header?.nombre_restaurante || p.texto_principal}
@@ -40,7 +43,7 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
             className="mt-1 italic"
             style={{
               fontFamily: p.fuente_cuerpo,
-              fontSize: Math.max(12 * scale, 6),
+              fontSize: px(t.tagline),
               color: p.color_acento,
             }}
           >
@@ -59,32 +62,32 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
                     className="font-bold uppercase"
                     style={{
                       fontFamily: p.fuente_cuerpo,
-                      fontSize: Math.max(12 * scale, 6),
+                      fontSize: px(t.seccion),
                       color: p.color_acento,
                     }}
                   >
                     {section.nombre}
                   </p>
-                  {(section.items ?? []).slice(0, 3).map((item) => (
+                  {(section.items ?? []).map((item) => (
                     <div key={`${section.nombre}-${item.plato}`} className="space-y-[1%]">
                       <div className="flex items-start justify-between gap-2">
                         <span
-                          className="truncate font-semibold"
-                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(13 * scale, 6.5) }}
+                          className="truncate font-bold"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.plato) }}
                         >
                           {item.plato}
                         </span>
                         <span
-                          className="shrink-0 font-bold"
-                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(13 * scale, 6.5), color: p.color_acento }}
+                          className="shrink-0 font-extrabold"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.precio), color: p.color_acento }}
                         >
                           {item.precio}
                         </span>
                       </div>
                       {item.descripcion && (
                         <p
-                          className="line-clamp-1 italic opacity-70"
-                          style={{ fontFamily: p.fuente_cuerpo, fontSize: Math.max(10 * scale, 5.5) }}
+                          className="line-clamp-2 opacity-80"
+                          style={{ fontFamily: p.fuente_cuerpo, fontSize: px(t.descripcion) }}
                         >
                           {item.descripcion}
                         </p>
@@ -96,6 +99,7 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
             </div>
           ))}
         </div>
+
 
         {p.footer_texto && (
           <p

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES, ALL_FONTS, SVG_ICONS } from "./types";
+import { TV_RULES, tvTypography, clampMenuSections } from "@/lib/tvLegibility";
 
 interface LayerItem {
   id: number;
@@ -423,7 +424,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     }
   }, [size]);
 
-  // ─── Menu two-column renderer ───
+  // ─── Menu two-column renderer (TV legibility: sizes relative to canvas height) ───
   const renderMenuDosColumnas = useCallback((fc: fabric.Canvas, p: Proposal) => {
     const W = size.w;
     const H = size.h;
@@ -431,12 +432,18 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     const blanco = p.color_texto;
     const fuente = p.fuente_titulo;
     const fuenteBody = p.fuente_cuerpo;
+    const t = tvTypography(H, W);
+    const M = t.safeMargin; // 5% overscan safe margin on every edge
 
-    // HEADER — nombre del restaurante
+    // HEADER — nombre del restaurante (6-8% de la altura)
     const headerName = p.header?.nombre_restaurante || p.texto_principal;
+    const headerSize = Math.min(
+      Math.round(H * TV_RULES.restauranteMaxPct),
+      Math.max(t.restaurante, p.header?.size || 0),
+    );
     const headerObj = new fabric.IText(headerName.toUpperCase(), {
-      left: W / 2, top: 28, originX: "center",
-      fontSize: p.header?.size || 52,
+      left: W / 2, top: M, originX: "center",
+      fontSize: headerSize,
       fontFamily: fuente, fontWeight: "700",
       fill: blanco, selectable: true, editable: true,
     } as any);
@@ -446,35 +453,42 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
 
     // Tagline
     const tagline = p.header?.tagline || p.texto_secundario;
-    const tagObj = new fabric.IText(tagline, {
-      left: W / 2, top: 90, originX: "center",
-      fontSize: 16, fontFamily: fuenteBody,
-      fontStyle: "italic", fill: acento,
-      selectable: true, editable: true,
-    } as any);
-    (tagObj as any)._customName = "Tagline";
-    (tagObj as any)._layerId = nextId();
-    fc.add(tagObj);
+    let cursorY = M + headerSize * 1.15;
+    if (tagline) {
+      const tagObj = new fabric.IText(tagline, {
+        left: W / 2, top: cursorY, originX: "center",
+        fontSize: t.tagline, fontFamily: fuenteBody,
+        fontStyle: "italic", fill: acento,
+        selectable: true, editable: true,
+      } as any);
+      (tagObj as any)._customName = "Tagline";
+      (tagObj as any)._layerId = nextId();
+      fc.add(tagObj);
+      cursorY += t.tagline * 1.5;
+    }
 
     // Header separator line
-    const sepLine = new fabric.Line([60, 115, W - 60, 115], {
-      stroke: acento, strokeWidth: 1,
+    const sepY = Math.round(cursorY);
+    const sepLine = new fabric.Line([M, sepY, W - M, sepY], {
+      stroke: acento, strokeWidth: 2,
       opacity: 0.5, selectable: false,
     } as any);
     (sepLine as any)._customName = "Separador header";
     (sepLine as any)._layerId = nextId();
     fc.add(sepLine);
 
-    // COLUMNS
-    const secciones = p.secciones || [];
+    // COLUMNS — máximo 7 platos en total; si no caben, van menos platos, nunca letra más chica
+    const secciones = clampMenuSections(p.secciones || [], t.maxDescChars);
     const colIzq = secciones.slice(0, Math.ceil(secciones.length / 2));
     const colDer = secciones.slice(Math.ceil(secciones.length / 2));
 
-    let yIzq = 130;
-    let yDer = 130;
-    const xIzq = 60;
-    const xDer = W / 2 + 20;
-    const colWidth = W / 2 - 80;
+    const startY = sepY + t.plato * 0.6;
+    let yIzq = startY;
+    let yDer = startY;
+    const xIzq = M;
+    const gutter = Math.round(M * 0.8);
+    const colWidth = (W - M * 2 - gutter) / 2;
+    const xDer = M + colWidth + gutter;
 
     const renderSeccion = (seccion: any, x: number, yStart: number): number => {
       let y = yStart;
@@ -482,68 +496,68 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       // Section name
       const secTitle = new fabric.IText(seccion.nombre.toUpperCase(), {
         left: x, top: y,
-        fontSize: 13, fontFamily: fuenteBody,
+        fontSize: t.seccion, fontFamily: fuenteBody,
         fontWeight: "700", fill: acento,
         selectable: true, editable: true,
       } as any);
       (secTitle as any)._customName = `Sección ${seccion.nombre}`;
       (secTitle as any)._layerId = nextId();
       fc.add(secTitle);
-      y += 22;
+      y += t.seccion * 1.6;
 
-      // Items
       (seccion.items || []).forEach((item: any) => {
-        if (y > H - 80) return;
+        if (y > H - M - t.plato) return;
 
-        // Dish name
+        // Precio alineado a la derecha de la columna (nunca separado por puntos)
+        const precioObj = new fabric.IText(item.precio, {
+          left: x + colWidth, top: y,
+          originX: "right",
+          fontSize: t.precio, fontFamily: fuenteBody,
+          fontWeight: "800", fill: acento,
+          selectable: true, editable: true,
+        } as any);
+        (precioObj as any)._customName = `Precio ${item.plato}`;
+        (precioObj as any)._layerId = nextId();
+
+        // Dish name — se recorta si invade el precio
         const platoObj = new fabric.IText(item.plato, {
           left: x, top: y,
-          fontSize: 15, fontFamily: fuenteBody,
-          fontWeight: "600", fill: blanco,
+          fontSize: t.plato, fontFamily: fuenteBody,
+          fontWeight: "700", fill: blanco,
           selectable: true, editable: true,
         } as any);
         (platoObj as any)._customName = `Plato ${item.plato}`;
         (platoObj as any)._layerId = nextId();
         fc.add(platoObj);
-
-        // Price
-        const precioObj = new fabric.IText(item.precio, {
-          left: x + colWidth, top: y,
-          originX: "right",
-          fontSize: 15, fontFamily: fuenteBody,
-          fontWeight: "700", fill: acento,
-          selectable: true, editable: true,
-        } as any);
-        (precioObj as any)._customName = `Precio ${item.plato}`;
-        (precioObj as any)._layerId = nextId();
         fc.add(precioObj);
-        y += 20;
+        y += t.plato * 1.2;
 
-        // Description
+        // Description — mínimo 2,2% de la altura, máximo 2 líneas
         if (item.descripcion) {
-          const descObj = new fabric.IText(item.descripcion, {
+          const descObj = new fabric.Textbox(item.descripcion, {
             left: x, top: y,
-            fontSize: 11, fontFamily: fuenteBody,
-            fontStyle: "italic",
-            fill: "rgba(255,255,255,0.55)",
+            width: colWidth,
+            fontSize: t.descripcion, fontFamily: fuenteBody,
+            fill: blanco, opacity: 0.8,
+            splitByGrapheme: false,
             selectable: true, editable: true,
           } as any);
           (descObj as any)._customName = `Desc ${item.plato}`;
           (descObj as any)._layerId = nextId();
           fc.add(descObj);
-          y += 18;
+          y += t.descripcion * 1.35 * TV_RULES.maxDescLines;
         }
-        y += 6;
+        y += t.descripcion * 0.5;
       });
-      return y + 10;
+      return y + t.descripcion;
     };
 
     colIzq.forEach((sec) => { yIzq = renderSeccion(sec, xIzq, yIzq); });
     colDer.forEach((sec) => { yDer = renderSeccion(sec, xDer, yDer); });
 
     // Vertical divider between columns
-    const divider = new fabric.Line([W / 2, 120, W / 2, H - 60], {
-      stroke: acento, strokeWidth: 0.5,
+    const divider = new fabric.Line([W / 2, sepY + 8, W / 2, H - M], {
+      stroke: acento, strokeWidth: 1,
       opacity: 0.25, selectable: false,
     } as any);
     (divider as any)._customName = "Divisor columnas";
@@ -554,9 +568,9 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
     const footerText = p.footer_texto || p.texto_cta || "";
     if (footerText) {
       const footerObj = new fabric.IText(footerText.toUpperCase(), {
-        left: W / 2, top: H - 35, originX: "center",
-        fontSize: 14, fontFamily: fuenteBody,
-        fontWeight: "500", fill: acento,
+        left: W / 2, top: H - M - t.footer, originX: "center",
+        fontSize: t.footer, fontFamily: fuenteBody,
+        fontWeight: "600", fill: acento,
         selectable: true, editable: true,
       } as any);
       (footerObj as any)._customName = "Footer";
@@ -564,6 +578,7 @@ export default function FabricEditorModal({ proposal, formato, cliente, onClose,
       fc.add(footerObj);
     }
   }, [size, nextId]);
+
 
   // Initialize canvas
   useEffect(() => {

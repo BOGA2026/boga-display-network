@@ -1,10 +1,43 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  TV_RULES,
+  tvTypography,
+  enforceTvProposal,
+  validateTvProposal,
+} from "../_shared/tv-legibility.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+/** Canvas reference sizes (same ratios the editor uses). */
+const CANVAS = {
+  "16:9": { w: 960, h: 540 },
+  "9:16": { w: 540, h: 960 },
+  "1:1": { w: 700, h: 700 },
+} as const;
+
+/** Legibility rules injected into every system prompt — these pieces are read at 3-5 m. */
+const TV_LEGIBILITY_RULES = `
+REGLAS DE LEGIBILIDAD EN TELEVISOR (OBLIGATORIAS — SE VALIDAN AUTOMÁTICAMENTE):
+Estas piezas se ven en un televisor a 3-5 metros, NO en un escritorio.
+Tamaños mínimos como PORCENTAJE DE LA ALTURA del lienzo:
+- Nombre del plato: mínimo 4% de la altura
+- Precio: mínimo 4% de la altura, con el mismo peso visual o mayor que el nombre
+- Descripción: mínimo 2,2% de la altura y máximo 2 líneas
+- Nombre del restaurante: entre 6% y 8% de la altura
+- Nada por debajo del 2% de la altura
+- Si un texto no cabe respetando estos mínimos, van MENOS platos; nunca letra más chica.
+Otras reglas:
+- Máximo ${TV_RULES.maxItems} platos por pieza en total (sumando todas las secciones).
+- Contraste mínimo 7:1 entre texto y fondo. Nada de texto sobre foto sin capa de oscurecimiento del 60% (overlay_opacity >= 0.6) o banda sólida detrás.
+- Margen de seguridad del 5% en todos los bordes (overscan de televisores): no pongas contenido pegado al borde.
+- El precio va alineado a la derecha o inmediatamente después del nombre. PROHIBIDAS las líneas punteadas largas entre plato y precio.
+- Descripciones cortas (máx. 8 palabras) para que quepan en 2 líneas.
+`;
+
 
 // ─── Specialized system prompts per content type ───
 
@@ -20,11 +53,11 @@ REGLAS DE DISEÑO PARA MENÚS:
 - Layout en 2 columnas para platos (izquierda y derecha)
 - Fondo oscuro SIEMPRE (#1a0a00, #0d0d0d, #1a1a0a) para que los platos resalten
 - Precio en color acento vibrante (dorado #ffd700, verde #00e676, naranja #ff6b35)
-- Nombre del plato: bold 22-28px
-- Descripción: italic light 14-16px, color gris claro
-- Precio: bold 20-24px, color acento
+- Nombre del plato: bold, mínimo 4% de la ALTURA del lienzo
+- Descripción: light, mínimo 2,2% de la altura, máximo 2 líneas (máx. 8 palabras)
+- Precio: bold, mínimo 4% de la altura, mismo peso visual o mayor que el nombre, alineado a la derecha
 - Separador horizontal entre secciones
-- Nombre del restaurante arriba: 48-56px bold
+- Nombre del restaurante arriba: entre 6% y 8% de la altura
 
 fuente_titulo debe ser una de: "Oswald" | "Playfair Display" | "Bebas Neue"
 fuente_cuerpo debe ser una de: "Inter" | "DM Sans"
@@ -500,7 +533,7 @@ serve(async (req) => {
   try {
     const { prompt, tipo, formato, estilo, cliente, menu_items, brand_kit } = await req.json();
     const menuItems: MenuItem[] = Array.isArray(menu_items)
-      ? menu_items.filter((i: MenuItem) => i && typeof i.name === "string" && i.name.trim()).slice(0, 8)
+      ? menu_items.filter((i: MenuItem) => i && typeof i.name === "string" && i.name.trim()).slice(0, TV_RULES.maxItems)
       : [];
     const brandKit: BrandKit | null = brand_kit && typeof brand_kit === "object" ? brand_kit : null;
     const realSections = buildRealSections(menuItems);
@@ -563,11 +596,15 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = detectedType === "menu" ? PROMPT_MENU
+    const basePrompt = detectedType === "menu" ? PROMPT_MENU
       : detectedType === "promo" ? PROMPT_PROMO
       : detectedType === "bienvenida" ? PROMPT_BIENVENIDA
       : detectedType === "evento" ? PROMPT_EVENTO
       : PROMPT_GENERICO;
+    const systemPrompt = `${basePrompt}\n${TV_LEGIBILITY_RULES}`;
+
+    const canvas = CANVAS[(formato as keyof typeof CANVAS)] ?? CANVAS["16:9"];
+    const typo = tvTypography(canvas.h, canvas.w);
 
     console.log("USANDO PROMPT:", detectedType.toUpperCase());
 
@@ -629,10 +666,13 @@ Genera las 3 propuestas ahora.
 `;
 
 
+    const runGeneration = async (feedback: string): Promise<any[]> => {
     const parsed = await callAnthropicJson({
       apiKey: ANTHROPIC_API_KEY,
       system: systemPrompt,
-      user: userPrompt,
+      user: feedback
+        ? `${userPrompt}\n\nCORRECCIÓN OBLIGATORIA — el intento anterior fue RECHAZADO por el validador de legibilidad en televisor:\n${feedback}\nCorrige estos puntos: menos platos si hace falta, descripciones más cortas, más contraste y tipografía por encima de los mínimos.`
+        : userPrompt,
     });
     console.log("RESPUESTA CLAUDE (parsed OK):", JSON.stringify(parsed).substring(0, 500));
 
@@ -689,7 +729,7 @@ REGLAS:
       const normalizedHeader = {
         nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : ""),
         tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
-        size: p.header?.size ?? 48,
+        size: p.header?.size ?? typo.restaurante,
       };
       // Real menu data always wins over anything the model wrote.
       const normalizedSections = realSections.length
@@ -744,8 +784,23 @@ REGLAS:
         footer_texto: isMenuResponse ? normalizedFooter : (p.footer_texto ?? null),
       };
     });
+    return sanitized;
+    };
 
-    // Fetch Unsplash images for each proposal
+    // Generate, validate against the TV legibility rules, and regenerate if it fails.
+    let sanitized: any[] = [];
+    let feedback = "";
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const candidates = await runGeneration(feedback);
+      const repaired = candidates.map((p) => enforceTvProposal(p, canvas.h, canvas.w));
+      const violations = repaired.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
+      sanitized = repaired;
+      if (violations.length === 0) break;
+      console.warn(`TV legibility violations (intento ${attempt}):`, JSON.stringify(violations).slice(0, 800));
+      if (attempt === 2) break;
+      feedback = violations.map((v) => `- Propuesta ${v.proposalId}: ${v.detail}`).join("\n");
+    }
+
     const orientation = formato === "9:16" ? "portrait" : "landscape";
     const withImages = await Promise.all(
       sanitized.map(async (p: any) => {
@@ -768,8 +823,11 @@ REGLAS:
       })
     );
 
+    // Re-enforce after images: text over a photo needs the 60% darkening layer.
+    const finalProposals = withImages.map((p: any) => enforceTvProposal(p, canvas.h, canvas.w));
+
     return new Response(
-      JSON.stringify({ propuestas: withImages }),
+      JSON.stringify({ propuestas: finalProposals, tv_typography: typo }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
