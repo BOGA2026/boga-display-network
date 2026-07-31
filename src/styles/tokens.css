@@ -281,3 +281,30 @@ table th {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
+
+/* Grilla fluida de biblioteca de medios: 5-6 columnas en 1440px, 2 en 375px */
+.v-media-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .v-media-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-3);
+  }
+}
+
+/* Chip sobre miniatura: 10px, fondo negro translúcido */
+.v-thumb-chip {
+  position: absolute;
+  z-index: 2;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 4px;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(4px);
+}
