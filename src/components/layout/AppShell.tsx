@@ -120,7 +120,7 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
         {NAV_GROUPS.map((group) => (
           <SidebarGroup key={group.id} className="p-0">
             {!collapsed && (
-              <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+              <SidebarGroupLabel className="v-nav-group-label h-auto px-3 py-2">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -139,25 +139,13 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
                           onTouchStart={() => prefetch(item.path)}
                           className={({ isActive }) =>
                             cn(
-                              "group relative flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-200 ease-ios",
-                              isActive
-                                ? "bg-primary/12 text-foreground shadow-soft-1"
-                                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                              "v-nav-item v-focus-ring group relative flex min-h-[44px] items-center gap-3 overflow-hidden rounded-xl px-3 text-sm font-medium shadow-none ring-0 transition-colors duration-200 ease-ios focus-visible:ring-0",
+                              isActive && "v-nav-item-active",
                             )
                           }
                         >
-                          {({ isActive }) => (
-                            <>
-                              {isActive && (
-                                <span
-                                  aria-hidden
-                                  className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
-                                />
-                              )}
-                              <item.icon className="h-4 w-4 shrink-0" />
-                              {!collapsed && <span className="truncate">{item.label}</span>}
-                            </>
-                          )}
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          {!collapsed && <span className="truncate">{item.label}</span>}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

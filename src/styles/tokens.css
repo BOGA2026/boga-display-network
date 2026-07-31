@@ -148,3 +148,48 @@
   font-size: 0.9375rem;
   font-weight: 600;
 }
+
+/* ---- Foco de teclado ---- */
+.v-focus-ring:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--primary) / 0.7);
+}
+
+/* ---- Navegación lateral ---- */
+.v-nav-item {
+  position: relative;
+  color: hsl(var(--muted-foreground));
+}
+
+.v-nav-item:hover:not(.v-nav-item-active) {
+  background: hsl(var(--admin-surface-2, var(--muted)));
+  color: hsl(var(--foreground));
+}
+
+.v-nav-item-active {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+.v-nav-item-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 3px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+}
+
+.v-nav-group-label {
+  font-size: 10px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground) / 0.6);
+}
