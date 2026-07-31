@@ -506,7 +506,7 @@ const Dashboard = () => {
             key={a.label}
             variant={a.primary ? "default" : "outline"}
             className={cn(
-              "h-10 gap-2 px-4 text-sm font-medium md:h-11",
+              "h-11 gap-2 px-4 text-sm font-medium md:h-10",
               !a.primary && "border-border/50 text-foreground hover:bg-secondary hover:text-foreground"
             )}
             asChild
