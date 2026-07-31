@@ -46,11 +46,15 @@ export interface PaymentMethodRow {
   is_default: boolean;
 }
 
-export function useSubscriptionData() {
-  return useQuery({
-    queryKey: ["subscription-full"],
-    ...staticQueryOptions,
-    queryFn: async () => {
+/**
+ * Consulta principal de /dashboard/suscripcion.
+ * Exportada para que el hover del menú pueda adelantarla con la misma key.
+ */
+export const subscriptionQuery = {
+  queryKey: ["subscription-full"] as const,
+  staleTime: staticQueryOptions.staleTime,
+  queryFn: async () => {
+
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error("No user");
 
