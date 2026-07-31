@@ -49,6 +49,7 @@ import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
+import { NAV } from "@/config/lexicon";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -433,8 +434,8 @@ const Screens = () => {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-display text-2xl font-bold">Pantallas</h1>
-          <p className="text-sm text-muted-foreground">Gestiona tus pantallas de señalización digital</p>
+          <h1 className="font-display text-2xl font-bold">{NAV.pantallas.pageTitle}</h1>
+          <p className="text-sm text-muted-foreground">{NAV.pantallas.pageSubtitle}</p>
         </div>
         <div className="flex gap-2">
           <Button

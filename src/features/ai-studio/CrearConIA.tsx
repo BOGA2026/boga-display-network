@@ -45,7 +45,7 @@ export function CrearConIA() {
         const out = await studio.suggestCopy({ tipo_promocion: tipoPromo });
         setUltima({ copy: out.copy });
       }
-      toast({ title: "Generación lista", description: "Ya podés usarla en tus pantallas." });
+      toast({ title: "Generación lista", description: "Ya puedes usarla en tus pantallas." });
     } catch {
       // useAiStudio already surfaces the error via `studio.error`.
     }

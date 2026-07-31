@@ -109,7 +109,7 @@ export function SendToScreenSheet({
                 ))}
                 {screens.length === 0 && (
                   <div className="px-2 py-4 text-sm text-muted-foreground">
-                    No tenés pantallas aún.
+                    Todavía no tienes pantallas conectadas.
                   </div>
                 )}
               </SelectContent>

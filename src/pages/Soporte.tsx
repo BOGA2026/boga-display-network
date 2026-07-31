@@ -9,6 +9,7 @@ import { Send, MessageSquare, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { NAV } from "@/config/lexicon";
 
 type Msg = { id: string; author_role: "admin" | "user"; body: string; created_at: string };
 type Pqrs = { id: string; type: string; subject: string; message: string; status: string; created_at: string };
@@ -103,8 +104,8 @@ export default function Soporte() {
   return (
     <div className="p-6 space-y-6 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-bold">Soporte</h1>
-        <p className="text-sm text-muted-foreground">Habla con el equipo de Visualia o envía una PQRS</p>
+        <h1 className="text-2xl font-bold">{NAV.soporte.pageTitle}</h1>
+        <p className="text-sm text-muted-foreground">{NAV.soporte.pageSubtitle}</p>
       </div>
 
       <Tabs defaultValue="chat" className="space-y-4">

@@ -17,6 +17,7 @@ import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { liveQueryOptions } from "@/lib/query-client";
 import { useToast } from "@/hooks/use-toast";
+import { NAV, COPY } from "@/config/lexicon";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -390,10 +391,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Panel de control</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Resumen general de tu red de señalización digital
-          </p>
+          <h1 className="font-display text-2xl font-bold tracking-tight">{NAV.inicio.pageTitle}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{NAV.inicio.pageSubtitle}</p>
         </div>
         {stats?.lastSync && (
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
