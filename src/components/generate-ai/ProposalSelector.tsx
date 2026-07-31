@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Maximize2, RotateCcw, Pencil, Check, X } from "lucide-react";
+import { Maximize2, RotateCcw, Pencil, Check, X, AlertTriangle, Loader2 } from "lucide-react";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES } from "./types";
 import { tvTypography, clampMenuSections } from "@/lib/tvLegibility";
@@ -15,7 +15,13 @@ interface Props {
   onSelect: (p: Proposal) => void;
   onRegenerate: () => void;
   loading: boolean;
+  /** Archetypes the backend failed to deliver — rendered as retryable error cards. */
+  fallidos?: ArchetypeId[];
+  /** Archetype currently being retried (shows a skeleton in its slot). */
+  retryTarget?: ArchetypeId | null;
+  onRetryArchetype?: (a: ArchetypeId) => void;
 }
+
 
 const archetypeOf = (p: Proposal): ArchetypeId =>
   p.arquetipo && ARCHETYPES[p.arquetipo] ? p.arquetipo : "lista_limpia";
@@ -228,11 +234,21 @@ function FullscreenPreview({ p, formato, onClose }: { p: Proposal; formato: stri
   );
 }
 
-export default function ProposalSelector({ propuestas, formato, onSelect, onRegenerate, loading }: Props) {
+export default function ProposalSelector({
+  propuestas,
+  formato,
+  onSelect,
+  onRegenerate,
+  loading,
+  fallidos = [],
+  retryTarget = null,
+  onRetryArchetype,
+}: Props) {
   const [descartadas, setDescartadas] = useState<number[]>([]);
   const [fullscreen, setFullscreen] = useState<Proposal | null>(null);
 
   const visibles = useMemo(() => propuestas.filter((p) => !descartadas.includes(p.id)), [propuestas, descartadas]);
+  const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
 
   return (
     <div className="mx-auto w-full max-w-[1440px] space-y-6 animate-fade-in">
@@ -244,10 +260,11 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
           </p>
         </div>
         <Button variant="outline" size="sm" className="shrink-0 border-sidebar-border" onClick={onRegenerate} disabled={loading}>
-          <RotateCcw className="h-3.5 w-3.5" />
-          Regenerar
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+          {loading ? "Generando…" : "Regenerar"}
         </Button>
       </div>
+
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibles.map((p) => {
@@ -318,9 +335,51 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
             </div>
           );
         })}
+
+        {/* Slots que fallaron: el resto de propuestas se conserva. */}
+        {fallidos.map((a) => {
+          const reintentando = retryTarget === a;
+          return (
+            <div key={`fail-${a}`} className="flex flex-col overflow-hidden rounded-xl border border-destructive/30 bg-sidebar">
+              <div
+                className={cn("flex w-full items-center justify-center bg-destructive/5", reintentando && "animate-pulse")}
+                style={{ aspectRatio: `${size.w} / ${size.h}` }}
+              >
+                {reintentando ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                ) : (
+                  <AlertTriangle className="h-6 w-6 text-destructive" />
+                )}
+              </div>
+              <div className="flex flex-1 flex-col gap-3 p-4">
+                <div>
+                  <span className="inline-flex rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+                    {ARCHETYPES[a]?.label ?? a}
+                  </span>
+                  <p className="mt-1.5 text-sm font-medium">No pudimos generar esta propuesta</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {reintentando ? "Reintentando…" : "Las otras siguen disponibles. Puedes reintentar solo esta."}
+                  </p>
+                </div>
+                <div className="mt-auto">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full border-sidebar-border"
+                    disabled={loading || !onRetryArchetype}
+                    onClick={() => onRetryArchetype?.(a)}
+                  >
+                    {reintentando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                    Reintentar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {visibles.length === 0 && (
+      {visibles.length === 0 && fallidos.length === 0 && (
         <div className="rounded-xl border border-dashed border-sidebar-border p-8 text-center text-sm text-muted-foreground">
           Descartaste todas las propuestas.
           <Button variant="outline" size="sm" className="ml-3" onClick={onRegenerate} disabled={loading}>
@@ -328,6 +387,7 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
           </Button>
         </div>
       )}
+
 
       {fullscreen && <FullscreenPreview p={fullscreen} formato={formato} onClose={() => setFullscreen(null)} />}
     </div>

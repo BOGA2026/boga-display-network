@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Check, Loader2, UtensilsCrossed, Info } from "lucide-react";
+import { Sparkles, Loader2, UtensilsCrossed, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -18,21 +18,17 @@ import type { Proposal, GenerateResponse } from "@/components/generate-ai/types"
 import { CANVAS_SIZES } from "@/components/generate-ai/types";
 import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
 import { enforceArchetype } from "@/lib/designArchetypes";
+import type { ArchetypeId } from "@/lib/designArchetypes";
 import { preferredArchetypeOrder, recordArchetypePick } from "@/lib/archetypePrefs";
 import ProposalSelector from "@/components/generate-ai/ProposalSelector";
+import GenerationSkeletons, { type GenerationStage } from "@/components/generate-ai/GenerationSkeletons";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 import { NAV } from "@/config/lexicon";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
-const STEPS = [
-  "Analizando descripción",
-  "Definiendo estructura visual",
-  "Generando 3 propuestas",
-  "Propuestas listas",
-];
-
 const MENU_LIMIT = 7; // Legibilidad en TV: máximo 7 platos por pieza
+
 
 type MenuItem = {
   name: string;
@@ -84,11 +80,15 @@ export default function GenerateAI() {
   const [estilo, setEstilo] = useState("Moderno");
   const [cliente, setCliente] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(-1);
+  const [stage, setStage] = useState<GenerationStage | null>(null);
   const [propuestas, setPropuestas] = useState<Proposal[] | null>(null);
+  const [fallidos, setFallidos] = useState<ArchetypeId[]>([]);
+  const [retryTarget, setRetryTarget] = useState<ArchetypeId | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
   const [saving, setSaving] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const loading = stage !== null;
 
   const { data: menuData } = useMenuData();
   const isMenu = tipo === "Menú";
@@ -98,15 +98,31 @@ export default function GenerateAI() {
   const menuRecortado = isMenu && menuTotal > MENU_LIMIT;
 
   const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     setPropuestas(null);
+    setFallidos([]);
+    setRetryTarget(null);
     setSelectedProposal(null);
-    setCurrentStep(-1);
+    setStage(null);
     setPrompt("");
     setCliente("");
   }, []);
 
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setStage(null);
+    setRetryTarget(null);
+    toast({ title: "Generación cancelada" });
+  }, [toast]);
 
-  const generate = async () => {
+  /**
+   * Generates proposals. When `targets` is given we only ask for those
+   * archetypes (retry of a failed slot) and merge the result with what we
+   * already have, so a partial failure never throws away good proposals.
+   */
+  const generate = async (targets?: ArchetypeId[]) => {
     if (!prompt.trim()) {
       toast({ title: "Escribe una descripción", variant: "destructive" });
       return;
@@ -116,21 +132,27 @@ export default function GenerateAI() {
       return;
     }
 
-    setPropuestas(null);
-    setSelectedProposal(null);
-    setLoading(true);
-    setCurrentStep(0);
+    const esReintento = !!targets?.length;
+    const orden = targets ?? preferredArchetypeOrder();
 
-    const stepTimers = [1200, 2400, 3600];
-    stepTimers.forEach((ms, i) => {
-      setTimeout(() => setCurrentStep(i + 1), ms);
-    });
+    if (!esReintento) {
+      setPropuestas(null);
+      setFallidos([]);
+      setSelectedProposal(null);
+    }
+    setRetryTarget(esReintento ? orden[0] : null);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setStage("menu");
 
     try {
+      setStage("generando");
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-design`,
         {
           method: "POST",
+          signal: controller.signal,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
@@ -142,38 +164,73 @@ export default function GenerateAI() {
             estilo,
             cliente,
             menu_items: menuItems,
-            arquetipos: preferredArchetypeOrder(),
+            arquetipos: orden,
             brand_kit: menuData?.brandKit ?? null,
           }),
         }
       );
 
-
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Error al generar");
       }
 
       const data: GenerateResponse = await res.json();
+      setStage("marca");
+
       // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
       const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
-      const legibles = (data.propuestas ?? []).map((p) =>
-        p.arquetipo
-          ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
-          : enforceTvProposal(p, canvas.h, canvas.w),
-      );
+      const recibidas = (data.propuestas ?? []).filter((p) => !targets || !p.arquetipo || targets.includes(p.arquetipo));
+      const legibles: Proposal[] = [];
+      const rotos: ArchetypeId[] = [];
+
+      recibidas.forEach((p) => {
+        try {
+          legibles.push(
+            p.arquetipo
+              ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
+              : enforceTvProposal(p, canvas.h, canvas.w),
+          );
+        } catch (err) {
+          console.warn("Propuesta descartada por error de post-proceso", p.arquetipo, err);
+          if (p.arquetipo) rotos.push(p.arquetipo);
+        }
+      });
+
       const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
       if (fallas.length > 0) {
         console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
       }
-      setCurrentStep(3);
-      setTimeout(() => setPropuestas(legibles), 600);
+
+      // Arquetipos pedidos que no llegaron: se muestran como tarjeta de error.
+      const entregados = new Set(legibles.map((p) => p.arquetipo).filter(Boolean) as ArchetypeId[]);
+      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos);
+
+      if (esReintento) {
+        setPropuestas((prev) => [...(prev ?? []), ...legibles]);
+        setFallidos((prev) => prev.filter((a) => !entregados.has(a)).concat(faltantes.filter((a) => !prev.includes(a))));
+      } else {
+        setPropuestas(legibles);
+        setFallidos(faltantes);
+      }
+
+      if (legibles.length === 0) {
+        toast({ title: "No pudimos generar propuestas", description: "Intenta de nuevo en unos segundos.", variant: "destructive" });
+      }
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      if (e?.name === "AbortError") return;
+      if (esReintento) {
+        toast({ title: "No pudimos regenerar esa propuesta", description: e.message, variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+      }
     } finally {
-      setLoading(false);
+      abortRef.current = null;
+      setStage(null);
+      setRetryTarget(null);
     }
   };
+
 
   const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
@@ -311,7 +368,7 @@ export default function GenerateAI() {
             )}
 
             <Button
-              onClick={generate}
+              onClick={() => generate()}
               disabled={loading || menuVacio}
               className="gradient-primary glow-primary-sm w-full sm:w-auto"
               size="lg"
@@ -324,29 +381,9 @@ export default function GenerateAI() {
         </Card>
       )}
 
-      {/* Stepper */}
-      {currentStep >= 0 && !propuestas && !selectedProposal && (
-        <Card className="border-sidebar-border bg-sidebar">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {STEPS.map((label, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500",
-                    i < currentStep ? "gradient-primary text-primary-foreground"
-                      : i === currentStep ? "gradient-primary text-primary-foreground animate-pulse"
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    {i < currentStep ? <Check className="h-4 w-4" /> : i + 1}
-                  </div>
-                  <span className={cn("text-sm transition-colors duration-300", i <= currentStep ? "text-foreground font-medium" : "text-muted-foreground")}>
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Loading: three placeholders shaped like the pieces that are coming */}
+      {loading && !retryTarget && !selectedProposal && (
+        <GenerationSkeletons stage={stage!} formato={formato} onCancel={cancel} />
       )}
 
       {/* Proposal selector */}
@@ -358,10 +395,14 @@ export default function GenerateAI() {
             recordArchetypePick(p.arquetipo);
             setSelectedProposal(p);
           }}
-          onRegenerate={generate}
+          onRegenerate={() => generate()}
           loading={loading}
+          fallidos={fallidos}
+          retryTarget={retryTarget}
+          onRetryArchetype={(a) => generate([a])}
         />
       )}
+
 
       {/* Fabric editor */}
       {selectedProposal && (
