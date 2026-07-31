@@ -51,7 +51,8 @@ const LazyVideo = forwardRef<HTMLVideoElement, LazyVideoProps>(function LazyVide
     return () => io.disconnect();
   }, [inView, rootMargin]);
 
-  // When the sources become attached we call load() so the browser picks them up.
+  // When the sources become attached we call load() so the browser picks them up,
+  // then run the autoplay escalation (muted fallback + retry on interaction).
   useEffect(() => {
     if (!inView) return;
     const el = localRef.current;
@@ -61,7 +62,9 @@ const LazyVideo = forwardRef<HTMLVideoElement, LazyVideoProps>(function LazyVide
     } catch {
       /* noop */
     }
-  }, [inView]);
+    if (!videoProps.autoPlay) return;
+    return attemptAutoplay(el);
+  }, [inView, videoProps.autoPlay]);
 
   return (
     <>
