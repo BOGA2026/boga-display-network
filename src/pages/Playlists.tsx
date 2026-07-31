@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +59,25 @@ interface PlaylistItem {
 const Playlists = () => {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null);
+  const { id: routePlaylistId } = useParams();
+  const navigate = useNavigate();
+  const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(
+    routePlaylistId ?? null,
+  );
+
+  // Deep link: /dashboard/listas/:id abre esa lista directamente.
+  useEffect(() => {
+    setEditingPlaylistId(routePlaylistId ?? null);
+  }, [routePlaylistId]);
+
+  /** Cambia la lista abierta y refleja el cambio en la URL. */
+  const openPlaylist = useCallback(
+    (id: string | null) => {
+      setEditingPlaylistId(id);
+      navigate(id ? `${NAV.listas.path}/${id}` : NAV.listas.path, { replace: !id });
+    },
+    [navigate],
+  );
   const [newPlaylist, setNewPlaylist] = useState({ name: "", description: "" });
   const [loopEnabled, setLoopEnabled] = useState(true);
 
@@ -139,7 +158,7 @@ const Playlists = () => {
       invalidate.playlists();
       setShowCreateModal(false);
       setNewPlaylist({ name: "", description: "" });
-      setEditingPlaylistId(data.id);
+      openPlaylist(data.id);
       toast({ title: "Playlist creada", description: "Ahora puedes agregar contenido." });
     },
     onError: () => toast({ title: "Error", description: "No se pudo crear la playlist.", variant: "destructive" }),
@@ -200,7 +219,7 @@ const Playlists = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setEditingPlaylistId(null)}
+            onClick={() => openPlaylist(null)}
             className="hover:bg-secondary"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -404,7 +423,7 @@ const Playlists = () => {
           <Card
             key={pl.id}
             className="surface-elevated cursor-pointer group hover:border-primary/30 hover:glow-primary-sm transition-all duration-300"
-            onClick={() => setEditingPlaylistId(pl.id)}
+            onClick={() => openPlaylist(pl.id)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
