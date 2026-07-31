@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/query-client";
@@ -34,6 +34,8 @@ import {
   Sparkles,
   PenTool,
   MonitorPlay,
+  Rows3,
+  Grid2X2,
 } from "lucide-react";
 import { SendToScreenSheet } from "@/components/dashboard/SendToScreenSheet";
 import {
@@ -64,7 +66,10 @@ import { cn } from "@/lib/utils";
 import { storageThumb } from "@/lib/storageImage";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
-import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
+import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
+import { ContentTable } from "@/components/content/ContentTable";
+import { MediaDims, orientationOf } from "@/components/content/mediaMeta";
 
 
 interface ContentItem {
@@ -129,12 +134,54 @@ const Content = () => {
   // Send to screen state
   const [sendTarget, setSendTarget] = useState<ContentItem | null>(null);
 
+  // Vista previa
+  const [previewTarget, setPreviewTarget] = useState<ContentItem | null>(null);
+
+  // Vista cuadrícula / lista (preferencia persistida)
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    if (typeof window === "undefined") return "grid";
+    return localStorage.getItem("visualia_content_view") === "list" ? "list" : "grid";
+  });
+  useEffect(() => {
+    localStorage.setItem("visualia_content_view", viewMode);
+  }, [viewMode]);
+
+  // Filtro de orientación (atenúa las piezas que no coinciden)
+  const [orientFilter, setOrientFilter] = useState<"todas" | "horizontal" | "vertical">("todas");
+
+  // Dimensiones reales medidas al cargar cada miniatura
+  const [dims, setDims] = useState<Record<string, MediaDims>>({});
+  const handleDims = useCallback((id: string, d: MediaDims) => {
+    setDims((prev) => (prev[id]?.width === d.width && prev[id]?.height === d.height ? prev : { ...prev, [id]: d }));
+  }, []);
+
+  // Selección múltiple
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
+  const clearSelection = () => setSelectedIds(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const isDimmed = useCallback(
+    (id: string) => {
+      if (orientFilter === "todas") return false;
+      const o = orientationOf(dims[id]);
+      return !!o && o !== orientFilter;
+    },
+    [orientFilter, dims],
+  );
+
   const openInEditor = (id: string) => {
     navigate(`/dashboard/editor?contentId=${id}`);
   };
 
   const getBusinessId = async (): Promise<string | null> => {
-    const data = await getBusinessId();
+    const data = await resolveBusinessId();
     if (!data) {
       toast({ title: "No estás asociado a un negocio", description: "Regístrate o contacta al administrador.", variant: "destructive" });
       return null;
