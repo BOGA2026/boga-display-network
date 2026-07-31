@@ -767,9 +767,12 @@ REGLAS:
         && rawSections.length > 0
         && rawSections.some((section) => Array.isArray(section.items)
           && section.items.some((item) => !isPlaceholderText(item.plato) || !isPlaceholderText(item.precio)));
+      // El título de la pieza es la marca del negocio; "Menú del día" solo es subtítulo.
+      const modelTitle = (p.header?.nombre_restaurante ?? "").trim();
+      const esTituloGenerico = /^(menu|menú)( del d[ií]a)?$/i.test(modelTitle);
       const normalizedHeader = {
-        nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : ""),
-        tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
+        nombre_restaurante: (cliente || (!esTituloGenerico ? modelTitle : "") || (!isPlaceholderText(p.texto_principal) ? p.texto_principal : "")).trim(),
+        tagline: (p.header?.tagline || (esTituloGenerico ? modelTitle : "") || (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : "")).trim(),
         size: p.header?.size ?? typo.restaurante,
       };
       // Real menu data always wins over anything the model wrote.
