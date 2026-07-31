@@ -29,7 +29,7 @@ export function NetworkStatusCard({ screens }: { screens: NetworkScreen[] }) {
         hasDown ? "border-destructive/50" : "border-border/30",
       )}
     >
-      <CardContent className="flex h-full flex-col justify-between gap-4 p-4">
+      <CardContent className="v-kpi-card h-full justify-between">
         <div>
           <p className="v-kpi-label">Estado de la red</p>
           <p className="v-numeric mt-1 text-[36px] font-semibold leading-none text-foreground">
@@ -128,7 +128,7 @@ export function UptimeCard({ businessId }: { businessId?: string }) {
 
   return (
     <Card className="surface-elevated h-full border-border/30">
-      <CardContent className="flex h-full flex-col justify-between gap-4 p-4">
+      <CardContent className="v-kpi-card h-full justify-between">
         <div>
           <p className="v-kpi-label">Uptime 7 días</p>
           {isLoading ? (
@@ -155,7 +155,7 @@ export interface InventoryChip {
 
 export function InventoryStrip({ items }: { items: InventoryChip[] }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
+    <div className="v-grid sm:grid-cols-3">
       {items.map((it) => (
         <Link
           key={it.path}

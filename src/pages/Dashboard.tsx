@@ -397,7 +397,7 @@ const Dashboard = () => {
     (stats.totalScreens === 0 || stats.content === 0 || stats.schedules === 0);
 
   return (
-    <div className="p-5 lg:p-6 space-y-5">
+    <div className="v-page v-stack">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
@@ -468,12 +468,12 @@ const Dashboard = () => {
 
       {/* Fila 1: estado de la red + uptime */}
       {isLoading ? (
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="v-grid lg:grid-cols-3">
           <Skeleton className="h-[140px] rounded-xl lg:col-span-2" />
           <Skeleton className="h-[140px] rounded-xl" />
         </div>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="v-grid lg:grid-cols-3">
           <div className="lg:col-span-2">
             <NetworkStatusCard screens={(stats?.screens ?? []) as any} />
           </div>
@@ -483,7 +483,7 @@ const Dashboard = () => {
 
       {/* Fila 2: atajos de inventario */}
       {isLoading ? (
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="v-grid sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-11 rounded-xl" />
           ))}
@@ -550,7 +550,7 @@ const Dashboard = () => {
       })()}
 
       {/* Activity + Screen status */}
-      <div className="grid gap-4 lg:grid-cols-5">
+      <div className="v-grid lg:grid-cols-5">
         {/* Activity feed */}
         <Card className="surface-elevated border-border/30 lg:col-span-2">
           <CardHeader className="pb-2">
@@ -630,7 +630,7 @@ const Dashboard = () => {
                 secondaryAction={{ label: "Probar con pantalla demo", onClick: handleAddDemoScreen }}
               />
             ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="v-grid sm:grid-cols-2">
                 {stats.screens.map((screen: any, i: number) => {
                   const licenseStatus = screen.license_status || "active";
                   const statusColor = licenseStatus === "active" 
