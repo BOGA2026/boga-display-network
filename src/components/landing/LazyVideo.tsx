@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, VideoHTMLAttributes, forwardRef, useImperativeHandle } from "react";
+import { attemptAutoplay } from "@/lib/autoplay";
 
 type Source = { src: string; type: string };
 
