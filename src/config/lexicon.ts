@@ -187,6 +187,18 @@ export const LEGACY_REDIRECTS: Record<string, string> = {
   "/dashboard/playlists": NAV.listas.path,
   "/dashboard/playlist": NAV.listas.path,
   "/dashboard/horarios": NAV.horarios.path,
+  "/dashboard/analytics": NAV.analiticas.path,
+  "/dashboard/schedule": NAV.horarios.path,
+};
+
+/**
+ * Rutas antiguas CON parámetro. El destino conserva el `:param`, que
+ * `LegacyRedirect` reemplaza en tiempo de ejecución para no perder el deep link.
+ */
+export const LEGACY_PARAM_REDIRECTS: Record<string, string> = {
+  "/dashboard/playlists/:id": `${NAV.listas.path}/:id`,
+  "/dashboard/playlist/:id": `${NAV.listas.path}/:id`,
+  "/dashboard/screens/:id": `${NAV.pantallas.path}/:id`,
 };
 
 /** Busca la entrada de navegación de un pathname (match más específico). */
