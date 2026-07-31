@@ -53,7 +53,7 @@ export default function AdminLeadsPage() {
     (async () => {
       const { data, error } = await supabase
         .from("leads")
-        .select("*")
+        .select("id, name, email, phone, company, screens, goal, budget, preferred_contact, preferred_time, whatsapp, inquiry, status, source, created_at")
         .order("created_at", { ascending: false });
       if (error) console.error("Error fetching leads:", error.message);
       setLeads(data ?? []);

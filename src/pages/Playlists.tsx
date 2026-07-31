@@ -92,7 +92,7 @@ const Playlists = () => {
       if (!profile?.business_id) return [];
       const { data, error } = await supabase
         .from("playlists")
-        .select("*")
+        .select("id, name, created_at")
         .eq("business_id", profile.business_id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -107,7 +107,7 @@ const Playlists = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("playlist_items")
-        .select("*, content:content_id(id, name, type, duration_seconds, thumbnail_url)")
+        .select("id, playlist_id, content_id, sort_order, duration_seconds, content:content_id(id, name, type, duration_seconds, thumbnail_url)")
         .eq("playlist_id", editingPlaylistId!)
         .order("sort_order", { ascending: true });
       if (error) throw error;
