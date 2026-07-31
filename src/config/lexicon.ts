@@ -55,6 +55,11 @@ export interface NavEntry {
   end?: boolean;
   /** No se muestra en el menú lateral (accesible desde otras vistas). */
   hidden?: boolean;
+  /**
+   * Vocabulario alternativo/antiguo. Solo se usa para búsqueda (⌘K):
+   * nunca se muestra como etiqueta.
+   */
+  aliases?: string[];
 }
 
 export const NAV: Record<NavKey, NavEntry> = {
@@ -66,6 +71,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageSubtitle: "Resumen general de tu red de pantallas.",
     icon: LayoutDashboard,
     end: true,
+    aliases: ["Home", "Dashboard", "Panel", "Resumen"],
   },
   pantallas: {
     path: "/dashboard/pantallas",
@@ -74,6 +80,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Pantallas",
     pageSubtitle: "Conecta, renombra y controla las pantallas de tu negocio.",
     icon: Monitor,
+    aliases: ["Screens", "TVs", "Displays", "Dispositivos"],
   },
   contenido: {
     path: "/dashboard/contenido",
@@ -82,6 +89,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Contenido",
     pageSubtitle: "Sube, organiza y publica el material que ven tus clientes.",
     icon: ImageIcon,
+    aliases: ["Content", "Media", "Biblioteca", "Archivos"],
   },
   listas: {
     path: "/dashboard/listas",
@@ -90,6 +98,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Listas de reproducción",
     pageSubtitle: "Agrupa contenido en secuencias y envíalas a tus pantallas.",
     icon: ListVideo,
+    aliases: ["Playlists", "Playlist", "Listas de reproducción", "Secuencias"],
   },
   horarios: {
     path: "/dashboard/programacion",
@@ -98,6 +107,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Horarios",
     pageSubtitle: "Define qué se muestra en cada pantalla y a qué hora.",
     icon: Calendar,
+    aliases: ["Programación", "Schedule", "Scheduling", "Agenda", "Calendario"],
   },
   mapa: {
     path: "/dashboard/mapa",
@@ -106,6 +116,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Mapa de pantallas",
     pageSubtitle: "Haz clic en un pin para ver el detalle de la pantalla.",
     icon: MapIcon,
+    aliases: ["Map", "Ubicaciones", "Sedes"],
   },
   monitoreo: {
     path: "/dashboard/monitoreo",
@@ -114,6 +125,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Monitoreo geográfico",
     pageSubtitle: "Estado casi en tiempo real de todas tus pantallas.",
     icon: Radio,
+    aliases: ["Monitoring", "Estado", "Uptime", "Salud"],
   },
   qr: {
     path: "/dashboard/qr",
@@ -123,6 +135,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageSubtitle:
       "Códigos dinámicos: cambia el destino cuando quieras sin reimprimir. Cada escaneo se registra en tiempo real.",
     icon: QrCode,
+    aliases: ["QR", "Códigos", "Codigos QR", "Scan"],
   },
   analiticas: {
     path: "/dashboard/analiticas",
@@ -131,6 +144,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Analíticas",
     pageSubtitle: "Mide el rendimiento de tus pantallas y de tus códigos QR.",
     icon: BarChart3,
+    aliases: ["Analytics", "Analiticas", "Métricas", "Reportes", "Estadísticas"],
   },
   suscripcion: {
     path: "/dashboard/suscripcion",
@@ -139,6 +153,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Suscripción",
     pageSubtitle: "Gestiona tu plan, tus pantallas activas y tus pagos.",
     icon: CreditCard,
+    aliases: ["Billing", "Plan", "Pagos", "Facturación", "Settings"],
   },
   soporte: {
     path: "/dashboard/soporte",
@@ -147,6 +162,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Soporte",
     pageSubtitle: "Habla con el equipo de Visualia o envía una PQRS.",
     icon: LifeBuoy,
+    aliases: ["Support", "Ayuda", "PQRS", "Contacto"],
   },
   generarIa: {
     path: "/dashboard/generar-ia",
@@ -156,6 +172,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageSubtitle: "Describe lo que necesitas y la IA genera 3 propuestas editables.",
     icon: Sparkles,
     hidden: true,
+    aliases: ["AI", "IA", "Generar", "Generate"],
   },
   editor: {
     path: "/dashboard/editor",
@@ -165,6 +182,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageSubtitle: "Ajusta textos, imágenes y colores antes de publicar.",
     icon: PenTool,
     hidden: true,
+    aliases: ["Editor", "Diseñar", "Canvas", "Design"],
   },
 };
 
