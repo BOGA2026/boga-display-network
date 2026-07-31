@@ -234,11 +234,21 @@ function FullscreenPreview({ p, formato, onClose }: { p: Proposal; formato: stri
   );
 }
 
-export default function ProposalSelector({ propuestas, formato, onSelect, onRegenerate, loading }: Props) {
+export default function ProposalSelector({
+  propuestas,
+  formato,
+  onSelect,
+  onRegenerate,
+  loading,
+  fallidos = [],
+  retryTarget = null,
+  onRetryArchetype,
+}: Props) {
   const [descartadas, setDescartadas] = useState<number[]>([]);
   const [fullscreen, setFullscreen] = useState<Proposal | null>(null);
 
   const visibles = useMemo(() => propuestas.filter((p) => !descartadas.includes(p.id)), [propuestas, descartadas]);
+  const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
 
   return (
     <div className="mx-auto w-full max-w-[1440px] space-y-6 animate-fade-in">
@@ -250,10 +260,11 @@ export default function ProposalSelector({ propuestas, formato, onSelect, onRege
           </p>
         </div>
         <Button variant="outline" size="sm" className="shrink-0 border-sidebar-border" onClick={onRegenerate} disabled={loading}>
-          <RotateCcw className="h-3.5 w-3.5" />
-          Regenerar
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+          {loading ? "Generando…" : "Regenerar"}
         </Button>
       </div>
+
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibles.map((p) => {
