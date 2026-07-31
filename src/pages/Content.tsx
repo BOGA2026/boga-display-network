@@ -84,6 +84,11 @@ interface ContentItem {
   created_at: string;
 }
 
+/** Cada cuánto reconsultamos mientras haya miniaturas en camino. */
+const THUMB_POLL_MS = 3000;
+/** Más de esto en 'pendiente' se considera fallo. */
+const THUMB_TIMEOUT_MS = 2 * 60 * 1000;
+
 
 const ACCEPT_MAP: Record<string, string> = {
   image: "image/jpeg,image/png,image/gif,image/webp,image/svg+xml",
@@ -213,6 +218,64 @@ const Content = () => {
       setLoading(false);
     }
   };
+
+  /* ------------------------------------------------------------------
+   * Sondeo de miniaturas pendientes
+   * Solo mientras haya alguna 'pendiente', solo con la pestaña visible,
+   * y con corte a los 2 minutos: un pendiente eterno miente peor que un error.
+   * ------------------------------------------------------------------ */
+  const pendingSince = useRef<Record<string, number>>({});
+  const hasPending = items.some((i) => i.thumbnail_status === "pendiente");
+
+  useEffect(() => {
+    if (!hasPending) {
+      pendingSince.current = {};
+      return;
+    }
+
+    const now = Date.now();
+    for (const item of items) {
+      if (item.thumbnail_status === "pendiente" && !pendingSince.current[item.id]) {
+        pendingSince.current[item.id] = now;
+      } else if (item.thumbnail_status !== "pendiente") {
+        delete pendingSince.current[item.id];
+      }
+    }
+
+    const tick = async () => {
+      if (document.hidden) return;
+
+      // Corte por tiempo: lo que lleva más de 2 minutos se marca como error.
+      const expired = Object.entries(pendingSince.current)
+        .filter(([, started]) => Date.now() - started > THUMB_TIMEOUT_MS)
+        .map(([id]) => id);
+
+      if (expired.length) {
+        expired.forEach((id) => delete pendingSince.current[id]);
+        setItems((prev) =>
+          prev.map((x) => (expired.includes(x.id) ? { ...x, thumbnail_status: "error" } : x)),
+        );
+        await supabase
+          .from("content")
+          .update({ thumbnail_status: "error" })
+          .in("id", expired)
+          .eq("thumbnail_status", "pendiente");
+        return;
+      }
+
+      const data = await queryClient.fetchQuery({
+        queryKey: pageQueryKeys.contentList,
+        queryFn: fetchContentList,
+        staleTime: 0,
+      });
+      setItems(data as any);
+    };
+
+    const timer = window.setInterval(() => { void tick(); }, THUMB_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [hasPending, items]);
+
+
 
 
   const handleDelete = async () => {
@@ -375,7 +438,7 @@ const Content = () => {
     if (selectedFile.size > MAX_UPLOAD_BYTES) {
       toast({
         title: "Archivo demasiado pesado",
-        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es 250 MB. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
+        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es ${formatBytes(MAX_UPLOAD_BYTES)}. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
         variant: "destructive",
       });
       return;
