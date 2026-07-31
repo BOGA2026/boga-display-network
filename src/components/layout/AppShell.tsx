@@ -74,15 +74,42 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarHeader className="h-14 justify-center px-3">
-        <Link to="/dashboard" className="inline-flex min-h-[44px] items-center">
+      <SidebarHeader className="h-16 justify-center border-b border-border/60 px-3 py-0">
+        <Link
+          to="/dashboard"
+          aria-label="Visualia"
+          className={cn(
+            "flex h-11 items-center gap-2.5 rounded-xl transition-all duration-200 ease-ios",
+            collapsed ? "justify-center px-0" : "px-1",
+          )}
+        >
           <img
             src={logoVisualia}
-            alt="Visualia"
-            className={cn("h-7 w-auto transition-all", collapsed && "h-6")}
+            alt=""
+            width={32}
+            height={32}
+            decoding="async"
+            className="h-8 w-8 shrink-0 object-contain"
           />
+          <span
+            aria-hidden={collapsed}
+            className={cn(
+              "flex min-w-0 flex-col overflow-hidden transition-all duration-200 ease-ios",
+              collapsed ? "w-0 opacity-0" : "w-auto max-w-[9.5rem] opacity-100",
+            )}
+          >
+            <span className="truncate text-sm font-semibold leading-tight tracking-[0.02em] text-foreground">
+              VISUALIA
+            </span>
+            {businessName && (
+              <span className="truncate text-[11px] leading-tight text-muted-foreground">
+                {businessName}
+              </span>
+            )}
+          </span>
         </Link>
       </SidebarHeader>
+
 
       <SidebarContent className="p-2">
         {NAV_GROUPS.map((group) => (
