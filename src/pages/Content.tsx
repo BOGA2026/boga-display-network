@@ -437,111 +437,146 @@ const Content = () => {
       )}
 
       {/* Main area */}
+      {/* Barra de vista: filtros + conmutador cuadrícula/lista */}
+      {hasContent && !loading && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Select value={orientFilter} onValueChange={(v) => setOrientFilter(v as any)}>
+              <SelectTrigger className="h-9 w-[180px] text-sm">
+                <SelectValue placeholder="Orientación" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas las orientaciones</SelectItem>
+                <SelectItem value="horizontal">Pantalla horizontal (16:9)</SelectItem>
+                <SelectItem value="vertical">Pantalla vertical (9:16)</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-xs text-muted-foreground">
+              {visibleItems.length} {visibleItems.length === 1 ? "pieza" : "piezas"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 rounded-lg border border-border/40 p-0.5">
+            <button
+              onClick={() => setViewMode("grid")}
+              aria-label="Ver en cuadrícula"
+              aria-pressed={viewMode === "grid"}
+              className={cn(
+                "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors",
+                viewMode === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Grid2X2 className="h-3.5 w-3.5" />
+              Cuadrícula
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              aria-label="Ver en lista"
+              aria-pressed={viewMode === "list"}
+              className={cn(
+                "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors",
+                viewMode === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Rows3 className="h-3.5 w-3.5" />
+              Lista
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Barra de acciones sobre la selección */}
+      {selectedIds.size > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+          <span className="text-sm font-medium">
+            {selectedIds.size} {selectedIds.size === 1 ? "pieza seleccionada" : "piezas seleccionadas"}
+          </span>
+          <div className="ml-auto flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" className="gap-2" onClick={openBulkAssign}>
+              <ListPlus className="h-4 w-4" />
+              Agregar a lista
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={() => {
+                const first = visibleItems.find((i) => selectedIds.has(i.id));
+                if (first) setSendTarget(first);
+              }}
+            >
+              <MonitorPlay className="h-4 w-4" />
+              Mover a pantalla
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+            >
+              <Trash2 className="h-4 w-4" />
+              {bulkDeleting ? "Eliminando…" : "Eliminar"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={clearSelection}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Main area */}
       {loading ? (
         <CardGridSkeleton count={8} columns={4} className="gap-4" />
       ) : loadError ? (
         <ErrorState description={COPY.error.content} onRetry={fetchContent} />
       ) : hasContent ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visibleItems.map((item) => {
-
-            const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
-            return (
-              <Card
+        viewMode === "list" ? (
+          <ContentTable
+            items={visibleItems as CardContentItem[]}
+            dims={dims}
+            onDims={handleDims}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            isDimmed={isDimmed}
+            onOpen={(item) => {
+              if (item.type === "layout" || item.type === "menu") openInEditor(item.id);
+              else setPreviewTarget(item as ContentItem);
+            }}
+            onAssign={(item) => openAssignDialog(item as ContentItem)}
+            onSend={(item) => setSendTarget(item as ContentItem)}
+            onDelete={(item) => setDeleteTarget(item as ContentItem)}
+            onEdit={(item) => openInEditor(item.id)}
+          />
+        ) : (
+          <div className="v-media-grid">
+            {visibleItems.map((item) => (
+              <ContentCard
                 key={item.id}
-                className="surface-elevated border-border/30 overflow-hidden transition-all hover:border-primary/30 hover:glow-primary-sm group cursor-pointer"
-                onClick={(e) => {
-                  // Don't navigate if clicking on dropdown menu area
-                  const target = e.target as HTMLElement;
-                  if (target.closest('[data-radix-collection-item]') || target.closest('[role="menu"]')) return;
+                item={item as CardContentItem}
+                dims={dims[item.id]}
+                onDims={handleDims}
+                selected={selectedIds.has(item.id)}
+                onToggleSelect={toggleSelect}
+                selectionActive={selectedIds.size > 0}
+                dimmed={isDimmed(item.id)}
+                onOpen={() => {
                   if (item.type === "layout" || item.type === "menu") openInEditor(item.id);
+                  else setPreviewTarget(item);
                 }}
-              >
-                {/* Thumbnail area */}
-                <div className="relative aspect-video bg-secondary/50 flex items-center justify-center overflow-hidden">
-                  {item.thumbnail_url ? (
-                    <img
-                      src={storageThumb(item.thumbnail_url, { width: 320, height: 180 })}
-                      alt={item.name}
-                      width={320}
-                      height={180}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                      style={{ aspectRatio: "16 / 9" }}
-                    />
-                  ) : item.type === "image" && item.file_url ? (
-                    <img
-                      src={storageThumb(item.file_url, { width: 320, height: 180 })}
-                      alt={item.name}
-                      width={320}
-                      height={180}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                      style={{ aspectRatio: "16 / 9" }}
-                    />
-                  ) : item.type === "video" && item.file_url ? (
-                    <video src={item.file_url} className="h-full w-full object-cover" muted preload="metadata" style={{ aspectRatio: "16 / 9" }} />
-                  ) : item.type === "layout" ? (
-                    <div className="flex flex-col items-center gap-2 p-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-                        <LayoutGrid className="h-7 w-7 text-primary" />
-                      </div>
-                      <span className="text-xs text-muted-foreground font-medium">Sin preview</span>
-                    </div>
-                  ) : (
-                    <Icon className="h-10 w-10 text-muted-foreground/40" />
-                  )}
-                  <div className="absolute top-2 right-2 rounded-md bg-background/80 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
-                    {item.type === "layout" ? "Layout" : item.type}
-                  </div>
-                </div>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="font-semibold truncate text-sm">{item.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(item.created_at).toLocaleDateString("es-MX")}
-                    </p>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        onClick={(e) => e.stopPropagation()}
-                        className="rounded-md p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      {(item.type === "layout" || item.type === "menu") && (
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openInEditor(item.id); }}>
-                          <LayoutGrid className="mr-2 h-4 w-4" />
-                          Editar en canvas
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openAssignDialog(item); }}>
-                        <ListPlus className="mr-2 h-4 w-4" />
-                        Asignar a playlist
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSendTarget(item); }}>
-                        <MonitorPlay className="mr-2 h-4 w-4" />
-                        Enviar a pantalla
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(item); }}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                onPreview={() => setPreviewTarget(item)}
+                onAssign={() => openAssignDialog(item)}
+                onSend={() => setSendTarget(item)}
+                onDelete={() => setDeleteTarget(item)}
+                onEdit={
+                  item.type === "layout" || item.type === "menu"
+                    ? () => openInEditor(item.id)
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        )
+
       ) : (
         <EmptyState
           icon={<Upload className="h-9 w-9" />}
