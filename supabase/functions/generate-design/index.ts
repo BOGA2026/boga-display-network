@@ -498,7 +498,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, tipo, formato, estilo, cliente } = await req.json();
+    const { prompt, tipo, formato, estilo, cliente, menu_items, brand_kit } = await req.json();
+    const menuItems: MenuItem[] = Array.isArray(menu_items)
+      ? menu_items.filter((i: MenuItem) => i && typeof i.name === "string" && i.name.trim()).slice(0, 8)
+      : [];
+    const brandKit: BrandKit | null = brand_kit && typeof brand_kit === "object" ? brand_kit : null;
+    const realSections = buildRealSections(menuItems);
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
     const UNSPLASH_ACCESS_KEY = Deno.env.get("UNSPLASH_ACCESS_KEY");
