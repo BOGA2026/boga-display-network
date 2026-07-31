@@ -133,7 +133,8 @@ export default function MapView() {
       <MapContainer
         center={pins[0].position}
         zoom={pins.length === 1 ? 15 : 5}
-        style={{ height: "100%", width: "100%", minHeight: 420, background: "#0a0a12" }}
+        className="v-map"
+        style={{ height: "100%", width: "100%", minHeight: 420 }}
         scrollWheelZoom
       >
         <TileLayer
@@ -141,6 +142,7 @@ export default function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <FitToMarkers points={pins.map((p) => p.position)} />
+
         {pins.map((p) => (
           <Marker
             key={p.id}
