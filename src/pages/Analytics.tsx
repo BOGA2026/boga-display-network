@@ -129,10 +129,50 @@ const ESTADO_LABEL: Record<string, string> = {
   pending: "Sin emparejar",
 };
 
+/**
+ * Horas al aire contra horas realmente programadas. El hueco es la métrica:
+ * son horas que el local pagó y no usó. `minutes_expected` viene de la
+ * programación real, nunca de un 1440 fijo: una pantalla apagada de noche a
+ * propósito no está caída.
+ */
+function AirtimeCard({ measured, airtime }: { measured: boolean; airtime: AirtimeRow | null }) {
+  const online = airtime?.minutes_online ?? 0;
+  const expected = airtime?.minutes_expected ?? 0;
+  const pct = measured && expected > 0 ? Math.min(100, (online / expected) * 100) : 0;
+
+  return (
+    <div className="v-card v-kpi-card min-h-[116px]">
+      <div className="flex items-center justify-between gap-2">
+        <span className="v-kpi-label">Horas al aire</span>
+        <Clock className={`h-4 w-4 text-primary ${measured ? "" : "opacity-40"}`} aria-hidden />
+      </div>
+      <MetricValue measured={measured && expected > 0}>
+        {formatHoras(online)} <span className="text-base font-normal text-muted-foreground">de {formatHoras(expected)}</span>
+      </MetricValue>
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-valuenow={Math.round(pct)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Horas al aire sobre horas programadas"
+      >
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs text-muted-foreground">
+        {measured && expected > online
+          ? `${formatHoras(expected - online)} programadas sin usar`
+          : "del tiempo programado"}
+      </span>
+    </div>
+  );
+}
+
 export default function Analytics() {
   const { data, isLoading } = useAnalyticsScreens();
   const screens = data?.screens ?? [];
   const telemetryActive = data?.telemetryActive ?? false;
+  const businessId = data?.businessId ?? undefined;
 
   // Etiquetas de los últimos 7 días para que los ejes tengan escala real.
   const labels = useMemo(() => {
@@ -144,7 +184,32 @@ export default function Analytics() {
     });
   }, []);
 
-  const horasProgramadas = screens.length * 12 * DIAS_PERIODO;
+  const range = useMemo(() => {
+    const to = new Date();
+    to.setHours(0, 0, 0, 0);
+    to.setDate(to.getDate() + 1);
+    const from = new Date(to);
+    from.setDate(from.getDate() - DIAS_PERIODO);
+    return { from, to };
+  }, []);
+
+  // Contenido huérfano se mide sobre 30 días, no sobre el rango visible.
+  const orphanRange = useMemo(() => {
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(from.getDate() - 30);
+    return { from, to };
+  }, []);
+
+  const { data: airtime } = useAirtime(businessId, range);
+  const { data: orphans } = useOrphanContent(businessId, orphanRange);
+  const { data: telemetryDays } = useTelemetryDays(businessId);
+
+  // Antes de 7 días de telemetría, todo el contenido parecería huérfano.
+  const orphanCount = orphans?.length ?? 0;
+  const mostrarHuerfanos = telemetryActive && (telemetryDays ?? 0) >= 7 && orphanCount > 0;
+  const orphanHref = `${NAV.contenido.path}?ids=${(orphans ?? []).map((o) => o.content_id).join(",")}`;
+
 
   return (
     <TooltipProvider delayDuration={200}>
