@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth, signOut } from "@/hooks/useAuth";
+import { useTenant } from "@/features/auth/useTenant";
+
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
