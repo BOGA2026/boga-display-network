@@ -29,6 +29,7 @@ const PlayerSplash = ({ minDuration = 4000, ready, onComplete }: PlayerSplashPro
 
     return () => {
       clearTimeout(t);
+      stopAudioRetry();
       audio.pause();
     };
   }, [minDuration]);
