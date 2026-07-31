@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
 import { CANVAS_SIZES } from "@/components/generate-ai/types";
 import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
+import { enforceArchetype } from "@/lib/designArchetypes";
+import { preferredArchetypeOrder, recordArchetypePick } from "@/lib/archetypePrefs";
 import ProposalSelector from "@/components/generate-ai/ProposalSelector";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 import { NAV } from "@/config/lexicon";
@@ -140,6 +142,7 @@ export default function GenerateAI() {
             estilo,
             cliente,
             menu_items: menuItems,
+            arquetipos: preferredArchetypeOrder(),
             brand_kit: menuData?.brandKit ?? null,
           }),
         }
@@ -154,7 +157,11 @@ export default function GenerateAI() {
       const data: GenerateResponse = await res.json();
       // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
       const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
-      const legibles = (data.propuestas ?? []).map((p) => enforceTvProposal(p, canvas.h, canvas.w));
+      const legibles = (data.propuestas ?? []).map((p) =>
+        p.arquetipo
+          ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
+          : enforceTvProposal(p, canvas.h, canvas.w),
+      );
       const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
       if (fallas.length > 0) {
         console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
@@ -347,7 +354,10 @@ export default function GenerateAI() {
         <ProposalSelector
           propuestas={propuestas}
           formato={formato}
-          onSelect={(p) => setSelectedProposal(p)}
+          onSelect={(p) => {
+            recordArchetypePick(p.arquetipo);
+            setSelectedProposal(p);
+          }}
           onRegenerate={generate}
           loading={loading}
         />
