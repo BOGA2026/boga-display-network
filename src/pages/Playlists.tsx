@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidate } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -132,7 +133,7 @@ const Playlists = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["playlists"] });
+      invalidate.playlists();
       setShowCreateModal(false);
       setNewPlaylist({ name: "", description: "" });
       setEditingPlaylistId(data.id);
@@ -152,7 +153,7 @@ const Playlists = () => {
       });
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["playlist-items", editingPlaylistId] }),
+    onSuccess: () => invalidate.playlistItems(editingPlaylistId),
     onError: () => toast({ title: "Error", description: "No se pudo agregar el item.", variant: "destructive" }),
   });
 
@@ -162,7 +163,7 @@ const Playlists = () => {
       const { error } = await supabase.from("playlist_items").delete().eq("id", itemId);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["playlist-items", editingPlaylistId] }),
+    onSuccess: () => invalidate.playlistItems(editingPlaylistId),
   });
 
   // Move item
@@ -176,7 +177,7 @@ const Playlists = () => {
       supabase.from("playlist_items").update({ sort_order: swapIdx }).eq("id", a.id),
       supabase.from("playlist_items").update({ sort_order: index }).eq("id", b.id),
     ]);
-    queryClient.invalidateQueries({ queryKey: ["playlist-items", editingPlaylistId] });
+    invalidate.playlistItems(editingPlaylistId);
   };
 
   const getContentIcon = (type: string) => {

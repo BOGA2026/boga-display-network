@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidate } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -146,7 +147,7 @@ export function useUpsertBlock() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["schedule-blocks"] });
+      invalidate.scheduleBlocks();
       toast({ title: "Bloque guardado" });
     },
     onError: (e: any) => {
@@ -163,7 +164,7 @@ export function useDeleteBlock() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["schedule-blocks"] });
+      invalidate.scheduleBlocks();
       toast({ title: "Bloque eliminado" });
     },
     onError: (e: any) => {
@@ -186,7 +187,7 @@ export function useCreateDefaultLayers() {
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["schedule-layers"] });
+      invalidate.scheduleLayers();
     },
   });
 }
