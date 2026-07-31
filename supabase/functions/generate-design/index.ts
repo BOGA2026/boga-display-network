@@ -12,6 +12,15 @@ import {
   normalizeArchetypeOrder,
   type ArchetypeId,
 } from "../_shared/design-archetypes.ts";
+import {
+  validarPropuesta,
+  normalizeProposalVisuals,
+  logViolations,
+  OVERLAY_RANGE,
+} from "../_shared/proposal-validator.ts";
+
+/** Photography must always be well lit — a dark frame reads as a loading error. */
+const IMAGE_LIGHT_TERMS = "bright well lit natural side light balanced exposure";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
