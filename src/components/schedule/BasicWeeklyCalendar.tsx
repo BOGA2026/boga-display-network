@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Trash2, AlertTriangle, GripHorizontal } from "lucide-react";
 import PlaylistHelpTooltip, { getPreference as getHelpDismissed } from "./PlaylistHelpTooltip";
