@@ -347,9 +347,9 @@ const Content = () => {
 
       {/* Main area */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
+        <CardGridSkeleton count={8} columns={4} className="gap-4" />
+      ) : loadError ? (
+        <ErrorState description={COPY.error.content} onRetry={fetchContent} />
       ) : hasContent ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((item) => {
