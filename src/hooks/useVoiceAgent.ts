@@ -313,7 +313,7 @@ export function useVoiceAgent(businessId: string | null) {
           type: "layout",
           file_url: fileUrl,
           duration_seconds: args.duration_seconds ?? 10,
-          created_by: user?.id ?? null,
+          created_by: uid,
         }).select("id, name, type").maybeSingle();
         if (error) throw error;
 
