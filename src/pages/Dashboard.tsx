@@ -237,8 +237,8 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
               Completa estos pasos para poner tu cartelería digital en marcha
             </p>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary glow-primary-sm">
-            <CheckCircle2 className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
+            <CheckCircle2 className="h-5 w-5" />
           </div>
         </div>
       </CardHeader>
