@@ -25,8 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import {
 import { NAV, COPY } from "@/config/lexicon";
+import {
   ListVideo,
   Plus,
   LayoutGrid,
