@@ -339,6 +339,25 @@ export default function Analytics() {
           </Card>
         </div>
 
+        {/* Mapa de calor de hora pico: sólo con 14+ días de escaneos */}
+        {mostrarHeatmap && (
+          <Card className="v-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Hora pico de escaneos</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Últimos 28 días · a qué hora y qué días te buscan tus clientes
+              </p>
+            </CardHeader>
+            <CardContent>
+              <DeferredMount placeholder={<BlockSkeleton height={260} />} minHeight={260}>
+                <ScanHeatmap cells={heatmap ?? []} />
+              </DeferredMount>
+            </CardContent>
+          </Card>
+        )}
+
+
+
         {/* Ranking de contenido */}
         <Card className="v-card">
           <CardHeader className="pb-2">
