@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { storageThumb } from "@/lib/storageImage";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 
@@ -368,11 +369,29 @@ const Content = () => {
                 {/* Thumbnail area */}
                 <div className="relative aspect-video bg-secondary/50 flex items-center justify-center overflow-hidden">
                   {item.thumbnail_url ? (
-                    <img src={item.thumbnail_url} alt={item.name} className="h-full w-full object-cover" />
+                    <img
+                      src={storageThumb(item.thumbnail_url, { width: 320, height: 180 })}
+                      alt={item.name}
+                      width={320}
+                      height={180}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                      style={{ aspectRatio: "16 / 9" }}
+                    />
                   ) : item.type === "image" && item.file_url ? (
-                    <img src={item.file_url} alt={item.name} className="h-full w-full object-cover" />
+                    <img
+                      src={storageThumb(item.file_url, { width: 320, height: 180 })}
+                      alt={item.name}
+                      width={320}
+                      height={180}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                      style={{ aspectRatio: "16 / 9" }}
+                    />
                   ) : item.type === "video" && item.file_url ? (
-                    <video src={item.file_url} className="h-full w-full object-cover" muted />
+                    <video src={item.file_url} className="h-full w-full object-cover" muted preload="metadata" style={{ aspectRatio: "16 / 9" }} />
                   ) : item.type === "layout" ? (
                     <div className="flex flex-col items-center gap-2 p-4">
                       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
