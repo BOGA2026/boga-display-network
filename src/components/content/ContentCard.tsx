@@ -226,6 +226,13 @@ export function ContentCard({
                 Editar en canvas
               </DropdownMenuItem>
             )}
+            {onRetryThumb && item.thumbnail_status === "error" && (
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onRetryThumb(); }}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Reintentar miniatura
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(); }}>
               <ListPlus className="mr-2 h-4 w-4" />
               Agregar a lista
