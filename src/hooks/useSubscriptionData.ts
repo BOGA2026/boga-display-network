@@ -96,7 +96,14 @@ export const subscriptionQuery = {
         paymentMethods: (pmRes.data ?? []) as PaymentMethodRow[],
         payments: (paymentsRes.data ?? []) as any[],
       };
-    },
+  },
+};
+
+export function useSubscriptionData() {
+  return useQuery({
+    ...staticQueryOptions,
+    ...subscriptionQuery,
     refetchInterval: 30000,
   });
 }
+
