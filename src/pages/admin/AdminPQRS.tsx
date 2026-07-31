@@ -66,7 +66,7 @@ export default function AdminPQRS() {
       const data = await fetchWithRetry(async () => {
         const result = await supabase
           .from("pqrs")
-          .select("*,businesses(name)")
+          .select("id, business_id, type, subject, message, status, priority, read_by_admin, created_at, businesses(name)")
           .order("created_at", { ascending: false });
         if (result.error) {
           throw Object.assign(new Error(result.error.message), { status: (result as any).status ?? 500 });
@@ -100,7 +100,7 @@ export default function AdminPQRS() {
     setResponsesError(null);
     try {
       const data = await fetchWithRetry(async () => {
-        const result = await supabase.from("pqrs_responses").select("*").eq("pqrs_id", pqrsId).order("created_at");
+        const result = await supabase.from("pqrs_responses").select("id, author_role, message, created_at").eq("pqrs_id", pqrsId).order("created_at");
         if (result.error) {
           throw Object.assign(new Error(result.error.message), { status: (result as any).status ?? 500 });
         }

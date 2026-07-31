@@ -171,7 +171,7 @@ const Screens = () => {
       if (!businessId) { setLoading(false); return; }
 
       const [screensRes, locationsRes, subRes] = await Promise.all([
-        supabase.from("screens").select("*").order("created_at", { ascending: false }),
+        supabase.from("screens").select("id, name, status, location_id, device_token, last_seen_at, created_at").order("created_at", { ascending: false }),
         supabase.from("locations").select("id, name").eq("business_id", businessId),
         supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
       ]);

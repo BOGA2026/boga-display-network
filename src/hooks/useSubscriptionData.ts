@@ -64,14 +64,14 @@ export function useSubscriptionData() {
       if (!businessId) return { businessId: null, subscription: null, screens: [], invoices: [], paymentMethods: [], payments: [] };
 
       const [subRes, screensRes, invoicesRes, pmRes, paymentsRes] = await Promise.all([
-        supabase.from("subscriptions").select("*").eq("business_id", businessId).maybeSingle(),
+        supabase.from("subscriptions").select("id, plan, screens_count, billing_cycle, price_per_screen, total_amount, status, next_billing_date, billing_anchor, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
         supabase
           .from("screens")
           .select("id, name, status, activated_at, payment_expires_at, license_status, location_id, locations(name)")
           .order("created_at", { ascending: true }),
-        supabase.from("invoices").select("*").eq("business_id", businessId).order("created_at", { ascending: false }),
-        supabase.from("payment_methods").select("*").eq("business_id", businessId),
-        supabase.from("payments").select("*").eq("business_id", businessId).order("created_at", { ascending: false }),
+        supabase.from("invoices").select("id, invoice_number, total, status, due_date, paid_at, pdf_url, created_at").eq("business_id", businessId).order("created_at", { ascending: false }),
+        supabase.from("payment_methods").select("id, brand, last4, exp_month, exp_year, is_default").eq("business_id", businessId),
+        supabase.from("payments").select("id, amount, status, payment_method, invoice_number, created_at").eq("business_id", businessId).order("created_at", { ascending: false }),
       ]);
 
       const screens: ScreenItem[] = (screensRes.data ?? []).map((s: any) => ({

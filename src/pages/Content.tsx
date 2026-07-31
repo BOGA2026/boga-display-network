@@ -145,7 +145,7 @@ const Content = () => {
     setLoadError(false);
     const { data, error } = await supabase
       .from("content")
-      .select("*")
+      .select("id, name, type, file_url, thumbnail_url, duration_seconds, created_at")
       .order("created_at", { ascending: false });
     if (error) setLoadError(true);
     setItems(data ?? []);

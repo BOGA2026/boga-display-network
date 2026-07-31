@@ -72,11 +72,11 @@ export default function Soporte() {
       }
       setThreadId(t!.id);
 
-      const { data: msgs } = await supabase.from("support_messages").select("*").eq("thread_id", t!.id).order("created_at");
+      const { data: msgs } = await supabase.from("support_messages").select("id, author_role, body, created_at").eq("thread_id", t!.id).order("created_at");
       setMessages((msgs as any) ?? []);
       await supabase.from("support_threads").update({ unread_by_user: 0 }).eq("id", t!.id);
 
-      const { data: pq } = await supabase.from("pqrs").select("*").eq("business_id", prof.business_id).order("created_at", { ascending: false });
+      const { data: pq } = await supabase.from("pqrs").select("id, type, subject, message, status, created_at").eq("business_id", prof.business_id).order("created_at", { ascending: false });
       setPqrsList((pq as any) ?? []);
     })();
   }, []);
@@ -103,7 +103,7 @@ export default function Soporte() {
   };
 
   const loadPqrsResponses = useCallback(async (id: string) => {
-    const { data } = await supabase.from("pqrs_responses").select("*").eq("pqrs_id", id).order("created_at");
+    const { data } = await supabase.from("pqrs_responses").select("id, author_role, message, created_at").eq("pqrs_id", id).order("created_at");
     setPqrsResponses((data as any) ?? []);
   }, []);
 
