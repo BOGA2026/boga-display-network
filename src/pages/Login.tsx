@@ -408,7 +408,7 @@ const Login = () => {
                   "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
               }}
             />
-            <img src={logoVisualia} alt="Visualia" className="relative h-20 w-auto" />
+            <img src={logoVisualia} alt="Visualia" width={240} height={64} decoding="async" className="relative h-20 w-auto" />
           </div>
         </div>
 

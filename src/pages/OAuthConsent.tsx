@@ -86,7 +86,7 @@ export default function OAuthConsent() {
     <PremiumBackground className="flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="mb-6 flex justify-center">
-          <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
+          <img src={logoVisualia} alt="Visualia" width={240} height={64} decoding="async" className="h-16 w-auto" />
         </div>
 
         <Card className="surface-elevated border-border/30 backdrop-blur">

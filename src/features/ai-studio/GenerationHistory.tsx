@@ -3,6 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { storageThumb } from "@/lib/storageImage";
 import { useToast } from "@/hooks/use-toast";
 import type { GenerationRow } from "./api";
 
@@ -77,8 +78,12 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
           <div className="relative aspect-video overflow-hidden bg-muted/40">
             {row.output_url ? (
               <img
-                src={row.output_url}
+                src={storageThumb(row.output_url, { width: 320 })}
                 alt={row.prompt ?? "Generación"}
+                width={320}
+                height={180}
+                decoding="async"
+                style={{ aspectRatio: "16 / 9" }}
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />

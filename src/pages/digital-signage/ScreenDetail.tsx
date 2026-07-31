@@ -139,7 +139,7 @@ export default function ScreenDetail() {
       setFromDashboard(true);
       const { data: dbScreen } = await supabase
         .from("screens")
-        .select("*, locations(id, name, address, latitude, longitude)")
+        .select("id, name, status, rotation, last_seen_at, created_at, app_version, device_model, os_version, ip_address, gps_lat, gps_lng, gps_accuracy, ip_lat, ip_lng, ip_city, ip_region, ip_country, locations(id, name, address, latitude, longitude)")
         .eq("id", screenId!)
         .maybeSingle();
 

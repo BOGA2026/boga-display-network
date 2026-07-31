@@ -167,7 +167,7 @@ const Register = () => {
       <div className="w-full max-w-md animate-fade-in">
         <h1 className="sr-only">Crear cuenta en Visualia</h1>
         <div className="mb-8 flex flex-col items-center gap-3">
-          <img src={logoVisualia} alt="Visualia" className="h-16 w-auto" />
+          <img src={logoVisualia} alt="Visualia" width={240} height={64} decoding="async" className="h-16 w-auto" />
         </div>
 
 

@@ -87,7 +87,7 @@ export function useScheduleLayers(businessId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedule_layers")
-        .select("*")
+        .select("id, business_id, name, priority, color")
         .order("priority", { ascending: true });
       if (error) throw error;
       return (data || []) as ScheduleLayer[];
@@ -102,7 +102,7 @@ export function useScheduleBlocks(screenId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedule_blocks")
-        .select("*, playlists(id, name), schedule_layers(id, name, priority, color)")
+        .select("id, business_id, screen_id, layer_id, playlist_id, name, start_time, end_time, days_of_week, start_date, end_date, is_enabled, recurrence, playlists(id, name), schedule_layers(id, name, priority, color)")
         .eq("screen_id", screenId)
         .order("start_time");
       if (error) throw error;
@@ -123,7 +123,7 @@ export function useScheduleTemplates(businessId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedule_templates")
-        .select("*")
+        .select("id, business_id, name, description, json_definition, created_at")
         .order("name");
       if (error) throw error;
       return (data || []) as ScheduleTemplate[];

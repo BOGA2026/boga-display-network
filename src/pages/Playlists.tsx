@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidate, staticQueryOptions } from "@/lib/query-client";
 import { supabase } from "@/integrations/supabase/client";
+import { storageThumb } from "@/lib/storageImage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,7 @@ const Playlists = () => {
       if (!profile?.business_id) return [];
       const { data, error } = await supabase
         .from("playlists")
-        .select("*")
+        .select("id, name, created_at")
         .eq("business_id", profile.business_id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -107,7 +108,7 @@ const Playlists = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("playlist_items")
-        .select("*, content:content_id(id, name, type, duration_seconds, thumbnail_url)")
+        .select("id, playlist_id, content_id, sort_order, duration_seconds, content:content_id(id, name, type, duration_seconds, thumbnail_url)")
         .eq("playlist_id", editingPlaylistId!)
         .order("sort_order", { ascending: true });
       if (error) throw error;
@@ -286,8 +287,12 @@ const Playlists = () => {
                     <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
                       {item.content?.thumbnail_url ? (
                         <img
-                          src={item.content.thumbnail_url}
+                          src={storageThumb(item.content.thumbnail_url, { width: 96, height: 96 })}
                           alt=""
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                          decoding="async"
                           className="h-12 w-12 rounded-lg object-cover"
                         />
                       ) : (

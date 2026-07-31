@@ -71,7 +71,7 @@ export function QRBuilder({ businessId, existing, screens = [], onSaved, onCance
       let result: QRCode;
       if (saved) {
         await updateQRCode(saved.id, { label: label.trim(), target_url: targetUrl.trim(), screen_id: screenId, active });
-        const { data } = await supabase.from("qr_codes").select("*").eq("id", saved.id).single();
+        const { data } = await supabase.from("qr_codes").select("id, business_id, screen_id, label, target_url, slug, active, created_at, updated_at").eq("id", saved.id).single();
         result = data as QRCode;
       } else {
         result = await createQRCode({ business_id: businessId, label: label.trim(), target_url: targetUrl.trim(), screen_id: screenId });

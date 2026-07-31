@@ -43,7 +43,7 @@ export function generateSlug(): string {
 export async function listQRCodes(businessId: string): Promise<QRCode[]> {
   const { data, error } = await supabase
     .from("qr_codes")
-    .select("*")
+    .select("id, business_id, screen_id, label, target_url, slug, active, created_at, updated_at")
     .eq("business_id", businessId)
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -85,7 +85,7 @@ export async function listScans(qrId: string, sinceDays = 30): Promise<QRScan[]>
   since.setDate(since.getDate() - sinceDays);
   const { data, error } = await supabase
     .from("qr_scans")
-    .select("*")
+    .select("id, qr_code_id, scanned_at, device_type, country, city, screen_id, user_agent, referrer")
     .eq("qr_code_id", qrId)
     .gte("scanned_at", since.toISOString())
     .order("scanned_at", { ascending: false })

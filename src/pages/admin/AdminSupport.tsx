@@ -48,7 +48,7 @@ export default function AdminSupport() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const loadThreads = useCallback(async () => {
-    const { data } = await supabase.from("support_threads").select("*,businesses(name)").order("last_message_at", { ascending: false, nullsFirst: false });
+    const { data } = await supabase.from("support_threads").select("id, business_id, last_message_at, unread_by_admin, unread_by_user, businesses(name)").order("last_message_at", { ascending: false, nullsFirst: false });
     setThreads((data as any) ?? []);
     setLoading(false);
   }, []);
@@ -79,7 +79,7 @@ export default function AdminSupport() {
   useEffect(() => {
     if (!selectedId) return;
     (async () => {
-      const { data } = await supabase.from("support_messages").select("*").eq("thread_id", selectedId).order("created_at");
+      const { data } = await supabase.from("support_messages").select("id, author_role, body, created_at").eq("thread_id", selectedId).order("created_at");
       setMessages((data as any) ?? []);
       // clear unread
       await supabase.from("support_threads").update({ unread_by_admin: 0 }).eq("id", selectedId);
