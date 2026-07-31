@@ -76,7 +76,7 @@
       {
         "name": "list_content",
         "title": "List content items",
-        "description": "List content items (images, videos, designs) available to the signed-in user's business.",
+        "description": "List content assets (images, videos, designs) available to the signed-in user's business.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -99,7 +99,7 @@
       {
         "name": "get_subscription",
         "title": "Get subscription status",
-        "description": "Return the current subscription plan, screen count, and billing status for the signed-in user's business.",
+        "description": "Return the current subscription plan, screen count, pricing and billing dates for the signed-in user's business.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

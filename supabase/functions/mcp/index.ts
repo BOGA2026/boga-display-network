@@ -72,7 +72,7 @@ var list_locations_default = defineTool2({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
-    const { data, error } = await supabaseForUser(ctx).from("locations").select("id, name, address, city, created_at").order("created_at", { ascending: false }).limit(limit ?? 100);
+    const { data, error } = await supabaseForUser(ctx).from("locations").select("id, name, address, latitude, longitude, created_at").order("created_at", { ascending: false }).limit(limit ?? 100);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
@@ -87,14 +87,14 @@ import { z as z3 } from "npm:zod@^3.25.76";
 var list_content_default = defineTool3({
   name: "list_content",
   title: "List content items",
-  description: "List content items (images, videos, designs) available to the signed-in user's business.",
+  description: "List content assets (images, videos, designs) available to the signed-in user's business.",
   inputSchema: {
     limit: z3.number().int().min(1).max(200).optional()
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
-    const { data, error } = await supabaseForUser(ctx).from("content_items").select("id, name, type, url, thumbnail_url, created_at").order("created_at", { ascending: false }).limit(limit ?? 50);
+    const { data, error } = await supabaseForUser(ctx).from("content").select("id, name, type, file_url, thumbnail_url, duration_seconds, created_at").order("created_at", { ascending: false }).limit(limit ?? 50);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
@@ -108,13 +108,15 @@ import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.23.0";
 var get_subscription_default = defineTool4({
   name: "get_subscription",
   title: "Get subscription status",
-  description: "Return the current subscription plan, screen count, and billing status for the signed-in user's business.",
+  description: "Return the current subscription plan, screen count, pricing and billing dates for the signed-in user's business.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
     const supabase = supabaseForUser(ctx);
-    const { data, error } = await supabase.from("subscriptions").select("id, plan, status, screen_count, current_period_start, current_period_end, updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    const { data, error } = await supabase.from("subscriptions").select(
+      "id, plan, status, screens_count, billing_cycle, price_per_screen, total_amount, billing_anchor, next_billing_date, expires_at, grace_period_ends_at, updated_at"
+    ).order("updated_at", { ascending: false }).limit(1).maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
