@@ -86,3 +86,67 @@ export default function DeferredMount({
     </div>
   );
 }
+
+/* --------------------------------------------------------------------------
+ * Captura de pantalla diferida (html2canvas)
+ *
+ * html2canvas pesa ~200 kB: nunca debe entrar en el bundle inicial. Estas
+ * utilidades hacen el import() dentro del handler y permiten precargarlo en
+ * hover/focus, de modo que al hacer clic la librería ya está en caché.
+ * ------------------------------------------------------------------------ */
+
+type Html2Canvas = typeof import("html2canvas")["default"];
+
+let capturePromise: Promise<Html2Canvas> | null = null;
+
+/** Carga (una sola vez) html2canvas. Seguro de llamar tantas veces como quieras. */
+export function loadCapture(): Promise<Html2Canvas> {
+  if (!capturePromise) {
+    capturePromise = import("html2canvas")
+      .then((m) => m.default)
+      .catch((err) => {
+        capturePromise = null; // permite reintentar si falló la red
+        throw err;
+      });
+  }
+  return capturePromise;
+}
+
+export interface CaptureOptions {
+  scale?: number;
+  backgroundColor?: string | null;
+  useCORS?: boolean;
+  allowTaint?: boolean;
+  /** Formato de salida del data URL. */
+  type?: "image/png" | "image/jpeg";
+  quality?: number;
+}
+
+/**
+ * Captura un elemento del DOM y devuelve un data URL.
+ * El import de html2canvas ocurre aquí dentro (dinámico).
+ */
+export async function captureElement(
+  el: HTMLElement | null,
+  { scale = 1, backgroundColor = null, useCORS = true, allowTaint = true, type = "image/png", quality = 0.92 }: CaptureOptions = {},
+): Promise<string | null> {
+  if (!el) return null;
+  const html2canvas = await loadCapture();
+  const canvas = await html2canvas(el, { scale, backgroundColor, useCORS, allowTaint });
+  return canvas.toDataURL(type, quality);
+}
+
+/**
+ * Props para precargar la librería al pasar el mouse / enfocar el botón.
+ * Uso: <button {...preloadCapture()} onClick={...}>Descargar</button>
+ */
+export function preloadCapture() {
+  const warm = () => {
+    void loadCapture().catch(() => {});
+  };
+  return {
+    onMouseEnter: warm,
+    onFocus: warm,
+    onTouchStart: warm,
+  };
+}
