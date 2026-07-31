@@ -2205,6 +2205,15 @@ export type Database = {
           uptime_pct: number
         }[]
       }
+      analytics_scan_days: { Args: { p_business_id: string }; Returns: number }
+      analytics_scan_heatmap: {
+        Args: { p_business_id: string; p_from: string; p_to: string }
+        Returns: {
+          dow: number
+          hour: number
+          scans: number
+        }[]
+      }
       analytics_screen_table: {
         Args: { p_business_id: string; p_from: string; p_to: string }
         Returns: {
