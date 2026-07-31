@@ -492,6 +492,7 @@ const BasicWeeklyCalendar = ({
         </div>
       )}
     </div>
+    </div>
   );
 };
 
