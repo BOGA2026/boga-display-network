@@ -4,6 +4,8 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 import { imagetools } from "vite-imagetools";
+import { visualizer } from "rollup-plugin-visualizer";
+
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -38,6 +40,13 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     mode === "development" && componentTagger(),
+    mode !== "development" &&
+      visualizer({
+        filename: "dist/stats.html",
+        gzipSize: true,
+        brotliSize: true,
+        template: "treemap",
+      }),
   ].filter(Boolean),
   resolve: {
     dedupe: ["react", "react-dom"],
@@ -46,6 +55,19 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    target: "es2020",
+    minify: "terser",
+    cssCodeSplit: true,
+    sourcemap: false,
+    chunkSizeWarningLimit: 900,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        passes: 2,
+      },
+      format: { comments: false },
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -54,9 +76,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("fabric")) return "fabric";
           if (id.includes("leaflet")) return "leaflet";
           if (id.includes("recharts") || id.includes("d3-")) return "charts";
+          if (id.includes("framer-motion")) return "motion";
+          if (id.includes("@supabase")) return "supabase";
         },
       },
     },
   },
 }));
+
 
