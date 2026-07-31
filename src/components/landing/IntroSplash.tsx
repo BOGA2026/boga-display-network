@@ -42,9 +42,13 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
     return () => {
       clearTimeout(timer);
       clearTimeout(removeTimer);
+      stopAudioRetry();
       audio.pause();
     };
   }, [onComplete]);
+
+  // Autoplay escalation for the intro video.
+  useEffect(() => attemptAutoplay(videoRef.current), []);
 
   if (removed) return null;
 
