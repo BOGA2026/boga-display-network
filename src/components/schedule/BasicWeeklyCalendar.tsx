@@ -221,7 +221,37 @@ const BasicWeeklyCalendar = ({
     setDragging(null);
   }, [dragging, onMoveBlock]);
 
+  // En móvil (<768px) la semana completa no cabe: se muestra un solo día
+  // con selector. Desde md se mantiene la semana completa.
+  const isNarrow = useIsMobile(768);
+  const todayIdx = DAY_INDICES.indexOf(new Date().getDay());
+  const [mobileDay, setMobileDay] = useState<number>(todayIdx >= 0 ? todayIdx : 0);
+  const visibleDays = isNarrow ? [DAY_INDICES[mobileDay]] : DAY_INDICES;
+
   return (
+    <div className="space-y-2">
+      {isNarrow && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1" role="tablist" aria-label="Día de la semana">
+          {DAYS.map((d, i) => (
+            <button
+              key={d}
+              type="button"
+              role="tab"
+              aria-selected={mobileDay === i}
+              onClick={() => setMobileDay(i)}
+              className={cn(
+                "min-h-[44px] min-w-[44px] shrink-0 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                mobileDay === i
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border/50 text-muted-foreground hover:bg-muted/50",
+              )}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+      )}
+
     <div
       ref={containerRef}
       className="relative flex overflow-auto rounded-2xl border border-border/50 bg-card/40 select-none"
