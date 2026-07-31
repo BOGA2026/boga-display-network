@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
+import { CANVAS_SIZES } from "@/components/generate-ai/types";
+import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
 import ProposalSelector from "@/components/generate-ai/ProposalSelector";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 import { NAV } from "@/config/lexicon";
@@ -28,7 +30,7 @@ const STEPS = [
   "Propuestas listas",
 ];
 
-const MENU_LIMIT = 8;
+const MENU_LIMIT = 7; // Legibilidad en TV: máximo 7 platos por pieza
 
 type MenuItem = {
   name: string;
@@ -150,8 +152,15 @@ export default function GenerateAI() {
       }
 
       const data: GenerateResponse = await res.json();
+      // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
+      const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
+      const legibles = (data.propuestas ?? []).map((p) => enforceTvProposal(p, canvas.h, canvas.w));
+      const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
+      if (fallas.length > 0) {
+        console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
+      }
       setCurrentStep(3);
-      setTimeout(() => setPropuestas(data.propuestas), 600);
+      setTimeout(() => setPropuestas(legibles), 600);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
