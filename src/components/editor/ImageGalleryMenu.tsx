@@ -92,11 +92,7 @@ export default function ImageGalleryMenu({ onInsertImage }: Props) {
         ))}
       </div>
 
-      {loading && (
-        <div className="flex items-center justify-center py-6">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
-      )}
+      {loading && <CardGridSkeleton count={4} columns={2} className="gap-2" />}
       {error && <p className="text-xs text-destructive mb-2">{error}</p>}
 
       {/* Device */}

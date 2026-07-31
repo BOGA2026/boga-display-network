@@ -258,9 +258,7 @@ export default function AdminPQRS() {
                   <div className="text-sm whitespace-pre-wrap">{selected.message}</div>
                 </div>
                 {responsesLoading && (
-                  <div className="flex items-center gap-2 text-sm admin-muted py-3" role="status">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Cargando respuestas…
-                  </div>
+                  <TableSkeleton rows={3} columns={1} showHeader={false} />
                 )}
                 {responsesError && (
                   <div role="alert" className="rounded-md border border-amber-500/40 p-3 flex items-center justify-between gap-3 text-sm text-amber-400">
