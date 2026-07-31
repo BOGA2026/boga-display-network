@@ -20,4 +20,7 @@ export function useAuth(redirectTo = "/login") {
 
 export async function signOut() {
   await supabase.auth.signOut();
+  // Sin esto, el caché del usuario anterior (tenant, pantallas, contenido)
+  // sigue vivo y se pinta un instante al entrar con otra cuenta.
+  queryClient.clear();
 }
