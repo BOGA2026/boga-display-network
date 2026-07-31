@@ -5,17 +5,9 @@
  */
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Fix default icon paths (Vite quirk)
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
 
 export type MiniMapPoint = {
   id: string;
@@ -30,6 +22,49 @@ interface Props {
   points: MiniMapPoint[];
   height?: number | string;
   className?: string;
+}
+
+const STATUS_COLOR: Record<NonNullable<MiniMapPoint["status"]>, string> = {
+  online: "#22c55e",
+  offline: "#ef4444",
+  unpaired: "#f59e0b",
+};
+
+const iconCache = new Map<string, L.DivIcon>();
+
+function pointIcon(status: MiniMapPoint["status"]) {
+  const key = status ?? "unpaired";
+  const cached = iconCache.get(key);
+  if (cached) return cached;
+
+  const color = STATUS_COLOR[key];
+  const halo = `${color}33`; /* 20% opacity */
+  const icon = L.divIcon({
+    className: "",
+    html: `<span style="display:block;width:12px;height:12px;border-radius:9999px;background:${color};border:2px solid hsl(var(--background));box-shadow:0 0 0 4px ${halo},0 1px 4px rgba(0,0,0,0.4);"></span>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+    popupAnchor: [0, -8],
+  });
+  iconCache.set(key, icon);
+  return icon;
+}
+
+function FitToMarkers({ points }: { points: [number, number][] }) {
+  const map = useMap();
+  const signature = points.map((p) => p.join(",")).join("|");
+
+  useEffect(() => {
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView(points[0], 15);
+      return;
+    }
+    map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 14 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature, map]);
+
+  return null;
 }
 
 export function MiniMap({ points, height = 280, className }: Props) {
@@ -52,17 +87,20 @@ export function MiniMap({ points, height = 280, className }: Props) {
       <MapContainer
         center={center}
         zoom={points.length ? 11 : 5}
-        style={{ height: "100%", width: "100%", borderRadius: 16 }}
+        className="v-map"
+        style={{ height: "100%", width: "100%" }}
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
+        <FitToMarkers points={points.map((p) => [p.lat, p.lng])} />
         {points.map((p) => (
           <Marker
             key={p.id}
             position={[p.lat, p.lng]}
+            icon={pointIcon(p.status)}
             eventHandlers={{
               click: () => {
                 if (p.screenId) navigate(`/dashboard/pantallas/${p.screenId}`);
@@ -71,11 +109,25 @@ export function MiniMap({ points, height = 280, className }: Props) {
             }}
           >
             <Popup>
-              <strong>{p.name}</strong>
-              <br />
-              <span className="text-xs text-muted-foreground">
-                {p.status ?? "sin estado"}
-              </span>
+              <div className="space-y-1 text-sm">
+                <div className="font-semibold">{p.name}</div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 9999,
+                      background: STATUS_COLOR[p.status ?? "unpaired"],
+                      display: "inline-block",
+                    }}
+                  />
+                  {p.status === "online"
+                    ? "En línea"
+                    : p.status === "offline"
+                    ? "Fuera de línea"
+                    : "Sin emparejar"}
+                </div>
+              </div>
             </Popup>
           </Marker>
         ))}
