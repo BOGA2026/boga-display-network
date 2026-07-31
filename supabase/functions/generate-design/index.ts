@@ -3,7 +3,6 @@ import {
   TV_RULES,
   tvTypography,
   enforceTvProposal,
-  validateTvProposal,
 } from "../_shared/tv-legibility.ts";
 import {
   ARCHETYPES,
@@ -12,6 +11,15 @@ import {
   normalizeArchetypeOrder,
   type ArchetypeId,
 } from "../_shared/design-archetypes.ts";
+import {
+  validarPropuesta,
+  normalizeProposalVisuals,
+  logViolations,
+  OVERLAY_RANGE,
+} from "../_shared/proposal-validator.ts";
+
+/** Photography must always be well lit — a dark frame reads as a loading error. */
+const IMAGE_LIGHT_TERMS = "bright well lit natural side light balanced exposure";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,10 +47,31 @@ Tamaños mínimos como PORCENTAJE DE LA ALTURA del lienzo:
 - Si un texto no cabe respetando estos mínimos, van MENOS platos; nunca letra más chica.
 Otras reglas:
 - Máximo ${TV_RULES.maxItems} platos por pieza en total (sumando todas las secciones).
-- Contraste mínimo 7:1 entre texto y fondo. Nada de texto sobre foto sin capa de oscurecimiento del 60% (overlay_opacity >= 0.6) o banda sólida detrás.
+- Contraste mínimo 7:1 entre texto y fondo (se calcula con la fórmula WCAG sobre los colores reales, no sirve declararlo).
 - Margen de seguridad del 5% en todos los bordes (overscan de televisores): no pongas contenido pegado al borde.
 - El precio va alineado a la derecha o inmediatamente después del nombre. PROHIBIDAS las líneas punteadas largas entre plato y precio.
-- Descripciones cortas (máx. 8 palabras) para que quepan en 2 líneas.
+- Descripciones cortas (máx. 8 palabras). Si no caben al 2,2%, se ELIMINAN de toda la pieza: nunca se encogen.
+- PROHIBIDO truncar un nombre de plato o un precio. Si un nombre no cabe: primero menos platos, después dos líneas, y solo al final bajar al mínimo del 4%.
+
+COLOR DEL PRECIO (REGLA ÚNICA DE TODA LA APP):
+- color_precio = color de acento de la marca del negocio; si ese acento no llega a 7:1 sobre el fondo, usa blanco puro (#ffffff).
+- PROHIBIDO rojo, verde y ámbar en el precio: están reservados para estados del sistema (error, éxito, advertencia).
+- Precio y nombre comparten línea base y tamaño. El precio puede ir en peso mayor, nunca en un color más llamativo que el nombre.
+
+OCUPACIÓN VERTICAL (se valida):
+- Los platos ocupan entre el 70% y el 90% de la altura útil (altura total menos márgenes de seguridad).
+- Calcula el espaciado entre filas dividiendo ese alto entre la cantidad de platos. Nada de espaciado fijo.
+- Con pocos platos NO los apiles arriba: sube interlineado y tamaño hasta llenar el espacio. Cuatro platos en un televisor de 55" deben verse enormes.
+- Reserva el 8% inferior para una franja de cierre: logo del negocio o CTA corta ("Pide en caja"), en tamaño mínimo 2,5% de la altura.
+- En dos columnas reparte los platos parejo. Con número impar la columna izquierda lleva el extra y la derecha compensa con más interlineado.
+- Si el bloque más bajo termina antes del 75% de la altura útil, la propuesta se rechaza.
+
+FOTOGRAFÍA:
+- El título de la pieza es el NOMBRE DEL NEGOCIO. "Menú del día" solo puede ir como subtítulo.
+- background_image_query siempre pide escenas BIEN ILUMINADAS: "bien iluminado, luz natural lateral, exposición equilibrada".
+- PROHIBIDO pedir "escena oscura", "penumbra", "low key", "moody dark" o similares.
+- overlay_opacity entre ${OVERLAY_RANGE.min} y ${OVERLAY_RANGE.max}. Nunca por encima de ${OVERLAY_RANGE.hardMax}: a partir de ahí la foto deja de aportar y la pieza parece un error de carga.
+- El oscurecimiento va SOLO en la zona del texto (banda o degradado direccional), nunca sobre toda la imagen.
 `;
 
 
@@ -737,9 +766,12 @@ REGLAS:
         && rawSections.length > 0
         && rawSections.some((section) => Array.isArray(section.items)
           && section.items.some((item) => !isPlaceholderText(item.plato) || !isPlaceholderText(item.precio)));
+      // El título de la pieza es la marca del negocio; "Menú del día" solo es subtítulo.
+      const modelTitle = (p.header?.nombre_restaurante ?? "").trim();
+      const esTituloGenerico = /^(menu|menú)( del d[ií]a)?$/i.test(modelTitle);
       const normalizedHeader = {
-        nombre_restaurante: p.header?.nombre_restaurante ?? cliente ?? (!isPlaceholderText(p.texto_principal) ? p.texto_principal : ""),
-        tagline: p.header?.tagline ?? (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : ""),
+        nombre_restaurante: (cliente || (!esTituloGenerico ? modelTitle : "") || (!isPlaceholderText(p.texto_principal) ? p.texto_principal : "")).trim(),
+        tagline: (p.header?.tagline || (esTituloGenerico ? modelTitle : "") || (!isPlaceholderText(p.texto_secundario) ? p.texto_secundario : "")).trim(),
         size: p.header?.size ?? typo.restaurante,
       };
       // Real menu data always wins over anything the model wrote.
@@ -765,7 +797,11 @@ REGLAS:
         background_color: brandKit?.secondary_color ?? p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
-        overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
+        overlay_opacity: Math.min(
+          OVERLAY_RANGE.max,
+          Math.max(OVERLAY_RANGE.min, typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55),
+        ),
+        logo_url: brandKit?.logo_url ?? null,
         layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
         texto_principal: isMenuResponse
           ? normalizedHeader.nombre_restaurante
@@ -799,50 +835,87 @@ REGLAS:
     return sanitized;
     };
 
-    // Generate, validate against the TV legibility rules, and regenerate if it fails.
-    let sanitized: any[] = [];
-    let feedback = "";
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      const candidates = await runGeneration(feedback);
-      const repaired = candidates.map((p: any) =>
-        enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo as ArchetypeId),
+    const orientation = formato === "9:16" ? "portrait" : "landscape";
+
+    /** Unsplash lookup with explicit lighting requirements — never a dark scene. */
+    const attachImage = async (p: any) => {
+      if (!ARCHETYPES[p.arquetipo as ArchetypeId]?.usaFoto) {
+        console.log("IMAGEN: arquetipo sin foto", p.arquetipo);
+        return { ...p, image_url: null };
+      }
+      const query = `${p.background_image_query || "restaurant food"} ${IMAGE_LIGHT_TERMS}`.trim();
+      const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=${orientation}&content_filter=high`;
+      console.log("IMAGEN → petición:", JSON.stringify({ arquetipo: p.arquetipo, query }));
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` } });
+        if (!res.ok) {
+          console.error("IMAGEN ← fallo Unsplash:", res.status, (await res.text()).slice(0, 200));
+          return { ...p, image_url: null, image_error: `unsplash_${res.status}` };
+        }
+        const data = await res.json();
+        const imageUrl = data.urls?.regular || null;
+        console.log("IMAGEN ← respuesta:", JSON.stringify({ arquetipo: p.arquetipo, ok: !!imageUrl, id: data.id ?? null }));
+        return { ...p, image_url: imageUrl, image_error: imageUrl ? null : "unsplash_empty" };
+      } catch (err) {
+        console.error("IMAGEN ← excepción Unsplash:", err);
+        return { ...p, image_url: null, image_error: "unsplash_exception" };
+      }
+    };
+
+    const brandForNormalize = {
+      primary: brandKit?.primary_color ?? null,
+      accent: brandKit?.accent_color ?? null,
+      secondary: brandKit?.secondary_color ?? null,
+      logo_url: brandKit?.logo_url ?? null,
+    };
+
+    /**
+     * Stage 2 — validation ALWAYS runs between the model response and the render.
+     * Nothing is returned to the client without passing validarPropuesta().
+     */
+    const buildAttempt = async (feedbackText: string, attempt: number) => {
+      const candidates = await runGeneration(feedbackText);
+      const withImages = await Promise.all(candidates.map(attachImage));
+      const prepared = withImages.map((p: any) =>
+        normalizeProposalVisuals(
+          enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo as ArchetypeId),
+          brandForNormalize,
+        ),
       );
-      const violations = repaired.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
-      sanitized = repaired;
-      if (violations.length === 0) break;
-      console.warn(`TV legibility violations (intento ${attempt}):`, JSON.stringify(violations).slice(0, 800));
-      if (attempt === 2) break;
-      feedback = violations.map((v) => `- Propuesta ${v.proposalId}: ${v.detail}`).join("\n");
+      const results = prepared.map((p: any) => {
+        const result = validarPropuesta(p, canvas.w, canvas.h);
+        logViolations(attempt, p.id ?? "?", result.violaciones);
+        return { propuesta: p, result };
+      });
+      return results;
+    };
+
+    let attemptResults = await buildAttempt("", 1);
+    let failed = attemptResults.filter((r) => !r.result.ok);
+
+    if (failed.length > 0) {
+      // Retry ONCE with the concrete list of broken rules and the returned values.
+      const feedback = failed
+        .map((r) =>
+          `- Propuesta ${r.propuesta.id} (${r.propuesta.arquetipo}):\n` +
+          r.result.violaciones.map((x) => `   · ${x.regla}: ${x.detalle}${x.valor !== undefined ? ` (valor devuelto: ${x.valor})` : ""}`).join("\n"),
+        )
+        .join("\n");
+      console.warn("VALIDACIÓN intento 1 — reglas incumplidas:\n" + feedback);
+      const second = await buildAttempt(feedback, 2);
+      const okSecond = second.filter((r) => r.result.ok);
+      const okFirst = attemptResults.filter((r) => r.result.ok);
+      // Keep whatever passed, from either attempt; discard the rest.
+      const byArchetype = new Map<string, any>();
+      for (const r of [...okFirst, ...okSecond]) byArchetype.set(r.propuesta.arquetipo, r);
+      attemptResults = [...byArchetype.values()];
+      const descartadas = second.filter((r) => !r.result.ok).map((r) => r.propuesta.arquetipo);
+      if (descartadas.length) console.warn("VALIDACIÓN intento 2 — propuestas descartadas:", descartadas.join(", "));
     }
 
-    const orientation = formato === "9:16" ? "portrait" : "landscape";
-    const withImages = await Promise.all(
-      sanitized.map(async (p: any) => {
-        // "Lista limpia" is defined by the absence of photography.
-        if (!ARCHETYPES[p.arquetipo as ArchetypeId]?.usaFoto) return { ...p, image_url: null };
-        if (!p.background_image_query) return { ...p, image_url: null };
-        try {
-          const unsplashRes = await fetch(
-            `https://api.unsplash.com/photos/random?query=${encodeURIComponent(p.background_image_query)}&orientation=${orientation}`,
-            { headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
-          );
-          if (!unsplashRes.ok) {
-            console.error("Unsplash error:", unsplashRes.status);
-            return { ...p, image_url: null };
-          }
-          const unsplashData = await unsplashRes.json();
-          return { ...p, image_url: unsplashData.urls?.regular || null };
-        } catch (err) {
-          console.error("Unsplash fetch failed:", err);
-          return { ...p, image_url: null };
-        }
-      })
-    );
-
-    // Re-enforce after images: text over a photo needs the 60% darkening layer.
-    const finalProposals = withImages.map((p: any) =>
-      enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo as ArchetypeId),
-    );
+    const finalProposals = attemptResults
+      .filter((r) => r.result.ok)
+      .map((r, i) => ({ ...r.propuesta, id: i + 1 }));
 
     return new Response(
       JSON.stringify({ propuestas: finalProposals, tv_typography: typo }),
@@ -856,3 +929,4 @@ REGLAS:
     );
   }
 });
+

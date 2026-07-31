@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Loader2, UtensilsCrossed, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
 import { CANVAS_SIZES } from "@/components/generate-ai/types";
-import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
+import { enforceTvProposal } from "@/lib/tvLegibility";
+import { normalizeProposalVisuals, validarPropuesta, logViolations } from "@/lib/proposalValidator";
 import { enforceArchetype } from "@/lib/designArchetypes";
 import type { ArchetypeId } from "@/lib/designArchetypes";
 import { preferredArchetypeOrder, recordArchetypePick } from "@/lib/archetypePrefs";
@@ -45,9 +46,9 @@ function useMenuData() {
     queryKey: ["generate-ai", "menu-data"],
     queryFn: async () => {
       const { data: businessId } = await supabase.rpc("get_user_business_id");
-      if (!businessId) return { items: [] as MenuItem[], total: 0, brandKit: null };
+      if (!businessId) return { items: [] as MenuItem[], total: 0, brandKit: null, businessName: "" };
 
-      const [{ data: items, count }, { data: brand }] = await Promise.all([
+      const [{ data: items, count }, { data: brand }, { data: negocio }] = await Promise.all([
         supabase
           .from("content_items")
           .select("name, description, price, currency, category, sort_order", { count: "exact" })
@@ -61,12 +62,14 @@ function useMenuData() {
           .select("primary_color, secondary_color, accent_color, font_family, logo_url")
           .eq("business_id", businessId)
           .maybeSingle(),
+        supabase.from("businesses").select("name").eq("id", businessId).maybeSingle(),
       ]);
 
       return {
         items: (items ?? []) as MenuItem[],
         total: count ?? (items?.length ?? 0),
         brandKit: brand ?? null,
+        businessName: negocio?.name ?? "",
       };
     },
   });
@@ -74,6 +77,7 @@ function useMenuData() {
 
 export default function GenerateAI() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState("");
   const [tipo, setTipo] = useState<string>("Digital Signage");
   const [formato, setFormato] = useState("16:9");
@@ -162,7 +166,7 @@ export default function GenerateAI() {
             tipo,
             formato,
             estilo,
-            cliente,
+            cliente: cliente || menuData?.businessName || "",
             menu_items: menuItems,
             arquetipos: orden,
             brand_kit: menuData?.brandKit ?? null,
@@ -178,7 +182,7 @@ export default function GenerateAI() {
       const data: GenerateResponse = await res.json();
       setStage("marca");
 
-      // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
+      // Validación obligatoria entre la respuesta del modelo y el render.
       const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
       const recibidas = (data.propuestas ?? []).filter((p) => !targets || !p.arquetipo || targets.includes(p.arquetipo));
       const legibles: Proposal[] = [];
@@ -186,32 +190,39 @@ export default function GenerateAI() {
 
       recibidas.forEach((p) => {
         try {
-          legibles.push(
-            p.arquetipo
-              ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
-              : enforceTvProposal(p, canvas.h, canvas.w),
-          );
+          const base = p.arquetipo
+            ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
+            : enforceTvProposal(p, canvas.h, canvas.w);
+          const normalizada = normalizeProposalVisuals(base as any, {
+            primary: menuData?.brandKit?.primary_color ?? null,
+            accent: menuData?.brandKit?.accent_color ?? null,
+            secondary: menuData?.brandKit?.secondary_color ?? null,
+            logo_url: menuData?.brandKit?.logo_url ?? null,
+          }) as Proposal;
+
+          const { ok, violaciones } = validarPropuesta(normalizada as any, canvas.w, canvas.h);
+          logViolations(1, normalizada.id, violaciones);
+          if (ok) {
+            legibles.push(normalizada);
+          } else if (normalizada.arquetipo) {
+            rotos.push(normalizada.arquetipo);
+          }
         } catch (err) {
           console.warn("Propuesta descartada por error de post-proceso", p.arquetipo, err);
           if (p.arquetipo) rotos.push(p.arquetipo);
         }
       });
 
-      const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
-      if (fallas.length > 0) {
-        console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
-      }
-
-      // Arquetipos pedidos que no llegaron: se muestran como tarjeta de error.
+      // Arquetipos pedidos que no llegaron o no pasaron el validador.
       const entregados = new Set(legibles.map((p) => p.arquetipo).filter(Boolean) as ArchetypeId[]);
-      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos);
+      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos.filter((a) => !entregados.has(a)));
 
       if (esReintento) {
         setPropuestas((prev) => [...(prev ?? []), ...legibles]);
         setFallidos((prev) => prev.filter((a) => !entregados.has(a)).concat(faltantes.filter((a) => !prev.includes(a))));
       } else {
         setPropuestas(legibles);
-        setFallidos(faltantes);
+        setFallidos([...new Set(faltantes)]);
       }
 
       if (legibles.length === 0) {
@@ -231,6 +242,31 @@ export default function GenerateAI() {
     }
   };
 
+
+  const [subiendoLogo, setSubiendoLogo] = useState(false);
+
+  /** Sube el logo del negocio y lo guarda en el brand kit para futuras piezas. */
+  const subirLogo = useCallback(async (file: File) => {
+    setSubiendoLogo(true);
+    try {
+      const { data: bid } = await supabase.rpc("get_user_business_id");
+      if (!bid) throw new Error("No business");
+      const path = `brand/${bid}/logo-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const { error } = await supabase
+        .from("brand_kits")
+        .upsert({ business_id: bid, logo_url: urlData.publicUrl }, { onConflict: "business_id" });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["generate-ai", "menu-data"] });
+      toast({ title: "Logo cargado", description: "Lo usaremos en la franja de cierre de tus piezas." });
+    } catch (e: any) {
+      toast({ title: "No pudimos subir el logo", description: e.message, variant: "destructive" });
+    } finally {
+      setSubiendoLogo(false);
+    }
+  }, [queryClient, toast]);
 
   const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
@@ -400,6 +436,9 @@ export default function GenerateAI() {
           fallidos={fallidos}
           retryTarget={retryTarget}
           onRetryArchetype={(a) => generate([a])}
+          sinLogo={!menuData?.brandKit?.logo_url}
+          subiendoLogo={subiendoLogo}
+          onSubirLogo={subirLogo}
         />
       )}
 

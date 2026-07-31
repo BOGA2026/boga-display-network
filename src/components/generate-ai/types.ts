@@ -42,6 +42,14 @@ export interface Proposal {
   texto_cta: string;
   color_texto: string;
   color_acento: string;
+  /** Único color permitido para el precio: acento de marca o blanco puro. */
+  color_precio?: string;
+  /** Logo del negocio para la franja de cierre. */
+  logo_url?: string | null;
+  /** "dividido" sin foto válida: bloque de color de marca con logo centrado. */
+  bloque_marca?: boolean;
+  /** Arquetipo original cuando la foto falló y se cayó a "lista_limpia". */
+  fallback_de?: ArchetypeId;
   fuente_titulo: string;
   fuente_cuerpo: string;
   titulo_size: number;
