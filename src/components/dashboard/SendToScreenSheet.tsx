@@ -95,7 +95,17 @@ export function SendToScreenSheet({
           </SheetDescription>
         </SheetHeader>
 
+        {isHeavyFile(contentSizeBytes) && (
+          <div className="mt-4 flex gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-[13px] text-amber-300">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Esta pieza pesa {formatBytes(contentSizeBytes)}. {HEAVY_FILE_TOOLTIP}
+            </p>
+          </div>
+        )}
+
         <div className="mt-6 space-y-4">
+
           <div className="space-y-2">
             <Label>Pantalla</Label>
             <Select value={screenId} onValueChange={setScreenId}>
