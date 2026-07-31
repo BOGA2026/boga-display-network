@@ -368,7 +368,7 @@ export default function GenerateAI() {
             )}
 
             <Button
-              onClick={generate}
+              onClick={() => generate()}
               disabled={loading || menuVacio}
               className="gradient-primary glow-primary-sm w-full sm:w-auto"
               size="lg"
@@ -381,29 +381,9 @@ export default function GenerateAI() {
         </Card>
       )}
 
-      {/* Stepper */}
-      {currentStep >= 0 && !propuestas && !selectedProposal && (
-        <Card className="border-sidebar-border bg-sidebar">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {STEPS.map((label, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-500",
-                    i < currentStep ? "gradient-primary text-primary-foreground"
-                      : i === currentStep ? "gradient-primary text-primary-foreground animate-pulse"
-                      : "bg-muted text-muted-foreground"
-                  )}>
-                    {i < currentStep ? <Check className="h-4 w-4" /> : i + 1}
-                  </div>
-                  <span className={cn("text-sm transition-colors duration-300", i <= currentStep ? "text-foreground font-medium" : "text-muted-foreground")}>
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Loading: three placeholders shaped like the pieces that are coming */}
+      {loading && !retryTarget && !selectedProposal && (
+        <GenerationSkeletons stage={stage!} formato={formato} onCancel={cancel} />
       )}
 
       {/* Proposal selector */}
@@ -415,10 +395,14 @@ export default function GenerateAI() {
             recordArchetypePick(p.arquetipo);
             setSelectedProposal(p);
           }}
-          onRegenerate={generate}
+          onRegenerate={() => generate()}
           loading={loading}
+          fallidos={fallidos}
+          retryTarget={retryTarget}
+          onRetryArchetype={(a) => generate([a])}
         />
       )}
+
 
       {/* Fabric editor */}
       {selectedProposal && (
