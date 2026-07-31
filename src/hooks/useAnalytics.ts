@@ -131,3 +131,94 @@ function formatSyncAgo(hours: number): string {
   if (hours < 24) return `Hace ${Math.round(hours)} h`;
   return `Hace ${Math.round(hours / 24)} d`;
 }
+
+/* ── Métricas derivadas ──────────────────────────────────────────────── */
+
+export interface AirtimeRow {
+  /** Minutos realmente al aire en el periodo. */
+  minutes_online: number;
+  /** Minutos programados reales (desde la programación, nunca 1440 fijo). */
+  minutes_expected: number;
+  scans: number;
+  /** null cuando no hubo horas al aire: nunca se divide por cero. */
+  scans_per_hour: number | null;
+}
+
+export interface OrphanContentRow {
+  content_id: string;
+  name: string;
+  thumbnail_url: string | null;
+  created_at: string;
+}
+
+/** Horas al aire vs. programadas + escaneos por hora al aire. */
+export function useAirtime(businessId?: string, range?: Range) {
+  return useQuery({
+    queryKey: ["analytics", "airtime", businessId, range && iso(range.from), range && iso(range.to)],
+    enabled: Boolean(businessId && range),
+    queryFn: async (): Promise<AirtimeRow | null> => {
+      const { data, error } = await rpc("analytics_airtime", {
+        p_business_id: businessId,
+        p_from: iso(range!.from),
+        p_to: iso(range!.to),
+      });
+      if (error) throw error;
+      const row = (data as AirtimeRow[])?.[0] ?? null;
+      if (!row) return null;
+      return {
+        minutes_online: Number(row.minutes_online ?? 0),
+        minutes_expected: Number(row.minutes_expected ?? 0),
+        scans: Number(row.scans ?? 0),
+        scans_per_hour: row.scans_per_hour === null ? null : Number(row.scans_per_hour),
+      };
+    },
+  });
+}
+
+/** Piezas de `content` sin ninguna reproducción en el periodo. */
+export function useOrphanContent(businessId?: string, range?: Range) {
+  return useQuery({
+    queryKey: ["analytics", "orphan", businessId, range && iso(range.from), range && iso(range.to)],
+    enabled: Boolean(businessId && range),
+    queryFn: async (): Promise<OrphanContentRow[]> => {
+      const { data, error } = await rpc("analytics_orphan_content", {
+        p_business_id: businessId,
+        p_from: iso(range!.from),
+        p_to: iso(range!.to),
+      });
+      if (error) throw error;
+      return (data as OrphanContentRow[]) ?? [];
+    },
+  });
+}
+
+/**
+ * Días con telemetría registrada. Antes de 7 días todo el contenido parecería
+ * huérfano, así que la tarjeta de desperdicio no debe mostrarse.
+ */
+export function useTelemetryDays(businessId?: string) {
+  return useQuery({
+    queryKey: ["analytics", "telemetry-days", businessId],
+    enabled: Boolean(businessId),
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await rpc("analytics_telemetry_days", { p_business_id: businessId });
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+  });
+}
+
+/* ── Formato ─────────────────────────────────────────────────────────── */
+
+const nf1 = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 1 });
+
+/** "11,2 h" — coma decimal colombiana, sin decimales inútiles. */
+export function formatHoras(minutes: number): string {
+  return `${nf1.format(Math.round((minutes / 60) * 10) / 10)} h`;
+}
+
+/** "3,4 escaneos/h" o "—" cuando no hay horas al aire. */
+export function formatEscaneosHora(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) return "—";
+  return `${nf1.format(value)} escaneos/h`;
+}
