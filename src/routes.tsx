@@ -41,6 +41,7 @@ const TerminosPage = lazy(() => import("@/pages/TerminosPage"));
 const PrivacidadPage = lazy(() => import("@/pages/PrivacidadPage"));
 const TvLanding = lazy(() => import("@/pages/TvLanding"));
 const Player = lazy(() => import("@/pages/Player"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const VisualiaLunchTemplate = lazy(() => import("@/templates/lunch-dual/VisualiaLunchTemplate"));
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const ScreensList = lazy(() => import("@/pages/digital-signage/ScreensList"));
