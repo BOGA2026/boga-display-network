@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Loader2, UtensilsCrossed, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,6 +77,7 @@ function useMenuData() {
 
 export default function GenerateAI() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [prompt, setPrompt] = useState("");
   const [tipo, setTipo] = useState<string>("Digital Signage");
   const [formato, setFormato] = useState("16:9");
@@ -241,6 +242,31 @@ export default function GenerateAI() {
     }
   };
 
+
+  const [subiendoLogo, setSubiendoLogo] = useState(false);
+
+  /** Sube el logo del negocio y lo guarda en el brand kit para futuras piezas. */
+  const subirLogo = useCallback(async (file: File) => {
+    setSubiendoLogo(true);
+    try {
+      const { data: bid } = await supabase.rpc("get_user_business_id");
+      if (!bid) throw new Error("No business");
+      const path = `brand/${bid}/logo-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const { error } = await supabase
+        .from("brand_kits")
+        .upsert({ business_id: bid, logo_url: urlData.publicUrl }, { onConflict: "business_id" });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["generate-ai", "menu-data"] });
+      toast({ title: "Logo cargado", description: "Lo usaremos en la franja de cierre de tus piezas." });
+    } catch (e: any) {
+      toast({ title: "No pudimos subir el logo", description: e.message, variant: "destructive" });
+    } finally {
+      setSubiendoLogo(false);
+    }
+  }, [queryClient, toast]);
 
   const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
