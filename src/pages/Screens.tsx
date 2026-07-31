@@ -49,7 +49,8 @@ import { es } from "date-fns/locale";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
-import { NAV } from "@/config/lexicon";
+import { NAV, COPY } from "@/config/lexicon";
+import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
