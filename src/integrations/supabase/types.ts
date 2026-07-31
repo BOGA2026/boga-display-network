@@ -2255,6 +2255,10 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
+      complete_onboarding: {
+        Args: { p_business_name: string; p_city: string }
+        Returns: Json
+      }
       get_content_page: { Args: never; Returns: Json }
       get_dashboard_page: { Args: never; Returns: Json }
       get_screens_page: { Args: never; Returns: Json }

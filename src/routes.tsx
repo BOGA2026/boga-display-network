@@ -41,6 +41,7 @@ const TerminosPage = lazy(() => import("@/pages/TerminosPage"));
 const PrivacidadPage = lazy(() => import("@/pages/PrivacidadPage"));
 const TvLanding = lazy(() => import("@/pages/TvLanding"));
 const Player = lazy(() => import("@/pages/Player"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const VisualiaLunchTemplate = lazy(() => import("@/templates/lunch-dual/VisualiaLunchTemplate"));
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const ScreensList = lazy(() => import("@/pages/digital-signage/ScreensList"));
@@ -89,6 +90,8 @@ export default function AppRoutes() {
       <Route path="/legal/privacidad" element={page(PrivacidadPage, pathname)} />
       <Route path="/descargar-apk" element={page(DescargarApk, pathname)} />
       <Route path="/tv" element={page(TvLanding, pathname)} />
+      <Route path="/onboarding" element={page(Onboarding, pathname)} />
+
       <Route path="/soluciones/restaurantes" element={page(RestaurantSolutionPage, pathname)} />
       <Route path="/acerca" element={page(AboutPage, pathname)} />
       <Route path="/studio" element={page(Studio, pathname)} />

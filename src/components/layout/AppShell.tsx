@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth, signOut } from "@/hooks/useAuth";
 import { useTenant } from "@/features/auth/useTenant";
+import { reportError } from "@/lib/errorLogger";
 
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 import { supabase } from "@/integrations/supabase/client";
@@ -287,6 +288,7 @@ export default function AppShell() {
   const { session, loading } = useAuth("/login");
   const [checkingRole, setCheckingRole] = React.useState(true);
   const navigate = useNavigate();
+  const { businessId, loading: tenantLoading } = useTenant();
   useSessionTracker(session?.user?.id);
 
   React.useEffect(() => {
@@ -310,13 +312,38 @@ export default function AppShell() {
     };
   }, [loading, session, navigate]);
 
-  if (loading || checkingRole) {
+  // Usuario autenticado sin negocio: no puede usar el panel (todo filtra por
+  // business_id). Se lo manda a /onboarding, que es reanudable, y se reporta
+  // a Sentry porque es un estado que no debería existir.
+  React.useEffect(() => {
+    if (loading || checkingRole || tenantLoading) return;
+    if (!session || businessId) return;
+    reportError(new Error("Usuario autenticado sin business_id"), {
+      label: "tenant.missing_business",
+      scope: "tenant",
+      section: "dashboard",
+      userId: session.user?.id,
+      route: window.location.pathname,
+    });
+    navigate("/onboarding", { replace: true });
+  }, [loading, checkingRole, tenantLoading, session, businessId, navigate]);
+
+  if (loading || checkingRole || tenantLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
+
+  if (session && !businessId) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
 
   return (
     <LocationProvider>
