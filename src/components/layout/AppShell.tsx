@@ -245,7 +245,7 @@ function ShellInner() {
         <DashboardSidebar onLogout={handleLogout} />
 
         <SidebarInset className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
             <div className="flex min-w-0 items-center gap-1">
               <MobileMenuButton />
               <Breadcrumbs />
