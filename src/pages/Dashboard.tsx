@@ -15,12 +15,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
+import { liveQueryOptions } from "@/lib/query-client";
 import { useToast } from "@/hooks/use-toast";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
   return useQuery({
     queryKey: ["dashboard-stats"],
+    ...liveQueryOptions,
     queryFn: async () => {
       const bizRes = await supabase.rpc("get_user_business_id");
       const businessId = bizRes.data as string | null;

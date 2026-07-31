@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchUptimeByDay } from "./api";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { filterQueryOptions } from "@/lib/query-client";
 import { Loader2 } from "lucide-react";
 
 export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; days?: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ["uptime", deviceId, days],
     queryFn: () => fetchUptimeByDay(deviceId, days),
-    staleTime: 60_000,
+    ...filterQueryOptions,
   });
 
   if (isLoading) {

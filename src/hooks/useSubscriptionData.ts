@@ -1,3 +1,4 @@
+import { staticQueryOptions } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +49,7 @@ export interface PaymentMethodRow {
 export function useSubscriptionData() {
   return useQuery({
     queryKey: ["subscription-full"],
+    ...staticQueryOptions,
     queryFn: async () => {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error("No user");
