@@ -39,7 +39,7 @@ const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
   { key: "type", label: "Tipo", className: "w-28" },
   { key: "orientation", label: "Orientación", className: "w-28" },
   { key: "duration", label: "Duración", className: "w-24" },
-  { key: "size", label: "Tamaño", className: "w-28" },
+  { key: "size", label: "Resolución", className: "w-28" },
   { key: "date", label: "Fecha", className: "w-32" },
 ];
 
