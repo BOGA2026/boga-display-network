@@ -178,7 +178,7 @@ export default function GenerateAI() {
       const data: GenerateResponse = await res.json();
       setStage("marca");
 
-      // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
+      // Validación obligatoria entre la respuesta del modelo y el render.
       const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
       const recibidas = (data.propuestas ?? []).filter((p) => !targets || !p.arquetipo || targets.includes(p.arquetipo));
       const legibles: Proposal[] = [];
@@ -186,32 +186,39 @@ export default function GenerateAI() {
 
       recibidas.forEach((p) => {
         try {
-          legibles.push(
-            p.arquetipo
-              ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
-              : enforceTvProposal(p, canvas.h, canvas.w),
-          );
+          const base = p.arquetipo
+            ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
+            : enforceTvProposal(p, canvas.h, canvas.w);
+          const normalizada = normalizeProposalVisuals(base as any, {
+            primary: menuData?.brandKit?.primary_color ?? null,
+            accent: menuData?.brandKit?.accent_color ?? null,
+            secondary: menuData?.brandKit?.secondary_color ?? null,
+            logo_url: menuData?.brandKit?.logo_url ?? null,
+          }) as Proposal;
+
+          const { ok, violaciones } = validarPropuesta(normalizada as any, canvas.w, canvas.h);
+          logViolations(1, normalizada.id, violaciones);
+          if (ok) {
+            legibles.push(normalizada);
+          } else if (normalizada.arquetipo) {
+            rotos.push(normalizada.arquetipo);
+          }
         } catch (err) {
           console.warn("Propuesta descartada por error de post-proceso", p.arquetipo, err);
           if (p.arquetipo) rotos.push(p.arquetipo);
         }
       });
 
-      const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
-      if (fallas.length > 0) {
-        console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
-      }
-
-      // Arquetipos pedidos que no llegaron: se muestran como tarjeta de error.
+      // Arquetipos pedidos que no llegaron o no pasaron el validador.
       const entregados = new Set(legibles.map((p) => p.arquetipo).filter(Boolean) as ArchetypeId[]);
-      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos);
+      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos.filter((a) => !entregados.has(a)));
 
       if (esReintento) {
         setPropuestas((prev) => [...(prev ?? []), ...legibles]);
         setFallidos((prev) => prev.filter((a) => !entregados.has(a)).concat(faltantes.filter((a) => !prev.includes(a))));
       } else {
         setPropuestas(legibles);
-        setFallidos(faltantes);
+        setFallidos([...new Set(faltantes)]);
       }
 
       if (legibles.length === 0) {
