@@ -72,7 +72,7 @@ var list_locations_default = defineTool2({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
-    const { data, error } = await supabaseForUser(ctx).from("locations").select("id, name, address, city, created_at").order("created_at", { ascending: false }).limit(limit ?? 100);
+    const { data, error } = await supabaseForUser(ctx).from("locations").select("id, name, address, latitude, longitude, created_at").order("created_at", { ascending: false }).limit(limit ?? 100);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
