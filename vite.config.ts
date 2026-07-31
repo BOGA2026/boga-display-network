@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => ({
     target: "es2020",
     minify: "terser",
     cssCodeSplit: true,
-    sourcemap: false,
+    sourcemap: "hidden",
     chunkSizeWarningLimit: 900,
     terserOptions: {
       compress: {
