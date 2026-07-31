@@ -268,7 +268,12 @@ const Landing = () => {
     if (vid) {
       vid.muted = false;
       vid.volume = volume || 0.8;
-      vid.play().catch(() => {});
+      // User gesture: if the browser still blocks it, fall back to muted playback.
+      attemptAutoplay(vid, {
+        onPlaying: ({ muted: fellBackToMuted }) => {
+          if (fellBackToMuted) setMuted(true);
+        },
+      });
     }
     setMuted(false);
     setShowSoundPrompt(false);
