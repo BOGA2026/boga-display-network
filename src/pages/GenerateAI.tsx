@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
 import { CANVAS_SIZES } from "@/components/generate-ai/types";
 import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
+import { normalizeProposalVisuals, validarPropuesta, logViolations } from "@/lib/proposalValidator";
 import { enforceArchetype } from "@/lib/designArchetypes";
 import type { ArchetypeId } from "@/lib/designArchetypes";
 import { preferredArchetypeOrder, recordArchetypePick } from "@/lib/archetypePrefs";
