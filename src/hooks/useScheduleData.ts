@@ -37,48 +37,60 @@ export interface ScheduleTemplate {
   json_definition: any;
 }
 
+/** Consultas exportadas: el hover del menú las adelanta con la misma key. */
+export const businessIdQuery = {
+  queryKey: ["user-business-id"] as const,
+  queryFn: async () => {
+    const { data, error } = await supabase.rpc("get_user_business_id");
+    if (error) throw error;
+    return data as string;
+  },
+};
+
+export const screensForScheduleQuery = (businessId: string | undefined) => ({
+  queryKey: ["screens-for-schedule", businessId] as const,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("screens")
+      .select("id, name, status, location_id, locations(name)")
+      .order("name");
+    if (error) throw error;
+    return data;
+  },
+});
+
+export const playlistsForScheduleQuery = (businessId: string | undefined) => ({
+  queryKey: ["playlists-for-schedule", businessId] as const,
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("playlists")
+      .select("id, name")
+      .order("name");
+    if (error) throw error;
+    return data;
+  },
+});
+
 export function useBusinessId() {
-  return useQuery({
-    queryKey: ["user-business-id"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_user_business_id");
-      if (error) throw error;
-      return data as string;
-    },
-  });
+  return useQuery(businessIdQuery);
 }
 
 export function useScreens(businessId: string | undefined) {
   return useQuery({
-    queryKey: ["screens-for-schedule", businessId],
     ...staticQueryOptions,
+    ...screensForScheduleQuery(businessId),
     enabled: !!businessId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("screens")
-        .select("id, name, status, location_id, locations(name)")
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
   });
 }
 
 export function usePlaylists(businessId: string | undefined) {
   return useQuery({
-    queryKey: ["playlists-for-schedule", businessId],
     ...staticQueryOptions,
+    ...playlistsForScheduleQuery(businessId),
     enabled: !!businessId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("playlists")
-        .select("id, name")
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
   });
 }
+
 
 export function useScheduleLayers(businessId: string | undefined) {
   return useQuery({
