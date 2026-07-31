@@ -358,6 +358,16 @@ const Content = () => {
   const handleUpload = async () => {
     if (!selectedFile || !contentName.trim() || !selectedType) return;
 
+    // Tope duro: por encima de esto el reproductor de la pantalla sufre.
+    if (selectedFile.size > MAX_UPLOAD_BYTES) {
+      toast({
+        title: "Archivo demasiado pesado",
+        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es 250 MB. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
 
     const businessId = await getBusinessId();
@@ -382,8 +392,10 @@ const Content = () => {
       name: contentName.trim(),
       type: selectedType,
       file_url: urlData.publicUrl,
+      file_size_bytes: selectedFile.size,
       business_id: businessId,
     });
+
 
     setUploading(false);
 
