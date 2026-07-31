@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { attemptAutoplay } from "@/lib/autoplay";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
