@@ -73,3 +73,29 @@ export function relativeDate(iso: string): string {
 export function metaLine(parts: (string | null | undefined)[]): string {
   return parts.filter(Boolean).join(" · ");
 }
+
+/* ------------------------------------------------------------------ *
+ * Peso del archivo
+ * ------------------------------------------------------------------ */
+
+/** Tope duro de subida: por encima de esto el reproductor de la pantalla sufre. */
+export const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+/** A partir de aquí advertimos: en WiFi de local puede tardar en cargar. */
+export const HEAVY_FILE_BYTES = 100 * 1024 * 1024;
+
+export const HEAVY_FILE_TOOLTIP =
+  "Archivo pesado. En pantallas con conexión lenta puede tardar en cargar.";
+
+export function isHeavyFile(bytes?: number | null): boolean {
+  return typeof bytes === "number" && bytes >= HEAVY_FILE_BYTES;
+}
+
+/** "2,4 MB" / "180 MB" — formato colombiano, coma decimal. */
+export function formatBytes(bytes?: number | null): string | null {
+  if (typeof bytes !== "number" || bytes <= 0) return null;
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  if (mb < 10) return `${mb.toFixed(1).replace(".", ",")} MB`;
+  if (mb < 1024) return `${Math.round(mb)} MB`;
+  return `${(mb / 1024).toFixed(1).replace(".", ",")} GB`;
+}
