@@ -33,6 +33,39 @@ export const queryClient = new QueryClient({
   },
 });
 
+/**
+ * Presets de opciones por tipo de consulta.
+ *
+ * `placeholderData` NO va en los defaults globales: mantener los datos previos
+ * mientras cambia la key solo tiene sentido cuando la key representa un filtro
+ * sobre el mismo conjunto de datos. Si la key es el ID de una entidad
+ * (por ejemplo `playlistItems(playlistId)`), conservar lo anterior muestra los
+ * ítems de la playlist vieja bajo el nombre de la nueva: se lee como un bug.
+ */
+
+/** Listas con paginación, búsqueda o filtros: la key cambia, el dataset no. */
+export const filterQueryOptions = {
+  placeholderData: <T>(prev: T | undefined) => prev,
+  staleTime: 30 * 1000,
+} as const;
+
+/** Datos que cambian solos: sondeo cada 30 s, pausado si la pestaña está oculta. */
+export const liveQueryOptions = {
+  staleTime: 10 * 1000,
+  refetchInterval: 30 * 1000,
+  refetchIntervalInBackground: false,
+  refetchOnWindowFocus: true,
+} as const;
+
+/** Catálogos y configuración: cambian poco, se pueden cachear con calma. */
+export const staticQueryOptions = {
+  staleTime: 5 * 60 * 1000,
+  gcTime: 30 * 60 * 1000,
+  refetchOnWindowFocus: false,
+} as const;
+
+
+
 /** Fuente única de verdad de las query keys. */
 export const queryKeys = {
   locations: (userId?: string) => ["locations", userId] as const,
