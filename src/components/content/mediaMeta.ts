@@ -78,10 +78,15 @@ export function metaLine(parts: (string | null | undefined)[]): string {
  * Peso del archivo
  * ------------------------------------------------------------------ */
 
-/** Tope duro de subida: por encima de esto el reproductor de la pantalla sufre. */
-export const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+/**
+ * Tope duro de subida. DEBE coincidir con el `file_size_limit` del bucket
+ * `media` en Supabase Storage (hoy 100 MB): si el cliente deja pasar más,
+ * la subida se corta a mitad de camino sin explicación.
+ */
+export const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
 /** A partir de aquí advertimos: en WiFi de local puede tardar en cargar. */
-export const HEAVY_FILE_BYTES = 100 * 1024 * 1024;
+export const HEAVY_FILE_BYTES = 50 * 1024 * 1024;
+
 
 export const HEAVY_FILE_TOOLTIP =
   "Archivo pesado. En pantallas con conexión lenta puede tardar en cargar.";
