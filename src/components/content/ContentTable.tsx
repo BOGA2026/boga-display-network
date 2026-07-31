@@ -71,7 +71,9 @@ export function ContentTable({
       case "orientation": return ratioLabel(d) ?? "";
       case "duration": return item.duration_seconds ?? 0;
       case "size": return d ? d.width * d.height : 0;
+      case "weight": return item.file_size_bytes ?? 0;
       case "date": return new Date(item.created_at).getTime();
+
     }
   };
 
