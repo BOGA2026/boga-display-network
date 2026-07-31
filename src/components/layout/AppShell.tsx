@@ -131,6 +131,8 @@ function BaselineCommands() {
 
 function ShellInner() {
   const navigate = useNavigate();
+  // Título de pestaña siempre desde NAV[key].pageTitle.
+  useDocumentTitle();
   const [collapsed, setCollapsed] = React.useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(SIDEBAR_KEY) === "1";
