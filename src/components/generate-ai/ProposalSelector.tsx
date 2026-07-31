@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Maximize2, RotateCcw, Pencil, Check, X, AlertTriangle, Loader2 } from "lucide-react";
+import { Maximize2, RotateCcw, Pencil, Check, X, AlertTriangle, Loader2, ImagePlus } from "lucide-react";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES } from "./types";
 import { tvTypography, clampMenuSections } from "@/lib/tvLegibility";
@@ -21,6 +21,10 @@ interface Props {
   /** Archetype currently being retried (shows a skeleton in its slot). */
   retryTarget?: ArchetypeId | null;
   onRetryArchetype?: (a: ArchetypeId) => void;
+  /** El negocio no tiene logo cargado: se usa el nombre en tipografía de marca. */
+  sinLogo?: boolean;
+  onSubirLogo?: (file: File) => void;
+  subiendoLogo?: boolean;
 }
 
 
@@ -258,6 +262,9 @@ export default function ProposalSelector({
   fallidos = [],
   retryTarget = null,
   onRetryArchetype,
+  sinLogo = false,
+  onSubirLogo,
+  subiendoLogo = false,
 }: Props) {
   const [descartadas, setDescartadas] = useState<number[]>([]);
   const [fullscreen, setFullscreen] = useState<Proposal | null>(null);
@@ -280,6 +287,31 @@ export default function ProposalSelector({
         </Button>
       </div>
 
+
+      {sinLogo && onSubirLogo && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sidebar-border bg-sidebar p-4">
+          <p className="text-sm text-muted-foreground">
+            Tu negocio aún no tiene logo. Mientras tanto usamos el nombre en tipografía de marca en la franja de cierre.
+          </p>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              className="sr-only"
+              disabled={subiendoLogo}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onSubirLogo(file);
+                e.target.value = "";
+              }}
+            />
+            <span className="inline-flex h-9 items-center gap-2 rounded-md border border-sidebar-border px-3 text-sm font-medium">
+              {subiendoLogo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+              Subir logo
+            </span>
+          </label>
+        </div>
+      )}
 
       {/* pr reservado para que el Asistente Visualia no tape el botón "Descartar". */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:pr-20 xl:pr-24">
