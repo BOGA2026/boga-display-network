@@ -57,6 +57,7 @@ interface Props {
   onSend: () => void;
   onDelete: () => void;
   onEdit?: () => void;
+  onRetryThumb?: () => void;
 }
 
 export function ContentCard({
@@ -73,11 +74,16 @@ export function ContentCard({
   onSend,
   onDelete,
   onEdit,
+  onRetryThumb,
 }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
   const ratio = ratioLabel(dims);
   const duration = formatDuration(item.duration_seconds);
   const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
+  const thumbPending = !thumbSrc && item.thumbnail_status === "pendiente";
+  const heavy = isHeavyFile(item.file_size_bytes);
+  const sizeLabel = formatBytes(item.file_size_bytes);
+
 
   const card = (
     <div
