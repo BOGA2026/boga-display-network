@@ -108,9 +108,17 @@ Deno.serve(async (req) => {
 
 
     if (Array.isArray(events) && events.length) {
-      await supabase.from("lead_events").insert(
-        events.map((e: any) => ({ lead_id: lead.id, step: e.step, answer: e.answer }))
-      );
+      const safeEvents = events
+        .slice(0, 50)
+        .map((e: any) => ({
+          lead_id: lead.id,
+          step: clean(e?.step, 80),
+          answer: clean(e?.answer, 500),
+        }))
+        .filter((e) => e.step);
+      if (safeEvents.length) {
+        await supabase.from("lead_events").insert(safeEvents);
+      }
     }
 
     const send_after = inOfficeHours() ? new Date().toISOString() : nextOfficeDate().toISOString();
@@ -120,8 +128,16 @@ Deno.serve(async (req) => {
       send_after,
       payload: {
         lead_id: lead.id,
-        name, email, phone, whatsapp, company, screens, goal, budget,
-        inquiry, preferred_time,
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
+        whatsapp: safeWhatsapp,
+        company: clean(company, 160),
+        screens: safeScreens,
+        goal: clean(goal, 200),
+        budget: clean(budget, 100),
+        inquiry: clean(inquiry, 2000),
+        preferred_time: clean(preferred_time, 100),
         mensaje: "Nuevo lead de Visualia para atención inmediata.",
       },
     });
@@ -130,8 +146,9 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("submit-lead error:", e);
     return Response.json(
-      { ok: false, error: e instanceof Error ? e.message : "Error desconocido" },
+      { ok: false, error: "Error procesando la solicitud" },
       { status: 500, headers: corsHeaders }
     );
+
   }
 });
