@@ -1,15 +1,18 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, subDays, startOfHour, startOfDay, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar,
-} from "recharts";
 import { Smartphone, Tablet, Monitor, MapPin, Radio, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DeferredMount from "@/components/system/DeferredMount";
+import ChartSkeleton from "@/components/system/ChartSkeleton";
 import { useQRScans } from "./useQRScans";
 import type { QRScan } from "./api";
+
+// recharts se aísla en su propio chunk y se pide tras el primer paint.
+const QrChart = lazy(() => import("@/features/analytics/charts/QrChart"));
+
 
 type Range = "24h" | "7d" | "30d";
 
