@@ -297,11 +297,15 @@ const Studio = () => {
                   plan.highlighted ? "lg:-mt-4 lg:pb-12 lg:pt-12" : ""
                 }`}
                 style={{
-                  borderColor: plan.highlighted ? "hsl(270 100% 50% / 0.5)" : "hsl(260 15% 18%)",
+                  borderColor: plan.highlighted ? "hsl(270 100% 60% / 0.55)" : "hsl(260 18% 26%)",
                   background: plan.highlighted
-                    ? "linear-gradient(180deg, hsl(260 35% 14%) 0%, hsl(260 30% 9%) 100%)"
-                    : "linear-gradient(180deg, hsl(260 30% 10%) 0%, hsl(260 25% 8%) 100%)",
+                    ? "linear-gradient(180deg, hsl(260 35% 15%) 0%, hsl(260 30% 10%) 100%)"
+                    : "linear-gradient(180deg, hsl(260 26% 13%) 0%, hsl(260 24% 10%) 100%)",
+                  boxShadow: plan.highlighted
+                    ? "0 0 0 1px hsl(270 100% 60% / 0.25), 0 24px 60px -20px hsl(270 100% 50% / 0.45)"
+                    : "0 12px 32px -24px hsl(260 40% 4% / 0.9)",
                 }}
+
               >
                 {plan.highlighted && (
                   <div
@@ -372,8 +376,8 @@ const Studio = () => {
                     <div
                       className="rounded-xl px-5 py-4"
                       style={{
-                        background: plan.highlighted ? "hsl(270 100% 50% / 0.08)" : "hsl(260 20% 12%)",
-                        border: plan.highlighted ? "1px solid hsl(270 100% 50% / 0.2)" : "1px solid hsl(260 15% 16%)",
+                        background: plan.highlighted ? "hsl(270 100% 55% / 0.12)" : "hsl(260 22% 16%)",
+                        border: plan.highlighted ? "1px solid hsl(270 100% 60% / 0.3)" : "1px solid hsl(260 18% 24%)",
                       }}
                     >
                       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Servicio mensual</span>
@@ -408,8 +412,8 @@ const Studio = () => {
                       <div
                         className="rounded-xl px-5 py-4"
                         style={{
-                          background: "hsl(260 20% 12%)",
-                          border: "1px solid hsl(260 15% 20%)",
+                          background: "hsl(260 22% 16%)",
+                          border: "1px solid hsl(260 18% 26%)",
                         }}
                       >
                         {plan.monthlyDetail.title && (
