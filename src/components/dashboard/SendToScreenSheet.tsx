@@ -36,6 +36,8 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   contentId?: string;
   contentLabel?: string;
+  /** Peso de la pieza: si es alta, avisamos antes de mandarla a una pantalla. */
+  contentSizeBytes?: number | null;
 }
 
 export function SendToScreenSheet({
@@ -43,7 +45,9 @@ export function SendToScreenSheet({
   onOpenChange,
   contentId,
   contentLabel,
+  contentSizeBytes,
 }: Props) {
+
   const navigate = useNavigate();
   const [screens, setScreens] = useState<Screen[]>([]);
   const [screenId, setScreenId] = useState<string>("");
