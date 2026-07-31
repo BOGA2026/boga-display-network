@@ -14,6 +14,14 @@ import { toast } from "sonner";
  */
 export const VoiceAgentDock = () => {
   const [open, setOpen] = useState(false);
+  const [showHint, setShowHint] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("visualia.assistantHintSeen") !== "1";
+  });
+  const dismissHint = () => {
+    setShowHint(false);
+    try { localStorage.setItem("visualia.assistantHintSeen", "1"); } catch { /* noop */ }
+  };
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
