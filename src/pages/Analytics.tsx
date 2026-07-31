@@ -334,6 +334,29 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
+        {/* Contenido huérfano: desperdicio detectable. Sólo con 7+ días de
+            telemetría; antes de eso todo parecería huérfano. */}
+        {mostrarHuerfanos && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4">
+            <div className="flex items-center gap-3">
+              <FileWarning className="h-5 w-5 shrink-0 text-amber-400" aria-hidden />
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  <span className="v-numeric">{orphanCount}</span>{" "}
+                  {orphanCount === 1 ? "archivo que nunca se ha reproducido" : "archivos que nunca se han reproducido"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Sin reproducciones en los últimos 30 días. Es espacio y trabajo que no está vendiendo.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <Link to={orphanHref}>Ver esos archivos</Link>
+            </Button>
+          </div>
+        )}
+
+
         {/* Tabla por pantalla: con las pantallas reales */}
         <Card className="v-card">
           <CardHeader className="pb-2">
