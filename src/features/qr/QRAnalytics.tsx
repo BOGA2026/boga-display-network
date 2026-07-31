@@ -1,5 +1,4 @@
 import { lazy, Suspense, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { format, subDays, startOfHour, startOfDay, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { Smartphone, Tablet, Monitor, MapPin, Radio, ScanLine } from "lucide-react";
@@ -64,15 +63,9 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
         <div>
           <p className="text-sm text-muted-foreground">Escaneos {qrLabel ? `de "${qrLabel}"` : ""}</p>
           <div className="flex items-baseline gap-3">
-            <motion.p
-              key={total}
-              initial={{ scale: 1.15, color: "hsl(var(--primary))" }}
-              animate={{ scale: 1, color: "hsl(var(--foreground))" }}
-              transition={{ duration: 0.4 }}
-              className="text-4xl font-bold tabular-nums"
-            >
+            <p key={total} className="motion-pop text-4xl font-bold tabular-nums">
               {total.toLocaleString("es-CO")}
-            </motion.p>
+            </p>
             {liveCount > 0 && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 <span className="relative flex h-1.5 w-1.5">
@@ -94,16 +87,13 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
       </div>
 
       {/* Timeline chart */}
-      <AnimatePresence mode="wait">
+      <>
         {isEmpty ? (
           <EmptyState key="empty" range={range} />
         ) : (
-          <motion.div
+          <div
             key={`chart-${range}`}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="rounded-2xl border border-border/60 bg-card/60 p-4"
+            className="motion-rise rounded-2xl border border-border/60 bg-card/60 p-4"
           >
             <h3 className="mb-2 text-sm font-medium text-muted-foreground">{meta.label}</h3>
             <div className="h-56">
@@ -114,9 +104,9 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
               </DeferredMount>
             </div>
 
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* Breakdowns */}
       {!isEmpty && (
@@ -131,12 +121,10 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
                   const Icon = DEVICE_ICON[key] ?? Radio;
                   const pct = Math.round((row.count / total) * 100);
                   return (
-                    <motion.li
+                    <li
                       key={row.key}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: i * 0.05 }}
-                      className="flex items-center gap-3"
+                      className="motion-slide-left flex items-center gap-3"
+                      style={{ animationDelay: `${i * 50}ms` }}
                     >
                       <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
                         <Icon className="h-4 w-4" />
@@ -147,15 +135,13 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
                           <span className="tabular-nums text-muted-foreground">{row.count} · {pct}%</span>
                         </div>
                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                          <motion.div
-                            className="h-full rounded-full bg-primary"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${pct}%` }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          <div
+                            className="motion-bar h-full rounded-full bg-primary"
+                            style={{ "--bar-width": `${pct}%` } as React.CSSProperties}
                           />
                         </div>
                       </div>
-                    </motion.li>
+                    </li>
                   );
                 })}
               </ul>
@@ -222,38 +208,27 @@ function breakdown<T extends string>(scans: QRScan[], keyOf: (s: QRScan) => T) {
 
 function BreakdownCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="rounded-2xl border border-border/60 bg-card/60 p-4"
-    >
+    <div className="motion-rise rounded-2xl border border-border/60 bg-card/60 p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {icon} {title}
       </div>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 function EmptyState({ range }: { range: Range }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+    <div
       className={cn(
+        "motion-rise",
         "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60",
         "bg-gradient-to-br from-primary/5 via-transparent to-transparent p-10 text-center",
       )}
     >
       <div className="relative">
         <ScanLine className="h-12 w-12 text-primary/70" />
-        <motion.div
-          className="absolute inset-0 rounded-full bg-primary/20 blur-xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 2.2, repeat: Infinity }}
-        />
+        <div className="motion-pulse-glow absolute inset-0 rounded-full bg-primary/20 blur-xl" />
       </div>
       <div>
         <p className="text-base font-medium">Todavía no hay escaneos en {RANGE_META[range].label.toLowerCase()}</p>
@@ -261,6 +236,6 @@ function EmptyState({ range }: { range: Range }) {
           Imprimí el QR o mostralo en pantalla. El primer escaneo aparece acá en cuestión de segundos.
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -16,7 +16,6 @@
 import * as React from "react";
 import { Suspense } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 
 import {
   LayoutDashboard,
@@ -175,10 +174,8 @@ function ShellInner() {
       <BaselineCommands />
 
       {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{ width: sidebarWidth }}
-        transition={{ duration: 0.26, ease: [0.32, 0.72, 0, 1] }}
+      <aside
+        style={{ width: sidebarWidth, transition: "width var(--duration-medium) var(--ease-ios)" }}
         className="relative z-20 flex h-screen shrink-0 flex-col border-r border-border bg-sidebar"
       >
         <div className="flex h-14 items-center justify-center px-3">
@@ -213,10 +210,9 @@ function ShellInner() {
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <motion.span
-                      layoutId="sidebar-active-rail"
-                      className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    <span
+                      aria-hidden
+                      className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
                     />
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
@@ -248,7 +244,7 @@ function ShellInner() {
             {!collapsed && <span>Cerrar sesión</span>}
           </button>
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
