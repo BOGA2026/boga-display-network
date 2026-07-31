@@ -78,7 +78,7 @@ export default function AdminSubscriptions() {
         subtitle="Estado de suscripciones activas por negocio"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <AdminKpiCard label="Activas" value={kpis.total} icon={CheckCircle2} tone="success" loading={loading} />
         <AdminKpiCard label="En prueba" value={kpis.trial} icon={Clock} tone="warning" loading={loading} />
         <AdminKpiCard label="Canceladas" value={kpis.canceled} icon={XCircle} tone="danger" loading={loading} />

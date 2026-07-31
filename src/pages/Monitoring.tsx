@@ -124,7 +124,7 @@ export default function Monitoring() {
           </div>
         </header>
 
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <KpiCard label="Total" value={counts.total} dotClass="bg-primary" />
           <KpiCard label="En línea" value={counts.online} dotClass="bg-emerald-500 shadow-[0_0_10px_rgba(34,197,94,0.55)]" />
           <KpiCard label="Sincronizando" value={counts.syncing} dotClass="bg-amber-400" />

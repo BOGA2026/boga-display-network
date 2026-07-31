@@ -206,7 +206,7 @@ const WeeklyTimeline = ({
                     )}
                     {(layer?.priority || 0) > 0 && height > slotHeight * 2 && (
                       <div className="px-1.5">
-                        <span className="inline-block rounded text-[8px] px-1 py-px bg-black/30 text-white/90">
+                        <span className="inline-block rounded text-xs px-1 py-px bg-black/30 text-white/90">
                           Override
                         </span>
                       </div>
