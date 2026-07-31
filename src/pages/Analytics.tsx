@@ -264,27 +264,22 @@ export default function Analytics() {
             value="0%"
             hint="del tiempo programado"
           />
-          <KpiCard
-            icon={Clock}
-            label="Horas al aire"
-            measured={telemetryActive}
-            value="0 h"
-            hint={`de ${horasProgramadas} h programadas`}
-          />
+          <AirtimeCard measured={telemetryActive} airtime={airtime ?? null} />
           <KpiCard
             icon={QrCode}
             label="Escaneos de QR"
             measured={telemetryActive}
-            value="0"
+            value={airtime ? airtime.scans.toLocaleString("es-CO") : "0"}
             hint="vs. periodo anterior"
           />
           <KpiCard
             icon={ScanLine}
             label="Escaneos por hora al aire"
-            measured={telemetryActive}
-            value="0"
+            measured={telemetryActive && (airtime?.scans_per_hour ?? null) !== null}
+            value={formatEscaneosHora(airtime?.scans_per_hour ?? null)}
             hint="eficiencia del menú"
           />
+
         </div>
 
         {/* Gráficos: ejes y rejilla visibles, sin serie */}
