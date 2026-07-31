@@ -431,27 +431,11 @@ const Content = () => {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="relative mb-8">
-            <div className="flex h-24 w-24 items-center justify-center rounded-2xl gradient-primary glow-primary animate-pulse-glow">
-              <Upload className="h-12 w-12 text-primary-foreground" />
-            </div>
-            {/* Floating accent icons */}
-            <div className="absolute -top-2 -right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-secondary border border-border/50">
-              <ImageIcon className="h-4 w-4 text-primary/70" />
-            </div>
-            <div className="absolute -bottom-2 -left-4 flex h-8 w-8 items-center justify-center rounded-lg bg-secondary border border-border/50">
-              <Film className="h-4 w-4 text-accent/70" />
-            </div>
-          </div>
-
-          <h2 className="font-display text-xl font-bold mb-2">Subir contenido</h2>
-          <p className="text-sm text-muted-foreground mb-10 max-w-md leading-relaxed">
-            Agrega imágenes, videos, archivos HTML o contenido multimedia para tus pantallas.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4">
+        <EmptyState
+          icon={<Upload className="h-9 w-9" />}
+          title={COPY.empty.contentTitle}
+          description={COPY.empty.content}
+          action={
             <Button
               onClick={() => { resetUploadForm(); setUploadOpen(true); }}
               className="gradient-primary hover:gradient-primary-hover glow-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold"
@@ -460,6 +444,8 @@ const Content = () => {
               <FileUp className="h-5 w-5" />
               Agregar contenido
             </Button>
+          }
+          secondaryAction={
             <Button
               variant="outline"
               onClick={handleAddSampleContent}
@@ -470,8 +456,9 @@ const Content = () => {
               <Layers className="h-5 w-5" />
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
-          </div>
-        </div>
+          }
+        />
+
       )}
 
       {/* ========== Upload Dialog ========== */}
