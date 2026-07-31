@@ -275,7 +275,8 @@ const BasicWeeklyCalendar = ({
       </div>
 
       {/* Day columns */}
-      {DAY_INDICES.map((dayIndex, di) => {
+      {visibleDays.map((dayIndex) => {
+        const di = DAY_INDICES.indexOf(dayIndex);
         const dayBlocks = getBlocksForDay(dayIndex);
         const isWeekend = di >= 5;
         const isDraggingInDay = dragging?.dayIdx === dayIndex;
