@@ -46,9 +46,9 @@ function useMenuData() {
     queryKey: ["generate-ai", "menu-data"],
     queryFn: async () => {
       const { data: businessId } = await supabase.rpc("get_user_business_id");
-      if (!businessId) return { items: [] as MenuItem[], total: 0, brandKit: null };
+      if (!businessId) return { items: [] as MenuItem[], total: 0, brandKit: null, businessName: "" };
 
-      const [{ data: items, count }, { data: brand }] = await Promise.all([
+      const [{ data: items, count }, { data: brand }, { data: negocio }] = await Promise.all([
         supabase
           .from("content_items")
           .select("name, description, price, currency, category, sort_order", { count: "exact" })
@@ -62,12 +62,14 @@ function useMenuData() {
           .select("primary_color, secondary_color, accent_color, font_family, logo_url")
           .eq("business_id", businessId)
           .maybeSingle(),
+        supabase.from("businesses").select("name").eq("id", businessId).maybeSingle(),
       ]);
 
       return {
         items: (items ?? []) as MenuItem[],
         total: count ?? (items?.length ?? 0),
         brandKit: brand ?? null,
+        businessName: negocio?.name ?? "",
       };
     },
   });
