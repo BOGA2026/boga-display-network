@@ -3,7 +3,6 @@ import {
   TV_RULES,
   tvTypography,
   enforceTvProposal,
-  validateTvProposal,
 } from "../_shared/tv-legibility.ts";
 import {
   ARCHETYPES,

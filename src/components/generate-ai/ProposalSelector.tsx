@@ -6,7 +6,6 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Maximize2, RotateCcw, Pencil, Check, X, AlertTriangle, Loader2, ImagePlus } from "lucide-react";
 import type { Proposal } from "./types";
 import { CANVAS_SIZES } from "./types";
-import { tvTypography, clampMenuSections } from "@/lib/tvLegibility";
 import { buildPieceLayout } from "@/lib/pieceLayout";
 import { ARCHETYPES, type ArchetypeId } from "@/lib/designArchetypes";
 
