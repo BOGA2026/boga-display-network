@@ -214,14 +214,31 @@ export default function Analytics() {
     return { from, to };
   }, []);
 
+  // El mapa de calor necesita historia: 28 días de ventana.
+  const heatmapRange = useMemo(() => {
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(from.getDate() - 28);
+    return { from, to };
+  }, []);
+
   const { data: airtime } = useAirtime(businessId, range);
   const { data: orphans } = useOrphanContent(businessId, orphanRange);
   const { data: telemetryDays } = useTelemetryDays(businessId);
+  const { data: scanDays } = useScanDays(businessId);
+
+  // Regla dura: no se construye el mapa de calor hasta tener 14 días de
+  // escaneos. 168 celdas grises es el peor estado vacío posible.
+  const hayHistoriaDeEscaneos = (scanDays ?? 0) >= 14;
+  const { data: heatmap } = useScanHeatmap(businessId, heatmapRange, hayHistoriaDeEscaneos);
+  const mostrarHeatmap = hayHistoriaDeEscaneos && (heatmap?.length ?? 0) > 0;
 
   // Antes de 7 días de telemetría, todo el contenido parecería huérfano.
   const orphanCount = orphans?.length ?? 0;
   const mostrarHuerfanos = telemetryActive && (telemetryDays ?? 0) >= 7 && orphanCount > 0;
   const orphanHref = `${NAV.contenido.path}?ids=${(orphans ?? []).map((o) => o.content_id).join(",")}`;
+
+
 
 
   return (
