@@ -710,7 +710,7 @@ REGLAS:
         nombre: p.nombre ?? `Propuesta ${i + 1}`,
         concepto: p.concepto ?? "",
         tipo_layout: isMenuResponse && normalizedSections.length > 0 ? "menu_dos_columnas" : (p.tipo_layout ?? null),
-        background_color: p.background_color ?? "#0a0a0a",
+        background_color: brandKit?.secondary_color ?? p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
         overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
