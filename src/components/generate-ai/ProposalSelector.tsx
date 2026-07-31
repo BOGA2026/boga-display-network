@@ -15,7 +15,13 @@ interface Props {
   onSelect: (p: Proposal) => void;
   onRegenerate: () => void;
   loading: boolean;
+  /** Archetypes the backend failed to deliver — rendered as retryable error cards. */
+  fallidos?: ArchetypeId[];
+  /** Archetype currently being retried (shows a skeleton in its slot). */
+  retryTarget?: ArchetypeId | null;
+  onRetryArchetype?: (a: ArchetypeId) => void;
 }
+
 
 const archetypeOf = (p: Proposal): ArchetypeId =>
   p.arquetipo && ARCHETYPES[p.arquetipo] ? p.arquetipo : "lista_limpia";
