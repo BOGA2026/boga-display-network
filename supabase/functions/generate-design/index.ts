@@ -336,8 +336,57 @@ Cada propuesta debe tener mínimo 3 elementos_decorativos diferentes.`;
 
 type DetectedType = "menu" | "promo" | "bienvenida" | "evento" | "generico";
 
+type MenuItem = {
+  name: string;
+  description?: string | null;
+  price?: number | string | null;
+  currency?: string | null;
+  category?: string | null;
+  sort_order?: number | null;
+};
+
+type BrandKit = {
+  primary_color?: string | null;
+  secondary_color?: string | null;
+  accent_color?: string | null;
+  font_family?: string | null;
+  logo_url?: string | null;
+};
+
+/** Colombian price format: $12.900 — no decimals, dot as thousands separator. */
+const formatCOP = (value: number | string | null | undefined) => {
+  const num = typeof value === "number" ? value : Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+  if (!Number.isFinite(num)) return "";
+  return `$${Math.round(num).toLocaleString("es-CO", { maximumFractionDigits: 0 }).replace(/,/g, ".")}`;
+};
+
+/** Groups real menu items by category, preserving sort_order inside each group. */
+const buildRealSections = (items: MenuItem[]) => {
+  const groups = new Map<string, { plato: string; descripcion: string; precio: string }[]>();
+  for (const item of items) {
+    const key = (item.category ?? "").trim() || "Menú";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push({
+      plato: item.name,
+      descripcion: item.description ?? "",
+      precio: formatCOP(item.price),
+    });
+  }
+  return [...groups.entries()].map(([nombre, itemsGrupo]) => ({ nombre, items: itemsGrupo }));
+};
+
+const buildMenuBlock = (sections: ReturnType<typeof buildRealSections>) =>
+  sections
+    .map(
+      (s) =>
+        `SECCIÓN "${s.nombre}":\n` +
+        s.items.map((i) => `  - ${i.plato} | ${i.descripcion || "sin descripción"} | ${i.precio}`).join("\n"),
+    )
+    .join("\n");
+
 const normalizeText = (value: string = "") =>
   value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 
 const extractBriefingFacts = (prompt: string, cliente: string) => {
   const combined = `${cliente ? `Cliente: ${cliente}. ` : ""}${prompt}`.trim();
