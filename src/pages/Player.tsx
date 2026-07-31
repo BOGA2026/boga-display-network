@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { attemptAutoplay } from "@/lib/autoplay";
 import { useParams } from "react-router-dom";
 import { Monitor } from "lucide-react";
 import simboloVisualia from "@/assets/simbolo-visualia.webp";
@@ -251,15 +252,17 @@ const Player = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    try {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      await video.play();
-      console.log("[Player] Video playback started", { src: video.currentSrc || video.src });
-    } catch (err) {
-      if (import.meta.env.DEV) console.error("[Player] Video playback failed", err);
-    }
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    // Muted fallback + retry on the first user interaction (kiosk TVs may block).
+    attemptAutoplay(video, {
+      onPlaying: () =>
+        console.log("[Player] Video playback started", { src: video.currentSrc || video.src }),
+      onBlocked: () => {
+        if (import.meta.env.DEV) console.warn("[Player] Autoplay blocked, waiting for interaction");
+      },
+    });
   }, []);
 
   useEffect(() => {

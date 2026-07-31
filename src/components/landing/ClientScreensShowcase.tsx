@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { attemptAutoplay } from "@/lib/autoplay";
 import combo1 from "@/assets/combo1.mp4.asset.json";
 import combo2 from "@/assets/combo2.mp4.asset.json";
 import combo3 from "@/assets/combo3.mp4.asset.json";
@@ -56,15 +57,17 @@ export default function ClientScreensShowcase() {
 
   // Play only the active video, pause others
   useEffect(() => {
+    const cleanups: Array<() => void> = [];
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
       if (i === active) {
         v.currentTime = 0;
-        v.play().catch(() => {});
+        cleanups.push(attemptAutoplay(v));
       } else {
         v.pause();
       }
     });
+    return () => cleanups.forEach((c) => c());
   }, [active]);
 
   return (

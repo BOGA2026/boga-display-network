@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import Seo from "@/components/Seo";
 import { prefetchPublicRoutes } from "@/lib/prefetch";
+import { attemptAutoplay } from "@/lib/autoplay";
 import LazyVideo from "@/components/landing/LazyVideo";
 import InitialsAvatar from "@/components/ui/InitialsAvatar";
 
@@ -223,7 +224,8 @@ const Landing = () => {
     vid.muted = true; // must start muted for autoplay
     vid.volume = volume;
     vid.playsInline = true;
-    vid.play().catch(() => {});
+    // Handles blocked autoplay: mutes if needed and retries on first gesture.
+    return attemptAutoplay(vid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -266,7 +268,12 @@ const Landing = () => {
     if (vid) {
       vid.muted = false;
       vid.volume = volume || 0.8;
-      vid.play().catch(() => {});
+      // User gesture: if the browser still blocks it, fall back to muted playback.
+      attemptAutoplay(vid, {
+        onPlaying: ({ muted: fellBackToMuted }) => {
+          if (fellBackToMuted) setMuted(true);
+        },
+      });
     }
     setMuted(false);
     setShowSoundPrompt(false);
@@ -308,7 +315,11 @@ const Landing = () => {
       video.currentTime = 0;
       video.muted = muted;
       video.volume = volume;
-      video.play().catch(() => {});
+      attemptAutoplay(video, {
+        onPlaying: ({ muted: fellBackToMuted }) => {
+          if (fellBackToMuted) setMuted(true);
+        },
+      });
     }
   }, [muted, volume]);
 
@@ -319,7 +330,11 @@ const Landing = () => {
       video.currentTime = 0;
       video.muted = muted;
       video.volume = volume;
-      video.play().catch(() => {});
+      attemptAutoplay(video, {
+        onPlaying: ({ muted: fellBackToMuted }) => {
+          if (fellBackToMuted) setMuted(true);
+        },
+      });
     }
   }, [muted, volume]);
 
@@ -415,7 +430,7 @@ const Landing = () => {
               onError={() => setVideoFailed(true)}
               onCanPlay={(event) => {
                 setVideoFailed(false);
-                if (activeHeroVideo === "presenter") event.currentTarget.play().catch(() => {});
+                if (activeHeroVideo === "presenter") attemptAutoplay(event.currentTarget);
               }}
               className="w-full h-auto block transition-opacity duration-700"
               style={{
@@ -443,14 +458,14 @@ const Landing = () => {
               onError={() => setVideoFailed(true)}
               onCanPlay={(event) => {
                 setVideoFailed(false);
-                if (activeHeroVideo === "product") event.currentTarget.play().catch(() => {});
+                if (activeHeroVideo === "product") attemptAutoplay(event.currentTarget);
               }}
               onLoadedData={() => {
                 const vid = heroRef.current;
                 if (vid && activeHeroVideo === "product") {
                   vid.volume = volume;
                   vid.muted = muted;
-                  vid.play().catch(() => {});
+                  attemptAutoplay(vid);
                 }
               }}
               className="w-full h-auto block transition-opacity duration-700"
@@ -539,7 +554,7 @@ const Landing = () => {
               width={1280}
               height={720}
               aria-label="Explicación de Visualia presentada por su creador"
-              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
               className="block h-auto w-full"
               sources={[
                 { src: benefitsVideo, type: "video/mp4" },
@@ -553,7 +568,7 @@ const Landing = () => {
                 const v = benefitsVideoRef.current;
                 if (!v) return;
                 v.muted = !v.muted;
-                if (!v.muted) v.play().catch(() => {});
+                if (!v.muted) attemptAutoplay(v);
                 setBenefitsMuted(v.muted);
               }}
               aria-label={benefitsMuted ? "Activar sonido" : "Silenciar"}
@@ -669,7 +684,7 @@ const Landing = () => {
               width={480}
               height={854}
               aria-label="Mensaje del creador de Visualia"
-              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
               className="block h-auto w-full"
               sources={[
                 { src: albertPresenter2Mp4, type: "video/mp4" },
@@ -683,7 +698,7 @@ const Landing = () => {
                 const v = presenter2Ref.current;
                 if (!v) return;
                 v.muted = !v.muted;
-                if (!v.muted) v.play().catch(() => {});
+                if (!v.muted) attemptAutoplay(v);
                 setPresenter2Muted(v.muted);
               }}
               aria-label={presenter2Muted ? "Activar sonido" : "Silenciar"}

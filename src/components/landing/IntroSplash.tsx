@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import introVideo from "@/assets/intro-animation.mp4";
 import introVideoWebm from "@/assets/intro-animation.webm";
+import { attemptAutoplay } from "@/lib/autoplay";
 
 const STORAGE_KEY = "visualia_intro_seen";
 
@@ -8,12 +9,14 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [scaleUp, setScaleUp] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Play intro sound
+    // Play intro sound (audio has no muted fallback: retry on first gesture)
     const audio = new Audio("/audio/intro-sound.wav");
     audio.volume = 0.6;
-    audio.play().catch(() => {});
+    const stopAudioRetry = attemptAutoplay(audio, { allowMutedFallback: false });
+
 
     // Start cinematic transition: scale up + fade out
     const timer = setTimeout(() => {
@@ -39,9 +42,13 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
     return () => {
       clearTimeout(timer);
       clearTimeout(removeTimer);
+      stopAudioRetry();
       audio.pause();
     };
   }, [onComplete]);
+
+  // Autoplay escalation for the intro video.
+  useEffect(() => attemptAutoplay(videoRef.current), []);
 
   if (removed) return null;
 
@@ -56,6 +63,7 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
       }}
     >
       <video
+        ref={videoRef}
         autoPlay
         muted
         playsInline
@@ -63,7 +71,7 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
         width={960}
         height={540}
         aria-label="Bienvenida a Visualia"
-        onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+        onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
         className="h-full w-full object-cover"
         style={{
           transform: scaleUp ? "scale(1.15)" : "scale(1)",
