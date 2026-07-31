@@ -165,7 +165,7 @@ export default function GenerateAI() {
             tipo,
             formato,
             estilo,
-            cliente,
+            cliente: cliente || menuData?.businessName || "",
             menu_items: menuItems,
             arquetipos: orden,
             brand_kit: menuData?.brandKit ?? null,
