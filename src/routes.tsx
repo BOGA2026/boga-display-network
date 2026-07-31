@@ -90,6 +90,8 @@ export default function AppRoutes() {
       <Route path="/legal/privacidad" element={page(PrivacidadPage, pathname)} />
       <Route path="/descargar-apk" element={page(DescargarApk, pathname)} />
       <Route path="/tv" element={page(TvLanding, pathname)} />
+      <Route path="/onboarding" element={page(Onboarding, pathname)} />
+
       <Route path="/soluciones/restaurantes" element={page(RestaurantSolutionPage, pathname)} />
       <Route path="/acerca" element={page(AboutPage, pathname)} />
       <Route path="/studio" element={page(Studio, pathname)} />
