@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Check, Loader2, UtensilsCrossed, Info } from "lucide-react";
+import { Sparkles, Loader2, UtensilsCrossed, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -18,21 +18,17 @@ import type { Proposal, GenerateResponse } from "@/components/generate-ai/types"
 import { CANVAS_SIZES } from "@/components/generate-ai/types";
 import { enforceTvProposal, validateTvProposal } from "@/lib/tvLegibility";
 import { enforceArchetype } from "@/lib/designArchetypes";
+import type { ArchetypeId } from "@/lib/designArchetypes";
 import { preferredArchetypeOrder, recordArchetypePick } from "@/lib/archetypePrefs";
 import ProposalSelector from "@/components/generate-ai/ProposalSelector";
+import GenerationSkeletons, { type GenerationStage } from "@/components/generate-ai/GenerationSkeletons";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 import { NAV } from "@/config/lexicon";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
-const STEPS = [
-  "Analizando descripción",
-  "Definiendo estructura visual",
-  "Generando 3 propuestas",
-  "Propuestas listas",
-];
-
 const MENU_LIMIT = 7; // Legibilidad en TV: máximo 7 platos por pieza
+
 
 type MenuItem = {
   name: string;
