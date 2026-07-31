@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check } from "lucide-react";
+import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,11 @@ import { cn } from "@/lib/utils";
 import { storageThumb } from "@/lib/storageImage";
 import {
   MediaDims,
+  formatBytes,
   formatDims,
   formatDuration,
+  isHeavyFile,
+  HEAVY_FILE_TOOLTIP,
   metaLine,
   ratioLabel,
   relativeDate,
@@ -25,8 +28,11 @@ export interface ContentItem {
   file_url: string | null;
   thumbnail_url: string | null;
   duration_seconds: number | null;
+  file_size_bytes?: number | null;
+  thumbnail_status?: string | null;
   created_at: string;
 }
+
 
 export const TYPE_ICONS: Record<string, typeof ImageIcon> = {
   image: ImageIcon,
