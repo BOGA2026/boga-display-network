@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NAV, COPY } from "@/config/lexicon";
 import { syncSeverity } from "@/hooks/useAnalytics";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
+import { NetworkStatusCard, UptimeCard, InventoryStrip } from "@/components/dashboard/NetworkOverview";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
