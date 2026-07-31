@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth, signOut } from "@/hooks/useAuth";
+import { useTenant } from "@/features/auth/useTenant";
+
 import { useSessionTracker } from "@/hooks/useSessionTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
@@ -65,6 +67,9 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const location = useLocation();
+  const { current } = useTenant();
+  const businessName = current?.business_name ?? null;
+
 
   // El panel móvil se cierra solo al navegar.
   React.useEffect(() => {
@@ -74,15 +79,42 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarHeader className="h-14 justify-center px-3">
-        <Link to="/dashboard" className="inline-flex min-h-[44px] items-center">
+      <SidebarHeader className="h-16 justify-center border-b border-border/60 px-3 py-0">
+        <Link
+          to="/dashboard"
+          aria-label="Visualia"
+          className={cn(
+            "flex h-11 items-center gap-2.5 rounded-xl transition-all duration-200 ease-ios",
+            collapsed ? "justify-center px-0" : "px-1",
+          )}
+        >
           <img
             src={logoVisualia}
-            alt="Visualia"
-            className={cn("h-7 w-auto transition-all", collapsed && "h-6")}
+            alt=""
+            width={32}
+            height={32}
+            decoding="async"
+            className="h-8 w-8 shrink-0 object-contain"
           />
+          <span
+            aria-hidden={collapsed}
+            className={cn(
+              "flex min-w-0 flex-col overflow-hidden transition-all duration-200 ease-ios",
+              collapsed ? "w-0 opacity-0" : "w-auto max-w-[9.5rem] opacity-100",
+            )}
+          >
+            <span className="truncate text-sm font-semibold leading-tight tracking-[0.02em] text-foreground">
+              VISUALIA
+            </span>
+            {businessName && (
+              <span className="truncate text-[11px] leading-tight text-muted-foreground">
+                {businessName}
+              </span>
+            )}
+          </span>
         </Link>
       </SidebarHeader>
+
 
       <SidebarContent className="p-2">
         {NAV_GROUPS.map((group) => (
@@ -213,7 +245,7 @@ function ShellInner() {
         <DashboardSidebar onLogout={handleLogout} />
 
         <SidebarInset className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
             <div className="flex min-w-0 items-center gap-1">
               <MobileMenuButton />
               <Breadcrumbs />
