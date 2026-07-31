@@ -205,9 +205,14 @@ function FullscreenPreview({ p, formato, onClose }: { p: Proposal; formato: stri
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black p-6 animate-fade-in" onClick={onClose}>
-      <div className="w-full max-w-[1600px]" onClick={(e) => e.stopPropagation()}>
-        <Stage p={p} formato={formato} className="mx-auto max-h-[85vh] shadow-2xl" />
+      <div
+        className="w-full"
+        style={{ maxWidth: `min(1600px, calc(88vh * ${size.w} / ${size.h}))` }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Stage p={p} formato={formato} className="shadow-2xl" />
       </div>
+
       <Button
         variant="ghost"
         size="sm"
