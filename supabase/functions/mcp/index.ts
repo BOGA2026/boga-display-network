@@ -108,13 +108,15 @@ import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.23.0";
 var get_subscription_default = defineTool4({
   name: "get_subscription",
   title: "Get subscription status",
-  description: "Return the current subscription plan, screen count, and billing status for the signed-in user's business.",
+  description: "Return the current subscription plan, screen count, pricing and billing dates for the signed-in user's business.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
     const supabase = supabaseForUser(ctx);
-    const { data, error } = await supabase.from("subscriptions").select("id, plan, status, screen_count, current_period_start, current_period_end, updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    const { data, error } = await supabase.from("subscriptions").select(
+      "id, plan, status, screens_count, billing_cycle, price_per_screen, total_amount, billing_anchor, next_billing_date, expires_at, grace_period_ends_at, updated_at"
+    ).order("updated_at", { ascending: false }).limit(1).maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
