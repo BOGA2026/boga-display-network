@@ -11,7 +11,8 @@ import { PageSkeleton } from "@/components/layout/PageSkeleton";
 import { RouteErrorBoundary } from "@/components/layout/RouteErrorBoundary";
 import { Navigate } from "react-router-dom";
 import { routeLoaders } from "@/lib/routePrefetch";
-import { LEGACY_REDIRECTS } from "@/config/lexicon";
+import { LEGACY_REDIRECTS, LEGACY_PARAM_REDIRECTS } from "@/config/lexicon";
+import LegacyRedirect from "@/components/routing/LegacyRedirect";
 
 /** Envuelve cada página lazy en su propio ErrorBoundary + Suspense. */
 function page(Component: ComponentType<any>, key: string) {
@@ -111,6 +112,7 @@ export default function AppRoutes() {
         <Route path="qr" element={page(QRCodes, pathname)} />
         <Route path="contenido" element={page(Content, pathname)} />
         <Route path="listas" element={page(Playlists, pathname)} />
+        <Route path="listas/:id" element={page(Playlists, pathname)} />
         <Route path="programacion" element={page(Schedule, pathname)} />
         <Route path="analiticas" element={page(Analytics, pathname)} />
         <Route path="suscripcion" element={page(Subscription, pathname)} />
@@ -136,6 +138,9 @@ export default function AppRoutes() {
 
       {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
         <Route key={from} path={from} element={<Navigate to={to} replace />} />
+      ))}
+      {Object.entries(LEGACY_PARAM_REDIRECTS).map(([from, to]) => (
+        <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
       ))}
 
       <Route path="*" element={<NotFound />} />

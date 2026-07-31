@@ -44,6 +44,7 @@ import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { LocationSwitcher } from "./LocationSwitcher";
 import { LocationProvider, useLocationContext } from "@/context/LocationContext";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   CommandRegistryProvider,
   useCommandRegistry,

@@ -435,7 +435,7 @@ const Dashboard = () => {
           <KpiCard label="Fuera de línea" value={stats?.offline ?? 0} icon={MonitorOff} status={stats?.offline ? "error" : undefined} delay={100} />
           <KpiCard label="Ubicaciones" value={stats?.locations ?? 0} icon={MapPin} delay={150} />
           <KpiCard label="Contenido" value={stats?.content ?? 0} icon={Image} delay={200} />
-          <KpiCard label="Playlists" value={stats?.playlists ?? 0} icon={PlayCircle} delay={250} />
+          <KpiCard label={NAV.listas.label} value={stats?.playlists ?? 0} icon={PlayCircle} delay={250} />
         </div>
       )}
 
