@@ -430,7 +430,7 @@ const Landing = () => {
               onError={() => setVideoFailed(true)}
               onCanPlay={(event) => {
                 setVideoFailed(false);
-                if (activeHeroVideo === "presenter") event.currentTarget.play().catch(() => {});
+                if (activeHeroVideo === "presenter") attemptAutoplay(event.currentTarget);
               }}
               className="w-full h-auto block transition-opacity duration-700"
               style={{
@@ -458,14 +458,14 @@ const Landing = () => {
               onError={() => setVideoFailed(true)}
               onCanPlay={(event) => {
                 setVideoFailed(false);
-                if (activeHeroVideo === "product") event.currentTarget.play().catch(() => {});
+                if (activeHeroVideo === "product") attemptAutoplay(event.currentTarget);
               }}
               onLoadedData={() => {
                 const vid = heroRef.current;
                 if (vid && activeHeroVideo === "product") {
                   vid.volume = volume;
                   vid.muted = muted;
-                  vid.play().catch(() => {});
+                  attemptAutoplay(vid);
                 }
               }}
               className="w-full h-auto block transition-opacity duration-700"
@@ -554,7 +554,7 @@ const Landing = () => {
               width={1280}
               height={720}
               aria-label="Explicación de Visualia presentada por su creador"
-              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
               className="block h-auto w-full"
               sources={[
                 { src: benefitsVideo, type: "video/mp4" },
@@ -568,7 +568,7 @@ const Landing = () => {
                 const v = benefitsVideoRef.current;
                 if (!v) return;
                 v.muted = !v.muted;
-                if (!v.muted) v.play().catch(() => {});
+                if (!v.muted) attemptAutoplay(v);
                 setBenefitsMuted(v.muted);
               }}
               aria-label={benefitsMuted ? "Activar sonido" : "Silenciar"}
@@ -684,7 +684,7 @@ const Landing = () => {
               width={480}
               height={854}
               aria-label="Mensaje del creador de Visualia"
-              onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+              onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
               className="block h-auto w-full"
               sources={[
                 { src: albertPresenter2Mp4, type: "video/mp4" },
@@ -698,7 +698,7 @@ const Landing = () => {
                 const v = presenter2Ref.current;
                 if (!v) return;
                 v.muted = !v.muted;
-                if (!v.muted) v.play().catch(() => {});
+                if (!v.muted) attemptAutoplay(v);
                 setPresenter2Muted(v.muted);
               }}
               aria-label={presenter2Muted ? "Activar sonido" : "Silenciar"}
