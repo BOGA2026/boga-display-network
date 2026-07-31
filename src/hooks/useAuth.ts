@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/context/AuthContext";
+import { queryClient } from "@/lib/query-client";
 
 /**
  * Sesión + redirección para rutas protegidas.
