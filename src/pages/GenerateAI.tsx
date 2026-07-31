@@ -410,6 +410,9 @@ export default function GenerateAI() {
           fallidos={fallidos}
           retryTarget={retryTarget}
           onRetryArchetype={(a) => generate([a])}
+          sinLogo={!menuData?.brandKit?.logo_url}
+          subiendoLogo={subiendoLogo}
+          onSubirLogo={subirLogo}
         />
       )}
 
