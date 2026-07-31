@@ -223,7 +223,8 @@ const Landing = () => {
     vid.muted = true; // must start muted for autoplay
     vid.volume = volume;
     vid.playsInline = true;
-    vid.play().catch(() => {});
+    // Handles blocked autoplay: mutes if needed and retries on first gesture.
+    return attemptAutoplay(vid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
