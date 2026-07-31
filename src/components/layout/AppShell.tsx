@@ -65,6 +65,9 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed" && !isMobile;
   const location = useLocation();
+  const { current } = useTenant();
+  const businessName = current?.business_name ?? null;
+
 
   // El panel móvil se cierra solo al navegar.
   React.useEffect(() => {
