@@ -22,21 +22,11 @@ export const VoiceAgentDock = () => {
     setShowHint(false);
     try { localStorage.setItem("visualia.assistantHintSeen", "1"); } catch { /* noop */ }
   };
-  const [businessId, setBusinessId] = useState<string | null>(null);
+  const { businessId } = useTenant();
   const [textInput, setTextInput] = useState("");
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("business_memberships").select("business_id")
-        .eq("user_id", user.id).limit(1).maybeSingle();
-      if (data?.business_id) setBusinessId(data.business_id);
-    })();
-  }, []);
 
   const {
     messages, pendingActions, isProcessing, isRecording, isSpeaking,

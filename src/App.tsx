@@ -7,6 +7,7 @@ import ParticlesBackground from "./components/landing/ParticlesBackground";
 import AppRoutes from "./routes";
 import { queryClient } from "@/lib/query-client";
 import { AppErrorBoundary } from "@/components/system/ErrorBoundary";
+import { AuthProvider } from "@/context/AuthContext";
 
 // Rutas donde NO se renderizan las partículas (áreas privadas / full-screen).
 const PARTICLES_EXCLUDE_PREFIXES = ["/dashboard", "/admin", "/player", "/digital-signage", "/templates", "/tv"];
@@ -21,16 +22,19 @@ const GlobalParticles = () => {
 const App = () => (
   <AppErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <GlobalParticles />
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <GlobalParticles />
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </AppErrorBoundary>
 );
+
 
 export default App;
