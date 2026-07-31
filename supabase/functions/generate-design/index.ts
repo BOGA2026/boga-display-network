@@ -552,6 +552,17 @@ serve(async (req) => {
     console.log("TIPO NORMALIZADO:", tipoNormalizado);
     console.log("TIPO DETECTADO:", detectedType);
 
+    // Never invent menu content: a menu design with fake dishes is worse than no design.
+    if (detectedType === "menu" && menuItems.length === 0) {
+      return new Response(
+        JSON.stringify({
+          error: "Tu menú aún no tiene platos activos. Carga el menú antes de generar la pieza.",
+          code: "MENU_EMPTY",
+        }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const systemPrompt = detectedType === "menu" ? PROMPT_MENU
       : detectedType === "promo" ? PROMPT_PROMO
       : detectedType === "bienvenida" ? PROMPT_BIENVENIDA
@@ -559,6 +570,30 @@ serve(async (req) => {
       : PROMPT_GENERICO;
 
     console.log("USANDO PROMPT:", detectedType.toUpperCase());
+
+    const menuBlock = realSections.length
+      ? `
+DATOS REALES DEL MENÚ DEL NEGOCIO — OBLIGATORIOS, NO LOS MODIFIQUES:
+${buildMenuBlock(realSections)}
+
+REGLAS DEL MENÚ:
+- Usa EXACTAMENTE estos nombres, descripciones y precios en "secciones".
+- Respeta el orden y las secciones tal como aparecen arriba.
+- Los precios son obligatorios y ya vienen en formato colombiano ($12.900). No los recalcules ni les agregues decimales.
+- PROHIBIDO inventar platos, precios o descripciones que no estén en esta lista.
+`
+      : "";
+
+    const brandBlock = brandKit
+      ? `
+BRAND KIT DEL NEGOCIO — APLÍCALO DESDE LA GENERACIÓN:
+- Color primario (acento): ${brandKit.primary_color ?? "no definido"}
+- Color secundario (fondo): ${brandKit.secondary_color ?? "no definido"}
+- Color de realce: ${brandKit.accent_color ?? "no definido"}
+- Tipografía de marca: ${brandKit.font_family ?? "no definida"}
+Usa estos colores en background_color, color_acento y color_texto manteniendo buen contraste.
+`
+      : "";
 
     const userPrompt = `
 BRIEFING DEL CLIENTE — SIGUE ESTAS INSTRUCCIONES AL PIE DE LA LETRA:
@@ -568,7 +603,7 @@ Descripción exacta del cliente: "${prompt}"
 Tipo de contenido: ${tipo}
 Formato de pantalla: ${formato}
 Estilo visual solicitado: ${estilo}
-
+${menuBlock}${brandBlock}
 OBLIGATORIO:
 - El texto_principal DEBE referirse directamente a: "${prompt}"
 - El texto_secundario DEBE complementar la descripción del cliente
@@ -588,9 +623,11 @@ PROHIBIDO:
 - Usar placeholders literales como "TEXTO PRINCIPAL", "Subtítulo del diseño", "Ver más", "Lorem ipsum"
 - Alterar cifras, precios, porcentajes, fechas, horas o marcas del briefing
 - Añadir claims, promociones, artistas, zonas, slogans o condiciones que el cliente no mencionó
+- Inventar platos o precios cuando se entregaron datos reales del menú
 
 Genera las 3 propuestas ahora.
 `;
+
 
     const parsed = await callAnthropicJson({
       apiKey: ANTHROPIC_API_KEY,
