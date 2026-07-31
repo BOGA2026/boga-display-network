@@ -354,6 +354,19 @@ const Content = () => {
     toast({ title: "Contenido de prueba agregado", description: `${SAMPLE_CONTENT.length} archivos añadidos.` });
     fetchContent();
   };
+  /** Reintenta la generación de la miniatura de un diseño en el servidor. */
+  const retryThumbnail = async (id: string) => {
+    setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "pendiente" } : x)));
+    const { error } = await supabase.functions.invoke("render-thumbnail", { body: { content_id: id } });
+    if (error) {
+      toast({ title: "No se pudo generar la miniatura", description: error.message, variant: "destructive" });
+      setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "error" } : x)));
+      return;
+    }
+    toast({ title: "Miniatura generada" });
+    fetchContent();
+  };
+
 
   const handleUpload = async () => {
     if (!selectedFile || !contentName.trim() || !selectedType) return;
