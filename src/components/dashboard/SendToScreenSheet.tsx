@@ -14,6 +14,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
+import { formatBytes, isHeavyFile, HEAVY_FILE_TOOLTIP } from "@/components/content/mediaMeta";
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
