@@ -47,6 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { EditorTopBar } from "@/components/editor/EditorTopBar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { storageThumb } from "@/lib/storageImage";
 import { cn } from "@/lib/utils";
 
 type Orientation = "landscape" | "portrait";
@@ -1060,6 +1061,8 @@ export default function EditorPage() {
                       <img
                         src={l.imageUrl}
                         alt={l.name}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover rounded"
                         draggable={false}
                       />
@@ -1298,7 +1301,7 @@ export default function EditorPage() {
                             }}
                           >
                             {l.type === "image" && l.imageUrl ? (
-                              <img src={l.imageUrl} alt="" className="h-full w-full object-cover" draggable={false} />
+                              <img src={l.imageUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" draggable={false} />
                             ) : l.type === "text" && l.textStyle ? (
                               <div className="h-full w-full" style={{
                                 background: l.textStyle.bannerStyle === "solid" ? l.textStyle.bannerColor : "transparent",
@@ -1385,7 +1388,7 @@ export default function EditorPage() {
                         onClick={() => loadPreset(p)}
                       >
                         {p.thumbnail_url ? (
-                          <img src={p.thumbnail_url} alt={p.name} className="h-full w-full object-cover" />
+                          <img src={storageThumb(p.thumbnail_url, { width: 240 })} alt={p.name} width={240} height={135} loading="lazy" decoding="async" style={{ aspectRatio: "16 / 9" }} className="h-full w-full object-cover" />
                         ) : (
                           <LayoutGrid className="h-6 w-6 text-muted-foreground/40" />
                         )}

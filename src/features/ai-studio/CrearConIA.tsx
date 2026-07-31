@@ -200,7 +200,7 @@ export function CrearConIA() {
 
       {ultima?.url && (
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/60">
-          <img src={ultima.url} alt="Última generación" className="w-full object-cover" />
+          <img src={ultima.url} alt="Última generación" width={1024} height={576} loading="lazy" decoding="async" style={{ aspectRatio: "16 / 9" }} className="w-full object-cover" />
         </div>
       )}
       {ultima?.copy && (

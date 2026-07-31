@@ -338,7 +338,7 @@ const Player = () => {
       <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
         <div className="relative mb-6">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={simboloVisualia} alt="Visualia" className="relative h-24 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" width={128} height={128} decoding="async" className="relative h-24 w-auto" />
         </div>
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
           {isReconnecting ? "Reconectando" : "Conectando"}
@@ -359,7 +359,7 @@ const Player = () => {
         {/* Brand */}
         <div className="relative mb-8">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={simboloVisualia} alt="Visualia" className="relative h-32 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" width={128} height={128} decoding="async" className="relative h-32 w-auto" />
         </div>
 
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -417,7 +417,7 @@ const Player = () => {
 
         {/* Bottom branding */}
         <div className="absolute bottom-8 flex items-center gap-2 opacity-30">
-          <img src={simboloVisualia} alt="Visualia" className="h-5 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" width={128} height={128} decoding="async" className="h-5 w-auto" />
         </div>
       </div>
     );
@@ -428,7 +428,7 @@ const Player = () => {
       <div className="fixed inset-0 flex flex-col items-center justify-center px-6" style={{ background: "linear-gradient(180deg, #0E0B16 0%, #12101A 100%)" }}>
         <div className="relative mb-6">
           <div className="absolute inset-0 scale-150 rounded-full opacity-30 blur-2xl" style={{ background: "radial-gradient(circle, #8A00FF 0%, transparent 70%)" }} />
-          <img src={simboloVisualia} alt="Visualia" className="relative h-24 w-auto" />
+          <img src={simboloVisualia} alt="Visualia" width={128} height={128} decoding="async" className="relative h-24 w-auto" />
         </div>
         <p className="mb-2 text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
           Esperando contenido
