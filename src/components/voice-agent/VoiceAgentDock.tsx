@@ -14,6 +14,14 @@ import { toast } from "sonner";
  */
 export const VoiceAgentDock = () => {
   const [open, setOpen] = useState(false);
+  const [showHint, setShowHint] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("visualia.assistantHintSeen") !== "1";
+  });
+  const dismissHint = () => {
+    setShowHint(false);
+    try { localStorage.setItem("visualia.assistantHintSeen", "1"); } catch { /* noop */ }
+  };
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
@@ -68,16 +76,41 @@ export const VoiceAgentDock = () => {
 
   return (
     <>
-      {/* Botón flotante */}
+      {/* Botón flotante con etiqueta */}
       {!open && (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-purple-600 shadow-[0_0_30px_hsl(270_100%_50%/0.5)] hover:shadow-[0_0_40px_hsl(270_100%_50%/0.7)] transition-all flex items-center justify-center group"
-          aria-label="Abrir agente de voz Visualia"
-        >
-          <Sparkles className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
-          <span className="v-dot v-dot-live v-dot-lg absolute -top-1 -right-1" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+          {showHint && (
+            <div className="v-card flex max-w-[260px] items-start gap-2 border-primary/30 bg-background/95 p-3 shadow-lg animate-fade-in">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold">Asistente Visualia</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Pídele por voz o texto que conecte pantallas, suba contenido o arme una programación.
+                </p>
+              </div>
+              <button
+                onClick={dismissHint}
+                aria-label="Cerrar aviso del asistente"
+                className="ml-1 rounded p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => { dismissHint(); setOpen(true); }}
+            className="group flex h-14 items-center gap-2 rounded-full bg-gradient-to-br from-primary to-purple-600 pl-4 pr-4 shadow-[0_0_30px_hsl(270_100%_50%/0.5)] transition-all hover:shadow-[0_0_40px_hsl(270_100%_50%/0.7)]"
+            aria-label="Abrir asistente Visualia"
+          >
+            <span className="relative flex h-6 w-6 items-center justify-center">
+              <Sparkles className="h-6 w-6 text-white transition-transform group-hover:scale-110" />
+              <span className="v-dot v-dot-live v-dot-lg absolute -right-2 -top-2" />
+            </span>
+            <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-semibold text-white opacity-0 transition-all duration-200 group-hover:max-w-[180px] group-hover:opacity-100 group-focus-visible:max-w-[180px] group-focus-visible:opacity-100">
+              Asistente Visualia
+            </span>
+          </button>
+        </div>
       )}
 
       {/* Panel */}
