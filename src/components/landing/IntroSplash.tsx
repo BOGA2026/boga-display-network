@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import introVideo from "@/assets/intro-animation.mp4";
 import introVideoWebm from "@/assets/intro-animation.webm";
+import { attemptAutoplay } from "@/lib/autoplay";
 
 const STORAGE_KEY = "visualia_intro_seen";
 
@@ -8,12 +9,14 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [scaleUp, setScaleUp] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Play intro sound
+    // Play intro sound (audio has no muted fallback: retry on first gesture)
     const audio = new Audio("/audio/intro-sound.wav");
     audio.volume = 0.6;
-    audio.play().catch(() => {});
+    const stopAudioRetry = attemptAutoplay(audio, { allowMutedFallback: false });
+
 
     // Start cinematic transition: scale up + fade out
     const timer = setTimeout(() => {
