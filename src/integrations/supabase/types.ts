@@ -2177,6 +2177,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analytics_airtime: {
+        Args: { p_business_id: string; p_from: string; p_to: string }
+        Returns: {
+          minutes_expected: number
+          minutes_online: number
+          scans: number
+          scans_per_hour: number
+        }[]
+      }
+      analytics_orphan_content: {
+        Args: { p_business_id: string; p_from: string; p_to: string }
+        Returns: {
+          content_id: string
+          created_at: string
+          name: string
+          thumbnail_url: string
+        }[]
+      }
       analytics_overview: {
         Args: { p_business_id: string; p_from: string; p_to: string }
         Returns: {
@@ -2198,6 +2216,10 @@ export type Database = {
           status: string
           uptime_pct: number
         }[]
+      }
+      analytics_telemetry_days: {
+        Args: { p_business_id: string }
+        Returns: number
       }
       analytics_top_content: {
         Args: {

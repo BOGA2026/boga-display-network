@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -110,6 +110,7 @@ const Content = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<ContentItem | null>(null);
@@ -298,7 +299,19 @@ const Content = () => {
     fetchContent();
   };
 
-  const hasContent = items.length > 0;
+  // Filtro por IDs (llega desde la tarjeta de contenido huérfano en Analíticas).
+  const idsParam = searchParams.get("ids");
+  const filtroIds = useMemo(
+    () => (idsParam ? idsParam.split(",").filter(Boolean) : null),
+    [idsParam],
+  );
+  const visibleItems = useMemo(
+    () => (filtroIds ? items.filter((i) => filtroIds.includes(i.id)) : items),
+    [items, filtroIds],
+  );
+
+  const hasContent = visibleItems.length > 0;
+
 
   return (
     <div className="v-page">
@@ -346,6 +359,27 @@ const Content = () => {
         </div>
       </div>
 
+      {/* Filtro activo (llega desde Analíticas: archivos sin reproducir) */}
+      {filtroIds && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-3">
+          <p className="text-sm text-foreground">
+            Mostrando {visibleItems.length} {visibleItems.length === 1 ? "archivo" : "archivos"} sin
+            reproducciones en los últimos 30 días.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete("ids");
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            Quitar filtro
+          </Button>
+        </div>
+      )}
+
       {/* Main area */}
       {loading ? (
         <CardGridSkeleton count={8} columns={4} className="gap-4" />
@@ -353,7 +387,8 @@ const Content = () => {
         <ErrorState description={COPY.error.content} onRetry={fetchContent} />
       ) : hasContent ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((item) => {
+          {visibleItems.map((item) => {
+
             const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
             return (
               <Card

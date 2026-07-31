@@ -10,7 +10,7 @@
 import { lazy, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, Clock, Download, QrCode, ScanLine, MonitorPlay, Inbox } from "lucide-react";
+import { Activity, Clock, Download, QrCode, ScanLine, MonitorPlay, Inbox, FileWarning } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { NAV } from "@/config/lexicon";
@@ -22,6 +22,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { EmptyState, BlockSkeleton, TableSkeleton } from "@/components/feedback/states";
 import DeferredMount from "@/components/system/DeferredMount";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
+import {
+  useAirtime,
+  useOrphanContent,
+  useTelemetryDays,
+  formatHoras,
+  formatEscaneosHora,
+  type AirtimeRow,
+} from "@/hooks/useAnalytics";
+
 
 const EmptyAxesChart = lazy(() => import("@/features/analytics/EmptyAxesChart"));
 
@@ -43,7 +52,7 @@ function useAnalyticsScreens() {
     queryKey: ["analytics", "shell", "screens"],
     queryFn: async () => {
       const { data: businessId } = await supabase.rpc("get_user_business_id");
-      if (!businessId) return { screens: [] as ScreenRow[], telemetryActive: false };
+      if (!businessId) return { businessId: null as string | null, screens: [] as ScreenRow[], telemetryActive: false };
 
       const { data, error } = await supabase
         .from("screens")
@@ -66,10 +75,11 @@ function useAnalyticsScreens() {
         telemetryActive = (count ?? 0) > 0;
       }
 
-      return { screens, telemetryActive };
+      return { businessId: businessId as string, screens, telemetryActive };
     },
   });
 }
+
 
 /* ── Valor de métrica: única puerta por la que pasa "cero" vs "sin dato" ── */
 function MetricValue({ measured, children }: { measured: boolean; children: ReactNode }) {
@@ -128,10 +138,50 @@ const ESTADO_LABEL: Record<string, string> = {
   pending: "Sin emparejar",
 };
 
+/**
+ * Horas al aire contra horas realmente programadas. El hueco es la métrica:
+ * son horas que el local pagó y no usó. `minutes_expected` viene de la
+ * programación real, nunca de un 1440 fijo: una pantalla apagada de noche a
+ * propósito no está caída.
+ */
+function AirtimeCard({ measured, airtime }: { measured: boolean; airtime: AirtimeRow | null }) {
+  const online = airtime?.minutes_online ?? 0;
+  const expected = airtime?.minutes_expected ?? 0;
+  const pct = measured && expected > 0 ? Math.min(100, (online / expected) * 100) : 0;
+
+  return (
+    <div className="v-card v-kpi-card min-h-[116px]">
+      <div className="flex items-center justify-between gap-2">
+        <span className="v-kpi-label">Horas al aire</span>
+        <Clock className={`h-4 w-4 text-primary ${measured ? "" : "opacity-40"}`} aria-hidden />
+      </div>
+      <MetricValue measured={measured && expected > 0}>
+        {formatHoras(online)} <span className="text-base font-normal text-muted-foreground">de {formatHoras(expected)}</span>
+      </MetricValue>
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-valuenow={Math.round(pct)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Horas al aire sobre horas programadas"
+      >
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs text-muted-foreground">
+        {measured && expected > online
+          ? `${formatHoras(expected - online)} programadas sin usar`
+          : "del tiempo programado"}
+      </span>
+    </div>
+  );
+}
+
 export default function Analytics() {
   const { data, isLoading } = useAnalyticsScreens();
   const screens = data?.screens ?? [];
   const telemetryActive = data?.telemetryActive ?? false;
+  const businessId = data?.businessId ?? undefined;
 
   // Etiquetas de los últimos 7 días para que los ejes tengan escala real.
   const labels = useMemo(() => {
@@ -143,7 +193,32 @@ export default function Analytics() {
     });
   }, []);
 
-  const horasProgramadas = screens.length * 12 * DIAS_PERIODO;
+  const range = useMemo(() => {
+    const to = new Date();
+    to.setHours(0, 0, 0, 0);
+    to.setDate(to.getDate() + 1);
+    const from = new Date(to);
+    from.setDate(from.getDate() - DIAS_PERIODO);
+    return { from, to };
+  }, []);
+
+  // Contenido huérfano se mide sobre 30 días, no sobre el rango visible.
+  const orphanRange = useMemo(() => {
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(from.getDate() - 30);
+    return { from, to };
+  }, []);
+
+  const { data: airtime } = useAirtime(businessId, range);
+  const { data: orphans } = useOrphanContent(businessId, orphanRange);
+  const { data: telemetryDays } = useTelemetryDays(businessId);
+
+  // Antes de 7 días de telemetría, todo el contenido parecería huérfano.
+  const orphanCount = orphans?.length ?? 0;
+  const mostrarHuerfanos = telemetryActive && (telemetryDays ?? 0) >= 7 && orphanCount > 0;
+  const orphanHref = `${NAV.contenido.path}?ids=${(orphans ?? []).map((o) => o.content_id).join(",")}`;
+
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -198,27 +273,22 @@ export default function Analytics() {
             value="0%"
             hint="del tiempo programado"
           />
-          <KpiCard
-            icon={Clock}
-            label="Horas al aire"
-            measured={telemetryActive}
-            value="0 h"
-            hint={`de ${horasProgramadas} h programadas`}
-          />
+          <AirtimeCard measured={telemetryActive} airtime={airtime ?? null} />
           <KpiCard
             icon={QrCode}
             label="Escaneos de QR"
             measured={telemetryActive}
-            value="0"
+            value={airtime ? airtime.scans.toLocaleString("es-CO") : "0"}
             hint="vs. periodo anterior"
           />
           <KpiCard
             icon={ScanLine}
             label="Escaneos por hora al aire"
-            measured={telemetryActive}
-            value="0"
+            measured={telemetryActive && (airtime?.scans_per_hour ?? null) !== null}
+            value={formatEscaneosHora(airtime?.scans_per_hour ?? null)}
             hint="eficiencia del menú"
           />
+
         </div>
 
         {/* Gráficos: ejes y rejilla visibles, sin serie */}
@@ -263,6 +333,29 @@ export default function Analytics() {
             />
           </CardContent>
         </Card>
+
+        {/* Contenido huérfano: desperdicio detectable. Sólo con 7+ días de
+            telemetría; antes de eso todo parecería huérfano. */}
+        {mostrarHuerfanos && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4">
+            <div className="flex items-center gap-3">
+              <FileWarning className="h-5 w-5 shrink-0 text-amber-400" aria-hidden />
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  <span className="v-numeric">{orphanCount}</span>{" "}
+                  {orphanCount === 1 ? "archivo que nunca se ha reproducido" : "archivos que nunca se han reproducido"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Sin reproducciones en los últimos 30 días. Es espacio y trabajo que no está vendiendo.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <Link to={orphanHref}>Ver esos archivos</Link>
+            </Button>
+          </div>
+        )}
+
 
         {/* Tabla por pantalla: con las pantallas reales */}
         <Card className="v-card">
