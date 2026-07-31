@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check } from "lucide-react";
+import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,11 @@ import { cn } from "@/lib/utils";
 import { storageThumb } from "@/lib/storageImage";
 import {
   MediaDims,
+  formatBytes,
   formatDims,
   formatDuration,
+  isHeavyFile,
+  HEAVY_FILE_TOOLTIP,
   metaLine,
   ratioLabel,
   relativeDate,
@@ -25,8 +28,11 @@ export interface ContentItem {
   file_url: string | null;
   thumbnail_url: string | null;
   duration_seconds: number | null;
+  file_size_bytes?: number | null;
+  thumbnail_status?: string | null;
   created_at: string;
 }
+
 
 export const TYPE_ICONS: Record<string, typeof ImageIcon> = {
   image: ImageIcon,
@@ -51,6 +57,7 @@ interface Props {
   onSend: () => void;
   onDelete: () => void;
   onEdit?: () => void;
+  onRetryThumb?: () => void;
 }
 
 export function ContentCard({
@@ -67,11 +74,16 @@ export function ContentCard({
   onSend,
   onDelete,
   onEdit,
+  onRetryThumb,
 }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
   const ratio = ratioLabel(dims);
   const duration = formatDuration(item.duration_seconds);
   const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
+  const thumbPending = !thumbSrc && item.thumbnail_status === "pendiente";
+  const heavy = isHeavyFile(item.file_size_bytes);
+  const sizeLabel = formatBytes(item.file_size_bytes);
+
 
   const card = (
     <div
@@ -115,6 +127,10 @@ export function ContentCard({
               if (el.videoWidth) onDims(item.id, { width: el.videoWidth, height: el.videoHeight });
             }}
           />
+        ) : thumbPending ? (
+          // La miniatura se está generando en el servidor: comunicamos
+          // "viene en camino" en vez de mostrar un vacío.
+          <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         ) : (
           <Icon className="h-10 w-10 text-muted-foreground opacity-30" />
         )}
@@ -129,6 +145,23 @@ export function ContentCard({
         {item.type === "video" && duration && (
           <span className="v-thumb-chip bottom-2 right-2 bg-black/60">{duration}</span>
         )}
+
+        {/* Archivo pesado */}
+        {heavy && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                data-card-action
+                className="v-thumb-chip left-2 top-9 flex items-center gap-1 bg-amber-500/90 text-black"
+              >
+                <AlertTriangle className="h-3 w-3" />
+                {sizeLabel}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{HEAVY_FILE_TOOLTIP}</TooltipContent>
+          </Tooltip>
+        )}
+
 
         {/* Checkbox de selección */}
         <button
@@ -171,8 +204,9 @@ export function ContentCard({
         <div className="min-w-0">
           <p className="truncate text-[13px] font-medium leading-tight">{item.name}</p>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-            {metaLine([formatDims(dims), duration, relativeDate(item.created_at)])}
+            {metaLine([formatDims(dims), duration, sizeLabel, relativeDate(item.created_at)])}
           </p>
+
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -192,6 +226,13 @@ export function ContentCard({
                 Editar en canvas
               </DropdownMenuItem>
             )}
+            {onRetryThumb && item.thumbnail_status === "error" && (
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onRetryThumb(); }}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Reintentar miniatura
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(); }}>
               <ListPlus className="mr-2 h-4 w-4" />
               Agregar a lista

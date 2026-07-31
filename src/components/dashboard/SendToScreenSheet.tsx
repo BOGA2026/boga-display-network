@@ -14,6 +14,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
+import { formatBytes, isHeavyFile, HEAVY_FILE_TOOLTIP } from "@/components/content/mediaMeta";
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -36,6 +39,8 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   contentId?: string;
   contentLabel?: string;
+  /** Peso de la pieza: si es alta, avisamos antes de mandarla a una pantalla. */
+  contentSizeBytes?: number | null;
 }
 
 export function SendToScreenSheet({
@@ -43,7 +48,9 @@ export function SendToScreenSheet({
   onOpenChange,
   contentId,
   contentLabel,
+  contentSizeBytes,
 }: Props) {
+
   const navigate = useNavigate();
   const [screens, setScreens] = useState<Screen[]>([]);
   const [screenId, setScreenId] = useState<string>("");
@@ -91,7 +98,17 @@ export function SendToScreenSheet({
           </SheetDescription>
         </SheetHeader>
 
+        {isHeavyFile(contentSizeBytes) && (
+          <div className="mt-4 flex gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-[13px] text-amber-300">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Esta pieza pesa {formatBytes(contentSizeBytes)}. {HEAVY_FILE_TOOLTIP}
+            </p>
+          </div>
+        )}
+
         <div className="mt-6 space-y-4">
+
           <div className="space-y-2">
             <Label>Pantalla</Label>
             <Select value={screenId} onValueChange={setScreenId}>

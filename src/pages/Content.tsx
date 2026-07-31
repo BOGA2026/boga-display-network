@@ -69,7 +69,7 @@ import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/
 import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
 import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
 import { ContentTable } from "@/components/content/ContentTable";
-import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate } from "@/components/content/mediaMeta";
+import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
 
 
 interface ContentItem {
@@ -79,8 +79,11 @@ interface ContentItem {
   file_url: string | null;
   thumbnail_url: string | null;
   duration_seconds: number | null;
+  file_size_bytes?: number | null;
+  thumbnail_status?: string | null;
   created_at: string;
 }
+
 
 const ACCEPT_MAP: Record<string, string> = {
   image: "image/jpeg,image/png,image/gif,image/webp,image/svg+xml",
@@ -351,9 +354,32 @@ const Content = () => {
     toast({ title: "Contenido de prueba agregado", description: `${SAMPLE_CONTENT.length} archivos añadidos.` });
     fetchContent();
   };
+  /** Reintenta la generación de la miniatura de un diseño en el servidor. */
+  const retryThumbnail = async (id: string) => {
+    setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "pendiente" } : x)));
+    const { error } = await supabase.functions.invoke("render-thumbnail", { body: { content_id: id } });
+    if (error) {
+      toast({ title: "No se pudo generar la miniatura", description: error.message, variant: "destructive" });
+      setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "error" } : x)));
+      return;
+    }
+    toast({ title: "Miniatura generada" });
+    fetchContent();
+  };
+
 
   const handleUpload = async () => {
     if (!selectedFile || !contentName.trim() || !selectedType) return;
+
+    // Tope duro: por encima de esto el reproductor de la pantalla sufre.
+    if (selectedFile.size > MAX_UPLOAD_BYTES) {
+      toast({
+        title: "Archivo demasiado pesado",
+        description: `Pesa ${formatBytes(selectedFile.size)} y el máximo es 250 MB. Comprimí el archivo (bajá la resolución o el bitrate) y volvé a intentar.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
 
@@ -379,8 +405,10 @@ const Content = () => {
       name: contentName.trim(),
       type: selectedType,
       file_url: urlData.publicUrl,
+      file_size_bytes: selectedFile.size,
       business_id: businessId,
     });
+
 
     setUploading(false);
 
@@ -612,6 +640,8 @@ const Content = () => {
                     ? () => openInEditor(item.id)
                     : undefined
                 }
+                onRetryThumb={() => retryThumbnail(item.id)}
+
               />
             ))}
           </div>
@@ -879,6 +909,8 @@ const Content = () => {
         onOpenChange={(o) => !o && setSendTarget(null)}
         contentId={sendTarget?.id}
         contentLabel={sendTarget?.name}
+        contentSizeBytes={sendTarget?.file_size_bytes}
+
       />
 
     </div>

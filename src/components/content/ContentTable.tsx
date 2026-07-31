@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +11,17 @@ import { storageThumb } from "@/lib/storageImage";
 import { ContentItem, TYPE_ICONS } from "./ContentCard";
 import {
   MediaDims,
+  formatBytes,
   formatDims,
   formatDuration,
+  isHeavyFile,
+  HEAVY_FILE_TOOLTIP,
   ratioLabel,
   relativeDate,
   typeLabel,
 } from "./mediaMeta";
 
-type SortKey = "name" | "type" | "orientation" | "duration" | "size" | "date";
+type SortKey = "name" | "type" | "orientation" | "duration" | "size" | "weight" | "date";
 
 interface Props {
   items: ContentItem[];
@@ -40,8 +43,10 @@ const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
   { key: "orientation", label: "Orientación", className: "w-28" },
   { key: "duration", label: "Duración", className: "w-24" },
   { key: "size", label: "Resolución", className: "w-28" },
+  { key: "weight", label: "Peso", className: "w-28" },
   { key: "date", label: "Fecha", className: "w-32" },
 ];
+
 
 export function ContentTable({
   items,
@@ -66,7 +71,9 @@ export function ContentTable({
       case "orientation": return ratioLabel(d) ?? "";
       case "duration": return item.duration_seconds ?? 0;
       case "size": return d ? d.width * d.height : 0;
+      case "weight": return item.file_size_bytes ?? 0;
       case "date": return new Date(item.created_at).getTime();
+
     }
   };
 
@@ -164,7 +171,22 @@ export function ContentTable({
                 <td className="p-3 text-muted-foreground">{ratioLabel(d) ?? "—"}</td>
                 <td className="p-3 text-muted-foreground">{formatDuration(item.duration_seconds) ?? "—"}</td>
                 <td className="p-3 text-muted-foreground">{formatDims(d) ?? "—"}</td>
+                <td className="p-3 text-muted-foreground">
+                  {formatBytes(item.file_size_bytes) ? (
+                    <span
+                      title={isHeavyFile(item.file_size_bytes) ? HEAVY_FILE_TOOLTIP : undefined}
+                      className={cn(
+                        "inline-flex items-center gap-1",
+                        isHeavyFile(item.file_size_bytes) && "rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-400",
+                      )}
+                    >
+                      {isHeavyFile(item.file_size_bytes) && <AlertTriangle className="h-3 w-3" />}
+                      {formatBytes(item.file_size_bytes)}
+                    </span>
+                  ) : "—"}
+                </td>
                 <td className="p-3 text-muted-foreground">{relativeDate(item.created_at)}</td>
+
                 <td className="p-3">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
