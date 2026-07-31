@@ -301,7 +301,7 @@ const Content = () => {
   const hasContent = items.length > 0;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="v-page">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
