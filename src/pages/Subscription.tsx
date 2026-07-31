@@ -14,7 +14,7 @@ import { OneTimePaymentCard } from "@/components/subscription/OneTimePaymentCard
 
 const Subscription = () => {
   const { toast } = useToast();
-  const { data, isLoading, refetch } = useSubscriptionData();
+  const { data, isLoading, isError, refetch } = useSubscriptionData();
   const invoicesRef = useRef<HTMLDivElement>(null);
 
   // Modal state
@@ -27,13 +27,25 @@ const Subscription = () => {
   } | null>(null);
   const [saving, setSaving] = useState(false);
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="space-y-6">
+        <KpiGridSkeleton count={4} />
+        <TableSkeleton rows={5} columns={5} />
+        <TableSkeleton rows={4} columns={4} />
       </div>
     );
   }
+
+  if (isError || !data) {
+    return (
+      <ErrorState
+        description={COPY.error.subscription}
+        onRetry={() => refetch()}
+      />
+    );
+  }
+
 
   const { businessId, subscription, screens, invoices, paymentMethods, payments } = data;
 
