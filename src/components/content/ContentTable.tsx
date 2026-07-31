@@ -11,14 +11,17 @@ import { storageThumb } from "@/lib/storageImage";
 import { ContentItem, TYPE_ICONS } from "./ContentCard";
 import {
   MediaDims,
+  formatBytes,
   formatDims,
   formatDuration,
+  isHeavyFile,
+  HEAVY_FILE_TOOLTIP,
   ratioLabel,
   relativeDate,
   typeLabel,
 } from "./mediaMeta";
 
-type SortKey = "name" | "type" | "orientation" | "duration" | "size" | "date";
+type SortKey = "name" | "type" | "orientation" | "duration" | "size" | "weight" | "date";
 
 interface Props {
   items: ContentItem[];
@@ -40,8 +43,10 @@ const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
   { key: "orientation", label: "Orientación", className: "w-28" },
   { key: "duration", label: "Duración", className: "w-24" },
   { key: "size", label: "Resolución", className: "w-28" },
+  { key: "weight", label: "Peso", className: "w-28" },
   { key: "date", label: "Fecha", className: "w-32" },
 ];
+
 
 export function ContentTable({
   items,
