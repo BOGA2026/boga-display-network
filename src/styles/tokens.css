@@ -193,3 +193,34 @@
   font-weight: 600;
   color: hsl(var(--muted-foreground) / 0.6);
 }
+
+/* Mapa Leaflet oscuro: tiles desaturados, marcadores nítidos, bordes del sistema */
+.v-map {
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  overflow: hidden;
+}
+
+.v-map .leaflet-container {
+  background: hsl(var(--background));
+}
+
+.v-map .leaflet-tile-pane {
+  filter: saturate(0.7) brightness(0.9);
+}
+
+.v-map .leaflet-popup-content-wrapper {
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+}
+
+.v-map .leaflet-popup-tip {
+  background: hsl(var(--card));
+}
+
+.v-map .leaflet-popup-content {
+  margin: 0.75rem 1rem;
+}
+
