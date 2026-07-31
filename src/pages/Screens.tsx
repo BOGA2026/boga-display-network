@@ -157,26 +157,35 @@ const Screens = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
-    if (!businessId) { setLoading(false); return; }
+    setLoadError(false);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      const profileRes = await supabase
+        .from("profiles")
+        .select("business_id")
+        .eq("id", user.user?.id ?? "")
+        .maybeSingle();
+      if (profileRes.error) throw profileRes.error;
+      const businessId = profileRes.data?.business_id;
+      if (!businessId) { setLoading(false); return; }
 
-    const [screensRes, locationsRes, subRes] = await Promise.all([
-      supabase.from("screens").select("*").order("created_at", { ascending: false }),
-      supabase.from("locations").select("id, name").eq("business_id", businessId),
-      supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
-    ]);
+      const [screensRes, locationsRes, subRes] = await Promise.all([
+        supabase.from("screens").select("*").order("created_at", { ascending: false }),
+        supabase.from("locations").select("id, name").eq("business_id", businessId),
+        supabase.from("subscriptions").select("screens_count, plan, status, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
+      ]);
+      if (screensRes.error) throw screensRes.error;
 
-    setScreens(screensRes.data ?? []);
-    setLocations(locationsRes.data ?? []);
-    setSubscription(subRes.data ?? null);
-    setLoading(false);
+      setScreens(screensRes.data ?? []);
+      setLocations(locationsRes.data ?? []);
+      setSubscription(subRes.data ?? null);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const hasActiveSubscription = () => {
     if (!subscription) return false;
