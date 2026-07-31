@@ -412,8 +412,8 @@ const Studio = () => {
                       <div
                         className="rounded-xl px-5 py-4"
                         style={{
-                          background: "hsl(260 20% 12%)",
-                          border: "1px solid hsl(260 15% 20%)",
+                          background: "hsl(260 22% 16%)",
+                          border: "1px solid hsl(260 18% 26%)",
                         }}
                       >
                         {plan.monthlyDetail.title && (
