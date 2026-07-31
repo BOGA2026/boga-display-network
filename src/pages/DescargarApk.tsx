@@ -188,7 +188,7 @@ export default function DescargarApk() {
               <div className="aspect-video rounded-lg bg-muted flex items-center justify-center border border-border mb-6">
                 <p className="text-sm text-muted-foreground text-center px-4">
                   Video tutorial en preparación.<br />
-                  Mientras tanto, escribinos por WhatsApp y te acompañamos en vivo.
+                  Mientras tanto, escríbenos por WhatsApp y te acompañamos en vivo.
                 </p>
               </div>
 

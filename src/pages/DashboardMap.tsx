@@ -8,6 +8,7 @@ import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
+import { NAV } from "@/config/lexicon";
   Select,
   SelectContent,
   SelectItem,
@@ -73,10 +74,8 @@ export default function DashboardMap() {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">Mapa de pantallas</h1>
-        <p className="text-sm text-muted-foreground">
-          Cliqueá un pin para ver el detalle de la pantalla.
-        </p>
+        <h1 className="text-2xl font-bold">{NAV.mapa.pageTitle}</h1>
+        <p className="text-sm text-muted-foreground">{NAV.mapa.pageSubtitle}</p>
       </div>
 
       <Card className="p-4">

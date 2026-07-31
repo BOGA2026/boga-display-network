@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { Proposal, GenerateResponse } from "@/components/generate-ai/types";
 import ProposalSelector from "@/components/generate-ai/ProposalSelector";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
+import { NAV } from "@/config/lexicon";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
@@ -128,12 +129,8 @@ export default function GenerateAI() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight">
-          Generar diseño con IA
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Describe lo que necesitas y la IA genera 3 propuestas editables
-        </p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{NAV.generarIa.pageTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{NAV.generarIa.pageSubtitle}</p>
       </div>
 
       {/* Form — shown when no proposals yet */}

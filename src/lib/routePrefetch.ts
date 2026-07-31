@@ -21,7 +21,7 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
   "/dashboard/pantallas": () => import("@/pages/Screens"),
   "/dashboard/pantallas/:id": () => import("@/pages/ScreenDetail"),
   "/dashboard/contenido": () => import("@/pages/Content"),
-  "/dashboard/playlists": () => import("@/pages/Playlists"),
+  "/dashboard/listas": () => import("@/pages/Playlists"),
   "/dashboard/programacion": () => import("@/pages/Schedule"),
   "/dashboard/mapa": () => import("@/pages/DashboardMap"),
   "/dashboard/monitoreo": () => import("@/pages/Monitoring"),

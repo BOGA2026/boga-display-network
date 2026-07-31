@@ -17,6 +17,7 @@ import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { MiniMap, type MiniMapPoint } from "@/components/dashboard/MiniMap";
 import { liveQueryOptions } from "@/lib/query-client";
 import { useToast } from "@/hooks/use-toast";
+import { NAV, COPY } from "@/config/lexicon";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -141,10 +142,10 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
 
 // ─── Quick Actions ──────────────────────────────────────
 const quickActions = [
-  { label: "Agregar pantalla", icon: Plus, path: "/dashboard/pantallas" },
-  { label: "Subir contenido", icon: Upload, path: "/dashboard/contenido" },
-  { label: "Crear playlist", icon: ListVideo, path: "/dashboard/playlists" },
-  { label: "Programar contenido", icon: Calendar, path: "/dashboard/programacion" },
+  { label: COPY.actions.connectScreen, icon: Plus, path: NAV.pantallas.path },
+  { label: COPY.actions.upload, icon: Upload, path: NAV.contenido.path },
+  { label: COPY.actions.newPlaylist, icon: ListVideo, path: NAV.listas.path },
+  { label: "Programar contenido", icon: Calendar, path: NAV.horarios.path },
 ];
 
 // ─── Activity types ─────────────────────────────────────
@@ -390,10 +391,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Panel de control</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Resumen general de tu red de señalización digital
-          </p>
+          <h1 className="font-display text-2xl font-bold tracking-tight">{NAV.inicio.pageTitle}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{NAV.inicio.pageSubtitle}</p>
         </div>
         {stats?.lastSync && (
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">

@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import {
+import { NAV, COPY } from "@/config/lexicon";
   ListVideo,
   Plus,
   LayoutGrid,
@@ -338,10 +339,8 @@ const Playlists = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-2xl font-bold">Playlists</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Organiza tu contenido en playlists.
-            </p>
+            <h1 className="font-display text-2xl font-bold">{NAV.listas.pageTitle}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{NAV.listas.pageSubtitle}</p>
           </div>
         </div>
 
@@ -391,9 +390,9 @@ const Playlists = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Playlists</h1>
+          <h1 className="font-display text-2xl font-bold">{NAV.listas.pageTitle}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {playlists.length} playlist{playlists.length !== 1 ? "s" : ""} creadas
+            {playlists.length} lista{playlists.length !== 1 ? "s" : ""} creada{playlists.length !== 1 ? "s" : ""}
           </p>
         </div>
         <Button

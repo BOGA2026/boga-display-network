@@ -21,6 +21,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { QRBuilder, QRAnalytics, listQRCodes, deleteQRCode, type QRCode } from "@/features/qr";
+import { NAV, COPY } from "@/config/lexicon";
 
 type Screen = { id: string; name: string };
 
@@ -123,13 +124,11 @@ export default function QRCodes() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Códigos QR</h1>
-          <p className="text-sm text-muted-foreground">
-            Códigos dinámicos: cambiá el destino cuando quieras sin reimprimir. Cada escaneo se registra en tiempo real.
-          </p>
+          <h1 className="text-2xl font-bold">{NAV.qr.pageTitle}</h1>
+          <p className="text-sm text-muted-foreground">{NAV.qr.pageSubtitle}</p>
         </div>
         <Button onClick={() => { setSelected(null); setCreating(true); }} disabled={!businessId}>
-          <Plus className="mr-2 h-4 w-4" /> Nuevo QR
+          <Plus className="mr-2 h-4 w-4" /> {COPY.actions.newQr}
         </Button>
       </div>
 
@@ -139,7 +138,7 @@ export default function QRCodes() {
         ) : sorted.length === 0 ? (
           <div className="p-12 text-center">
             <QrIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Todavía no tenés códigos QR. Creá el primero.</p>
+            <p className="text-sm text-muted-foreground">{COPY.empty.qr}</p>
           </div>
         ) : (
           <table className="w-full text-sm">

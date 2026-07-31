@@ -52,7 +52,7 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
         created_by: userId,
       });
       if (error) throw error;
-      toast({ title: "Enviado a tu biblioteca", description: "Ahora podés programarlo desde Contenido." });
+      toast({ title: "Enviado a tu biblioteca", description: "Ahora puedes programarlo desde Contenido." });
       onUseOnScreen?.(row);
     } catch (err) {
       toast({ title: "No se pudo enviar", description: String(err), variant: "destructive" });
@@ -62,7 +62,7 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-8 text-center text-sm text-muted-foreground">
-        Todavía no tenés generaciones. Creá la primera arriba.
+        Todavía no tienes generaciones. Crea la primera arriba.
       </div>
     );
   }

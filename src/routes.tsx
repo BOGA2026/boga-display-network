@@ -9,7 +9,9 @@ import AdminLayout from "@/components/admin/AdminLayout";
 
 import { PageSkeleton } from "@/components/layout/PageSkeleton";
 import { RouteErrorBoundary } from "@/components/layout/RouteErrorBoundary";
+import { Navigate } from "react-router-dom";
 import { routeLoaders } from "@/lib/routePrefetch";
+import { LEGACY_REDIRECTS } from "@/config/lexicon";
 
 /** Envuelve cada página lazy en su propio ErrorBoundary + Suspense. */
 function page(Component: ComponentType<any>, key: string) {
@@ -48,7 +50,7 @@ const Dashboard = lazyRoute("/dashboard");
 const Screens = lazyRoute("/dashboard/pantallas");
 const ScreenDetail = lazyRoute("/dashboard/pantallas/:id");
 const Content = lazyRoute("/dashboard/contenido");
-const Playlists = lazyRoute("/dashboard/playlists");
+const Playlists = lazyRoute("/dashboard/listas");
 const Schedule = lazyRoute("/dashboard/programacion");
 const DashboardMap = lazyRoute("/dashboard/mapa");
 const Monitoring = lazyRoute("/dashboard/monitoreo");
@@ -108,7 +110,7 @@ export default function AppRoutes() {
         <Route path="monitoreo" element={page(Monitoring, pathname)} />
         <Route path="qr" element={page(QRCodes, pathname)} />
         <Route path="contenido" element={page(Content, pathname)} />
-        <Route path="playlists" element={page(Playlists, pathname)} />
+        <Route path="listas" element={page(Playlists, pathname)} />
         <Route path="programacion" element={page(Schedule, pathname)} />
         <Route path="analiticas" element={page(Analytics, pathname)} />
         <Route path="suscripcion" element={page(Subscription, pathname)} />
@@ -131,6 +133,10 @@ export default function AppRoutes() {
         <Route path="leads" element={page(LeadsPage, pathname)} />
         <Route path="admins" element={page(AdminAdmins, pathname)} />
       </Route>
+
+      {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
+        <Route key={from} path={from} element={<Navigate to={to} replace />} />
+      ))}
 
       <Route path="*" element={<NotFound />} />
     </Routes>

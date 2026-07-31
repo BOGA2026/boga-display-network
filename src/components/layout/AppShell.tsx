@@ -55,20 +55,10 @@ import { PageTransition } from "@/components/ui/page-transition";
 import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
 import { ContentSkeleton } from "./ContentSkeleton";
 import { prefetch } from "@/lib/routePrefetch";
+import { NAV, NAV_GROUPS, COPY } from "@/config/lexicon";
 
 
-const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Inicio", path: "/dashboard", end: true },
-  { icon: Monitor, label: "Pantallas", path: "/dashboard/pantallas" },
-  { icon: ImageIcon, label: "Contenido", path: "/dashboard/contenido" },
-  { icon: ListVideo, label: "Listas", path: "/dashboard/playlists" },
-  { icon: Calendar, label: "Horarios", path: "/dashboard/programacion" },
-  { icon: MapIcon, label: "Mapa", path: "/dashboard/mapa" },
-  { icon: QrCode, label: "QR", path: "/dashboard/qr" },
-  { icon: BarChart3, label: "Analíticas", path: "/dashboard/analiticas" },
-  { icon: CreditCard, label: "Suscripción", path: "/dashboard/suscripcion" },
-  { icon: LifeBuoy, label: "Soporte", path: "/dashboard/soporte" },
-];
+const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((key) => NAV[key]));
 
 const SIDEBAR_KEY = "dash.sidebar";
 
@@ -102,10 +92,10 @@ function BaselineCommands() {
       },
       {
         id: "action:new-playlist",
-        label: "Crear lista",
+        label: COPY.actions.newPlaylist,
         group: "Acciones",
         icon: <ListVideo className="mr-2 h-4 w-4" />,
-        onSelect: () => navigate("/dashboard/playlists"),
+        onSelect: () => navigate(NAV.listas.path),
       },
       {
         id: "action:subscription",
@@ -188,60 +178,72 @@ function ShellInner() {
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.end}
-              onMouseEnter={() => prefetch(item.path)}
-              onFocus={() => prefetch(item.path)}
-              onTouchStart={() => prefetch(item.path)}
-              className={({ isActive }) =>
-                cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
-                  isActive
-                    ? "bg-primary/12 text-foreground shadow-soft-1"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                )
-              }
-            >
-
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <span
-                      aria-hidden
-                      className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
-                    />
-                  )}
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                </>
+        <nav className="flex-1 space-y-4 overflow-y-auto p-2">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.id} className="space-y-1">
+              {!collapsed && (
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                  {group.label}
+                </p>
               )}
-            </NavLink>
+              {group.items.map((key) => {
+                const item = NAV[key];
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.end}
+                    onMouseEnter={() => prefetch(item.path)}
+                    onFocus={() => prefetch(item.path)}
+                    onTouchStart={() => prefetch(item.path)}
+                    className={({ isActive }) =>
+                      cn(
+                        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
+                        isActive
+                          ? "bg-primary/12 text-foreground shadow-soft-1"
+                          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      )
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <span
+                            aria-hidden
+                            className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
+                          />
+                        )}
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
           ))}
         </nav>
+
 
         <div className="border-t border-border p-2 space-y-1">
           <button
             onClick={() => setCollapsed((v) => !v)}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-            aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
+            aria-label={collapsed ? COPY.actions.expand : COPY.actions.collapse}
           >
             {collapsed ? (
               <PanelLeftOpen className="h-4 w-4 shrink-0" />
             ) : (
               <PanelLeftClose className="h-4 w-4 shrink-0" />
             )}
-            {!collapsed && <span>Colapsar</span>}
+            {!collapsed && <span>{COPY.actions.collapse}</span>}
           </button>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Cerrar sesión</span>}
+            {!collapsed && <span>{COPY.actions.logout}</span>}
           </button>
         </div>
       </aside>
@@ -285,7 +287,7 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
       aria-label="Abrir command palette"
     >
       <CommandIcon className="h-3.5 w-3.5" />
-      <span className="hidden md:inline">Buscar</span>
+      <span className="hidden md:inline">{COPY.actions.search}</span>
       <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium md:inline">
         {isMac ? "⌘" : "Ctrl"} K
       </kbd>

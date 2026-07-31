@@ -77,7 +77,7 @@ export function QRBuilder({ businessId, existing, screens = [], onSaved, onCance
         result = await createQRCode({ business_id: businessId, label: label.trim(), target_url: targetUrl.trim(), screen_id: screenId });
       }
       setSaved(result);
-      toast.success(existing ? "QR actualizado" : "QR creado — ya podés imprimirlo o proyectarlo.");
+      toast.success(existing ? "QR actualizado" : "QR creado: ya puedes imprimirlo o proyectarlo.");
       onSaved?.(result);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo guardar el QR.");
@@ -164,7 +164,7 @@ export function QRBuilder({ businessId, existing, screens = [], onSaved, onCance
               ))}
             </select>
             <p className="mt-1 text-xs text-muted-foreground">
-              Si asignás una pantalla, los escaneos quedan atribuidos a ella y podés ver qué TV vende más.
+              Si asignas una pantalla, los escaneos quedan atribuidos a ella y puedes ver qué TV vende más.
             </p>
           </div>
         )}

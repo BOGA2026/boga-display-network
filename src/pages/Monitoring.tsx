@@ -7,6 +7,7 @@ import DeferredMount from "@/components/system/DeferredMount";
 import DeviceDetailPanel from "@/features/monitoring/DeviceDetailPanel";
 import NotificationCenter from "@/features/monitoring/NotificationCenter";
 import { Activity, Radio, MapPin } from "lucide-react";
+import { NAV } from "@/config/lexicon";
 
 // Leaflet + tiles viven en su propio chunk: se piden después del primer paint,
 // así la lista de pantallas se ve de inmediato.
@@ -113,9 +114,9 @@ export default function Monitoring() {
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="flex items-center gap-2 text-xl font-semibold">
-              <Radio className="h-5 w-5 text-primary" /> Monitoreo geográfico
+              <Radio className="h-5 w-5 text-primary" /> {NAV.monitoreo.pageTitle}
             </h1>
-            <p className="text-sm text-muted-foreground">Estado casi en tiempo real de todas tus pantallas.</p>
+            <p className="text-sm text-muted-foreground">{NAV.monitoreo.pageSubtitle}</p>
           </div>
           <div className="flex items-center gap-2">
             <LivePulse />

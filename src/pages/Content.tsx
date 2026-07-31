@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { NAV } from "@/config/lexicon";
 
 
 interface ContentItem {
@@ -298,8 +299,8 @@ const Content = () => {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Contenido</h1>
-          <p className="text-sm text-muted-foreground">Gestiona el contenido multimedia de tus pantallas</p>
+          <h1 className="font-display text-2xl font-bold">{NAV.contenido.pageTitle}</h1>
+          <p className="text-sm text-muted-foreground">{NAV.contenido.pageSubtitle}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <Button
