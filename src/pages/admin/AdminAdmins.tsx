@@ -15,12 +15,12 @@ export default function AdminAdmins() {
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
 
   const load = async () => {
-    const [{ data }, userRes] = await Promise.all([
+    const [{ data }, sessRes] = await Promise.all([
       supabase.from("platform_admin_allowlist").select("email").order("email"),
-      supabase.auth.getUser(),
+      supabase.auth.getSession(),
     ]);
     setAllowlist((data as AllowRow[]) ?? []);
-    setCurrentEmail(userRes.data.user?.email ?? null);
+    setCurrentEmail(sessRes.data.session?.user.email ?? null);
     setLoading(false);
   };
 

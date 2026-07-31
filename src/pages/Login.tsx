@@ -66,8 +66,8 @@ const Login = () => {
     if (searchParams.get("oauth") !== "callback") return;
 
     let active = true;
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!active || !user) return;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!active || !session?.user) return;
       window.location.replace(await resolvePostLoginTarget());
     });
 
