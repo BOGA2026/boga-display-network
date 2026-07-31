@@ -69,7 +69,7 @@ import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/
 import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
 import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
 import { ContentTable } from "@/components/content/ContentTable";
-import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate } from "@/components/content/mediaMeta";
+import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
 
 
 interface ContentItem {
