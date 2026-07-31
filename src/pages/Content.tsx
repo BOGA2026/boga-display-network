@@ -84,6 +84,11 @@ interface ContentItem {
   created_at: string;
 }
 
+/** Cada cuánto reconsultamos mientras haya miniaturas en camino. */
+const THUMB_POLL_MS = 3000;
+/** Más de esto en 'pendiente' se considera fallo. */
+const THUMB_TIMEOUT_MS = 2 * 60 * 1000;
+
 
 const ACCEPT_MAP: Record<string, string> = {
   image: "image/jpeg,image/png,image/gif,image/webp,image/svg+xml",
