@@ -795,7 +795,11 @@ REGLAS:
         background_color: brandKit?.secondary_color ?? p.background_color ?? "#0a0a0a",
         background_image_query: p.background_image_query ?? "",
         overlay_color: p.overlay_color ?? "#000000",
-        overlay_opacity: typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55,
+        overlay_opacity: Math.min(
+          OVERLAY_RANGE.max,
+          Math.max(OVERLAY_RANGE.min, typeof p.overlay_opacity === "number" ? p.overlay_opacity : 0.55),
+        ),
+        logo_url: brandKit?.logo_url ?? null,
         layout: validLayouts.includes(p.layout) ? p.layout : "centrado",
         texto_principal: isMenuResponse
           ? normalizedHeader.nombre_restaurante
