@@ -54,20 +54,58 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { name, email, phone, whatsapp, company, screens, goal, budget, inquiry, preferred_time, preferred_contact, events = [] } = body;
 
+    // --- Validación y saneamiento de entrada (endpoint público) ---
+    const clean = (v: unknown, max: number): string | null => {
+      if (typeof v !== "string") return null;
+      const s = v.replace(/[\u0000-\u001F\u007F]/g, "").trim();
+      return s ? s.slice(0, max) : null;
+    };
+
+    const safeName = clean(name, 120);
+    const safeEmail = clean(email, 160);
+    const safePhone = clean(phone, 30);
+    const safeWhatsapp = clean(whatsapp, 30);
+
+    if (!safeName || safeName.length < 2) {
+      return Response.json({ ok: false, error: "Nombre inválido" }, { status: 400, headers: corsHeaders });
+    }
+    if (safeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(safeEmail)) {
+      return Response.json({ ok: false, error: "Correo inválido" }, { status: 400, headers: corsHeaders });
+    }
+    if (!safeEmail && !safePhone && !safeWhatsapp) {
+      return Response.json({ ok: false, error: "Necesitamos un correo o teléfono de contacto" }, { status: 400, headers: corsHeaders });
+    }
+    for (const p of [safePhone, safeWhatsapp]) {
+      if (p && !/^[+()\-.\s0-9]{7,30}$/.test(p)) {
+        return Response.json({ ok: false, error: "Teléfono inválido" }, { status: 400, headers: corsHeaders });
+      }
+    }
+
+    const safeScreens = Math.min(1000, Math.max(1, Math.floor(Number(screens) || 1)));
+
     const { data: lead, error } = await supabase
       .from("leads")
       .insert({
-        name, email, phone, whatsapp, company,
-        screens: Number(screens || 1),
-        goal, budget, inquiry, preferred_time,
-        preferred_contact,
+        name: safeName,
+        email: safeEmail,
+        phone: safePhone,
+        whatsapp: safeWhatsapp,
+        company: clean(company, 160),
+        screens: safeScreens,
+        goal: clean(goal, 200),
+        budget: clean(budget, 100),
+        inquiry: clean(inquiry, 2000),
+        preferred_time: clean(preferred_time, 100),
+        preferred_contact: clean(preferred_contact, 40),
       })
-      .select("*")
+      .select("id")
       .single();
 
     if (error) {
-      return Response.json({ ok: false, error: error.message }, { status: 400, headers: corsHeaders });
+      console.error("submit-lead insert error:", error.message);
+      return Response.json({ ok: false, error: "No pudimos registrar tu solicitud" }, { status: 400, headers: corsHeaders });
     }
+
 
     if (Array.isArray(events) && events.length) {
       await supabase.from("lead_events").insert(
