@@ -29,7 +29,7 @@ describe("designArchetypes", () => {
     expect(lista.image_url).toBeNull();
     expect(lista.background_image_query).toBe("");
 
-    const foto = enforceArchetype({ overlay_opacity: 0.2 }, "foto_protagonista");
+    const foto = enforceArchetype<Record<string, any>>({ overlay_opacity: 0.2 }, "foto_protagonista");
     expect(foto.overlay_opacity).toBeGreaterThanOrEqual(0.6);
     expect(foto.arquetipo).toBe("foto_protagonista");
   });
