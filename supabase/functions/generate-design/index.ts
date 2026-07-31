@@ -48,10 +48,31 @@ Tamaños mínimos como PORCENTAJE DE LA ALTURA del lienzo:
 - Si un texto no cabe respetando estos mínimos, van MENOS platos; nunca letra más chica.
 Otras reglas:
 - Máximo ${TV_RULES.maxItems} platos por pieza en total (sumando todas las secciones).
-- Contraste mínimo 7:1 entre texto y fondo. Nada de texto sobre foto sin capa de oscurecimiento del 60% (overlay_opacity >= 0.6) o banda sólida detrás.
+- Contraste mínimo 7:1 entre texto y fondo (se calcula con la fórmula WCAG sobre los colores reales, no sirve declararlo).
 - Margen de seguridad del 5% en todos los bordes (overscan de televisores): no pongas contenido pegado al borde.
 - El precio va alineado a la derecha o inmediatamente después del nombre. PROHIBIDAS las líneas punteadas largas entre plato y precio.
-- Descripciones cortas (máx. 8 palabras) para que quepan en 2 líneas.
+- Descripciones cortas (máx. 8 palabras). Si no caben al 2,2%, se ELIMINAN de toda la pieza: nunca se encogen.
+- PROHIBIDO truncar un nombre de plato o un precio. Si un nombre no cabe: primero menos platos, después dos líneas, y solo al final bajar al mínimo del 4%.
+
+COLOR DEL PRECIO (REGLA ÚNICA DE TODA LA APP):
+- color_precio = color de acento de la marca del negocio; si ese acento no llega a 7:1 sobre el fondo, usa blanco puro (#ffffff).
+- PROHIBIDO rojo, verde y ámbar en el precio: están reservados para estados del sistema (error, éxito, advertencia).
+- Precio y nombre comparten línea base y tamaño. El precio puede ir en peso mayor, nunca en un color más llamativo que el nombre.
+
+OCUPACIÓN VERTICAL (se valida):
+- Los platos ocupan entre el 70% y el 90% de la altura útil (altura total menos márgenes de seguridad).
+- Calcula el espaciado entre filas dividiendo ese alto entre la cantidad de platos. Nada de espaciado fijo.
+- Con pocos platos NO los apiles arriba: sube interlineado y tamaño hasta llenar el espacio. Cuatro platos en un televisor de 55" deben verse enormes.
+- Reserva el 8% inferior para una franja de cierre: logo del negocio o CTA corta ("Pide en caja"), en tamaño mínimo 2,5% de la altura.
+- En dos columnas reparte los platos parejo. Con número impar la columna izquierda lleva el extra y la derecha compensa con más interlineado.
+- Si el bloque más bajo termina antes del 75% de la altura útil, la propuesta se rechaza.
+
+FOTOGRAFÍA:
+- El título de la pieza es el NOMBRE DEL NEGOCIO. "Menú del día" solo puede ir como subtítulo.
+- background_image_query siempre pide escenas BIEN ILUMINADAS: "bien iluminado, luz natural lateral, exposición equilibrada".
+- PROHIBIDO pedir "escena oscura", "penumbra", "low key", "moody dark" o similares.
+- overlay_opacity entre ${OVERLAY_RANGE.min} y ${OVERLAY_RANGE.max}. Nunca por encima de ${OVERLAY_RANGE.hardMax}: a partir de ahí la foto deja de aportar y la pieza parece un error de carga.
+- El oscurecimiento va SOLO en la zona del texto (banda o degradado direccional), nunca sobre toda la imagen.
 `;
 
 
