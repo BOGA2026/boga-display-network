@@ -1,8 +1,13 @@
+import { lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUptimeByDay } from "./api";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { filterQueryOptions } from "@/lib/query-client";
 import { Loader2 } from "lucide-react";
+import DeferredMount from "@/components/system/DeferredMount";
+import ChartSkeleton from "@/components/system/ChartSkeleton";
+
+// recharts vive en su propio chunk: sólo se pide después del primer paint.
+const UptimeBars = lazy(() => import("@/features/analytics/charts/UptimeChart"));
 
 export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; days?: number }) {
   const { data, isLoading } = useQuery({
@@ -34,19 +39,11 @@ export default function UptimeChart({ deviceId, days = 7 }: { deviceId: string; 
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-neutral-500" /> Apagada</span>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-          <XAxis dataKey="day" tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 24]} tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <Tooltip
-            cursor={{ fill: "rgba(255,255,255,0.04)" }}
-            contentStyle={{ background: "#0F1115", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
-          />
-          <Bar dataKey="Encendida" stackId="a" fill="#22c55e" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Apagada" stackId="a" fill="#6b7280" radius={[0, 0, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+      <DeferredMount minHeight={180} placeholder={<ChartSkeleton height={180} label="Cargando gráfico de uptime" />}>
+        <Suspense fallback={<ChartSkeleton height={180} />}>
+          <UptimeBars rows={rows} height={180} />
+        </Suspense>
+      </DeferredMount>
     </div>
   );
 }

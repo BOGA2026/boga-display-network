@@ -1,12 +1,60 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useBusinessId } from "@/hooks/useScheduleData";
 import { useDeviceMonitoring } from "@/features/monitoring/useDeviceMonitoring";
-import { useMonitoringStore, selectStatusCounts } from "@/features/monitoring/store";
-import MapView from "@/features/monitoring/MapView";
+import { useMonitoringStore, selectStatusCounts, selectDevicesArray } from "@/features/monitoring/store";
+import DeferredMount from "@/components/system/DeferredMount";
 import DeviceDetailPanel from "@/features/monitoring/DeviceDetailPanel";
 import NotificationCenter from "@/features/monitoring/NotificationCenter";
-import { Activity, Radio } from "lucide-react";
+import { Activity, Radio, MapPin } from "lucide-react";
+
+// Leaflet + tiles viven en su propio chunk: se piden después del primer paint,
+// así la lista de pantallas se ve de inmediato.
+const MapView = lazy(() => import("@/features/monitoring/MapView"));
+
+function MapSkeleton() {
+  return (
+    <div className="flex h-full min-h-[420px] items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <MapPin className="h-4 w-4 animate-pulse" /> Cargando mapa…
+      </div>
+    </div>
+  );
+}
+
+const DOT: Record<string, string> = {
+  online: "bg-emerald-500 shadow-[0_0_10px_rgba(34,197,94,0.55)]",
+  syncing: "bg-amber-400",
+  offline: "bg-neutral-500",
+  pending: "bg-neutral-400",
+};
+
+/** Lista de pantallas — se pinta sin esperar al mapa. */
+function DeviceList() {
+  const devices = useMonitoringStore(selectDevicesArray);
+  const selectedId = useMonitoringStore((s) => s.selectedId);
+  const select = useMonitoringStore((s) => s.select);
+  if (devices.length === 0) return null;
+  return (
+    <ul className="max-h-[220px] space-y-1 overflow-auto rounded-2xl border border-white/10 bg-white/5 p-2">
+      {devices.map((d) => (
+        <li key={d.id}>
+          <button
+            type="button"
+            onClick={() => select(selectedId === d.id ? null : d.id)}
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-white/5 ${
+              selectedId === d.id ? "bg-white/10" : ""
+            }`}
+          >
+            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOT[d.status] ?? "bg-neutral-500"}`} />
+            <span className="flex-1 truncate">{d.screen_name ?? "Pantalla sin nombre"}</span>
+            <span className="truncate text-xs text-muted-foreground">{d.address ?? "Sin dirección"}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function KpiCard({ label, value, dotClass }: { label: string; value: number; dotClass: string }) {
   return (
@@ -84,8 +132,15 @@ export default function Monitoring() {
         </section>
 
         <div className={`grid flex-1 min-h-0 gap-4 ${selectedId ? "lg:grid-cols-[minmax(0,1fr)_360px]" : "grid-cols-1"}`}>
-          <div className="min-h-[420px]">
-            <MapView />
+          <div className="flex min-h-[420px] flex-col gap-3">
+            <DeviceList />
+            <div className="min-h-[340px] flex-1">
+              <DeferredMount minHeight={340} placeholder={<MapSkeleton />}>
+                <Suspense fallback={<MapSkeleton />}>
+                  <MapView />
+                </Suspense>
+              </DeferredMount>
+            </div>
           </div>
           {selectedId && (
             <div className="min-h-0">
