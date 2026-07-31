@@ -50,6 +50,8 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
 const cache = new Map<string, Promise<unknown>>();
 
 export function prefetch(key: string) {
+  // Código y datos en paralelo, desde el mismo hover.
+  prefetchData(key);
   const load = routeLoaders[key];
   if (!load || cache.has(key)) return;
   cache.set(
