@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState, BlockSkeleton, TableSkeleton } from "@/components/feedback/states";
 import DeferredMount from "@/components/system/DeferredMount";
-import LastSyncLabel from "@/components/system/LastSyncLabel";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 
 const EmptyAxesChart = lazy(() => import("@/features/analytics/EmptyAxesChart"));
 
