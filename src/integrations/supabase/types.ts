@@ -247,6 +247,7 @@ export type Database = {
         Row: {
           ai_monthly_limit: number
           created_at: string
+          demo_data_seeded_at: string | null
           id: string
           name: string
           updated_at: string
@@ -254,6 +255,7 @@ export type Database = {
         Insert: {
           ai_monthly_limit?: number
           created_at?: string
+          demo_data_seeded_at?: string | null
           id?: string
           name: string
           updated_at?: string
@@ -261,6 +263,7 @@ export type Database = {
         Update: {
           ai_monthly_limit?: number
           created_at?: string
+          demo_data_seeded_at?: string | null
           id?: string
           name?: string
           updated_at?: string
@@ -360,6 +363,38 @@ export type Database = {
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_screen_uptime: {
+        Row: {
+          created_at: string
+          day: string
+          minutes_expected: number
+          minutes_online: number
+          screen_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          minutes_expected?: number
+          minutes_online?: number
+          screen_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          minutes_expected?: number
+          minutes_online?: number
+          screen_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_screen_uptime_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
             referencedColumns: ["id"]
           },
         ]
@@ -1023,6 +1058,61 @@ export type Database = {
         }
         Relationships: []
       }
+      playback_events: {
+        Row: {
+          content_id: string | null
+          created_at: string
+          duration_ms: number
+          id: number
+          interrupted: boolean
+          playlist_id: string | null
+          screen_id: string
+          started_at: string
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string
+          duration_ms: number
+          id?: number
+          interrupted?: boolean
+          playlist_id?: string | null
+          screen_id: string
+          started_at: string
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string
+          duration_ms?: number
+          id?: number
+          interrupted?: boolean
+          playlist_id?: string | null
+          screen_id?: string
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playback_events_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playback_events_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playback_events_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       playlist_items: {
         Row: {
           content_id: string
@@ -1671,6 +1761,41 @@ export type Database = {
           },
         ]
       }
+      screen_heartbeats: {
+        Row: {
+          app_version: string | null
+          cpu_pct: number | null
+          mem_pct: number | null
+          net_kbps: number | null
+          screen_id: string
+          ts: string
+        }
+        Insert: {
+          app_version?: string | null
+          cpu_pct?: number | null
+          mem_pct?: number | null
+          net_kbps?: number | null
+          screen_id: string
+          ts?: string
+        }
+        Update: {
+          app_version?: string | null
+          cpu_pct?: number | null
+          mem_pct?: number | null
+          net_kbps?: number | null
+          screen_id?: string
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screen_heartbeats_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       screens: {
         Row: {
           activated_at: string | null
@@ -2049,6 +2174,44 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      analytics_overview: {
+        Args: { p_business_id: string; p_from: string; p_to: string }
+        Returns: {
+          playbacks: number
+          screens_online: number
+          screens_total: number
+          total_play_ms: number
+          uptime_pct: number
+        }[]
+      }
+      analytics_screen_table: {
+        Args: { p_business_id: string; p_from: string; p_to: string }
+        Returns: {
+          last_seen_at: string
+          location: string
+          name: string
+          playbacks: number
+          screen_id: string
+          status: string
+          uptime_pct: number
+        }[]
+      }
+      analytics_top_content: {
+        Args: {
+          p_business_id: string
+          p_from: string
+          p_limit?: number
+          p_to: string
+        }
+        Returns: {
+          content_id: string
+          duration_seconds: number
+          name: string
+          playbacks: number
+          thumbnail_url: string
+          total_ms: number
+        }[]
+      }
       can_manage_business: { Args: { _business_id: string }; Returns: boolean }
       can_manage_content_playlists: {
         Args: { _business_id: string }
@@ -2080,6 +2243,15 @@ export type Database = {
           _entity_type?: string
         }
         Returns: string
+      }
+      purge_demo_analytics: {
+        Args: { p_business_id: string }
+        Returns: undefined
+      }
+      rollup_screen_uptime: { Args: { p_day?: string }; Returns: number }
+      seed_demo_analytics: {
+        Args: { p_business_id: string }
+        Returns: undefined
       }
       sweep_offline_devices: {
         Args: { _threshold_seconds?: number }
