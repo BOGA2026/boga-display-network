@@ -281,7 +281,9 @@ export default function ProposalSelector({
       </div>
 
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* pr reservado para que el Asistente Visualia no tape el botón "Descartar". */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:pr-20 xl:pr-24">
+
         {visibles.map((p) => {
           const archetype = ARCHETYPES[archetypeOf(p)];
 
