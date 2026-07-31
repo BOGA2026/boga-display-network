@@ -107,6 +107,10 @@ export default function GenerateAI() {
       toast({ title: "Escribe una descripción", variant: "destructive" });
       return;
     }
+    if (menuVacio) {
+      toast({ title: "Carga tu menú primero", variant: "destructive" });
+      return;
+    }
 
     setPropuestas(null);
     setSelectedProposal(null);
@@ -127,9 +131,18 @@ export default function GenerateAI() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ prompt, tipo, formato, estilo, cliente }),
+          body: JSON.stringify({
+            prompt,
+            tipo,
+            formato,
+            estilo,
+            cliente,
+            menu_items: menuItems,
+            brand_kit: menuData?.brandKit ?? null,
+          }),
         }
       );
+
 
       if (!res.ok) {
         const err = await res.json();
