@@ -60,18 +60,19 @@ function pinIcon(status: PinStatus) {
   const cached = iconCache.get(status);
   if (cached) return cached;
   const color = PIN_COLOR[status];
+  const halo = `${color}33`; /* 20% opacity */
   const icon = L.divIcon({
     className: "",
-    html: `<span style="display:block;width:16px;height:16px;border-radius:9999px;background:${color};border:2px solid rgba(255,255,255,.85);box-shadow:0 0 12px ${color}"></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
+    html: `<span style="display:block;width:12px;height:12px;border-radius:9999px;background:${color};border:2px solid hsl(var(--background));box-shadow:0 0 0 4px ${halo},0 1px 4px rgba(0,0,0,0.4);"></span>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+    popupAnchor: [0, -8],
   });
   iconCache.set(status, icon);
   return icon;
 }
 
-/** Ajusta el encuadre a los pines. Con un solo punto, `fitBounds` haría un zoom absurdo. */
+/** Ajusta el encuadre a los pines con padding de 40px. Con un solo punto, centra con zoom 15. */
 function FitToMarkers({ points }: { points: [number, number][] }) {
   const map = useMap();
   const signature = points.map((p) => p.join(",")).join("|");
@@ -82,12 +83,13 @@ function FitToMarkers({ points }: { points: [number, number][] }) {
       map.setView(points[0], 15);
       return;
     }
-    map.fitBounds(L.latLngBounds(points), { padding: [60, 60], maxZoom: 14 });
+    map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 14 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature, map]);
 
   return null;
 }
+
 
 export default function MapView() {
   const devices = useMonitoringStore(selectDevicesArray);
@@ -131,7 +133,8 @@ export default function MapView() {
       <MapContainer
         center={pins[0].position}
         zoom={pins.length === 1 ? 15 : 5}
-        style={{ height: "100%", width: "100%", minHeight: 420, background: "#0a0a12" }}
+        className="v-map"
+        style={{ height: "100%", width: "100%", minHeight: 420 }}
         scrollWheelZoom
       >
         <TileLayer
@@ -139,6 +142,7 @@ export default function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <FitToMarkers points={pins.map((p) => p.position)} />
+
         {pins.map((p) => (
           <Marker
             key={p.id}

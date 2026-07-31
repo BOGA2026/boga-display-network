@@ -2,18 +2,47 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Map as MapIcon, List } from "lucide-react";
 
-// Fix default marker icons (Vite/webpack won't resolve them otherwise)
-const icon = L.divIcon({
-  className: "",
-  html: `<div style="width:14px;height:14px;border-radius:50%;background:hsl(280 100% 60%);border:2px solid white;box-shadow:0 0 12px hsl(280 100% 60%)"></div>`,
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+const iconCache = new Map<string, L.DivIcon>();
+
+function locationIcon(hasScreens: boolean) {
+  const key = hasScreens ? "online" : "unpaired";
+  const cached = iconCache.get(key);
+  if (cached) return cached;
+
+  const color = hasScreens ? "#22c55e" : "#f59e0b";
+  const halo = `${color}33`; /* 20% opacity */
+  const icon = L.divIcon({
+    className: "",
+    html: `<span style="display:block;width:12px;height:12px;border-radius:9999px;background:${color};border:2px solid hsl(var(--admin-bg));box-shadow:0 0 0 4px ${halo},0 1px 4px rgba(0,0,0,0.4);"></span>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+    popupAnchor: [0, -8],
+  });
+  iconCache.set(key, icon);
+  return icon;
+}
+
+function FitToMarkers({ points }: { points: [number, number][] }) {
+  const map = useMap();
+  const signature = points.map((p) => p.join(",")).join("|");
+
+  useEffect(() => {
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView(points[0], 15);
+      return;
+    }
+    map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 14 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature, map]);
+
+  return null;
+}
 
 type Loc = {
   id: string;
@@ -43,7 +72,7 @@ export default function AdminMap() {
     })();
   }, []);
 
-  const withCoords = locations.filter(l => l.latitude != null && l.longitude != null);
+  const withCoords = locations.filter((l) => l.latitude != null && l.longitude != null);
   const grouped = useMemo(() => {
     const map = new Map<string, number>();
     for (const l of locations) {
@@ -68,10 +97,16 @@ export default function AdminMap() {
           </p>
         </div>
         <div className="flex gap-1 rounded-md border border-border/50 bg-background/40 p-1">
-          <button onClick={() => setView("map")} className={`flex items-center gap-1 px-3 py-1 text-xs rounded ${view === "map" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}>
+          <button
+            onClick={() => setView("map")}
+            className={`flex items-center gap-1 px-3 py-1 text-xs rounded ${view === "map" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
+          >
             <MapIcon className="h-3.5 w-3.5" /> Mapa
           </button>
-          <button onClick={() => setView("table")} className={`flex items-center gap-1 px-3 py-1 text-xs rounded ${view === "table" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}>
+          <button
+            onClick={() => setView("table")}
+            className={`flex items-center gap-1 px-3 py-1 text-xs rounded ${view === "table" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
+          >
             <List className="h-3.5 w-3.5" /> Tabla
           </button>
         </div>
@@ -97,13 +132,14 @@ export default function AdminMap() {
           </Card>
         ) : (
           <Card className="overflow-hidden bg-background/40 border-border/50" style={{ height: 560 }}>
-            <MapContainer center={center} zoom={5} style={{ height: "100%", width: "100%" }}>
+            <MapContainer center={center} zoom={5} className="v-map" style={{ height: "100%", width: "100%" }}>
               <TileLayer
-                attribution='&copy; OpenStreetMap'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               />
-              {withCoords.map(l => (
-                <Marker key={l.id} position={[l.latitude!, l.longitude!]} icon={icon}>
+              <FitToMarkers points={withCoords.map((l) => [l.latitude!, l.longitude!])} />
+              {withCoords.map((l) => (
+                <Marker key={l.id} position={[l.latitude!, l.longitude!]} icon={locationIcon((l.screens?.length ?? 0) > 0)}>
                   <Popup>
                     <div className="text-sm">
                       <div className="font-semibold">{l.name}</div>
@@ -121,22 +157,22 @@ export default function AdminMap() {
         <Card className="bg-background/40 border-border/50">
           <div className="p-3 border-b border-border/50 text-sm font-medium">Sedes por ciudad</div>
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[480px] text-sm">
-            <thead className="text-xs uppercase text-muted-foreground border-b border-border/50">
-              <tr>
-                <th className="text-left p-3">Ciudad / zona</th>
-                <th className="text-left p-3">Sedes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grouped.map(([city, count]) => (
-                <tr key={city} className="border-b border-border/30 hover:bg-white/5">
-                  <td className="p-3">{city}</td>
-                  <td className="p-3 font-semibold">{count}</td>
+            <table className="w-full min-w-[480px] text-sm">
+              <thead className="text-xs uppercase text-muted-foreground border-b border-border/50">
+                <tr>
+                  <th className="text-left p-3">Ciudad / zona</th>
+                  <th className="text-left p-3">Sedes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {grouped.map(([city, count]) => (
+                  <tr key={city} className="border-b border-border/30 hover:bg-white/5">
+                    <td className="p-3">{city}</td>
+                    <td className="p-3 font-semibold">{count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Card>
       )}
