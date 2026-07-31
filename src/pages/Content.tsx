@@ -298,7 +298,19 @@ const Content = () => {
     fetchContent();
   };
 
-  const hasContent = items.length > 0;
+  // Filtro por IDs (llega desde la tarjeta de contenido huérfano en Analíticas).
+  const idsParam = searchParams.get("ids");
+  const filtroIds = useMemo(
+    () => (idsParam ? idsParam.split(",").filter(Boolean) : null),
+    [idsParam],
+  );
+  const visibleItems = useMemo(
+    () => (filtroIds ? items.filter((i) => filtroIds.includes(i.id)) : items),
+    [items, filtroIds],
+  );
+
+  const hasContent = visibleItems.length > 0;
+
 
   return (
     <div className="v-page">
