@@ -63,6 +63,7 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
       }}
     >
       <video
+        ref={videoRef}
         autoPlay
         muted
         playsInline
@@ -70,7 +71,7 @@ const IntroSplash = ({ onComplete }: { onComplete: () => void }) => {
         width={960}
         height={540}
         aria-label="Bienvenida a Visualia"
-        onCanPlay={(event) => event.currentTarget.play().catch(() => {})}
+        onCanPlay={(event) => attemptAutoplay(event.currentTarget)}
         className="h-full w-full object-cover"
         style={{
           transform: scaleUp ? "scale(1.15)" : "scale(1)",
