@@ -137,6 +137,7 @@ export default function AdminMap() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </div>

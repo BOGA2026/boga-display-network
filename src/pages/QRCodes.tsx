@@ -174,6 +174,7 @@ export default function QRCodes() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
 
