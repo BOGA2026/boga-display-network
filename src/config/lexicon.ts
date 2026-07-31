@@ -294,6 +294,56 @@ export const COPY = {
     never: "Nunca",
     label: "Última sincronización:",
   },
+  soporte: {
+    chatTitle: "Chat con el equipo",
+    chatEmpty: "Escríbenos por aquí. Un miembro del equipo te responderá lo antes posible.",
+    chatPlaceholder: "Escribe tu mensaje…",
+    slaTitle: "Tiempo estimado de respuesta",
+    slaValue: "Menos de 2 horas",
+    slaNote: "Lunes a sábado, de 8:00 a. m. a 8:00 p. m. Fuera de ese horario respondemos al día siguiente.",
+    pqrsTitle: "Tus solicitudes PQRS",
+    pqrsEmptyTitle: "Sin solicitudes",
+    pqrsEmpty: "Todavía no has enviado ninguna solicitud. Crea una y le hacemos seguimiento.",
+    pqrsNew: "Nueva solicitud",
+    pqrsBack: "← Volver",
+    pqrsNoAnswers: "Todavía no hay respuestas.",
+    pqrsSent: "Solicitud enviada. Te responderemos pronto.",
+    pqrsSubject: "Asunto",
+    pqrsMessage: "Cuéntanos el detalle…",
+    faqTitle: "Preguntas frecuentes",
+    faq: [
+      {
+        q: "¿Cómo conecto una pantalla?",
+        a: "Instala la app de Visualia en tu TV, ábrela y aparecerá un código de 6 caracteres. Ve a Pantallas, haz clic en Conectar pantalla y escribe ese código.",
+      },
+      {
+        q: "¿Por qué mi pantalla aparece sin conexión?",
+        a: "Casi siempre es internet o corriente. Revisa que el TV esté encendido, con wifi activo y con la app abierta. En pocos minutos vuelve a reportarse sola.",
+      },
+      {
+        q: "¿Cómo cambio el menú que se ve en la pantalla?",
+        a: "Entra a Contenido, sube o edita el diseño y guárdalo. Luego, desde Listas u Horarios, envíalo a la pantalla que quieras. El cambio llega en segundos.",
+      },
+      {
+        q: "¿Cómo funcionan los códigos QR?",
+        a: "Cada QR es dinámico: puedes cambiar su destino cuando quieras sin volver a imprimirlo. Cada escaneo queda registrado y lo ves en Analíticas.",
+      },
+      {
+        q: "¿Cómo cambio de plan o agrego pantallas?",
+        a: "En Suscripción puedes sumar o quitar pantallas. Te cobramos solo la parte proporcional de los días que faltan del ciclo.",
+      },
+      {
+        q: "¿Puedo hablar con una persona?",
+        a: "Sí. Escríbenos por este chat o por WhatsApp y te acompañamos en vivo.",
+      },
+    ],
+    statusLabels: {
+      abierto: "Abierto",
+      en_proceso: "En proceso",
+      resuelto: "Resuelto",
+      cerrado: "Resuelto",
+    } as Record<string, string>,
+  },
   hints: {
     qrScreenAttribution:
       "Si asignas una pantalla, los escaneos quedan atribuidos a ella y puedes ver qué TV vende más.",
