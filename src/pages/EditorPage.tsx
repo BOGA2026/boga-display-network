@@ -743,17 +743,17 @@ export default function EditorPage() {
       const payload = buildLayoutPayload();
       const layoutJson = JSON.stringify({ ...payload, name: presetName.trim() });
       const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(layoutJson)))}`;
-      const thumbnailDataUrl = await generateThumbnail();
 
-      const { error } = await supabase.from("content").insert({
+      const { data: inserted, error } = await supabase.from("content").insert({
         name: presetName.trim(),
         type: "preset",
         file_url: dataUri,
-        thumbnail_url: thumbnailDataUrl,
+        thumbnail_status: "pendiente",
         business_id: bizId,
         created_by: await getUserId(),
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (inserted) requestThumbnail(inserted.id);
 
       toast.success(`Preset "${presetName.trim()}" guardado`);
       setPresetDialogOpen(false);
@@ -765,7 +765,8 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [presetName, buildLayoutPayload, generateThumbnail]);
+  }, [presetName, buildLayoutPayload, requestThumbnail]);
+
 
   const loadPreset = useCallback(async (preset: { file_url: string | null }) => {
     if (!preset.file_url) return;
