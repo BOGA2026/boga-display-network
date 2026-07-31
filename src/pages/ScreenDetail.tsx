@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BlockSkeleton, KpiGridSkeleton, TableSkeleton } from "@/components/feedback/states";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   AlertDialog,
@@ -191,15 +192,7 @@ export default function ScreenDetail() {
           <h1 className="text-2xl font-bold">{screen.name}</h1>
           <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
             <StatusBadge variant={statusVariant} label={screen.status} />
-            {screen.last_seen_at && (
-              <span>
-                Última señal{" "}
-                {formatDistanceToNow(new Date(screen.last_seen_at), {
-                  addSuffix: true,
-                  locale: es,
-                })}
-              </span>
-            )}
+            <LastSyncLabel lastSeenAt={screen.last_seen_at} prefix="Última señal" />
             {screen.device_model && <span>· {screen.device_model}</span>}
             {screen.app_version && <span>· v{screen.app_version}</span>}
           </div>

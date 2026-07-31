@@ -20,7 +20,8 @@ import ScreenSettingsPanel from "@/components/digital-signage/ScreenSettingsPane
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 import LocationEditorDialog from "@/components/digital-signage/LocationEditorDialog";
 import RemoteActionsPanel from "@/components/digital-signage/RemoteActionsPanel";
-import { getScreenHealth, formatLastSeen } from "@/lib/screen-health";
+import { getScreenHealth } from "@/lib/screen-health";
+import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 
 interface DeviceInfo {
   appVersion: string | null;
@@ -273,7 +274,7 @@ export default function ScreenDetail() {
             <span className={`v-dot ${health.status === "online" ? "v-dot-live" : health.dotClass}`} />
             {health.label}
           </span>
-          <span className="ml-1 text-xs text-muted-foreground">· {formatLastSeen(screen.lastSyncAt)}</span>
+          <span className="ml-1 text-xs text-muted-foreground">· <LastSyncLabel lastSeenAt={screen.lastSyncAt} /></span>
         </div>
 
         <Button size="sm" className="gap-1.5 gradient-primary" onClick={() => setAssignOpen(true)}>
@@ -400,7 +401,7 @@ export default function ScreenDetail() {
                 </div>
                 <div className="flex items-center justify-between px-4 py-2.5">
                   <dt className="text-muted-foreground">Última señal</dt>
-                  <dd className="font-medium text-foreground">{formatLastSeen(screen.lastSyncAt)}</dd>
+                  <dd className="font-medium"><LastSyncLabel lastSeenAt={screen.lastSyncAt} /></dd>
                 </div>
               </dl>
             </div>
