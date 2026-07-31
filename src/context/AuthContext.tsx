@@ -46,8 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     let mounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, next) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, next) => {
       if (!mounted) return;
+      // Cualquier cambio de identidad tira el caché del usuario anterior.
+      if (event === "SIGNED_OUT" || event === "SIGNED_IN") queryClient.clear();
       setSession(next);
       setLoading(false);
       if (next?.user?.id) void flushPendingConsent(next.user.id);
