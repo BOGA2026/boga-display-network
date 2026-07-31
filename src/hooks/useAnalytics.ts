@@ -208,6 +208,51 @@ export function useTelemetryDays(businessId?: string) {
   });
 }
 
+/* ── Mapa de calor de hora pico ──────────────────────────────────────── */
+
+export interface ScanHeatmapCell {
+  /** 0 = domingo (convención de Postgres EXTRACT(DOW)). */
+  dow: number;
+  /** 0-23, en hora de Colombia. */
+  hour: number;
+  scans: number;
+}
+
+/** Días distintos con escaneos registrados. Umbral del mapa de calor: 14. */
+export function useScanDays(businessId?: string) {
+  return useQuery({
+    queryKey: ["analytics", "scan-days", businessId],
+    enabled: Boolean(businessId),
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await rpc("analytics_scan_days", { p_business_id: businessId });
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+  });
+}
+
+/** Escaneos por día de la semana y hora del día. */
+export function useScanHeatmap(businessId?: string, range?: Range, enabled = true) {
+  return useQuery({
+    queryKey: ["analytics", "scan-heatmap", businessId, range && iso(range.from), range && iso(range.to)],
+    enabled: Boolean(businessId && range) && enabled,
+    queryFn: async (): Promise<ScanHeatmapCell[]> => {
+      const { data, error } = await rpc("analytics_scan_heatmap", {
+        p_business_id: businessId,
+        p_from: iso(range!.from),
+        p_to: iso(range!.to),
+      });
+      if (error) throw error;
+      return ((data as ScanHeatmapCell[]) ?? []).map((c) => ({
+        dow: Number(c.dow),
+        hour: Number(c.hour),
+        scans: Number(c.scans),
+      }));
+    },
+  });
+}
+
+
 /* ── Formato ─────────────────────────────────────────────────────────── */
 
 const nf1 = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 1 });
