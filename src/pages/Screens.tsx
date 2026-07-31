@@ -105,6 +105,7 @@ const Screens = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successScreen, setSuccessScreen] = useState<string | null>(null);
