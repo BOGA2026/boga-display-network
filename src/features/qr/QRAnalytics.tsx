@@ -107,30 +107,13 @@ export function QRAnalytics({ qrId, qrLabel }: Props) {
           >
             <h3 className="mb-2 text-sm font-medium text-muted-foreground">{meta.label}</h3>
             <div className="h-56">
-              <ResponsiveContainer>
-                <AreaChart data={series} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="qrScanFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-                  <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    labelStyle={{ color: "hsl(var(--muted-foreground))" }}
-                  />
-                  <Area type="monotone" dataKey="scans" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#qrScanFill)" isAnimationActive />
-                </AreaChart>
-              </ResponsiveContainer>
+              <DeferredMount minHeight={220} placeholder={<ChartSkeleton height={220} label="Cargando gráfico de escaneos" />}>
+                <Suspense fallback={<ChartSkeleton height={220} />}>
+                  <QrChart variant="timeline" data={series} />
+                </Suspense>
+              </DeferredMount>
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>
