@@ -87,14 +87,14 @@ import { z as z3 } from "npm:zod@^3.25.76";
 var list_content_default = defineTool3({
   name: "list_content",
   title: "List content items",
-  description: "List content items (images, videos, designs) available to the signed-in user's business.",
+  description: "List content assets (images, videos, designs) available to the signed-in user's business.",
   inputSchema: {
     limit: z3.number().int().min(1).max(200).optional()
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ limit }, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
-    const { data, error } = await supabaseForUser(ctx).from("content_items").select("id, name, type, url, thumbnail_url, created_at").order("created_at", { ascending: false }).limit(limit ?? 50);
+    const { data, error } = await supabaseForUser(ctx).from("content").select("id, name, type, file_url, thumbnail_url, duration_seconds, created_at").order("created_at", { ascending: false }).limit(limit ?? 50);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
