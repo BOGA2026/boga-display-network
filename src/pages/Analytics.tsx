@@ -43,7 +43,7 @@ function useAnalyticsScreens() {
     queryKey: ["analytics", "shell", "screens"],
     queryFn: async () => {
       const { data: businessId } = await supabase.rpc("get_user_business_id");
-      if (!businessId) return { screens: [] as ScreenRow[], telemetryActive: false };
+      if (!businessId) return { businessId: null as string | null, screens: [] as ScreenRow[], telemetryActive: false };
 
       const { data, error } = await supabase
         .from("screens")
@@ -66,10 +66,11 @@ function useAnalyticsScreens() {
         telemetryActive = (count ?? 0) > 0;
       }
 
-      return { screens, telemetryActive };
+      return { businessId: businessId as string, screens, telemetryActive };
     },
   });
 }
+
 
 /* ── Valor de métrica: única puerta por la que pasa "cero" vs "sin dato" ── */
 function MetricValue({ measured, children }: { measured: boolean; children: ReactNode }) {
