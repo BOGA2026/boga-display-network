@@ -21,6 +21,7 @@ import { NAV, COPY } from "@/config/lexicon";
 import { syncSeverity } from "@/hooks/useAnalytics";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { NetworkStatusCard, UptimeCard, InventoryStrip } from "@/components/dashboard/NetworkOverview";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 // ─── Data hooks ──────────────────────────────────────────
 function useDashboardStats() {
@@ -28,21 +29,13 @@ function useDashboardStats() {
     queryKey: ["dashboard-stats"],
     ...liveQueryOptions,
     queryFn: async () => {
-      const bizRes = await supabase.rpc("get_user_business_id");
-      const businessId = bizRes.data as string | null;
+      const { data, error } = await supabase.rpc("get_dashboard_page");
+      if (error) throw error;
+      const payload = (data ?? null) as any;
+      const businessId = payload?.business_id as string | null;
       if (!businessId) return null;
 
-      const [screensRes, locationsRes, contentRes, playlistsRes, devicesRes, subRes, scheduleRes] = await Promise.all([
-        supabase.from("screens").select("id, name, status, last_seen_at, location_id, license_status, locations(id, name, latitude, longitude)").order("name"),
-        supabase.from("locations").select("id, name", { count: "exact", head: true }),
-        supabase.from("content").select("id", { count: "exact", head: true }),
-        supabase.from("playlists").select("id", { count: "exact", head: true }),
-        supabase.from("devices").select("id, status, last_seen_at, screen_name, paired_at").order("last_seen_at", { ascending: false }).limit(10),
-        supabase.from("subscriptions").select("status, expires_at, grace_period_ends_at").limit(1).maybeSingle(),
-        supabase.from("schedule_blocks").select("id", { count: "exact", head: true }).eq("is_enabled", true),
-      ]);
-
-      const screens = screensRes.data || [];
+      const screens = (payload.screens || []) as any[];
       const online = screens.filter((s) => s.status === "online").length;
       const offline = screens.length - online;
       const lastSync = screens.reduce((latest: string | null, s: any) => {
@@ -57,15 +50,16 @@ function useDashboardStats() {
         totalScreens: screens.length,
         online,
         offline,
-        locations: locationsRes.count || 0,
-        content: contentRes.count || 0,
-        playlists: playlistsRes.count || 0,
-        schedules: scheduleRes.count || 0,
-        devices: devicesRes.data || [],
+        locations: payload.locations_count || 0,
+        content: payload.content_count || 0,
+        playlists: payload.playlists_count || 0,
+        schedules: payload.schedules_count || 0,
+        devices: (payload.devices || []) as any[],
         lastSync,
-        subscription: subRes.data || null,
+        subscription: payload.subscription || null,
       };
     },
+
     refetchInterval: 30000,
   });
 }
@@ -316,13 +310,7 @@ const Dashboard = () => {
   const { toast } = useToast();
 
   const handleAddDemoScreen = async () => {
-    const { data: user } = await supabase.auth.getUser();
-    const profileRes = await supabase
-      .from("profiles")
-      .select("business_id")
-      .eq("id", user.user?.id ?? "")
-      .maybeSingle();
-    const businessId = profileRes.data?.business_id;
+    const businessId = await getBusinessId();
     if (!businessId) {
       toast({ title: "No se encontró tu negocio", variant: "destructive" });
       return;

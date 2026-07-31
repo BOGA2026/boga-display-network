@@ -64,6 +64,7 @@ import { cn } from "@/lib/utils";
 import { storageThumb } from "@/lib/storageImage";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 
 interface ContentItem {
@@ -133,8 +134,8 @@ const Content = () => {
   };
 
   const getBusinessId = async (): Promise<string | null> => {
-    const { data, error } = await supabase.rpc("get_user_business_id");
-    if (error || !data) {
+    const data = await getBusinessId();
+    if (!data) {
       toast({ title: "No estás asociado a un negocio", description: "Regístrate o contacta al administrador.", variant: "destructive" });
       return null;
     }

@@ -17,7 +17,7 @@ interface RoleGuardProps {
  */
 export function RoleGuard({ roles, children, fallback = "/dashboard" }: RoleGuardProps) {
   const { session, loading: authLoading } = useAuth();
-  const { current, loading } = useTenant();
+  const { role, loading } = useTenant();
 
   if (authLoading || loading) {
     return (
@@ -27,7 +27,7 @@ export function RoleGuard({ roles, children, fallback = "/dashboard" }: RoleGuar
     );
   }
   if (!session) return <Navigate to="/login" replace />;
-  if (!current || !roles.includes(current.role)) {
+  if (!role || !roles.includes(role)) {
     return <Navigate to={fallback} replace />;
   }
   return <>{children}</>;

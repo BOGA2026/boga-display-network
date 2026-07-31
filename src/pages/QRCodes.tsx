@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { QRBuilder, QRAnalytics, listQRCodes, deleteQRCode, type QRCode } from "@/features/qr";
 import { NAV, COPY } from "@/config/lexicon";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 type Screen = { id: string; name: string };
 
@@ -38,8 +39,7 @@ export default function QRCodes() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: biz } = await supabase.rpc("get_user_business_id");
-      const bizId = (biz ?? null) as string | null;
+      const bizId = await getBusinessId();
       setBusinessId(bizId);
       if (!bizId) {
         setItems([]);

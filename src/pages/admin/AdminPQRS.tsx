@@ -12,6 +12,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { fetchWithRetry } from "@/lib/adminFetch";
 import { logError } from "@/lib/errorLogger";
+import { getUserId } from "@/features/auth/tenant";
 
 type Pqrs = {
   id: string;
@@ -153,10 +154,10 @@ export default function AdminPQRS() {
     if (!selected || !reply.trim()) return;
     setSending(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Sesión no disponible");
+      const uid = await getUserId();
+      if (!uid) throw new Error("Sesión no disponible");
       const { data, error } = await supabase.from("pqrs_responses").insert({
-        pqrs_id: selected.id, author_id: user.id, author_role: "admin", message: reply.trim(),
+        pqrs_id: selected.id, author_id: uid, author_role: "admin", message: reply.trim(),
       }).select().single();
       if (error) throw error;
       setResponses(prev => [...prev, data as Response]);

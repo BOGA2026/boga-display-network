@@ -1,79 +1,43 @@
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthContext } from "@/context/AuthContext";
+import {
+  EMPTY_TENANT,
+  tenantQueryOptions,
+  type Tenant,
+  type TenantRole,
+} from "./tenant";
 
-export type TenantRole = "owner" | "admin" | "manager" | "content_editor" | "viewer";
-
-export interface TenantMembership {
-  business_id: string;
-  role: TenantRole;
-  business_name?: string | null;
-}
-
-interface TenantState {
-  loading: boolean;
-  memberships: TenantMembership[];
-  current: TenantMembership | null;
-}
-
-const STORAGE_KEY = "visualia_current_tenant";
+export type { TenantRole, Tenant };
 
 /**
- * Multi-tenant awareness hook. Reads business_memberships for the signed-in
- * user, exposes the currently-active tenant, and helpers to switch it.
+ * Negocio del usuario autenticado. Una sola consulta, cacheada para siempre.
+ * No hay selector de negocio: un usuario pertenece a un solo negocio.
  */
 export function useTenant() {
-  const [state, setState] = useState<TenantState>({
-    loading: true,
-    memberships: [],
-    current: null,
+  const { userId, loading: authLoading } = useAuthContext();
+
+  const { data, isLoading } = useQuery({
+    ...tenantQueryOptions(userId),
+    enabled: !!userId,
   });
 
-  const load = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setState({ loading: false, memberships: [], current: null });
-      return;
-    }
-    const { data } = await supabase
-      .from("business_memberships")
-      .select("business_id, role, businesses(name)")
-      .eq("user_id", user.id);
-
-    const memberships: TenantMembership[] = (data ?? []).map((m: any) => ({
-      business_id: m.business_id,
-      role: m.role as TenantRole,
-      business_name: m.businesses?.name ?? null,
-    }));
-
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const current =
-      memberships.find((m) => m.business_id === stored) ?? memberships[0] ?? null;
-
-    setState({ loading: false, memberships, current });
-  }, []);
-
-  useEffect(() => {
-    void load();
-    const { data } = supabase.auth.onAuthStateChange(() => void load());
-    return () => data.subscription.unsubscribe();
-  }, [load]);
-
-  const setCurrent = useCallback((business_id: string) => {
-    localStorage.setItem(STORAGE_KEY, business_id);
-    setState((s) => ({
-      ...s,
-      current: s.memberships.find((m) => m.business_id === business_id) ?? s.current,
-    }));
-  }, []);
+  const tenant: Tenant = data ?? EMPTY_TENANT;
 
   const hasRole = useCallback(
     (roles: TenantRole | TenantRole[]) => {
-      if (!state.current) return false;
+      if (!tenant.role) return false;
       const list = Array.isArray(roles) ? roles : [roles];
-      return list.includes(state.current.role);
+      return list.includes(tenant.role);
     },
-    [state.current]
+    [tenant.role],
   );
 
-  return { ...state, setCurrent, hasRole, reload: load };
+  return {
+    businessId: tenant.businessId,
+    businessName: tenant.businessName,
+    role: tenant.role,
+    loading: authLoading || (!!userId && isLoading),
+    hasRole,
+  };
 }

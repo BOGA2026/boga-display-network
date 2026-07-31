@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { storageThumb } from "@/lib/storageImage";
 import { useToast } from "@/hooks/use-toast";
 import type { GenerationRow } from "./api";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 interface Props {
   items: GenerationRow[];
@@ -40,13 +41,12 @@ export function GenerationHistory({ items, onUseOnScreen }: Props) {
   const useOnScreen = async (row: GenerationRow) => {
     if (!row.output_url) return;
     try {
-      const { data: sess } = await supabase.auth.getSession();
-      const userId = sess.session?.user.id;
+      const userId = await getUserId();
       if (!userId) throw new Error("Sesión no válida");
-      const { data: prof } = await supabase.from("profiles").select("business_id").eq("id", userId).single();
-      if (!prof?.business_id) throw new Error("Sin negocio asociado");
+      const businessId = await getBusinessId();
+      if (!businessId) throw new Error("Sin negocio asociado");
       const { error } = await supabase.from("content").insert({
-        business_id: prof.business_id,
+        business_id: businessId,
         name: row.prompt?.slice(0, 60) ?? "Contenido IA",
         type: row.tool === "generate_video_loop" ? "video" : "image",
         url: row.output_url,

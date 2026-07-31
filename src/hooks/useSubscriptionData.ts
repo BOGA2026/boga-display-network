@@ -1,6 +1,7 @@
 import { staticQueryOptions } from "@/lib/query-client";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 export interface SubscriptionRow {
   id: string;
@@ -55,16 +56,7 @@ export const subscriptionQuery = {
   staleTime: staticQueryOptions.staleTime,
   queryFn: async () => {
 
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) throw new Error("No user");
-
-      const profile = await supabase
-        .from("profiles")
-        .select("business_id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const businessId = profile.data?.business_id;
+      const businessId = await getBusinessId();
       if (!businessId) return { businessId: null, subscription: null, screens: [], invoices: [], paymentMethods: [], payments: [] };
 
       const [subRes, screensRes, invoicesRes, pmRes, paymentsRes] = await Promise.all([

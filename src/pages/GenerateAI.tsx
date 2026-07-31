@@ -25,6 +25,7 @@ import ProposalSelector from "@/components/generate-ai/ProposalSelector";
 import GenerationSkeletons, { type GenerationStage } from "@/components/generate-ai/GenerationSkeletons";
 import FabricEditorModal from "@/components/generate-ai/FabricEditorModal";
 import { NAV } from "@/config/lexicon";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 const TIPOS = ["Digital Signage", "Menú", "Bienvenida", "Promoción", "Evento"] as const;
 
@@ -45,7 +46,7 @@ function useMenuData() {
   return useQuery({
     queryKey: ["generate-ai", "menu-data"],
     queryFn: async () => {
-      const { data: businessId } = await supabase.rpc("get_user_business_id");
+      const businessId = await getBusinessId();
       if (!businessId) return { items: [] as MenuItem[], total: 0, brandKit: null, businessName: "" };
 
       const [{ data: items, count }, { data: brand }, { data: negocio }] = await Promise.all([
@@ -249,7 +250,7 @@ export default function GenerateAI() {
   const subirLogo = useCallback(async (file: File) => {
     setSubiendoLogo(true);
     try {
-      const { data: bid } = await supabase.rpc("get_user_business_id");
+      const bid = await getBusinessId();
       if (!bid) throw new Error("No business");
       const path = `brand/${bid}/logo-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: true });
@@ -271,7 +272,7 @@ export default function GenerateAI() {
   const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
     try {
-      const { data: bid } = await supabase.rpc("get_user_business_id");
+      const bid = await getBusinessId();
       if (!bid) throw new Error("No business");
 
       const res = await fetch(dataUrl);
@@ -290,7 +291,7 @@ export default function GenerateAI() {
         name: selectedProposal?.texto_principal ?? "Diseño IA",
         type: "image",
         file_url: urlData.publicUrl,
-        created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
+        created_by: await getUserId(),
       });
 
       if (error) throw error;

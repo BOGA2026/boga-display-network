@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getBusinessId, getUserId } from "@/features/auth/tenant";
 
 export type AgentMessage =
   | { role: "user"; content: string; images?: string[] }
@@ -209,9 +210,9 @@ export function useVoiceAgent(businessId: string | null) {
         return { ok: false, error: "Última acción no reversible" };
       }
       case "crear_playlist": {
-        const { data: { user } } = await supabase.auth.getUser();
+        const uid = await getUserId();
         const { data, error } = await supabase.from("playlists").insert({
-          business_id: businessId, name: args.name, created_by: user?.id ?? null,
+          business_id: businessId, name: args.name, created_by: uid,
         }).select("id, name").maybeSingle();
         if (error) throw error;
         return { ok: true, playlist: data };
@@ -228,7 +229,7 @@ export function useVoiceAgent(businessId: string | null) {
         return { ok: true, item: data };
       }
       case "crear_contenido": {
-        const { data: { user } } = await supabase.auth.getUser();
+        const uid = await getUserId();
         const ratio = args.aspect_ratio || "16:9";
         const ratioTag = ` [${ratio}]`;
         const dims =
@@ -312,7 +313,7 @@ export function useVoiceAgent(businessId: string | null) {
           type: "layout",
           file_url: fileUrl,
           duration_seconds: args.duration_seconds ?? 10,
-          created_by: user?.id ?? null,
+          created_by: uid,
         }).select("id, name, type").maybeSingle();
         if (error) throw error;
 
@@ -377,10 +378,10 @@ export function useVoiceAgent(businessId: string | null) {
               role: "tool", tool_call_id: tc.id, content: JSON.stringify(result),
             });
             if (businessId) {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
+              const uid = await getUserId();
+              if (uid) {
                 await supabase.from("voice_agent_actions").insert({
-                  business_id: businessId, user_id: user.id,
+                  business_id: businessId, user_id: uid,
                   tool_name: tc.function.name, parameters: args, result,
                 });
               }
@@ -410,10 +411,10 @@ export function useVoiceAgent(businessId: string | null) {
     try {
       const result = await executeTool(action.name, action.args);
       if (businessId) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+        const uid = await getUserId();
+        if (uid) {
           await supabase.from("voice_agent_actions").insert({
-            business_id: businessId, user_id: user.id,
+            business_id: businessId, user_id: uid,
             tool_name: action.name, parameters: action.args, result,
           });
         }

@@ -2255,6 +2255,10 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
+      get_content_page: { Args: never; Returns: Json }
+      get_dashboard_page: { Args: never; Returns: Json }
+      get_screens_page: { Args: never; Returns: Json }
+      get_tenant: { Args: never; Returns: Json }
       get_user_business_id: { Args: never; Returns: string }
       has_role_in_business: {
         Args: {
