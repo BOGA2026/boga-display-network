@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Trash2, AlertTriangle, GripHorizontal } from "lucide-react";
 import PlaylistHelpTooltip, { getPreference as getHelpDismissed } from "./PlaylistHelpTooltip";
@@ -221,7 +222,37 @@ const BasicWeeklyCalendar = ({
     setDragging(null);
   }, [dragging, onMoveBlock]);
 
+  // En móvil (<768px) la semana completa no cabe: se muestra un solo día
+  // con selector. Desde md se mantiene la semana completa.
+  const isNarrow = useIsMobile(768);
+  const todayIdx = DAY_INDICES.indexOf(new Date().getDay());
+  const [mobileDay, setMobileDay] = useState<number>(todayIdx >= 0 ? todayIdx : 0);
+  const visibleDays = isNarrow ? [DAY_INDICES[mobileDay]] : DAY_INDICES;
+
   return (
+    <div className="space-y-2">
+      {isNarrow && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1" role="tablist" aria-label="Día de la semana">
+          {DAYS.map((d, i) => (
+            <button
+              key={d}
+              type="button"
+              role="tab"
+              aria-selected={mobileDay === i}
+              onClick={() => setMobileDay(i)}
+              className={cn(
+                "min-h-[44px] min-w-[44px] shrink-0 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                mobileDay === i
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border/50 text-muted-foreground hover:bg-muted/50",
+              )}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+      )}
+
     <div
       ref={containerRef}
       className="relative flex overflow-auto rounded-2xl border border-border/50 bg-card/40 select-none"
@@ -245,7 +276,8 @@ const BasicWeeklyCalendar = ({
       </div>
 
       {/* Day columns */}
-      {DAY_INDICES.map((dayIndex, di) => {
+      {visibleDays.map((dayIndex) => {
+        const di = DAY_INDICES.indexOf(dayIndex);
         const dayBlocks = getBlocksForDay(dayIndex);
         const isWeekend = di >= 5;
         const isDraggingInDay = dragging?.dayIdx === dayIndex;
@@ -262,7 +294,7 @@ const BasicWeeklyCalendar = ({
             {/* Day header */}
             <div className="sticky top-0 z-10 h-12 flex flex-col items-center justify-center bg-card/95 backdrop-blur-sm border-b border-border/50">
               <span className="text-sm font-bold text-foreground">{DAYS[di]}</span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {dayBlocks.length > 0 ? `${dayBlocks.length} contenido${dayBlocks.length > 1 ? "s" : ""}` : "Vacío"}
               </span>
             </div>
@@ -277,7 +309,7 @@ const BasicWeeklyCalendar = ({
                   onClick={() => onSelectBlock(null)}
                 >
                   {/* Debug hour marker inside each slot */}
-                  <span className="absolute top-0 left-1 text-[9px] text-muted-foreground/30 font-mono pointer-events-none select-none">
+                  <span className="absolute top-0 left-1 text-xs text-muted-foreground/30 font-mono pointer-events-none select-none">
                     {label}
                   </span>
                 </div>
@@ -461,6 +493,7 @@ const BasicWeeklyCalendar = ({
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

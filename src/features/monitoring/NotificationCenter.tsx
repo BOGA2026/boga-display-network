@@ -44,7 +44,7 @@ export default function NotificationCenter() {
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-semibold text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -84,7 +84,7 @@ export default function NotificationCenter() {
                         <div className="truncate">
                           {n.kind === "offline" ? "Se desconectó" : "Volvió a conectarse"}: {n.device_name}
                         </div>
-                        <div className="text-[11px] text-muted-foreground">{new Date(n.at).toLocaleTimeString("es-CO")}</div>
+                        <div className="text-xs text-muted-foreground">{new Date(n.at).toLocaleTimeString("es-CO")}</div>
                       </div>
                     </button>
                   </li>

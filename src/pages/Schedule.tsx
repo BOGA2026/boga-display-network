@@ -217,7 +217,7 @@ const Schedule = () => {
       />
 
       {/* Main area */}
-      <div className="flex flex-1 gap-3 min-h-0">
+      <div className="flex flex-1 flex-col gap-3 min-h-0 lg:flex-row">
         {/* Calendar */}
         {selectedScreenId ? (
           <div className="flex-1 min-w-0">

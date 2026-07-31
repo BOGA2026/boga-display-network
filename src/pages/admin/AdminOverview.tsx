@@ -125,7 +125,7 @@ export default function AdminOverview() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((k) => (
           <AdminKpiCard key={k.label} {...k} loading={loading && !error} />
         ))}
@@ -167,7 +167,7 @@ export default function AdminOverview() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr
-                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  className="text-xs uppercase tracking-wider admin-dim"
                   style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
                 >
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>

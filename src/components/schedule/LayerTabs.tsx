@@ -35,7 +35,7 @@ const LayerTabs = ({ layers, activeLayerId, onSelect }: Props) => (
       >
         <span className="v-dot" style={{ background: l.color }} />
         {l.name}
-        <Badge variant="outline" className="h-4 px-1 text-[10px] border-current/20">
+        <Badge variant="outline" className="h-4 px-1 text-xs border-current/20">
           P{l.priority}
         </Badge>
       </button>

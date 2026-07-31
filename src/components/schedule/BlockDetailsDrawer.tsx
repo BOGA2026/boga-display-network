@@ -127,7 +127,7 @@ const BlockDetailsDrawer = ({
         <Badge
           variant="outline"
           className={cn(
-            "text-[10px]",
+            "text-xs",
             form.is_enabled
               ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
               : "border-muted-foreground/30 text-muted-foreground"
@@ -136,12 +136,12 @@ const BlockDetailsDrawer = ({
           {form.is_enabled ? "Activo" : "Inactivo"}
         </Badge>
         {hasConflict && (
-          <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-500/10">
+          <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-400 bg-amber-500/10">
             Conflicto
           </Badge>
         )}
         {layer && (
-          <Badge variant="outline" className="text-[10px]" style={{ borderColor: `${layer.color}40`, color: layer.color }}>
+          <Badge variant="outline" className="text-xs" style={{ borderColor: `${layer.color}40`, color: layer.color }}>
             {layer.name} P{layer.priority}
           </Badge>
         )}
@@ -150,7 +150,7 @@ const BlockDetailsDrawer = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Name */}
         <div className="space-y-1.5">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Nombre</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Nombre</Label>
           <Input
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -160,7 +160,7 @@ const BlockDetailsDrawer = ({
 
         {/* Playlist */}
         <div className="space-y-1.5">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Contenido</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Contenido</Label>
           <Select value={form.playlist_id} onValueChange={(v) => setForm((f) => ({ ...f, playlist_id: v }))}>
             <SelectTrigger className="h-8 text-sm bg-secondary/40 border-border/50">
               <SelectValue />
@@ -175,7 +175,7 @@ const BlockDetailsDrawer = ({
 
         {/* Layer */}
         <div className="space-y-1.5">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Capa</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Capa</Label>
           <Select value={form.layer_id} onValueChange={(v) => setForm((f) => ({ ...f, layer_id: v }))}>
             <SelectTrigger className="h-8 text-sm bg-secondary/40 border-border/50">
               <SelectValue />
@@ -199,7 +199,7 @@ const BlockDetailsDrawer = ({
         {/* Time */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Inicio</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Inicio</Label>
             <Input
               type="time"
               value={form.start_time}
@@ -208,7 +208,7 @@ const BlockDetailsDrawer = ({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Fin</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Fin</Label>
             <Input
               type="time"
               value={form.end_time}
@@ -220,14 +220,14 @@ const BlockDetailsDrawer = ({
 
         {/* Days */}
         <div className="space-y-1.5">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Días</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Días</Label>
           <div className="flex gap-1">
             {DAYS_LABELS.map((d) => (
               <button
                 key={d.value}
                 onClick={() => toggleDay(d.value)}
                 className={cn(
-                  "h-8 w-8 rounded-lg text-[11px] font-semibold transition-all",
+                  "h-8 w-8 rounded-lg text-xs font-semibold transition-all",
                   form.days_of_week.includes(d.value)
                     ? "gradient-primary text-primary-foreground glow-primary-sm"
                     : "bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -242,7 +242,7 @@ const BlockDetailsDrawer = ({
         {/* Date range */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Desde</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Desde</Label>
             <Input
               type="date"
               value={form.start_date}
@@ -251,7 +251,7 @@ const BlockDetailsDrawer = ({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Hasta</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Hasta</Label>
             <Input
               type="date"
               value={form.end_date}
@@ -263,7 +263,7 @@ const BlockDetailsDrawer = ({
 
         {/* Recurrence */}
         <div className="space-y-1.5">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Recurrencia</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Recurrencia</Label>
           <Select value={form.recurrence} onValueChange={(v) => setForm((f) => ({ ...f, recurrence: v }))}>
             <SelectTrigger className="h-8 text-sm bg-secondary/40 border-border/50">
               <SelectValue />
@@ -277,7 +277,7 @@ const BlockDetailsDrawer = ({
 
         {/* Enabled toggle */}
         <div className="flex items-center justify-between py-1">
-          <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Habilitado</Label>
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">Habilitado</Label>
           <Switch
             checked={form.is_enabled}
             onCheckedChange={(v) => setForm((f) => ({ ...f, is_enabled: v }))}
@@ -291,11 +291,11 @@ const BlockDetailsDrawer = ({
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Zap className="h-3.5 w-3.5" />
             <span className="font-medium">Triggers</span>
-            <Badge variant="outline" className="ml-auto h-4 px-1.5 text-[9px] border-accent/30 text-accent">
+            <Badge variant="outline" className="ml-auto h-4 px-1.5 text-xs border-accent/30 text-accent">
               Próximamente
             </Badge>
           </div>
-          <p className="mt-1.5 text-[10px] text-muted-foreground/60">
+          <p className="mt-1.5 text-xs text-muted-foreground/60">
             Clima, hora del día, eventos, POS, activación manual.
           </p>
         </div>

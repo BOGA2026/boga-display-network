@@ -135,7 +135,7 @@ const WeeklyTimeline = ({
         {timeLabels.map((label, i) => (
           <div
             key={i}
-            className="flex items-start justify-end pr-2 text-[10px] text-muted-foreground border-b border-border/30"
+            className="flex items-start justify-end pr-2 text-xs text-muted-foreground border-b border-border/30"
             style={{ height: slotHeight }}
           >
             {label}
@@ -196,17 +196,17 @@ const WeeklyTimeline = ({
                       onSelectBlock(block.id);
                     }}
                   >
-                    <div className="px-1.5 py-0.5 text-[10px] text-white font-medium truncate leading-tight">
+                    <div className="px-1.5 py-0.5 text-xs text-white font-medium truncate leading-tight">
                       {block.playlist?.name || block.name || "Sin nombre"}
                     </div>
                     {height > slotHeight * 1.5 && (
-                      <div className="px-1.5 text-[9px] text-white/70">
+                      <div className="px-1.5 text-xs text-white/70">
                         {block.start_time.slice(0, 5)}–{block.end_time.slice(0, 5)}
                       </div>
                     )}
                     {(layer?.priority || 0) > 0 && height > slotHeight * 2 && (
                       <div className="px-1.5">
-                        <span className="inline-block rounded text-[8px] px-1 py-px bg-black/30 text-white/90">
+                        <span className="inline-block rounded text-xs px-1 py-px bg-black/30 text-white/90">
                           Override
                         </span>
                       </div>

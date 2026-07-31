@@ -489,7 +489,7 @@ const Screens = () => {
                   {/* Status pill (top-left) */}
                   <div className="absolute top-3 left-3">
                     {online || screen.status === "online" ? (
-                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-[11px] gap-1.5 shadow-sm">
+                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-xs gap-1.5 shadow-sm">
                         <span className="relative flex h-2 w-2">
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
                           <span className="v-dot v-dot-accent" />
@@ -497,7 +497,7 @@ const Screens = () => {
                         En vivo
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-[11px] gap-1.5">
+                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-xs gap-1.5">
                         <WifiOff className="h-3 w-3" />
                         Offline
                       </Badge>
@@ -524,7 +524,7 @@ const Screens = () => {
                 {/* Meta footer */}
                 <div className="p-4 border-t border-border/20">
                   <div className="font-semibold text-sm truncate mb-1">{screen.name}</div>
-                  <div className="flex items-center gap-1.5 text-[11px]">
+                  <div className="flex items-center gap-1.5 text-xs">
                     <Clock className="h-3 w-3 shrink-0 text-muted-foreground" />
                     <LastSyncLabel lastSeenAt={screen.last_seen_at} />
                   </div>
@@ -712,7 +712,7 @@ const Screens = () => {
                 <p className="font-semibold text-sm text-foreground">Cómo conectar tu pantalla:</p>
                 <ol className="space-y-3">
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">1</span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">1</span>
                     <span className="text-muted-foreground">
                       Abre la app Visualia en tu TV.{" "}
                       (¿No la tienes?{" "}
@@ -728,13 +728,13 @@ const Screens = () => {
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">2</span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">2</span>
                     <span className="text-muted-foreground">
                       Ingresa este código de <span className="font-semibold text-foreground">6 caracteres</span> con el control remoto.
                     </span>
                   </li>
                   <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-[11px] font-bold text-primary-foreground">3</span>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">3</span>
                     <span className="text-muted-foreground">
                       Cuando la pantalla se conecte, esta ventana se cerrará sola.
                     </span>

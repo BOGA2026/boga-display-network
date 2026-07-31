@@ -78,7 +78,7 @@ export default function AdminSubscriptions() {
         subtitle="Estado de suscripciones activas por negocio"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <AdminKpiCard label="Activas" value={kpis.total} icon={CheckCircle2} tone="success" loading={loading} />
         <AdminKpiCard label="En prueba" value={kpis.trial} icon={Clock} tone="warning" loading={loading} />
         <AdminKpiCard label="Canceladas" value={kpis.canceled} icon={XCircle} tone="danger" loading={loading} />
@@ -141,7 +141,7 @@ export default function AdminSubscriptions() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr
-                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  className="text-xs uppercase tracking-wider admin-dim"
                   style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
                 >
                   <th className="text-left px-4 py-3 font-medium">Negocio</th>
@@ -172,7 +172,7 @@ export default function AdminSubscriptions() {
                       <td className="px-4 py-3.5 admin-muted">{s.plan}</td>
                       <td className="px-4 py-3.5">
                         <span
-                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                           style={{ background: st.bg, color: st.fg }}
                         >
                           {st.label}

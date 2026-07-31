@@ -92,7 +92,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
             <div key={i} className="flex items-center gap-2">
               <div
                 className={cn(
-                  "h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors",
+                  "h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors",
                   i <= step
                     ? "gradient-primary text-primary-foreground"
                     : "bg-secondary text-muted-foreground"
@@ -127,14 +127,14 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
                 >
                   <ct.icon className="h-5 w-5 mb-1.5 text-muted-foreground" />
                   <div className="text-xs font-medium">{ct.label}</div>
-                  <div className="text-[10px] text-muted-foreground">{ct.desc}</div>
+                  <div className="text-xs text-muted-foreground">{ct.desc}</div>
                 </button>
               ))}
             </div>
 
             {contentType === "playlist" && playlists.length > 0 && (
               <div className="space-y-1.5">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Playlist</Label>
+                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Playlist</Label>
                 <Select value={playlistId} onValueChange={setPlaylistId}>
                   <SelectTrigger className="h-8 text-sm bg-secondary/40 border-border/50">
                     <SelectValue />
@@ -149,7 +149,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
             )}
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Nombre (opcional)</Label>
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Nombre (opcional)</Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -165,7 +165,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Hora inicio</Label>
+                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Hora inicio</Label>
                 <Input
                   type="time"
                   value={startTime}
@@ -174,7 +174,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Hora fin</Label>
+                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Hora fin</Label>
                 <Input
                   type="time"
                   value={endTime}
@@ -185,7 +185,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Días</Label>
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Días</Label>
               <div className="flex gap-1.5">
                 {DAYS_LABELS.map((d) => (
                   <button
@@ -205,7 +205,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Repetición</Label>
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Repetición</Label>
               <Select value={recurrence} onValueChange={setRecurrence}>
                 <SelectTrigger className="h-8 text-sm bg-secondary/40 border-border/50">
                   <SelectValue />
@@ -223,7 +223,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
         {step === 2 && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">Capa / Prioridad</Label>
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Capa / Prioridad</Label>
               <div className="space-y-1.5">
                 {layers.map((l) => (
                   <button
@@ -239,7 +239,7 @@ const NewBlockWizard = ({ open, onOpenChange, layers, playlists, onCreateBlock }
                     <span className="h-4 w-4 rounded-md" style={{ background: l.color }} />
                     <div className="flex-1">
                       <div className="text-xs font-medium">{l.name}</div>
-                      <div className="text-[10px] text-muted-foreground">Prioridad {l.priority}</div>
+                      <div className="text-xs text-muted-foreground">Prioridad {l.priority}</div>
                     </div>
                   </button>
                 ))}

@@ -120,7 +120,8 @@ export default function AdminMap() {
       ) : (
         <Card className="bg-background/40 border-border/50">
           <div className="p-3 border-b border-border/50 text-sm font-medium">Sedes por ciudad</div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[480px] text-sm">
             <thead className="text-xs uppercase text-muted-foreground border-b border-border/50">
               <tr>
                 <th className="text-left p-3">Ciudad / zona</th>
@@ -136,6 +137,7 @@ export default function AdminMap() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </div>

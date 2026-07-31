@@ -113,7 +113,7 @@ export default function AdminTraffic() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <AdminKpiCard label="Activos hoy" value={kpis.today} icon={Users} tone="accent" loading={loading} />
         <AdminKpiCard label="Activos 7 días" value={kpis.week} icon={Activity} tone="success" loading={loading} />
         <AdminKpiCard label="Activos 30 días" value={kpis.month} icon={TrendingUp} tone="neutral" loading={loading} />

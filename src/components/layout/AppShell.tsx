@@ -18,22 +18,9 @@ import { Suspense } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import {
-  LayoutDashboard,
-  Monitor,
-  Image as ImageIcon,
-  ListVideo,
-  Calendar,
-  BarChart3,
-  CreditCard,
-  LifeBuoy,
   LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
   Command as CommandIcon,
-  Plus,
-  Upload,
-  Map as MapIcon,
-  QrCode,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
@@ -43,39 +30,163 @@ import { supabase } from "@/integrations/supabase/client";
 import { VoiceAgentDock } from "@/components/voice-agent/VoiceAgentDock";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { LocationSwitcher } from "./LocationSwitcher";
-import { LocationProvider, useLocationContext } from "@/context/LocationContext";
+import { LocationProvider } from "@/context/LocationContext";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BaselineCommands } from "@/components/dashboard/BaselineCommands";
 import {
   CommandRegistryProvider,
   useCommandRegistry,
-
-  type CommandItem,
 } from "@/hooks/useCommandRegistry";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
 import { ContentSkeleton } from "./ContentSkeleton";
 import { prefetch } from "@/lib/routePrefetch";
 import { NAV, NAV_GROUPS, COPY } from "@/config/lexicon";
-
-
-const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((key) => NAV[key]));
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  useSidebar,
+} from "@/components/ui/sidebar";
 
 const SIDEBAR_KEY = "dash.sidebar";
+
+/** Navegación del dashboard. Se comparte entre escritorio y panel móvil. */
+function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
+  const { state, isMobile, setOpenMobile } = useSidebar();
+  const collapsed = state === "collapsed" && !isMobile;
+  const location = useLocation();
+
+  // El panel móvil se cierra solo al navegar.
+  React.useEffect(() => {
+    setOpenMobile(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  return (
+    <Sidebar collapsible="icon" className="border-r border-border">
+      <SidebarHeader className="h-14 justify-center px-3">
+        <Link to="/dashboard" className="inline-flex min-h-[44px] items-center">
+          <img
+            src={logoVisualia}
+            alt="Visualia"
+            className={cn("h-7 w-auto transition-all", collapsed && "h-6")}
+          />
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent className="p-2">
+        {NAV_GROUPS.map((group) => (
+          <SidebarGroup key={group.id} className="p-0">
+            {!collapsed && (
+              <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((key) => {
+                  const item = NAV[key];
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      <SidebarMenuButton asChild tooltip={item.label}>
+                        <NavLink
+                          to={item.path}
+                          end={item.end}
+                          onMouseEnter={() => prefetch(item.path)}
+                          onFocus={() => prefetch(item.path)}
+                          onTouchStart={() => prefetch(item.path)}
+                          className={({ isActive }) =>
+                            cn(
+                              "group relative flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-200 ease-ios",
+                              isActive
+                                ? "bg-primary/12 text-foreground shadow-soft-1"
+                                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                            )
+                          }
+                        >
+                          {({ isActive }) => (
+                            <>
+                              {isActive && (
+                                <span
+                                  aria-hidden
+                                  className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
+                                />
+                              )}
+                              <item.icon className="h-4 w-4 shrink-0" />
+                              {!collapsed && <span className="truncate">{item.label}</span>}
+                            </>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-border p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={onLogout}
+              className="min-h-[44px] gap-3 rounded-xl px-3 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>{COPY.actions.logout}</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
+
+/** Botón hamburguesa (44×44 px) visible por debajo de lg. */
+function MobileMenuButton() {
+  const { toggleSidebar } = useSidebar();
+  return (
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      aria-label="Abrir menú"
+      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground lg:hidden"
+    >
+      <Menu className="h-5 w-5" />
+    </button>
+  );
+}
+
+/** Alterna el sidebar colapsado en escritorio. */
+function DesktopCollapseSync() {
+  const { open, setOpen } = useSidebar();
+  React.useEffect(() => {
+    window.localStorage.setItem(SIDEBAR_KEY, open ? "0" : "1");
+  }, [open]);
+  React.useEffect(() => {
+    if (window.localStorage.getItem(SIDEBAR_KEY) === "1") setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
 
 function ShellInner() {
   const navigate = useNavigate();
   // Título de pestaña siempre desde NAV[key].pageTitle.
   useDocumentTitle();
-  const [collapsed, setCollapsed] = React.useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(SIDEBAR_KEY) === "1";
-  });
   const [paletteOpen, setPaletteOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    window.localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0");
-  }, [collapsed]);
 
   // ⌘K / Ctrl+K
   React.useEffect(() => {
@@ -94,120 +205,38 @@ function ShellInner() {
     navigate("/login", { replace: true });
   };
 
-  const sidebarWidth = collapsed ? 68 : 240;
-
   return (
-    <div className="dash-scope flex h-screen w-full overflow-hidden bg-background text-foreground">
-      <BaselineCommands />
+    <SidebarProvider>
+      <div className="dash-scope flex h-screen w-full overflow-hidden bg-background text-foreground">
+        <BaselineCommands />
+        <DesktopCollapseSync />
+        <DashboardSidebar onLogout={handleLogout} />
 
-      {/* Sidebar */}
-      <aside
-        style={{ width: sidebarWidth, transition: "width var(--duration-medium) var(--ease-ios)" }}
-        className="relative z-20 flex h-screen shrink-0 flex-col border-r border-border bg-sidebar"
-      >
-        <div className="flex h-14 items-center justify-center px-3">
-          <Link to="/dashboard" className="inline-flex items-center">
-            <img
-              src={logoVisualia}
-              alt="Visualia"
-              className={cn("h-7 w-auto transition-all", collapsed && "h-6")}
-            />
-          </Link>
-        </div>
-
-        <nav className="flex-1 space-y-4 overflow-y-auto p-2">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.id} className="space-y-1">
-              {!collapsed && (
-                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-                  {group.label}
-                </p>
-              )}
-              {group.items.map((key) => {
-                const item = NAV[key];
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    end={item.end}
-                    onMouseEnter={() => prefetch(item.path)}
-                    onFocus={() => prefetch(item.path)}
-                    onTouchStart={() => prefetch(item.path)}
-                    className={({ isActive }) =>
-                      cn(
-                        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-ios",
-                        isActive
-                          ? "bg-primary/12 text-foreground shadow-soft-1"
-                          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                      )
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        {isActive && (
-                          <span
-                            aria-hidden
-                            className="motion-rise absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary"
-                          />
-                        )}
-                        <item.icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && <span className="truncate">{item.label}</span>}
-                      </>
-                    )}
-                  </NavLink>
-                );
-              })}
+        <SidebarInset className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
+            <div className="flex min-w-0 items-center gap-1">
+              <MobileMenuButton />
+              <Breadcrumbs />
             </div>
-          ))}
-        </nav>
+            <div className="flex items-center gap-2">
+              <LocationSwitcher />
+              <PaletteTrigger onOpen={() => setPaletteOpen(true)} />
+            </div>
+          </header>
 
+          <main className="flex-1 overflow-y-auto">
+            <PageTransition>
+              <Suspense fallback={<ContentSkeleton />}>
+                <Outlet />
+              </Suspense>
+            </PageTransition>
+          </main>
+        </SidebarInset>
 
-        <div className="border-t border-border p-2 space-y-1">
-          <button
-            onClick={() => setCollapsed((v) => !v)}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-            aria-label={collapsed ? COPY.actions.expand : COPY.actions.collapse}
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="h-4 w-4 shrink-0" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4 shrink-0" />
-            )}
-            {!collapsed && <span>{COPY.actions.collapse}</span>}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-          >
-            <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{COPY.actions.logout}</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/60 px-4 backdrop-blur">
-          <Breadcrumbs />
-          <div className="flex items-center gap-2">
-            <LocationSwitcher />
-            <PaletteTrigger onOpen={() => setPaletteOpen(true)} />
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto">
-          <PageTransition>
-            <Suspense fallback={<ContentSkeleton />}>
-              <Outlet />
-            </Suspense>
-          </PageTransition>
-        </main>
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+        <VoiceAgentDock />
       </div>
-
-
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-      <VoiceAgentDock />
-    </div>
+    </SidebarProvider>
   );
 }
 
@@ -219,12 +248,12 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       onClick={onOpen}
-      className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-muted/30 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+      className="inline-flex h-11 min-w-[44px] items-center justify-center gap-2 rounded-full border border-border bg-muted/30 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
       aria-label="Abrir command palette"
     >
       <CommandIcon className="h-3.5 w-3.5" />
       <span className="hidden md:inline">{COPY.actions.search}</span>
-      <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium md:inline">
+      <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-xs font-medium md:inline">
         {isMac ? "⌘" : "Ctrl"} K
       </kbd>
     </button>

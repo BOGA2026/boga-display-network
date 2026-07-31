@@ -132,7 +132,7 @@ export function SchedulerTimeline({
         ))}
 
         {/* hour rail */}
-        <div className="border-r border-border/40 text-[10px] text-muted-foreground/70">
+        <div className="border-r border-border/40 text-xs text-muted-foreground/70">
           {HOURS.map((h) => (
             <div
               key={h}
@@ -198,7 +198,7 @@ export function SchedulerTimeline({
                       <GripVertical className="h-3 w-3 opacity-70" />
                       <span className="truncate">{playlistNameById[b.playlist_id] ?? "Lista"}</span>
                     </div>
-                    <div className="text-[10px] opacity-80">
+                    <div className="text-xs opacity-80">
                       {b.start_time}–{b.end_time}
                     </div>
                     <div

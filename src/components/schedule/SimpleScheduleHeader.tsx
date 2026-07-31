@@ -45,7 +45,7 @@ const SimpleScheduleHeader = ({
           <Monitor className="h-5 w-5 text-primary-foreground" />
         </div>
         <div className="flex-1">
-          <label className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider mb-1 block">
+          <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1 block">
             Pantalla
           </label>
           <Select value={selectedId || ""} onValueChange={onSelect}>

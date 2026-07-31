@@ -33,7 +33,7 @@ export default function ScreenTimeline({ screen }: { screen: ScreenData }) {
             <div className="w-12 shrink-0" />
             <div className="flex flex-1">
               {HOURS.filter((h) => h % 3 === 0).map((h) => (
-                <span key={h} className="flex-1 border-l border-border px-1 py-1 text-[10px] text-muted-foreground">
+                <span key={h} className="flex-1 border-l border-border px-1 py-1 text-xs text-muted-foreground">
                   {String(h).padStart(2, "0")}
                 </span>
               ))}
@@ -56,7 +56,7 @@ export default function ScreenTimeline({ screen }: { screen: ScreenData }) {
                     }}
                     title={`${item.contentName} ${item.startTime}–${item.endTime}`}
                   >
-                    <span className="truncate px-1 text-[10px] font-medium text-primary-foreground">
+                    <span className="truncate px-1 text-xs font-medium text-primary-foreground">
                       {item.contentName}
                     </span>
                   </div>

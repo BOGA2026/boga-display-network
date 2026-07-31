@@ -74,7 +74,7 @@ export default function AdminBusinesses() {
             <table className="w-full text-[13px]">
               <thead>
                 <tr
-                  className="text-[11px] uppercase tracking-wider admin-dim"
+                  className="text-xs uppercase tracking-wider admin-dim"
                   style={{ borderBottom: "1px solid hsl(var(--admin-border))" }}
                 >
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>
@@ -98,7 +98,7 @@ export default function AdminBusinesses() {
                     <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(r.created_at).toLocaleDateString("es-CO")}
                     </td>
-                    <td className="px-4 py-3.5 font-mono text-[11px] admin-dim">
+                    <td className="px-4 py-3.5 font-mono text-xs admin-dim">
                       {r.id.slice(0, 8)}
                     </td>
                   </tr>

@@ -75,7 +75,7 @@ const TrendBadge = ({ value, suffix = "" }: { value: number; suffix?: string }) 
   const up = value > 0;
   return (
     <span className={cn(
-      "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+      "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-semibold",
       up ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
     )}>
       {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
@@ -117,7 +117,7 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
               <p className="v-kpi-value text-3xl">{value}</p>
               {trend !== undefined && <TrendBadge value={trend} suffix="%" />}
             </div>
-            {subtitle && <p className="text-[10px] text-muted-foreground">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
           <div className={cn(
             "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
@@ -132,7 +132,7 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
               "h-1.5 w-1.5 rounded-full",
               status === "ok" ? "bg-primary" : status === "warn" ? "bg-accent" : "bg-destructive"
             )} />
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {status === "ok" ? "Operativo" : status === "warn" ? "Alerta" : "Inactivo"}
             </span>
           </div>
@@ -263,7 +263,7 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
                 {step.done ? (
                   <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
                 ) : (
-                  <span className="text-[11px] font-semibold text-muted-foreground">{i + 1}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">{i + 1}</span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -299,7 +299,7 @@ function PrimerosPasosCard({ steps, onDismiss }: { steps: Step[]; onDismiss?: ()
               style={{ width: `${(completedCount / steps.length) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] text-muted-foreground font-medium">
+          <span className="text-xs text-muted-foreground font-medium">
             {completedCount}/{steps.length}
           </span>
         </div>
@@ -404,7 +404,7 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground mt-0.5">{NAV.inicio.pageSubtitle}</p>
         </div>
         {stats?.lastSync && (
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RefreshCw className="h-3 w-3" />
             <LastSyncLabel lastSeenAt={stats.lastSync} prefix={COPY.sync.label} />
           </div>
@@ -484,7 +484,7 @@ const Dashboard = () => {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
         {quickActions.map((a, i) => (
           <Button
             key={a.label}
@@ -578,7 +578,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs leading-snug">{item.text}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(item.time)}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(item.time)}</p>
                     </div>
                   </div>
                 ))}
@@ -594,7 +594,7 @@ const Dashboard = () => {
               <CardTitle className="font-display text-base">Estado de pantallas</CardTitle>
               {systemStatus && (
                 <span className={cn(
-                  "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium",
+                  "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
                   systemStatus === "ok" ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
                 )}>
                   <span className={cn(
@@ -652,14 +652,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{screen.name}</p>
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {screen.locations?.name && <span>{screen.locations.name}</span>}
                         <span>·</span>
                         <LastSyncLabel lastSeenAt={screen.last_seen_at} />
                       </div>
                     </div>
                     <span className={cn(
-                      "rounded-full px-2 py-0.5 text-[9px] font-semibold",
+                      "rounded-full px-2 py-0.5 text-xs font-semibold",
                       badgeClass
                     )}>
                       {badgeLabel}

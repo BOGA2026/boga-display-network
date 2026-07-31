@@ -102,10 +102,10 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
               }}
             >
               <div className="px-2 py-1">
-                <div className="text-[10px] font-bold text-primary-foreground truncate">
+                <div className="text-xs font-bold text-primary-foreground truncate">
                   Mi playlist
                 </div>
-                <div className="text-[9px] text-primary-foreground/80 font-mono">
+                <div className="text-xs text-primary-foreground/80 font-mono">
                   09:00 – {stepIdx >= 1 ? "11:30" : "10:00"}
                 </div>
               </div>
@@ -128,7 +128,7 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
               `}>
                 {stepIdx < 2
                   ? <GripHorizontal className="h-3 w-3 text-primary-foreground" />
-                  : <span className="text-[10px] text-green-400">✓</span>
+                  : <span className="text-xs text-green-400">✓</span>
                 }
               </div>
             </div>
@@ -152,12 +152,12 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
               }`}
             >
               <span className={`
-                flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5
+                flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5
                 ${i === stepIdx ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}
               `}>
                 {i + 1}
               </span>
-              <span className="text-[11px] text-foreground leading-tight">{step.text}</span>
+              <span className="text-xs text-foreground leading-tight">{step.text}</span>
             </div>
           ))}
         </div>
@@ -166,7 +166,7 @@ const PlaylistHelpTooltip = ({ anchorRect, visible, onClose }: Props) => {
         <div className="px-3 py-2 border-t border-border/30 flex justify-end">
           <button
             onClick={handleNeverShow}
-            className="text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             No mostrar otra vez
           </button>

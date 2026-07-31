@@ -59,17 +59,17 @@ const ScheduleBlockCard = ({
     >
       {/* Content */}
       <div className="px-2 py-1">
-        <div className="text-[11px] font-semibold text-white truncate leading-tight drop-shadow-sm">
+        <div className="text-xs font-semibold text-white truncate leading-tight drop-shadow-sm">
           {block.playlist?.name || block.name || "Sin nombre"}
         </div>
         {height > slotHeight * 1.3 && (
-          <div className="text-[10px] text-white/80 mt-0.5 font-medium">
+          <div className="text-xs text-white/80 mt-0.5 font-medium">
             {block.start_time.slice(0, 5)} – {block.end_time.slice(0, 5)}
           </div>
         )}
         {priority > 0 && height > slotHeight * 2 && (
           <div className="mt-1">
-            <span className="inline-block rounded-full text-[9px] px-1.5 py-px bg-black/30 text-white/90 font-medium">
+            <span className="inline-block rounded-full text-xs px-1.5 py-px bg-black/30 text-white/90 font-medium">
               Override P{priority}
             </span>
           </div>
@@ -86,7 +86,7 @@ const ScheduleBlockCard = ({
       {/* Disabled overlay */}
       {!block.is_enabled && (
         <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-          <span className="text-[9px] text-muted-foreground font-medium">Inactivo</span>
+          <span className="text-xs text-muted-foreground font-medium">Inactivo</span>
         </div>
       )}
 

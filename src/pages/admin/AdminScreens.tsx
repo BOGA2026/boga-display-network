@@ -184,7 +184,7 @@ export default function AdminScreens() {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="text-[10px] uppercase text-muted-foreground border-b border-border/30">
+                  <thead className="text-xs uppercase text-muted-foreground border-b border-border/30">
                     <tr>
                       <th className="text-left px-4 py-2">Pantalla</th>
                       <th className="text-left px-4 py-2">Ubicación</th>

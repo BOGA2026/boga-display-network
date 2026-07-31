@@ -201,7 +201,7 @@ export default function AdminPQRS() {
             <div className="flex gap-1 flex-wrap">
               {(["todos", "nuevo", "en_proceso", "resuelto", "cerrado"] as const).map(f => (
                 <button key={f} onClick={() => setFilter(f)}
-                  className={`px-2 py-0.5 text-[10px] rounded ${filter === f ? "bg-primary/20 text-primary" : "admin-muted hover:text-foreground"}`}>
+                  className={`px-2 py-0.5 text-xs rounded ${filter === f ? "bg-primary/20 text-primary" : "admin-muted hover:text-foreground"}`}>
                   {f === "todos" ? "Todos" : STATUS_LABEL[f]?.label ?? f}
                 </button>
               ))}
@@ -216,15 +216,15 @@ export default function AdminPQRS() {
               <button key={p.id} onClick={() => setSelectedId(p.id)}
                 className={`w-full text-left p-3 border-b border-border/30 hover:bg-white/5 transition ${selectedId === p.id ? "bg-primary/10" : ""}`}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] uppercase admin-muted">{TYPE_LABEL[p.type]}</span>
-                  <span className={`text-[10px] ${PRIORITY_CLS[p.priority]}`}>● {p.priority}</span>
+                  <span className="text-xs uppercase admin-muted">{TYPE_LABEL[p.type]}</span>
+                  <span className={`text-xs ${PRIORITY_CLS[p.priority]}`}>● {p.priority}</span>
                 </div>
                 <div className="text-sm font-medium truncate flex items-center gap-2">
                   {!p.read_by_admin && <span className="v-dot v-dot-accent" />}
                   {p.subject}
                 </div>
                 <div className="text-xs admin-muted truncate">{p.businesses?.name ?? "—"}</div>
-                <div className="text-[10px] admin-muted mt-1">{formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: es })}</div>
+                <div className="text-xs admin-muted mt-1">{formatDistanceToNow(new Date(p.created_at), { addSuffix: true, locale: es })}</div>
               </button>
             ))}
           </div>
@@ -239,8 +239,8 @@ export default function AdminPQRS() {
             <>
               <div className="p-4 border-b border-border/50">
                 <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                  <span className="text-[10px] uppercase admin-muted">{TYPE_LABEL[selected.type]} • {selected.businesses?.name}</span>
-                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase ${STATUS_LABEL[selected.status].cls}`}>
+                  <span className="text-xs uppercase admin-muted">{TYPE_LABEL[selected.type]} • {selected.businesses?.name}</span>
+                  <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs uppercase ${STATUS_LABEL[selected.status].cls}`}>
                     {STATUS_LABEL[selected.status].label}
                   </span>
                 </div>
@@ -255,7 +255,7 @@ export default function AdminPQRS() {
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 <div className="v-card p-3">
-                  <div className="text-[10px] uppercase admin-muted mb-1">Usuario • {new Date(selected.created_at).toLocaleString("es-CO")}</div>
+                  <div className="text-xs uppercase admin-muted mb-1">Usuario • {new Date(selected.created_at).toLocaleString("es-CO")}</div>
                   <div className="text-sm whitespace-pre-wrap">{selected.message}</div>
                 </div>
                 {responsesLoading && (
@@ -269,7 +269,7 @@ export default function AdminPQRS() {
                 )}
                 {responses.map(r => (
                   <div key={r.id} className={`rounded-lg p-3 border ${r.author_role === "admin" ? "bg-primary/10 border-primary/30 ml-8" : "bg-white/5 border-border/50 mr-8"}`}>
-                    <div className="text-[10px] uppercase admin-muted mb-1">
+                    <div className="text-xs uppercase admin-muted mb-1">
                       {r.author_role === "admin" ? "Admin" : "Usuario"} • {new Date(r.created_at).toLocaleString("es-CO")}
                     </div>
                     <div className="text-sm whitespace-pre-wrap">{r.message}</div>

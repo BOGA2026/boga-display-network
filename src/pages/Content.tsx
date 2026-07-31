@@ -383,7 +383,7 @@ const Content = () => {
                   ) : (
                     <Icon className="h-10 w-10 text-muted-foreground/40" />
                   )}
-                  <div className="absolute top-2 right-2 rounded-md bg-background/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
+                  <div className="absolute top-2 right-2 rounded-md bg-background/80 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur">
                     {item.type === "layout" ? "Layout" : item.type}
                   </div>
                 </div>
@@ -551,7 +551,7 @@ const Content = () => {
                       <p className="text-sm text-muted-foreground">
                         Arrastra un archivo aquí o <span className="text-primary font-medium">haz clic para seleccionar</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground/60 mt-1">
+                      <p className="text-xs text-muted-foreground/60 mt-1">
                         Máximo 100 MB
                       </p>
                     </>

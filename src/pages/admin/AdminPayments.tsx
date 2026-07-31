@@ -132,7 +132,7 @@ export default function AdminPayments() {
                       <td className="p-3 text-muted-foreground">{r.next_billing_date ? new Date(r.next_billing_date).toLocaleDateString("es-CO") : "—"}</td>
                       <td className="p-3 whitespace-nowrap">{daysText}</td>
                       <td className="p-3">{fmtCOP(Number(r.total_amount))}</td>
-                      <td className="p-3"><span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] uppercase ${badge}`}>{label}</span></td>
+                      <td className="p-3"><span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs uppercase ${badge}`}>{label}</span></td>
                     </tr>
                   );
                 })}
