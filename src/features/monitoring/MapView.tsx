@@ -1,203 +1,180 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+/**
+ * MapView — mapa de monitoreo con Leaflet.
+ *
+ * Se migró de Mapbox GL a Leaflet: solo necesitamos pines con estado y un popup,
+ * y Mapbox GL costaba ~500 kB gzip + un token facturable. Leaflet ya se usa en
+ * el mapa de Sedes, así que además compartimos dependencia y estilos.
+ *
+ * Notas Vite:
+ *  - `leaflet/dist/leaflet.css` se importa explícitamente (si no, el mapa se descuadra).
+ *  - Usamos `L.divIcon` (HTML/CSS) en vez de `L.Icon.Default`: evita el problema de
+ *    rutas relativas a las imágenes y nos deja colorear el pin según el estado.
+ */
+import { useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useMonitoringStore, selectDevicesArray } from "./store";
-import { AlertTriangle } from "lucide-react";
+import { MapPin } from "lucide-react";
 
-// Prefer Lovable Mapbox connector token; fall back to a user-provided public token.
-const MAPBOX_TOKEN =
-  (import.meta.env.VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN as string | undefined) ||
-  (import.meta.env.VITE_MAPBOX_TOKEN as string | undefined) ||
-  "";
+const HOUR = 60 * 60 * 1000;
 
-const STATUS_COLOR: Record<string, string> = {
-  online: "#22c55e",
-  offline: "#6b7280",
-  syncing: "#f59e0b",
-  pending: "#9ca3af",
+type PinStatus = "online" | "warn" | "down";
+
+const PIN_COLOR: Record<PinStatus, string> = {
+  online: "#22c55e", // en línea
+  warn: "#f59e0b", // +2 h sin reportar
+  down: "#ef4444", // +48 h o nunca
 };
 
-/**
- * Mapbox GL was chosen over Google Maps because:
- *  - Native vector-tile clustering with `cluster: true` (Google requires
- *    a separate marker-clusterer library).
- *  - Custom dark styling aligns with Visualia's premium palette out of the box.
- *  - Cheaper per map load at our expected volumes; no server-side proxy needed
- *    since we render tiles client-side.
- *  - Integrates cleanly with the Lovable Mapbox connector (public token via env).
- */
-export default function MapView() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const [ready, setReady] = useState(false);
+const PIN_LABEL: Record<PinStatus, string> = {
+  online: "En línea",
+  warn: "Sin reportar hace más de 2 h",
+  down: "Fuera de línea",
+};
 
+function pinStatus(lastSeenAt: string | null, status: string): PinStatus {
+  if (!lastSeenAt) return "down";
+  const elapsed = Date.now() - new Date(lastSeenAt).getTime();
+  if (elapsed > 48 * HOUR) return "down";
+  if (elapsed > 2 * HOUR) return "warn";
+  return status === "online" || status === "syncing" ? "online" : "warn";
+}
+
+function formatLastSeen(lastSeenAt: string | null) {
+  if (!lastSeenAt) return "Nunca se ha conectado";
+  const d = new Date(lastSeenAt);
+  return d.toLocaleString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const iconCache = new Map<PinStatus, L.DivIcon>();
+
+function pinIcon(status: PinStatus) {
+  const cached = iconCache.get(status);
+  if (cached) return cached;
+  const color = PIN_COLOR[status];
+  const icon = L.divIcon({
+    className: "",
+    html: `<span style="display:block;width:16px;height:16px;border-radius:9999px;background:${color};border:2px solid rgba(255,255,255,.85);box-shadow:0 0 12px ${color}"></span>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -10],
+  });
+  iconCache.set(status, icon);
+  return icon;
+}
+
+/** Ajusta el encuadre a los pines. Con un solo punto, `fitBounds` haría un zoom absurdo. */
+function FitToMarkers({ points }: { points: [number, number][] }) {
+  const map = useMap();
+  const signature = points.map((p) => p.join(",")).join("|");
+
+  useEffect(() => {
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView(points[0], 15);
+      return;
+    }
+    map.fitBounds(L.latLngBounds(points), { padding: [60, 60], maxZoom: 14 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature, map]);
+
+  return null;
+}
+
+export default function MapView() {
   const devices = useMonitoringStore(selectDevicesArray);
   const select = useMonitoringStore((s) => s.select);
-  const selectedId = useMonitoringStore((s) => s.selectedId);
   const tick = useMonitoringStore((s) => s.tick);
 
-  const featureCollection = useMemo(() => {
-    const features = devices
-      .filter((d) => d.latitude != null && d.longitude != null)
-      .map((d) => ({
-        type: "Feature" as const,
-        properties: { id: d.id, status: d.status, name: d.screen_name ?? "" },
-        geometry: { type: "Point" as const, coordinates: [d.longitude!, d.latitude!] },
-      }));
-    return { type: "FeatureCollection" as const, features };
-  }, [devices, tick]);
+  const pins = useMemo(
+    () =>
+      devices
+        .filter((d) => d.latitude != null && d.longitude != null)
+        .map((d) => ({
+          id: d.id,
+          screenId: d.screen_id,
+          name: d.screen_name ?? "Pantalla sin nombre",
+          address: d.address,
+          lastSeenAt: d.last_seen_at,
+          position: [d.latitude!, d.longitude!] as [number, number],
+          status: pinStatus(d.last_seen_at, d.status),
+        })),
+    // `tick` fuerza el recálculo de estado cuando llegan heartbeats
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [devices, tick]
+  );
 
-  // Initialize once
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current || !MAPBOX_TOKEN) return;
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center: [-74.08, 4.65], // Bogotá default
-      zoom: 4.5,
-      attributionControl: false,
-    });
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
-    map.on("load", () => {
-      map.addSource("devices", {
-        type: "geojson",
-        data: { type: "FeatureCollection", features: [] },
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 45,
-      });
-
-      map.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "devices",
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": "#5227FF",
-          "circle-opacity": 0.85,
-          "circle-radius": ["step", ["get", "point_count"], 16, 10, 22, 50, 30],
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 2,
-          "circle-stroke-opacity": 0.15,
-        },
-      });
-      map.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "devices",
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": ["get", "point_count_abbreviated"],
-          "text-size": 12,
-          "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-        },
-        paint: { "text-color": "#ffffff" },
-      });
-      map.addLayer({
-        id: "unclustered",
-        type: "circle",
-        source: "devices",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": [
-            "match",
-            ["get", "status"],
-            "online",
-            STATUS_COLOR.online,
-            "offline",
-            STATUS_COLOR.offline,
-            "syncing",
-            STATUS_COLOR.syncing,
-            STATUS_COLOR.pending,
-          ],
-          "circle-radius": 8,
-          "circle-stroke-color": "#0a0a12",
-          "circle-stroke-width": 2,
-        },
-      });
-
-      map.on("click", "unclustered", (e) => {
-        const f = e.features?.[0];
-        const id = f?.properties?.id as string | undefined;
-        if (id) select(id);
-      });
-      map.on("click", "clusters", (e) => {
-        const feats = map.queryRenderedFeatures(e.point, { layers: ["clusters"] });
-        const clusterId = feats[0]?.properties?.cluster_id;
-        const src = map.getSource("devices") as mapboxgl.GeoJSONSource;
-        if (clusterId != null) {
-          src.getClusterExpansionZoom(clusterId, (err, zoom) => {
-            if (err || zoom == null) return;
-            map.easeTo({
-              center: (feats[0].geometry as GeoJSON.Point).coordinates as [number, number],
-              zoom,
-            });
-          });
-        }
-      });
-      map.on("mouseenter", "unclustered", () => (map.getCanvas().style.cursor = "pointer"));
-      map.on("mouseleave", "unclustered", () => (map.getCanvas().style.cursor = ""));
-      map.on("mouseenter", "clusters", () => (map.getCanvas().style.cursor = "pointer"));
-      map.on("mouseleave", "clusters", () => (map.getCanvas().style.cursor = ""));
-
-      mapRef.current = map;
-      setReady(true);
-    });
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      setReady(false);
-    };
-  }, [select]);
-
-  // Push data updates (throttled at the store level, incremental here)
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready) return;
-    const src = map.getSource("devices") as mapboxgl.GeoJSONSource | undefined;
-    if (src) src.setData(featureCollection);
-  }, [featureCollection, ready]);
-
-  // Fit bounds first time we have data
-  const fittedRef = useRef(false);
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || fittedRef.current) return;
-    const pts = featureCollection.features;
-    if (pts.length === 0) return;
-    const bounds = new mapboxgl.LngLatBounds();
-    pts.forEach((f) => bounds.extend(f.geometry.coordinates as [number, number]));
-    map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 800 });
-    fittedRef.current = true;
-  }, [featureCollection, ready]);
-
-  // Highlight selected pin
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || !selectedId) return;
-    const d = featureCollection.features.find((f) => f.properties.id === selectedId);
-    if (d) {
-      map.easeTo({ center: d.geometry.coordinates as [number, number], zoom: Math.max(map.getZoom(), 13), duration: 600 });
-    }
-  }, [selectedId, ready, featureCollection]);
-
-  if (!MAPBOX_TOKEN) {
+  if (pins.length === 0) {
     return (
       <div className="flex h-full min-h-[420px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
         <div className="max-w-md space-y-3">
-          <AlertTriangle className="mx-auto h-8 w-8 text-amber-400" />
-          <h3 className="text-lg font-semibold">Configura Mapbox para ver el mapa</h3>
+          <MapPin className="mx-auto h-8 w-8 text-muted-foreground" />
+          <h3 className="text-lg font-semibold">Todavía no hay pantallas ubicadas</h3>
           <p className="text-sm text-muted-foreground">
-            Conecta la integración de Mapbox en Ajustes → Conectores. Cuando esté enlazada, el token público estará disponible
-            como <code className="rounded bg-white/10 px-1 text-xs">VITE_LOVABLE_CONNECTOR_MAPBOX_PUBLIC_TOKEN</code> y el mapa
-            se activará automáticamente.
+            Agrega la dirección de cada sede para ver tus pantallas en el mapa.
           </p>
         </div>
       </div>
     );
   }
 
-  return <div ref={containerRef} className="h-full min-h-[420px] w-full rounded-2xl overflow-hidden border border-white/10" />;
+  return (
+    <div className="h-full min-h-[420px] w-full overflow-hidden rounded-2xl border border-white/10">
+      <MapContainer
+        center={pins[0].position}
+        zoom={pins.length === 1 ? 15 : 5}
+        style={{ height: "100%", width: "100%", minHeight: 420, background: "#0a0a12" }}
+        scrollWheelZoom
+      >
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        />
+        <FitToMarkers points={pins.map((p) => p.position)} />
+        {pins.map((p) => (
+          <Marker
+            key={p.id}
+            position={p.position}
+            icon={pinIcon(p.status)}
+            eventHandlers={{ click: () => select(p.id) }}
+          >
+            <Popup>
+              <div className="space-y-1 text-sm">
+                <div className="font-semibold">{p.name}</div>
+                <div className="text-xs opacity-70">{p.address ?? "Sede sin dirección"}</div>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 9999,
+                      background: PIN_COLOR[p.status],
+                      display: "inline-block",
+                    }}
+                  />
+                  {PIN_LABEL[p.status]}
+                </div>
+                <div className="text-xs opacity-70">Última conexión: {formatLastSeen(p.lastSeenAt)}</div>
+                {p.screenId && (
+                  <Link
+                    to={`/dashboard/pantallas/${p.screenId}`}
+                    className="inline-block pt-1 text-xs font-medium underline"
+                  >
+                    Ver detalle de la pantalla
+                  </Link>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
 }
