@@ -80,11 +80,15 @@ export default function GenerateAI() {
   const [estilo, setEstilo] = useState("Moderno");
   const [cliente, setCliente] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(-1);
+  const [stage, setStage] = useState<GenerationStage | null>(null);
   const [propuestas, setPropuestas] = useState<Proposal[] | null>(null);
+  const [fallidos, setFallidos] = useState<ArchetypeId[]>([]);
+  const [retryTarget, setRetryTarget] = useState<ArchetypeId | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
   const [saving, setSaving] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const loading = stage !== null;
 
   const { data: menuData } = useMenuData();
   const isMenu = tipo === "Menú";
@@ -94,15 +98,31 @@ export default function GenerateAI() {
   const menuRecortado = isMenu && menuTotal > MENU_LIMIT;
 
   const reset = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     setPropuestas(null);
+    setFallidos([]);
+    setRetryTarget(null);
     setSelectedProposal(null);
-    setCurrentStep(-1);
+    setStage(null);
     setPrompt("");
     setCliente("");
   }, []);
 
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setStage(null);
+    setRetryTarget(null);
+    toast({ title: "Generación cancelada" });
+  }, [toast]);
 
-  const generate = async () => {
+  /**
+   * Generates proposals. When `targets` is given we only ask for those
+   * archetypes (retry of a failed slot) and merge the result with what we
+   * already have, so a partial failure never throws away good proposals.
+   */
+  const generate = async (targets?: ArchetypeId[]) => {
     if (!prompt.trim()) {
       toast({ title: "Escribe una descripción", variant: "destructive" });
       return;
@@ -112,21 +132,27 @@ export default function GenerateAI() {
       return;
     }
 
-    setPropuestas(null);
-    setSelectedProposal(null);
-    setLoading(true);
-    setCurrentStep(0);
+    const esReintento = !!targets?.length;
+    const orden = targets ?? preferredArchetypeOrder();
 
-    const stepTimers = [1200, 2400, 3600];
-    stepTimers.forEach((ms, i) => {
-      setTimeout(() => setCurrentStep(i + 1), ms);
-    });
+    if (!esReintento) {
+      setPropuestas(null);
+      setFallidos([]);
+      setSelectedProposal(null);
+    }
+    setRetryTarget(esReintento ? orden[0] : null);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setStage("menu");
 
     try {
+      setStage("generando");
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-design`,
         {
           method: "POST",
+          signal: controller.signal,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
@@ -138,38 +164,73 @@ export default function GenerateAI() {
             estilo,
             cliente,
             menu_items: menuItems,
-            arquetipos: preferredArchetypeOrder(),
+            arquetipos: orden,
             brand_kit: menuData?.brandKit ?? null,
           }),
         }
       );
 
-
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Error al generar");
       }
 
       const data: GenerateResponse = await res.json();
+      setStage("marca");
+
       // Última validación antes de mostrar: la pieza se lee a 3-5 m en un televisor.
       const canvas = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
-      const legibles = (data.propuestas ?? []).map((p) =>
-        p.arquetipo
-          ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
-          : enforceTvProposal(p, canvas.h, canvas.w),
-      );
+      const recibidas = (data.propuestas ?? []).filter((p) => !targets || !p.arquetipo || targets.includes(p.arquetipo));
+      const legibles: Proposal[] = [];
+      const rotos: ArchetypeId[] = [];
+
+      recibidas.forEach((p) => {
+        try {
+          legibles.push(
+            p.arquetipo
+              ? enforceArchetype(enforceTvProposal(p, canvas.h, canvas.w), p.arquetipo)
+              : enforceTvProposal(p, canvas.h, canvas.w),
+          );
+        } catch (err) {
+          console.warn("Propuesta descartada por error de post-proceso", p.arquetipo, err);
+          if (p.arquetipo) rotos.push(p.arquetipo);
+        }
+      });
+
       const fallas = legibles.flatMap((p) => validateTvProposal(p, canvas.h, canvas.w));
       if (fallas.length > 0) {
         console.warn("Legibilidad TV: propuestas con incumplimientos", fallas);
       }
-      setCurrentStep(3);
-      setTimeout(() => setPropuestas(legibles), 600);
+
+      // Arquetipos pedidos que no llegaron: se muestran como tarjeta de error.
+      const entregados = new Set(legibles.map((p) => p.arquetipo).filter(Boolean) as ArchetypeId[]);
+      const faltantes = orden.filter((a) => !entregados.has(a)).concat(rotos);
+
+      if (esReintento) {
+        setPropuestas((prev) => [...(prev ?? []), ...legibles]);
+        setFallidos((prev) => prev.filter((a) => !entregados.has(a)).concat(faltantes.filter((a) => !prev.includes(a))));
+      } else {
+        setPropuestas(legibles);
+        setFallidos(faltantes);
+      }
+
+      if (legibles.length === 0) {
+        toast({ title: "No pudimos generar propuestas", description: "Intenta de nuevo en unos segundos.", variant: "destructive" });
+      }
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      if (e?.name === "AbortError") return;
+      if (esReintento) {
+        toast({ title: "No pudimos regenerar esa propuesta", description: e.message, variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: e.message, variant: "destructive" });
+      }
     } finally {
-      setLoading(false);
+      abortRef.current = null;
+      setStage(null);
+      setRetryTarget(null);
     }
   };
+
 
   const saveDesign = useCallback(async (dataUrl: string) => {
     setSaving(true);
