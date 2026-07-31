@@ -420,7 +420,7 @@ const Screens = () => {
   };
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="v-page">
       {/* Success banner */}
       {successScreen && (
         <div className="mb-6 flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm">

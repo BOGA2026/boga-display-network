@@ -110,34 +110,34 @@ const KpiCard = ({ label, value, icon: Icon, accent, trend, status, subtitle, de
       accent && "glow-primary-sm",
       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
     )}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+      <CardContent className="v-kpi-card">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-1">
             <p className="v-kpi-label">{label}</p>
             <div className="flex items-baseline gap-2">
               <p className="v-kpi-value text-3xl">{value}</p>
               {trend !== undefined && <TrendBadge value={trend} suffix="%" />}
             </div>
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+            {status && (
+              <div className="flex items-center gap-1.5">
+                <span className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  status === "ok" ? "bg-primary" : status === "warn" ? "bg-accent" : "bg-destructive"
+                )} />
+                <span className="text-xs text-muted-foreground">
+                  {status === "ok" ? "Operativo" : status === "warn" ? "Alerta" : "Inactivo"}
+                </span>
+              </div>
+            )}
           </div>
           <div className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110",
             accent ? "gradient-primary glow-primary-sm" : "bg-secondary"
           )}>
             <Icon className={cn("h-5 w-5", accent ? "text-primary-foreground" : "text-muted-foreground")} />
           </div>
         </div>
-        {status && (
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className={cn(
-              "h-1.5 w-1.5 rounded-full",
-              status === "ok" ? "bg-primary" : status === "warn" ? "bg-accent" : "bg-destructive"
-            )} />
-            <span className="text-xs text-muted-foreground">
-              {status === "ok" ? "Operativo" : status === "warn" ? "Alerta" : "Inactivo"}
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
@@ -397,7 +397,7 @@ const Dashboard = () => {
     (stats.totalScreens === 0 || stats.content === 0 || stats.schedules === 0);
 
   return (
-    <div className="p-5 lg:p-6 space-y-5">
+    <div className="v-page v-stack">
       {/* Header */}
       <div className="flex items-end justify-between">
         <div>
@@ -468,12 +468,12 @@ const Dashboard = () => {
 
       {/* Fila 1: estado de la red + uptime */}
       {isLoading ? (
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="v-grid lg:grid-cols-3">
           <Skeleton className="h-[140px] rounded-xl lg:col-span-2" />
           <Skeleton className="h-[140px] rounded-xl" />
         </div>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-3">
+        <div className="v-grid lg:grid-cols-3">
           <div className="lg:col-span-2">
             <NetworkStatusCard screens={(stats?.screens ?? []) as any} />
           </div>
@@ -483,7 +483,7 @@ const Dashboard = () => {
 
       {/* Fila 2: atajos de inventario */}
       {isLoading ? (
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="v-grid sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-11 rounded-xl" />
           ))}
@@ -550,7 +550,7 @@ const Dashboard = () => {
       })()}
 
       {/* Activity + Screen status */}
-      <div className="grid gap-4 lg:grid-cols-5">
+      <div className="v-grid lg:grid-cols-5">
         {/* Activity feed */}
         <Card className="surface-elevated border-border/30 lg:col-span-2">
           <CardHeader className="pb-2">
@@ -630,7 +630,7 @@ const Dashboard = () => {
                 secondaryAction={{ label: "Probar con pantalla demo", onClick: handleAddDemoScreen }}
               />
             ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="v-grid sm:grid-cols-2">
                 {stats.screens.map((screen: any, i: number) => {
                   const licenseStatus = screen.license_status || "active";
                   const statusColor = licenseStatus === "active" 

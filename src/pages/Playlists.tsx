@@ -214,7 +214,7 @@ const Playlists = () => {
   // ── EDITOR VIEW ──
   if (editingPlaylistId && editingPlaylist) {
     return (
-      <div className="space-y-6">
+      <div className="v-page v-stack">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
@@ -361,7 +361,7 @@ const Playlists = () => {
   // ── LOADING / ERROR / EMPTY ──
   if (isLoading || isError || playlists.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="v-page v-stack">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-2xl font-bold">{NAV.listas.pageTitle}</h1>
@@ -406,7 +406,7 @@ const Playlists = () => {
 
   // ── LIST VIEW ──
   return (
-    <div className="space-y-6">
+    <div className="v-page v-stack">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">{NAV.listas.pageTitle}</h1>

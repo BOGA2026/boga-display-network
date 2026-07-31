@@ -72,7 +72,7 @@ export default function DashboardMap() {
   }, [rows, statusFilter, locationFilter]);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-4">
+    <div className="v-page v-stack">
       <div>
         <h1 className="text-2xl font-bold">{NAV.mapa.pageTitle}</h1>
         <p className="text-sm text-muted-foreground">{NAV.mapa.pageSubtitle}</p>
