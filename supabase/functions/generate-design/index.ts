@@ -725,7 +725,7 @@ REGLAS:
           ? (normalizedFooter ?? "")
           : (isPlaceholderText(p.texto_cta) ? "Descubre más" : p.texto_cta),
         color_texto: p.color_texto ?? "#FFFFFF",
-        color_acento: p.color_acento ?? "#00e5c4",
+        color_acento: brandKit?.accent_color ?? brandKit?.primary_color ?? p.color_acento ?? "#00e5c4",
         fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
         fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
         titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
