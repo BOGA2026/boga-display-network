@@ -56,6 +56,7 @@ const PlayerSplash = ({ minDuration = 4000, ready, onComplete }: PlayerSplashPro
       }}
     >
       <video
+        ref={videoRef}
         autoPlay
         muted
         playsInline
