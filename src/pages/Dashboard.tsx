@@ -465,23 +465,38 @@ const Dashboard = () => {
         />
       )}
 
-      {/* KPI Grid */}
+      {/* Fila 1: estado de la red + uptime */}
       {isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[110px] rounded-xl" />
+        <div className="grid gap-3 lg:grid-cols-3">
+          <Skeleton className="h-[140px] rounded-xl lg:col-span-2" />
+          <Skeleton className="h-[140px] rounded-xl" />
+        </div>
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <NetworkStatusCard screens={(stats?.screens ?? []) as any} />
+          </div>
+          <UptimeCard businessId={stats?.businessId} />
+        </div>
+      )}
+
+      {/* Fila 2: atajos de inventario */}
+      {isLoading ? (
+        <div className="grid gap-2 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-11 rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <KpiCard label="Pantallas" value={stats?.totalScreens ?? 0} icon={Monitor} accent trend={0} delay={0} />
-          <KpiCard label="En línea" value={stats?.online ?? 0} icon={Zap} status={stats?.online ? "ok" : undefined} delay={50} />
-          <KpiCard label="Fuera de línea" value={stats?.offline ?? 0} icon={MonitorOff} status={stats?.offline ? "error" : undefined} delay={100} />
-          <KpiCard label="Ubicaciones" value={stats?.locations ?? 0} icon={MapPin} delay={150} />
-          <KpiCard label="Contenido" value={stats?.content ?? 0} icon={Image} delay={200} />
-          <KpiCard label={NAV.listas.label} value={stats?.playlists ?? 0} icon={PlayCircle} delay={250} />
-        </div>
+        <InventoryStrip
+          items={[
+            { icon: MapPin, count: stats?.locations ?? 0, label: "Ubicaciones", path: "/dashboard/pantallas" },
+            { icon: Image, count: stats?.content ?? 0, label: "Contenidos", path: NAV.contenido.path },
+            { icon: PlayCircle, count: stats?.playlists ?? 0, label: NAV.listas.label, path: NAV.listas.path },
+          ]}
+        />
       )}
+
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
