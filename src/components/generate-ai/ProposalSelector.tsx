@@ -193,7 +193,9 @@ function Stage({ p, formato, className }: { p: Proposal; formato: string; classN
 }
 
 function FullscreenPreview({ p, formato, onClose }: { p: Proposal; formato: string; onClose: () => void }) {
+  const size = CANVAS_SIZES[formato] ?? CANVAS_SIZES["16:9"];
   useEffect(() => {
+
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
