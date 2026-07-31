@@ -536,24 +536,21 @@ const Screens = () => {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/60">
-            <MonitorSmartphone className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="font-display text-xl font-bold mb-2">Sin pantallas registradas</h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-            Conecta tu primera pantalla para comenzar a gestionar tu red de señalización digital.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <EmptyState
+          icon={<MonitorSmartphone className="h-9 w-9" />}
+          title={COPY.empty.screensTitle}
+          description={COPY.empty.screens}
+          action={
             <Button
               onClick={handleAddScreenClick}
               className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
               size="lg"
             >
               <Plus className="h-5 w-5" />
-              Agregar pantalla
+              {COPY.actions.connectScreen}
             </Button>
+          }
+          secondaryAction={
             <Button
               variant="outline"
               onClick={handleAddDemoScreen}
@@ -564,8 +561,9 @@ const Screens = () => {
               <MonitorSmartphone className="h-5 w-5" />
               Agregar pantalla demo
             </Button>
-          </div>
-        </div>
+          }
+        />
+
       )}
 
       {/* ─── ADD SCREEN SHEET ─── */}
