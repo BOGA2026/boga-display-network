@@ -171,7 +171,22 @@ export function ContentTable({
                 <td className="p-3 text-muted-foreground">{ratioLabel(d) ?? "—"}</td>
                 <td className="p-3 text-muted-foreground">{formatDuration(item.duration_seconds) ?? "—"}</td>
                 <td className="p-3 text-muted-foreground">{formatDims(d) ?? "—"}</td>
+                <td className="p-3 text-muted-foreground">
+                  {formatBytes(item.file_size_bytes) ? (
+                    <span
+                      title={isHeavyFile(item.file_size_bytes) ? HEAVY_FILE_TOOLTIP : undefined}
+                      className={cn(
+                        "inline-flex items-center gap-1",
+                        isHeavyFile(item.file_size_bytes) && "rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-400",
+                      )}
+                    >
+                      {isHeavyFile(item.file_size_bytes) && <AlertTriangle className="h-3 w-3" />}
+                      {formatBytes(item.file_size_bytes)}
+                    </span>
+                  ) : "—"}
+                </td>
                 <td className="p-3 text-muted-foreground">{relativeDate(item.created_at)}</td>
+
                 <td className="p-3">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
