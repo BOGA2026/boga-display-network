@@ -7,9 +7,11 @@ import * as React from "react";
 export type CommandItem = {
   id: string;
   label: string;
-  group: "Navegación" | "Acciones" | "Sedes" | string;
+  group: "Navegación" | "Acciones" | "Ayuda" | "Sedes" | string;
   icon?: React.ReactNode;
   keywords?: string[];
+  /** Peso base para `getCommandScore()`; el orden nunca es el de registro. */
+  priority?: number;
   onSelect: () => void;
 };
 

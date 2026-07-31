@@ -45,6 +45,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { LocationSwitcher } from "./LocationSwitcher";
 import { LocationProvider, useLocationContext } from "@/context/LocationContext";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { BaselineCommands } from "@/components/dashboard/BaselineCommands";
 import {
   CommandRegistryProvider,
   useCommandRegistry,
@@ -53,7 +54,6 @@ import {
 } from "@/hooks/useCommandRegistry";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PageTransition } from "@/components/ui/page-transition";
-import { GlobalCommands } from "@/components/dashboard/GlobalCommands";
 import { ContentSkeleton } from "./ContentSkeleton";
 import { prefetch } from "@/lib/routePrefetch";
 import { NAV, NAV_GROUPS, COPY } from "@/config/lexicon";
@@ -62,72 +62,6 @@ import { NAV, NAV_GROUPS, COPY } from "@/config/lexicon";
 const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((key) => NAV[key]));
 
 const SIDEBAR_KEY = "dash.sidebar";
-
-/* Register the baseline commands (nav + quick actions + sedes). */
-function BaselineCommands() {
-  const navigate = useNavigate();
-  const { locations, setActiveLocationId } = useLocationContext();
-
-  const items = React.useMemo<CommandItem[]>(() => {
-    const nav = NAV_ITEMS.map((n) => ({
-      id: `nav:${n.path}`,
-      label: n.label,
-      group: "Navegación" as const,
-      icon: <n.icon className="mr-2 h-4 w-4" />,
-      onSelect: () => navigate(n.path),
-    }));
-    const actions: CommandItem[] = [
-      {
-        id: "action:new-screen",
-        label: "Nueva pantalla",
-        group: "Acciones",
-        icon: <Plus className="mr-2 h-4 w-4" />,
-        onSelect: () => navigate("/dashboard/pantallas"),
-      },
-      {
-        id: "action:upload-content",
-        label: "Subir contenido",
-        group: "Acciones",
-        icon: <Upload className="mr-2 h-4 w-4" />,
-        onSelect: () => navigate("/dashboard/contenido"),
-      },
-      {
-        id: "action:new-playlist",
-        label: COPY.actions.newPlaylist,
-        group: "Acciones",
-        icon: <ListVideo className="mr-2 h-4 w-4" />,
-        onSelect: () => navigate(NAV.listas.path),
-      },
-      {
-        id: "action:subscription",
-        label: "Ir a suscripción",
-        group: "Acciones",
-        icon: <CreditCard className="mr-2 h-4 w-4" />,
-        onSelect: () => navigate("/dashboard/suscripcion"),
-      },
-    ];
-    const sedes: CommandItem[] = [
-      {
-        id: "sede:all",
-        label: "Ver todas las sedes",
-        group: "Sedes",
-        keywords: ["sede", "location"],
-        onSelect: () => setActiveLocationId(null),
-      },
-      ...locations.map((loc) => ({
-        id: `sede:${loc.id}`,
-        label: `Cambiar a sede: ${loc.name}`,
-        group: "Sedes" as const,
-        keywords: ["sede", loc.name],
-        onSelect: () => setActiveLocationId(loc.id),
-      })),
-    ];
-    return [...nav, ...actions, ...sedes];
-  }, [navigate, locations, setActiveLocationId]);
-
-  useRegisterCommand(items);
-  return null;
-}
 
 function ShellInner() {
   const navigate = useNavigate();
@@ -272,7 +206,6 @@ function ShellInner() {
 
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-      <GlobalCommands />
       <VoiceAgentDock />
     </div>
   );
