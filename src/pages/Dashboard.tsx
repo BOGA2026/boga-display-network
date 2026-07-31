@@ -513,8 +513,8 @@ const Dashboard = () => {
             asChild
           >
             <Link to={a.path}>
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary glow-primary-sm">
-                <a.icon className="h-4 w-4 text-primary-foreground" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
+                <a.icon className="h-4 w-4" />
               </div>
               <span className="text-xs font-medium">{a.label}</span>
             </Link>
