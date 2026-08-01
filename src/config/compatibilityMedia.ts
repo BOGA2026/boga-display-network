@@ -16,6 +16,8 @@ import dispositivoMp4 from "@/assets/landing/dispositivo.mp4.asset.json";
 import dispositivoPoster from "@/assets/landing/dispositivo.jpg.asset.json";
 import paso1Webm from "@/assets/landing/paso1.webm.asset.json";
 import paso1Mp4 from "@/assets/landing/paso1.mp4.asset.json";
+import paso2Webm from "@/assets/landing/paso2.webm.asset.json";
+import paso2Mp4 from "@/assets/landing/paso2.mp4.asset.json";
 import paso3Webm from "@/assets/landing/paso3.webm.asset.json";
 import paso3Mp4 from "@/assets/landing/paso3.mp4.asset.json";
 
@@ -38,8 +40,7 @@ export const COMPAT_CLIPS: Record<
     poster: dispositivoPoster.url,
   },
   paso1: { sources: pair(paso1Webm, paso1Mp4) },
-  // Pendiente: clip del código en pantalla.
-  paso2: { sources: [] },
+  paso2: { sources: pair(paso2Webm, paso2Mp4) },
   paso3: { sources: pair(paso3Webm, paso3Mp4) },
 };
 
