@@ -733,6 +733,33 @@ export type Database = {
           },
         ]
       }
+      landing_brand_checks: {
+        Row: {
+          brand_id: string
+          created_at: string
+          id: string
+          path: string | null
+          verdict: string
+          visitor_id: string | null
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          id?: string
+          path?: string | null
+          verdict: string
+          visitor_id?: string | null
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          id?: string
+          path?: string | null
+          verdict?: string
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       lead_events: {
         Row: {
           answer: string | null
