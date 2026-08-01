@@ -10,6 +10,7 @@ import { InvoicesList } from "@/components/subscription/InvoicesList";
 import { PaymentMethodCard } from "@/components/subscription/PaymentMethodCard";
 import { AddCardModal } from "@/components/subscription/AddCardModal";
 import { OneTimePaymentCard } from "@/components/subscription/OneTimePaymentCard";
+import { DeviceOrdersCard } from "@/components/subscription/DeviceOrdersCard";
 import { KpiGridSkeleton, TableSkeleton, ErrorState } from "@/components/feedback/states";
 import { COPY } from "@/config/lexicon";
 
@@ -186,6 +187,7 @@ const Subscription = () => {
             onEditMethod={() => handleAddPaymentMethod()}
           />
           <OneTimePaymentCard businessId={businessId ?? ""} />
+          <DeviceOrdersCard billingCycle={subscription?.billing_cycle} />
         </div>
         <div className="lg:col-span-2" ref={invoicesRef}>
           <InvoicesList invoices={invoices} legacyPayments={payments} />

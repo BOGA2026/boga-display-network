@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, signOut } from "@/hooks/useAuth";
 import { useTenant } from "@/features/auth/useTenant";
+import { TvCompatibilityWizard } from "@/features/devices";
 import { tenantQueryKey } from "@/features/auth/tenant";
 import { logError } from "@/lib/errorLogger";
 import { Button } from "@/components/ui/button";
@@ -30,13 +31,15 @@ export default function Onboarding() {
   const [name, setName] = React.useState("");
   const [city, setCity] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  // Antes de pedir la primera vinculación hay que saber si su televisor sirve.
+  const [phase, setPhase] = React.useState<"negocio" | "televisor">("negocio");
 
   // Ya tiene negocio → no hay nada que configurar.
   React.useEffect(() => {
-    if (!authLoading && !tenantLoading && businessId) {
+    if (!authLoading && !tenantLoading && businessId && phase === "negocio") {
       navigate("/dashboard", { replace: true });
     }
-  }, [authLoading, tenantLoading, businessId, navigate]);
+  }, [authLoading, tenantLoading, businessId, navigate, phase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +54,7 @@ export default function Onboarding() {
       // El tenant cacheado quedó viejo: se recarga con el negocio nuevo.
       await queryClient.invalidateQueries({ queryKey: tenantQueryKey(session?.user?.id) });
       toast.success("Listo, tu negocio ya está configurado");
-      navigate("/dashboard", { replace: true });
+      setPhase("televisor");
     } catch (err) {
       logError(err, { label: "onboarding.complete", scope: "onboarding", section: "onboarding" });
       toast.error("No pudimos crear tu negocio. Intentá de nuevo.");
@@ -65,6 +68,27 @@ export default function Onboarding() {
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (phase === "televisor") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+        <div className="v-card w-full max-w-lg p-6 sm:p-8">
+          <TvCompatibilityWizard
+            continueLabel="Seguir"
+            onCompatible={() => navigate("/dashboard/pantallas", { replace: true })}
+            onClose={() => navigate("/dashboard", { replace: true })}
+          />
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard", { replace: true })}
+            className="mt-6 w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Lo veo después
+          </button>
+        </div>
+      </main>
     );
   }
 

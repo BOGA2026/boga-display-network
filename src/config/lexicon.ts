@@ -349,4 +349,55 @@ export const COPY = {
       "Si asignas una pantalla, los escaneos quedan atribuidos a ella y puedes ver qué TV vende más.",
     whatsappSupport: "Mientras tanto, escríbenos por WhatsApp y te acompañamos en vivo.",
   },
+
+  /** Chequeo del televisor y aparatito que se conecta al HDMI. */
+  dispositivo: {
+    enlaceConsulta: "¿Mi televisor sirve?",
+    consultaTitulo: "Veamos si tu televisor sirve",
+
+    paso1Titulo: "¿Qué televisor vas a usar?",
+    paso1Sub: "Elige la marca de tu televisor para saber por dónde empezar.",
+
+    paso2Titulo: "Busca en el menú de aplicaciones de tu televisor. ¿Aparece Google Play Store?",
+    paso2Pista: "Tu televisor probablemente ya funciona. Vamos a confirmarlo.",
+    paso2Sub: "Es la única forma segura de saberlo: mira tu televisor y dinos qué ves.",
+    paso2Ayuda: "Este es el ícono que tienes que buscar entre las aplicaciones de tu televisor.",
+    siLaVeo: "Sí, la veo",
+    noLaEncuentro: "No la encuentro",
+    compatible: "Tu televisor sirve. Puedes conectarlo cuando quieras.",
+
+    paso3Titulo: "Necesitas un dispositivo para conectar tu pantalla",
+    paso3Marca: "Los televisores Samsung y LG no usan Android, así que necesitas un dispositivo adicional.",
+    paso3Sub: "Es un aparato pequeño que se conecta al HDMI del televisor y hace que funcione con Visualia.",
+
+    opcionPropia: "Comprarlo por tu cuenta",
+    requisito: "Requisito único: debe decir Google TV en la caja.",
+    yaTengoDispositivo: "Ya tengo el aparato, seguir",
+
+    opcionVisualia: "Que Visualia te lo envíe configurado",
+    opcionVisualiaSub:
+      "Te lo enviamos con la app instalada y tu pantalla ya vinculada. Solo lo conectas al HDMI del televisor.",
+    planMensual: "Plan mensual",
+    pagoAnual: "Pago anual adelantado",
+    contratoAnual: "Contrato a 1 año",
+    sinCosto: "Sin costo",
+    incluido: "Incluido",
+    incluidoNota: "Con pago anual o contrato a un año, el dispositivo va incluido.",
+    ahorroMensual: "Cambia a pago anual y el dispositivo te sale sin costo. Te ahorras $250.000.",
+    pedirloAVisualia: "Que Visualia me lo envíe",
+    pedirIncluido: "Pedir mi dispositivo incluido",
+
+    envioTitulo: "¿A dónde te lo enviamos?",
+    envioSub: "Lo preparamos con tu pantalla ya vinculada y te avisamos cuando salga.",
+    confirmarPedido: "Confirmar pedido",
+    pedidoError: "No pudimos registrar el pedido. Inténtalo de nuevo.",
+    pedidoOkTitulo: "Pedido registrado",
+    pedidoOkSub:
+      "Puedes seguir el estado de tu dispositivo desde Suscripción, sin escribirle a nadie.",
+
+    pedidosTitulo: "Tus dispositivos",
+    pedidosVacio: "Todavía no has pedido ningún dispositivo.",
+    anualArgumento:
+      "Con pago anual adelantado te enviamos el dispositivo configurado sin costo. Son $250.000 que no pagas.",
+  },
 } as const;
