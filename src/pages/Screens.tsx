@@ -457,61 +457,79 @@ const Screens = () => {
       ) : loadError ? (
         <ErrorState description={COPY.error.screens} onRetry={fetchData} />
       ) : screens.length > 0 ? (
-        <div className="v-media-grid">
+        <div className="v-screen-grid">
           {screens.map((screen) => {
-            const online = isOnline(screen.last_seen_at);
+            const online = isOnline(screen.last_seen_at) || screen.status === "online";
+            // Una pantalla que nunca reportó no está "sin conexión": está sin
+            // instalar. Son dos problemas distintos y dos acciones distintas.
+            const neverPaired = !screen.last_seen_at && !screen.device_token;
+            const locationName = locations.find((l) => l.id === screen.location_id)?.name;
             return (
               <div
                 key={screen.id}
                 onClick={() => navigate(`/digital-signage/screens/${screen.id}`)}
                 className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-card/40 transition-all hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-[0_16px_48px_-16px_rgba(138,0,255,0.35)]"
               >
-                {/* Tile preview area (Apple TV style) */}
+                {/* Vista previa 16:9 de lo que está reproduciendo */}
                 <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-secondary/40 via-secondary/20 to-background">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Monitor className="h-14 w-14 text-muted-foreground/30 transition-transform duration-500 group-hover:scale-110" />
+                  <div className={`absolute inset-0 flex items-center justify-center ${online ? "" : "opacity-40"}`}>
+                    <Monitor className="h-12 w-12 text-muted-foreground/30 transition-transform duration-500 group-hover:scale-110" />
                   </div>
-                  {/* Status pill (top-left) */}
-                  <div className="absolute top-3 left-3">
-                    {online || screen.status === "online" ? (
-                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-primary/30 text-xs gap-1.5 shadow-sm">
-                        <span className="relative flex h-2 w-2">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                          <span className="v-dot v-dot-accent" />
-                        </span>
+
+                  {/* Estado */}
+                  <div className="absolute top-2.5 left-2.5">
+                    {online ? (
+                      <Badge className="bg-primary/20 backdrop-blur-md text-primary border-transparent text-xs gap-1.5 px-2 py-0.5">
+                        <span className="v-dot v-dot-live" />
                         En vivo
                       </Badge>
+                    ) : neverPaired ? (
+                      <Badge className="bg-amber-500/15 backdrop-blur-md text-amber-400 border-transparent text-xs gap-1.5 px-2 py-0.5">
+                        <Link2Off className="h-3 w-3" />
+                        Sin vincular
+                      </Badge>
                     ) : (
-                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-xs gap-1.5">
+                      <Badge variant="secondary" className="backdrop-blur-md text-muted-foreground text-xs gap-1.5 px-2 py-0.5 border-transparent">
                         <WifiOff className="h-3 w-3" />
-                        Offline
+                        Sin conexión
                       </Badge>
                     )}
                   </div>
-                  {/* Actions (top-right, appear on hover) */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                  {/* Acciones: solo en hover o con foco de teclado */}
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                     <button
                       onClick={(e) => { e.stopPropagation(); setEditingScreen(screen); setEditName(screen.name); setEditDialogOpen(true); }}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
                       title="Editar"
+                      aria-label={`Editar ${screen.name}`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(screen.id); }}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-destructive hover:bg-background transition-colors"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/70 backdrop-blur-md border border-border/40 text-muted-foreground hover:text-destructive hover:bg-background transition-colors"
                       title="Eliminar"
+                      aria-label={`Eliminar ${screen.name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-                {/* Meta footer */}
-                <div className="p-4 border-t border-border/20">
-                  <div className="font-semibold text-sm truncate mb-1">{screen.name}</div>
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <Clock className="h-3 w-3 shrink-0 text-muted-foreground" />
-                    <LastSyncLabel lastSeenAt={screen.last_seen_at} />
+
+                {/* Identidad primero: nombre, sede y estado de conexión */}
+                <div className="p-3.5 border-t border-border/20">
+                  <div className="text-[15px] font-medium truncate">{screen.name}</div>
+                  <div className="text-xs text-muted-foreground truncate mt-0.5">
+                    {locationName || "Sin sede asignada"}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs mt-2">
+                    <span className={`v-dot ${online ? "v-dot-live" : neverPaired ? "v-dot-warn" : "v-dot-muted"}`} />
+                    {neverPaired ? (
+                      <span className="text-amber-400">Falta completar el emparejamiento</span>
+                    ) : (
+                      <LastSyncLabel lastSeenAt={screen.last_seen_at} />
+                    )}
                   </div>
                 </div>
               </div>
