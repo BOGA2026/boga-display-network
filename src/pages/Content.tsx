@@ -508,18 +508,42 @@ const Content = () => {
           <h1 className="font-display text-2xl font-bold">{NAV.contenido.pageTitle}</h1>
           <p className="text-sm text-muted-foreground">{NAV.contenido.pageSubtitle}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <div className="flex flex-row items-center gap-2 sm:flex-wrap sm:gap-3">
           <Button
             onClick={() => { resetUploadForm(); setUploadOpen(true); }}
-            className="gradient-primary hover:gradient-primary-hover glow-primary-sm text-primary-foreground border-0 gap-2 px-5 font-semibold"
+            className="gradient-primary hover:gradient-primary-hover glow-primary-sm h-11 flex-1 gap-2 border-0 px-5 font-semibold text-primary-foreground sm:flex-none"
           >
             <Upload className="h-4 w-4" />
             Subir archivo
           </Button>
+
+          {/* Móvil: el resto de acciones vive en un menú de tres puntos. */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="sm:hidden">
+              <Button variant="outline" size="icon" className="h-11 w-11 shrink-0" aria-label="Más acciones">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => navigate("/dashboard/generar-ia")} className="gap-2 py-3">
+                <Sparkles className="h-4 w-4" /> Crear con IA
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/dashboard/editor")} className="gap-2 py-3">
+                <PenTool className="h-4 w-4" /> Diseñar en editor
+              </DropdownMenuItem>
+              {hasContent && (
+                <DropdownMenuItem onClick={handleAddSampleContent} disabled={loadingSamples} className="gap-2 py-3">
+                  <Layers className="h-4 w-4" />
+                  {loadingSamples ? "Agregando…" : "Contenido de prueba"}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard/generar-ia")}
-            className="gap-2 border-primary/40 hover:bg-primary/10"
+            className="hidden gap-2 border-primary/40 hover:bg-primary/10 sm:inline-flex"
           >
             <Sparkles className="h-4 w-4" />
             Crear con IA
@@ -527,7 +551,7 @@ const Content = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard/editor")}
-            className="gap-2 border-accent/40 hover:bg-accent/10"
+            className="hidden gap-2 border-accent/40 hover:bg-accent/10 sm:inline-flex"
           >
             <PenTool className="h-4 w-4" />
             Diseñar en editor
@@ -537,13 +561,14 @@ const Content = () => {
               variant="ghost"
               onClick={handleAddSampleContent}
               disabled={loadingSamples}
-              className="gap-2 text-muted-foreground hover:text-foreground"
+              className="hidden gap-2 text-muted-foreground hover:text-foreground sm:inline-flex"
             >
               <Layers className="h-4 w-4" />
               {loadingSamples ? "Agregando…" : "Contenido de prueba"}
             </Button>
           )}
         </div>
+
       </div>
 
       {/* Filtro activo (llega desde Analíticas: archivos sin reproducir) */}
