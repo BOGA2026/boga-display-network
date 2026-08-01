@@ -579,7 +579,25 @@ const Screens = () => {
       {/* ─── ADD SCREEN SHEET ─── */}
       <Sheet open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
         <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto surface-elevated border-border/30">
-          {!generatedCode ? (
+          {!compatDone ? (
+            <>
+              <SheetHeader className="pb-1">
+                <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
+                <SheetDescription className="text-sm text-muted-foreground">
+                  Primero veamos si tu televisor sirve. Toma menos de un minuto.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="py-4">
+                <TvCompatibilityWizard
+                  onCompatible={(type) => {
+                    setDeviceType(type);
+                    setCompatDone(true);
+                  }}
+                  onClose={() => { setDialogOpen(false); resetForm(); }}
+                />
+              </div>
+            </>
+          ) : !generatedCode ? (
             <>
               <SheetHeader className="pb-1">
                 <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
