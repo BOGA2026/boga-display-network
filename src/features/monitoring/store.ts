@@ -14,10 +14,16 @@
  *    250 ms (see `useDeviceMonitoring.ts`). This coalesces bursts of
  *    heartbeats from N devices into a single React commit.
  *  - Offline detection is derived: a tick every 5 s recomputes which devices
- *    have gone stale (`last_seen_at > 90 s ago`) without hitting the DB.
- *    The sweep edge function is only the authoritative fallback.
+ *    have gone stale (`last_seen_at` más viejo que OFFLINE_THRESHOLD_SECONDS,
+ *    importado de `@shared/offlineThreshold`) sin pegarle a la base.
+ *    El cron `mark-offline-screens` es solo el respaldo autoritativo.
+ *  - Las notificaciones salen de la transición del estado DERIVADO en el
+ *    cliente (no de la columna `status`), así la alerta y lo que se ve en
+ *    pantalla coinciden siempre. `lastNotified` evita repetir la alerta en
+ *    cada refetch.
  */
 import { create } from "zustand";
+import { OFFLINE_THRESHOLD_SECONDS } from "@shared/offlineThreshold";
 
 export type DeviceStatus = "online" | "offline" | "syncing" | "pending";
 
@@ -53,6 +59,8 @@ interface MonitoringState {
   notifications: Notification[];
   selectedId: string | null;
   offlineThresholdSec: number;
+  /** Último estado derivado notificado por dispositivo (anti-duplicados). */
+  lastNotified: Record<string, "online" | "offline">;
 
   hydrate: (rows: MonitoredDevice[]) => void;
   upsert: (row: MonitoredDevice) => void;
@@ -77,7 +85,8 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   tick: 0,
   notifications: [],
   selectedId: null,
-  offlineThresholdSec: 90,
+  offlineThresholdSec: OFFLINE_THRESHOLD_SECONDS,
+  lastNotified: {},
 
   hydrate: (rows) => {
     const devices: Record<string, MonitoredDevice> = {};
