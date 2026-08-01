@@ -40,8 +40,7 @@ export const COMPAT_CLIPS: Record<
     poster: dispositivoPoster.url,
   },
   paso1: { sources: pair(paso1Webm, paso1Mp4) },
-  // Pendiente: clip del código en pantalla.
-  paso2: { sources: [] },
+  paso2: { sources: pair(paso2Webm, paso2Mp4) },
   paso3: { sources: pair(paso3Webm, paso3Mp4) },
 };
 
