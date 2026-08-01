@@ -113,12 +113,17 @@ function KpiCard({
 }) {
   return (
     <div className="v-card v-kpi-card min-h-[116px]">
-      <div className="flex items-center justify-between gap-2">
-        <span className="v-kpi-label">{label}</span>
-        <Icon className={`h-4 w-4 text-primary ${measured ? "" : "opacity-40"}`} aria-hidden />
+      <div className="flex items-start justify-between gap-3">
+        <span className="v-kpi-label pt-1">{label}</span>
+        {/* Sin dato medido → icono al 40%: distingue "no medimos" de "dio cero". */}
+        <span className={`v-kpi-icon ${measured ? "" : "opacity-40"}`} aria-hidden>
+          <Icon className="h-4 w-4" />
+        </span>
       </div>
-      <MetricValue measured={measured}>{value}</MetricValue>
-      <span className="text-xs text-muted-foreground">{hint}</span>
+      <div className="flex flex-col gap-1">
+        <MetricValue measured={measured}>{value}</MetricValue>
+        <span className="text-xs text-muted-foreground">{hint}</span>
+      </div>
     </div>
   );
 }
@@ -154,11 +159,17 @@ function AirtimeCard({ measured, airtime }: { measured: boolean; airtime: Airtim
   const expected = airtime?.minutes_expected ?? 0;
   const pct = measured && expected > 0 ? Math.min(100, (online / expected) * 100) : 0;
 
+  // Horas pagadas y no usadas: el dato más accionable de la página.
+  const horasSinUsar = measured && expected > online ? expected - online : 0;
+  const desperdicio = measured && online === 0 && expected > 0;
+
   return (
-    <div className="v-card v-kpi-card min-h-[116px]">
-      <div className="flex items-center justify-between gap-2">
-        <span className="v-kpi-label">Horas al aire</span>
-        <Clock className={`h-4 w-4 text-primary ${measured ? "" : "opacity-40"}`} aria-hidden />
+    <div className={`v-card v-kpi-card min-h-[116px] ${desperdicio ? "border-amber-500/50" : ""}`}>
+      <div className="flex items-start justify-between gap-3">
+        <span className="v-kpi-label pt-1">Horas al aire</span>
+        <span className={`v-kpi-icon ${measured ? "" : "opacity-40"}`} aria-hidden>
+          <Clock className="h-4 w-4" />
+        </span>
       </div>
       <MetricValue measured={measured && expected > 0}>
         {formatHoras(online)} <span className="text-base font-normal text-muted-foreground">de {formatHoras(expected)}</span>
@@ -173,9 +184,9 @@ function AirtimeCard({ measured, airtime }: { measured: boolean; airtime: Airtim
       >
         <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs text-muted-foreground">
-        {measured && expected > online
-          ? `${formatHoras(expected - online)} programadas sin usar`
+      <span className={`text-xs ${desperdicio ? "font-medium text-amber-400" : "text-muted-foreground"}`}>
+        {horasSinUsar > 0
+          ? `${formatHoras(horasSinUsar)} programadas sin usar`
           : "del tiempo programado"}
       </span>
     </div>
