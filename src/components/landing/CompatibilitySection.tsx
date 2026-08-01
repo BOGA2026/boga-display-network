@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Info, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import InlineVideo from "@/components/media/InlineVideo";
-import { COMPAT_CLIPS, clipSources, clipPoster } from "@/config/compatibilityMedia";
+import SequenceVideo, { type SequenceClip } from "@/components/media/SequenceVideo";
+import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
 import { supabase } from "@/integrations/supabase/client";
+
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
 
