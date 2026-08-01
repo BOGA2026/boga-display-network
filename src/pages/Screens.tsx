@@ -52,6 +52,8 @@ import { useToast } from "@/hooks/use-toast";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
 import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
+import { TvCompatibilityWizard, TvCompatibilityDialog } from "@/features/devices";
+import type { DeviceType } from "@/config/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
@@ -127,6 +129,10 @@ const Screens = () => {
   const [nameError, setNameError] = useState("");
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
+  // Paso previo: comprobar que el televisor sirve antes de dar el código.
+  const [compatDone, setCompatDone] = useState(false);
+  const [deviceType, setDeviceType] = useState<DeviceType>("desconocido");
+  const [compatDialogOpen, setCompatDialogOpen] = useState(false);
 
   // Edit state
   const [editingScreen, setEditingScreen] = useState<Screen | null>(null);
@@ -214,6 +220,8 @@ const Screens = () => {
     setNameError("");
     setGeneratedCode(null);
     setCodeCopied(false);
+    setDeviceType("desconocido");
+    setCompatDone(false);
   };
 
   const validateForm = () => {
@@ -286,7 +294,7 @@ const Screens = () => {
     // Create screen
     const { data: screen, error: screenError } = await supabase
       .from("screens")
-      .insert({ name: screenName.trim(), location_id: locationId })
+      .insert({ name: screenName.trim(), location_id: locationId, device_type: deviceType })
       .select("id")
       .single();
 
