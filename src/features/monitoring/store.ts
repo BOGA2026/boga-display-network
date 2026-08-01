@@ -104,28 +104,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       const prev = s.devices[row.id];
       const devices = { ...s.devices, [row.id]: { ...prev, ...row } };
       const order = existed ? s.order : [...s.order, row.id];
-      // Notification on status flip
-      const notifications = [...s.notifications];
-      if (prev && prev.status !== "offline" && row.status === "offline") {
-        notifications.unshift({
-          id: `${row.id}-off-${Date.now()}`,
-          device_id: row.id,
-          device_name: row.screen_name ?? row.id.slice(0, 8),
-          kind: "offline",
-          at: Date.now(),
-          read: false,
-        });
-      } else if (prev && prev.status === "offline" && row.status === "online") {
-        notifications.unshift({
-          id: `${row.id}-on-${Date.now()}`,
-          device_id: row.id,
-          device_name: row.screen_name ?? row.id.slice(0, 8),
-          kind: "online",
-          at: Date.now(),
-          read: false,
-        });
-      }
-      return { devices, order, notifications: notifications.slice(0, 100), tick: s.tick + 1 };
+      // Las alertas NO salen de la columna `status`: se disparan desde el
+      // estado derivado en `refreshDerived`, que es lo que ve el usuario.
+      return { devices, order, tick: s.tick + 1 };
     }),
 
   patch: (id, patch) =>
