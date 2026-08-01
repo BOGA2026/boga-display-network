@@ -501,7 +501,7 @@ const Content = () => {
 
 
   return (
-    <div className="v-page">
+    <div className={cn("v-page", selectedIds.size > 0 && "pb-32 md:pb-6")}>
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
@@ -648,14 +648,14 @@ const Content = () => {
           </span>
           <div className="ml-auto flex flex-wrap gap-2">
 
-            <Button size="sm" variant="outline" className="gap-2" onClick={openBulkAssign}>
+            <Button size="sm" variant="outline" className="h-11 gap-2 md:h-8" onClick={openBulkAssign}>
               <ListPlus className="h-4 w-4" />
               Agregar a lista
             </Button>
             <Button
               size="sm"
               variant="outline"
-              className="gap-2"
+              className="h-11 gap-2 md:h-8"
               onClick={() => {
                 const first = visibleItems.find((i) => selectedIds.has(i.id));
                 if (first) setSendTarget(first);
@@ -667,14 +667,14 @@ const Content = () => {
             <Button
               size="sm"
               variant="outline"
-              className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10"
+              className="h-11 gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 md:h-8"
               onClick={handleBulkDelete}
               disabled={bulkDeleting}
             >
               <Trash2 className="h-4 w-4" />
               {bulkDeleting ? "Eliminando…" : "Eliminar"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={clearSelection}>
+            <Button size="sm" variant="ghost" className="h-11 md:h-8" onClick={clearSelection}>
               Cancelar
             </Button>
           </div>
