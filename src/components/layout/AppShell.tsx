@@ -236,13 +236,25 @@ function ShellInner() {
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
             <div className="flex min-w-0 items-center gap-1">
               <MobileMenuButton />
-              <Breadcrumbs />
+              {/* Logo compacto (sólo la marca) en móvil; migas desde lg. */}
+              <img
+                src={logoVisualia}
+                alt="Visualia"
+                width={28}
+                height={28}
+                decoding="async"
+                className="h-7 w-7 shrink-0 object-contain lg:hidden"
+              />
+              <div className="hidden min-w-0 lg:block">
+                <Breadcrumbs />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <LocationSwitcher />
               <PaletteTrigger onOpen={() => setPaletteOpen(true)} />
             </div>
           </header>
+
 
           <main className="flex-1 overflow-y-auto">
             <PageTransition>
