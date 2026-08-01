@@ -187,6 +187,7 @@ const Subscription = () => {
             onEditMethod={() => handleAddPaymentMethod()}
           />
           <OneTimePaymentCard businessId={businessId ?? ""} />
+          <DeviceOrdersCard billingCycle={subscription?.billing_cycle} />
         </div>
         <div className="lg:col-span-2" ref={invoicesRef}>
           <InvoicesList invoices={invoices} legacyPayments={payments} />
