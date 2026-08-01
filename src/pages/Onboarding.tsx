@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, signOut } from "@/hooks/useAuth";
 import { useTenant } from "@/features/auth/useTenant";
+import { TvCompatibilityWizard } from "@/features/devices";
 import { tenantQueryKey } from "@/features/auth/tenant";
 import { logError } from "@/lib/errorLogger";
 import { Button } from "@/components/ui/button";
