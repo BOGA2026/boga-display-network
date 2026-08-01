@@ -21,7 +21,9 @@ import {
   LogOut,
   Command as CommandIcon,
   Menu,
+  Search,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth, signOut } from "@/hooks/useAuth";
