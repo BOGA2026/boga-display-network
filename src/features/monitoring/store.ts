@@ -141,24 +141,49 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       let changed = false;
       const devices = { ...s.devices };
       const notifications = [...s.notifications];
+      const lastNotified = { ...s.lastNotified };
+      const now = Date.now();
+
       for (const id of s.order) {
         const d = devices[id];
-        if (!d) continue;
-        if (d.status === "online" && isStale(d, s.offlineThresholdSec)) {
+        if (!d || !d.paired_at) continue;
+
+        // Estado DERIVADO: lo mismo que ve el usuario en pantalla.
+        const derived: "online" | "offline" =
+          isStale(d, s.offlineThresholdSec) || d.status === "offline" ? "offline" : "online";
+
+        if (derived === "offline" && d.status !== "offline") {
           devices[id] = { ...d, status: "offline" };
+          changed = true;
+        }
+
+        const previous = lastNotified[id];
+        if (previous === undefined) {
+          // Primera observación: solo se registra, no se alerta.
+          lastNotified[id] = derived;
+          continue;
+        }
+        if (previous !== derived) {
+          lastNotified[id] = derived;
           notifications.unshift({
-            id: `${id}-off-${Date.now()}`,
+            id: `${id}-${derived === "offline" ? "off" : "on"}-${now}`,
             device_id: id,
             device_name: d.screen_name ?? id.slice(0, 8),
-            kind: "offline",
-            at: Date.now(),
+            kind: derived === "offline" ? "offline" : "online",
+            at: now,
             read: false,
           });
           changed = true;
         }
       }
-      if (!changed) return s;
-      return { devices, notifications: notifications.slice(0, 100), tick: s.tick + 1 };
+
+      if (!changed) return { ...s, lastNotified };
+      return {
+        devices,
+        lastNotified,
+        notifications: notifications.slice(0, 100),
+        tick: s.tick + 1,
+      };
     }),
 }));
 
