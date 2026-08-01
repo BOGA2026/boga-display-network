@@ -30,13 +30,15 @@ export default function Onboarding() {
   const [name, setName] = React.useState("");
   const [city, setCity] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  // Antes de pedir la primera vinculación hay que saber si su televisor sirve.
+  const [phase, setPhase] = React.useState<"negocio" | "televisor">("negocio");
 
   // Ya tiene negocio → no hay nada que configurar.
   React.useEffect(() => {
-    if (!authLoading && !tenantLoading && businessId) {
+    if (!authLoading && !tenantLoading && businessId && phase === "negocio") {
       navigate("/dashboard", { replace: true });
     }
-  }, [authLoading, tenantLoading, businessId, navigate]);
+  }, [authLoading, tenantLoading, businessId, navigate, phase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +53,7 @@ export default function Onboarding() {
       // El tenant cacheado quedó viejo: se recarga con el negocio nuevo.
       await queryClient.invalidateQueries({ queryKey: tenantQueryKey(session?.user?.id) });
       toast.success("Listo, tu negocio ya está configurado");
-      navigate("/dashboard", { replace: true });
+      setPhase("televisor");
     } catch (err) {
       logError(err, { label: "onboarding.complete", scope: "onboarding", section: "onboarding" });
       toast.error("No pudimos crear tu negocio. Intentá de nuevo.");
