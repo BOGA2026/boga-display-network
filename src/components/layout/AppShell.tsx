@@ -21,7 +21,9 @@ import {
   LogOut,
   Command as CommandIcon,
   Menu,
+  Search,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { useAuth, signOut } from "@/hooks/useAuth";
@@ -236,13 +238,25 @@ function ShellInner() {
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/60 px-2 backdrop-blur sm:px-4">
             <div className="flex min-w-0 items-center gap-1">
               <MobileMenuButton />
-              <Breadcrumbs />
+              {/* Logo compacto (sólo la marca) en móvil; migas desde lg. */}
+              <img
+                src={logoVisualia}
+                alt="Visualia"
+                width={28}
+                height={28}
+                decoding="async"
+                className="h-7 w-7 shrink-0 object-contain lg:hidden"
+              />
+              <div className="hidden min-w-0 lg:block">
+                <Breadcrumbs />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <LocationSwitcher />
               <PaletteTrigger onOpen={() => setPaletteOpen(true)} />
             </div>
           </header>
+
 
           <main className="flex-1 overflow-y-auto">
             <PageTransition>
@@ -269,9 +283,11 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
     <button
       onClick={onOpen}
       className="inline-flex h-11 min-w-[44px] items-center justify-center gap-2 rounded-full border border-border bg-muted/30 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-      aria-label="Abrir command palette"
+      aria-label="Buscar"
     >
-      <CommandIcon className="h-3.5 w-3.5" />
+      {/* En móvil una lupa; el atajo ⌘K sólo tiene sentido con teclado. */}
+      <Search className="h-5 w-5 md:hidden" />
+      <CommandIcon className="hidden h-3.5 w-3.5 md:inline" />
       <span className="hidden md:inline">{COPY.actions.search}</span>
       <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-xs font-medium md:inline">
         {isMac ? "⌘" : "Ctrl"} K
@@ -279,6 +295,7 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
     </button>
   );
 }
+
 
 /**
  * Public export. Handles auth + admin redirect, then hydrates the shell

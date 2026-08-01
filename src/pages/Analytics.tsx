@@ -421,7 +421,7 @@ export default function Analytics() {
               />
             ) : (
               <div className="overflow-x-auto">
-                <Table>
+                <Table className="v-table-sticky-first min-w-[640px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Pantalla</TableHead>

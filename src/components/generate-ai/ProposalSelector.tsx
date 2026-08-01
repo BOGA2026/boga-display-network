@@ -363,17 +363,17 @@ export default function ProposalSelector({
                   <Maximize2 className="h-3.5 w-3.5" /> Vista previa en pantalla completa
                 </Button>
 
-                <div className="mt-auto flex flex-wrap items-center gap-2">
-                  <Button size="sm" className="flex-1" onClick={() => onSelect(p)}>
+                <div className="mt-auto flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                  <Button size="sm" className="h-11 w-full sm:h-9 sm:flex-1" onClick={() => onSelect(p)}>
                     <Check className="h-3.5 w-3.5" /> Usar este diseño
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => onSelect(p)}>
+                  <Button size="sm" variant="secondary" className="h-11 w-full sm:h-9 sm:w-auto" onClick={() => onSelect(p)}>
                     <Pencil className="h-3.5 w-3.5" /> Editar
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-muted-foreground"
+                    className="h-11 w-full text-muted-foreground sm:h-9 sm:w-auto"
                     onClick={() => setDescartadas((d) => [...d, p.id])}
                   >
                     Descartar

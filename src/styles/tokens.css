@@ -308,3 +308,58 @@ table th {
   font-variant-numeric: tabular-nums;
   backdrop-filter: blur(4px);
 }
+
+/* ===========================================================
+   Móvil: reglas transversales del dashboard
+   =========================================================== */
+
+/* Área segura de iOS en barras fijas al fondo. */
+.v-safe-bottom {
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+}
+
+/* Barra de acciones fija al fondo en móvil, en flujo desde md. */
+.v-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  border-radius: 0;
+}
+@media (min-width: 768px) {
+  .v-bottom-bar {
+    position: static;
+    border-radius: var(--radius-lg, 0.75rem);
+    padding-bottom: var(--space-3);
+  }
+}
+
+/* Tabla con la primera columna fija al desplazar horizontalmente. */
+.v-table-sticky-first th:first-child,
+.v-table-sticky-first td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: hsl(var(--card));
+}
+
+/* Teclado en pantalla: el campo enfocado nunca queda tapado. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    scroll-margin-bottom: 45vh;
+    font-size: max(16px, 1rem);
+  }
+}
+
+/* Ningún texto por debajo de 12px en móvil. */
+@media (max-width: 767px) {
+  .dash-scope .text-\[10px\],
+  .dash-scope .text-\[11px\],
+  .dash-scope .text-xs {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
