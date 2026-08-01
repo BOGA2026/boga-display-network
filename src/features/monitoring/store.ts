@@ -14,10 +14,16 @@
  *    250 ms (see `useDeviceMonitoring.ts`). This coalesces bursts of
  *    heartbeats from N devices into a single React commit.
  *  - Offline detection is derived: a tick every 5 s recomputes which devices
- *    have gone stale (`last_seen_at > 90 s ago`) without hitting the DB.
- *    The sweep edge function is only the authoritative fallback.
+ *    have gone stale (`last_seen_at` más viejo que OFFLINE_THRESHOLD_SECONDS,
+ *    importado de `@shared/offlineThreshold`) sin pegarle a la base.
+ *    El cron `mark-offline-screens` es solo el respaldo autoritativo.
+ *  - Las notificaciones salen de la transición del estado DERIVADO en el
+ *    cliente (no de la columna `status`), así la alerta y lo que se ve en
+ *    pantalla coinciden siempre. `lastNotified` evita repetir la alerta en
+ *    cada refetch.
  */
 import { create } from "zustand";
+import { OFFLINE_THRESHOLD_SECONDS } from "@shared/offlineThreshold";
 
 export type DeviceStatus = "online" | "offline" | "syncing" | "pending";
 
@@ -53,6 +59,8 @@ interface MonitoringState {
   notifications: Notification[];
   selectedId: string | null;
   offlineThresholdSec: number;
+  /** Último estado derivado notificado por dispositivo (anti-duplicados). */
+  lastNotified: Record<string, "online" | "offline">;
 
   hydrate: (rows: MonitoredDevice[]) => void;
   upsert: (row: MonitoredDevice) => void;
@@ -77,7 +85,8 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
   tick: 0,
   notifications: [],
   selectedId: null,
-  offlineThresholdSec: 90,
+  offlineThresholdSec: OFFLINE_THRESHOLD_SECONDS,
+  lastNotified: {},
 
   hydrate: (rows) => {
     const devices: Record<string, MonitoredDevice> = {};
@@ -95,28 +104,9 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       const prev = s.devices[row.id];
       const devices = { ...s.devices, [row.id]: { ...prev, ...row } };
       const order = existed ? s.order : [...s.order, row.id];
-      // Notification on status flip
-      const notifications = [...s.notifications];
-      if (prev && prev.status !== "offline" && row.status === "offline") {
-        notifications.unshift({
-          id: `${row.id}-off-${Date.now()}`,
-          device_id: row.id,
-          device_name: row.screen_name ?? row.id.slice(0, 8),
-          kind: "offline",
-          at: Date.now(),
-          read: false,
-        });
-      } else if (prev && prev.status === "offline" && row.status === "online") {
-        notifications.unshift({
-          id: `${row.id}-on-${Date.now()}`,
-          device_id: row.id,
-          device_name: row.screen_name ?? row.id.slice(0, 8),
-          kind: "online",
-          at: Date.now(),
-          read: false,
-        });
-      }
-      return { devices, order, notifications: notifications.slice(0, 100), tick: s.tick + 1 };
+      // Las alertas NO salen de la columna `status`: se disparan desde el
+      // estado derivado en `refreshDerived`, que es lo que ve el usuario.
+      return { devices, order, tick: s.tick + 1 };
     }),
 
   patch: (id, patch) =>
@@ -151,24 +141,49 @@ export const useMonitoringStore = create<MonitoringState>((set, get) => ({
       let changed = false;
       const devices = { ...s.devices };
       const notifications = [...s.notifications];
+      const lastNotified = { ...s.lastNotified };
+      const now = Date.now();
+
       for (const id of s.order) {
         const d = devices[id];
-        if (!d) continue;
-        if (d.status === "online" && isStale(d, s.offlineThresholdSec)) {
+        if (!d || !d.paired_at) continue;
+
+        // Estado DERIVADO: lo mismo que ve el usuario en pantalla.
+        const derived: "online" | "offline" =
+          isStale(d, s.offlineThresholdSec) || d.status === "offline" ? "offline" : "online";
+
+        if (derived === "offline" && d.status !== "offline") {
           devices[id] = { ...d, status: "offline" };
+          changed = true;
+        }
+
+        const previous = lastNotified[id];
+        if (previous === undefined) {
+          // Primera observación: solo se registra, no se alerta.
+          lastNotified[id] = derived;
+          continue;
+        }
+        if (previous !== derived) {
+          lastNotified[id] = derived;
           notifications.unshift({
-            id: `${id}-off-${Date.now()}`,
+            id: `${id}-${derived === "offline" ? "off" : "on"}-${now}`,
             device_id: id,
             device_name: d.screen_name ?? id.slice(0, 8),
-            kind: "offline",
-            at: Date.now(),
+            kind: derived === "offline" ? "offline" : "online",
+            at: now,
             read: false,
           });
           changed = true;
         }
       }
-      if (!changed) return s;
-      return { devices, notifications: notifications.slice(0, 100), tick: s.tick + 1 };
+
+      if (!changed) return { ...s, lastNotified };
+      return {
+        devices,
+        lastNotified,
+        notifications: notifications.slice(0, 100),
+        tick: s.tick + 1,
+      };
     }),
 }));
 

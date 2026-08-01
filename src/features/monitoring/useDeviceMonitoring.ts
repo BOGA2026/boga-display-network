@@ -11,9 +11,9 @@ import { fetchDevicesForBusiness } from "./api";
  *     flushes the queue into the Zustand store as ONE React commit.
  *     This gives "milimétrico" feel (≤ 250 ms lag) without a re-render per row.
  *  2. A local 5 s tick calls `refreshDerived()` — flips online→offline the
- *     instant a device's `last_seen_at` crosses the 90 s threshold, without
- *     waiting for the server sweep. The DB trigger + `sweep-devices` edge
- *     function remain the authoritative log.
+ *     instant a device's `last_seen_at` crosses OFFLINE_THRESHOLD_SECONDS
+ *     (importado de `@shared/offlineThreshold`), sin esperar al cron. La edge
+ *     function `mark-offline-screens` es el respaldo autoritativo.
  */
 export function useDeviceMonitoring(businessId: string | null | undefined) {
   const hydrate = useMonitoringStore((s) => s.hydrate);

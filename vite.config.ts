@@ -72,6 +72,8 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Código compartido entre edge functions (Deno) y el cliente web.
+      "@shared": path.resolve(__dirname, "./supabase/functions/_shared"),
     },
   },
   build: {

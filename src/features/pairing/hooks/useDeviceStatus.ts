@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { deriveLiveStatus } from "@shared/offlineThreshold";
 
 export type DeviceLiveStatus = "online" | "offline" | "syncing" | "unknown";
 
@@ -11,9 +12,9 @@ interface DeviceStatusState {
 /**
  * Subscribes to a single device row via Supabase Realtime and derives its
  * live status without polling. The device is considered:
- *   - online   → last_seen_at within the last 90 s
- *   - syncing  → last_seen_at within the last 5 min but not fresh
- *   - offline  → anything older, or explicit status='offline'
+ * Usa el mismo umbral compartido que las edge functions
+ * (`@shared/offlineThreshold`): online dentro de la ventana, "sincronizando"
+ * dentro de la gracia, y desconectado más allá o si la columna dice offline.
  */
 export function useDeviceStatus(deviceId: string | null | undefined) {
   const [state, setState] = useState<DeviceStatusState>({
@@ -28,11 +29,7 @@ export function useDeviceStatus(deviceId: string | null | undefined) {
 
     const derive = (lastSeen: string | null, rawStatus: string | null): DeviceLiveStatus => {
       if (rawStatus === "offline") return "offline";
-      if (!lastSeen) return "offline";
-      const age = Date.now() - new Date(lastSeen).getTime();
-      if (age < 90_000) return "online";
-      if (age < 5 * 60_000) return "syncing";
-      return "offline";
+      return deriveLiveStatus(lastSeen);
     };
 
     // Prime state
