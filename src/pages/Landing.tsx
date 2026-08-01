@@ -713,8 +713,11 @@ const Landing = () => {
       </section>
 
 
+      {/* 4.5 ¿SIRVE MI TELEVISOR? */}
+      <CompatibilitySection />
 
       {/* 5. PRICING */}
+
       <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24">
         <div className="section-glow" aria-hidden="true" />
         <div className="relative z-10 mx-auto max-w-6xl">
