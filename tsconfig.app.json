@@ -34,6 +34,6 @@
   },
   "include": [
     "src",
-    "supabase/functions/_shared"
+    "supabase/functions/_shared/offlineThreshold.ts"
   ]
 }
