@@ -25,6 +25,8 @@ import ExpertChat from "@/components/landing/ExpertChat";
 import PremiumBackground from "@/components/layout/PremiumBackground";
 
 import ClientScreensShowcase from "@/components/landing/ClientScreensShowcase";
+import CompatibilitySection from "@/components/landing/CompatibilitySection";
+
 import Testimonials from "@/components/landing/Testimonials";
 import {
   ArrowRight,
