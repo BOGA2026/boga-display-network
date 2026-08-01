@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import type { ScheduleBlock, ScheduleLayer } from "@/hooks/useScheduleData";
+import { DEFAULT_TIMEZONE, nowLocalMinutes } from "@/lib/businessTime";
 
 const DAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const DAY_INDICES = [1, 2, 3, 4, 5, 6, 0];
@@ -66,6 +67,8 @@ interface Props {
   onDeleteBlock: (id: string) => void;
   conflicts: Map<string, string[]>;
   scrollToTime?: string; // HH:MM or HH:MM:SS — scroll here after a new block is added
+  /** Zona del negocio: la línea de "ahora" se dibuja con la hora del local. */
+  timezone?: string;
 }
 
 const BasicWeeklyCalendar = ({
@@ -77,6 +80,7 @@ const BasicWeeklyCalendar = ({
   onDeleteBlock,
   conflicts,
   scrollToTime,
+  timezone = DEFAULT_TIMEZONE,
 }: Props) => {
   const totalSlots = 24;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,13 +95,18 @@ const BasicWeeklyCalendar = ({
     containerRef.current.scrollTo({ top: Math.max(0, targetY - 100), behavior: "smooth" });
   }, [scrollToTime]);
 
-  // Initial scroll: jump to earliest block or 8 AM on first load
+  // Apertura: la vista arranca en la franja de operación del negocio (el
+  // primer bloque programado) y nunca antes de las 07:00. Nadie programa a
+  // las 2 de la mañana, y abrir ahí obliga a desplazar cada vez.
   useEffect(() => {
-    if (hasScrolledRef.current || !containerRef.current || blocks.length === 0) return;
+    if (hasScrolledRef.current || !containerRef.current) return;
     hasScrolledRef.current = true;
-    const earliestMin = Math.min(...blocks.map(b => timeToMinutes(b.start_time)));
-    const scrollTarget = Math.max(0, (Math.min(earliestMin, 8 * 60) / ZOOM) * SLOT_HEIGHT - 60);
-    containerRef.current.scrollTo({ top: scrollTarget, behavior: "auto" });
+    const DEFAULT_START = 7 * 60;
+    const earliestMin = blocks.length > 0
+      ? Math.min(...blocks.map((b) => timeToMinutes(b.start_time)))
+      : DEFAULT_START;
+    const target = Math.max(DEFAULT_START, earliestMin - 60);
+    containerRef.current.scrollTo({ top: (target / ZOOM) * SLOT_HEIGHT, behavior: "auto" });
   }, [blocks]);
 
   // Help tooltip state
@@ -301,24 +310,18 @@ const BasicWeeklyCalendar = ({
 
             {/* Hour slots */}
             <div style={{ position: 'relative' }}>
-              {timeLabels.map((label, i) => (
+              {timeLabels.map((_label, i) => (
                 <div
                   key={i}
                   className="border-b border-border/15"
                   style={{ height: SLOT_HEIGHT, position: 'relative' }}
                   onClick={() => onSelectBlock(null)}
-                >
-                  {/* Debug hour marker inside each slot */}
-                  <span className="absolute top-0 left-1 text-xs text-muted-foreground/30 font-mono pointer-events-none select-none">
-                    {label}
-                  </span>
-                </div>
+                />
               ))}
 
               {/* Now indicator line */}
               {(() => {
-                const now = new Date();
-                const nowMin = now.getHours() * 60 + now.getMinutes();
+                const nowMin = nowLocalMinutes(timezone);
                 const nowTop = (nowMin / ZOOM) * SLOT_HEIGHT;
                 return (
                   <div
@@ -348,18 +351,21 @@ const BasicWeeklyCalendar = ({
                   <div
                     key={block.id}
                     className={cn(
-                      "absolute left-1.5 right-1.5 rounded-xl cursor-grab transition-shadow overflow-hidden group border-2",
+                      "absolute left-1.5 right-1.5 rounded-xl cursor-grab transition-shadow overflow-hidden group border border-border/40 bg-primary/15",
                       isDraggingThis && "cursor-grabbing shadow-2xl z-50 ring-2 ring-primary/40",
                       isSelected && !isDraggingThis
-                        ? "border-primary shadow-xl ring-2 ring-primary/30 scale-[1.02]"
-                        : !isDraggingThis && "border-transparent hover:border-foreground/15 hover:shadow-lg",
+                        ? "border-primary shadow-xl ring-2 ring-primary/30"
+                        : !isDraggingThis && "hover:border-foreground/20 hover:shadow-lg",
                       hasConflict && "ring-2 ring-amber-400/50"
                     )}
                     style={{
                       top,
                       height: Math.max(height, SLOT_HEIGHT * 0.8),
-                      background: `linear-gradient(145deg, ${color}cc, ${color}88)`,
-                      borderLeftWidth: 4,
+                      // Relleno suave + guía sólida a la izquierda: el bloque se
+                      // lee sin pelear con el texto ni con la rejilla.
+                      background: `color-mix(in srgb, ${color} 15%, transparent)`,
+                      borderLeftWidth: 3,
+                      borderLeftStyle: "solid",
                       borderLeftColor: color,
                       zIndex: isDraggingThis ? 50 : (layer?.priority || 0) + 5,
                       transition: isDraggingThis ? "none" : "top 0.15s ease, height 0.15s ease, box-shadow 0.2s ease",
@@ -383,7 +389,7 @@ const BasicWeeklyCalendar = ({
                             handleMouseDown(e, block.id, "resize-start", dayIndex);
                           }}
                         >
-                          <GripHorizontal className="h-3 w-3 text-white/80" />
+                          <GripHorizontal className="h-3 w-3 text-foreground/70" />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="top" className="text-xs">
@@ -393,19 +399,28 @@ const BasicWeeklyCalendar = ({
 
                     {/* Content */}
                     <div className="px-3 py-2 mt-1">
-                      <div className="text-sm font-bold text-white truncate drop-shadow-sm">
+                      <div className="text-sm font-semibold text-foreground truncate">
                         {block.playlist?.name || block.name || "Sin nombre"}
                       </div>
-                      {/* Live time display (always visible during drag, otherwise on taller blocks) */}
                       {(isDraggingThis || height > SLOT_HEIGHT * 0.9) && (
                         <div className={cn(
-                          "text-xs mt-1 font-mono font-semibold flex items-center gap-1",
-                          isDraggingThis ? "text-white bg-black/40 rounded-md px-1.5 py-0.5 inline-flex" : "text-white/80"
+                          "text-xs mt-1 v-numeric font-medium flex items-center gap-1",
+                          isDraggingThis
+                            ? "text-foreground bg-background/80 rounded-md px-1.5 py-0.5 inline-flex"
+                            : "text-muted-foreground"
                         )}>
                           {minutesToTime(startMin)} – {minutesToTime(endMin)}
                         </div>
                       )}
                     </div>
+
+                    {/* En bloques altos, el nombre se repite al pie para leerlo
+                        sin tener que desplazar hasta el borde superior. */}
+                    {height > SLOT_HEIGHT * 3 && (
+                      <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 text-xs font-medium text-muted-foreground truncate bg-gradient-to-t from-background/40 to-transparent pointer-events-none">
+                        {block.playlist?.name || block.name || "Sin nombre"}
+                      </div>
+                    )}
 
                     {/* Conflict icon */}
                     {hasConflict && (
@@ -462,7 +477,7 @@ const BasicWeeklyCalendar = ({
                             handleMouseDown(e, block.id, "resize-end", dayIndex);
                           }}
                         >
-                          <GripHorizontal className="h-3 w-3 text-white/80" />
+                          <GripHorizontal className="h-3 w-3 text-foreground/70" />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="text-xs">
