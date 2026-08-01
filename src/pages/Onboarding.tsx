@@ -70,6 +70,27 @@ export default function Onboarding() {
     );
   }
 
+  if (phase === "televisor") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+        <div className="v-card w-full max-w-lg p-6 sm:p-8">
+          <TvCompatibilityWizard
+            continueLabel="Seguir"
+            onCompatible={() => navigate("/dashboard/pantallas", { replace: true })}
+            onClose={() => navigate("/dashboard", { replace: true })}
+          />
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard", { replace: true })}
+            className="mt-6 w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Lo veo después
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="v-card w-full max-w-md p-6 sm:p-8">
