@@ -36,6 +36,7 @@ export function useTenant() {
   return {
     businessId: tenant.businessId,
     businessName: tenant.businessName,
+    timezone: tenant.timezone,
     role: tenant.role,
     loading: authLoading || (!!userId && isLoading),
     hasRole,

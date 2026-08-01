@@ -15,6 +15,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/query-client";
+import { DEFAULT_TIMEZONE } from "@/lib/businessTime";
 
 export type TenantRole = "owner" | "admin" | "manager" | "content_editor" | "viewer";
 
@@ -22,6 +23,8 @@ export interface Tenant {
   userId: string | null;
   businessId: string | null;
   businessName: string | null;
+  /** Zona horaria IANA del negocio. Las horas de programación son locales a esta zona. */
+  timezone: string;
   role: TenantRole | null;
 }
 
@@ -29,6 +32,7 @@ export const EMPTY_TENANT: Tenant = {
   userId: null,
   businessId: null,
   businessName: null,
+  timezone: DEFAULT_TIMEZONE,
   role: null,
 };
 
@@ -42,6 +46,7 @@ export async function fetchTenant(): Promise<Tenant> {
     userId: (t.user_id as string) ?? null,
     businessId: (t.business_id as string) ?? null,
     businessName: (t.business_name as string) ?? null,
+    timezone: (t.timezone as string) || DEFAULT_TIMEZONE,
     role: (t.role as TenantRole) ?? null,
   };
 }

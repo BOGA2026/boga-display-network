@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Upload, Copy, Plus } from "lucide-react";
+import { Upload, Copy, Plus, Check } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +15,11 @@ interface Props {
   blockCount: number;
 }
 
+/**
+ * Jerarquía: "Publicar" es la acción primaria (violeta de marca) porque es la
+ * que hace efectivo el trabajo. "Agregar contenido" queda en outline y
+ * "Copiar a otros días" en ghost. El verde se reserva para estados de éxito.
+ */
 const PublishFooterBar = ({
   onAddContent,
   onCopyToDays,
@@ -23,17 +28,16 @@ const PublishFooterBar = ({
   hasChanges,
   blockCount,
 }: Props) => {
+  const nothingToPublish = blockCount === 0 || !hasChanges;
+
   return (
-    <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-card/70 backdrop-blur-sm border border-border/50">
-      {/* Add content */}
+    // pr-20 en escritorio: deja libre la esquina donde flota el asistente,
+    // para que nunca tape el botón de publicar.
+    <div className="flex flex-wrap items-center gap-2 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pr-20 rounded-2xl bg-card/70 backdrop-blur-sm border border-border/50">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            size="lg"
-            className="gradient-primary text-primary-foreground rounded-xl gap-2.5 text-base h-12 px-6 glow-primary-sm"
-            onClick={onAddContent}
-          >
-            <Plus className="h-5 w-5" />
+          <Button variant="outline" className="rounded-xl gap-2 h-11" onClick={onAddContent}>
+            <Plus className="h-4 w-4" />
             Agregar contenido
           </Button>
         </TooltipTrigger>
@@ -42,16 +46,10 @@ const PublishFooterBar = ({
         </TooltipContent>
       </Tooltip>
 
-      {/* Copy to days */}
       {blockCount > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-xl gap-2 text-sm h-12"
-              onClick={onCopyToDays}
-            >
+            <Button variant="ghost" className="rounded-xl gap-2 h-11 text-muted-foreground" onClick={onCopyToDays}>
               <Copy className="h-4 w-4" />
               Copiar a otros días
             </Button>
@@ -62,35 +60,29 @@ const PublishFooterBar = ({
         </Tooltip>
       )}
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Summary */}
-      <span className="text-sm text-muted-foreground">
+      <span className="text-xs text-muted-foreground">
         {blockCount > 0
           ? `${blockCount} contenido${blockCount > 1 ? "s" : ""} programado${blockCount > 1 ? "s" : ""}`
           : "Sin contenido programado"}
       </span>
 
-      {/* Publish */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            size="lg"
-            className={`rounded-xl gap-2.5 text-base h-12 px-8 transition-all ${
-              hasChanges
-                ? "gradient-primary text-primary-foreground glow-primary animate-pulse"
-                : "bg-emerald-600 hover:bg-emerald-700 text-white"
-            }`}
-            onClick={onPublish}
-            disabled={isPublishing || blockCount === 0}
-          >
-            <Upload className="h-5 w-5" />
-            {isPublishing ? "Publicando…" : "Publicar"}
-          </Button>
+          <span tabIndex={nothingToPublish ? 0 : -1} className="inline-flex">
+            <Button
+              className="gradient-primary text-primary-foreground rounded-xl gap-2 h-11 px-6 disabled:opacity-60"
+              onClick={onPublish}
+              disabled={isPublishing || nothingToPublish}
+            >
+              {nothingToPublish && !isPublishing ? <Check className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+              {isPublishing ? "Publicando…" : nothingToPublish ? "Todo publicado" : "Publicar"}
+            </Button>
+          </span>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{hasChanges ? "Envía los cambios a tu pantalla" : "Tu pantalla está actualizada"}</p>
+          <p>{nothingToPublish ? "No hay cambios sin publicar" : "Envía los cambios a tu pantalla"}</p>
         </TooltipContent>
       </Tooltip>
     </div>

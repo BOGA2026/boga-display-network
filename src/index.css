@@ -1,14 +1,15 @@
 /* Inter font is preloaded from index.html for faster paint. */
 
-@tailwind base;
-@tailwind components;
-
 /* Primitivas de app (.v-card / .v-numeric / .v-dot / .v-kpi-*).
-   Va después del base+components de shadcn y antes de las utilidades,
-   para que cualquier utilidad puntual de Tailwind siga ganando. */
+   El @import debe ir antes que cualquier otra regla: si va después de
+   @tailwind, postcss-import lo descarta y las primitivas nunca llegan
+   al navegador. Las utilidades de Tailwind siguen ganando por cascada. */
 @import "./styles/tokens.css";
 
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
+
 
 
 /*
