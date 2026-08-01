@@ -127,6 +127,32 @@ export function useScheduleBlocks(screenId: string | undefined) {
   });
 }
 
+/**
+ * Bloques de todas las pantallas del negocio, en versión mínima.
+ * Sirve para responder "¿qué otras pantallas comparten esta programación?"
+ * sin traer el detalle completo de cada bloque.
+ */
+export function useBusinessScheduleBlocks(businessId: string | undefined) {
+  return useQuery({
+    queryKey: ["schedule-blocks-business", businessId],
+    enabled: !!businessId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("schedule_blocks")
+        .select("screen_id, playlist_id, start_time, end_time, days_of_week, is_enabled")
+        .eq("is_enabled", true);
+      if (error) throw error;
+      return (data || []) as Array<{
+        screen_id: string;
+        playlist_id: string;
+        start_time: string;
+        end_time: string;
+        days_of_week: number[];
+      }>;
+    },
+  });
+}
+
 export function useScheduleTemplates(businessId: string | undefined) {
   return useQuery({
     queryKey: ["schedule-templates", businessId],

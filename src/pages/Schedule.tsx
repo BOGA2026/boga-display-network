@@ -17,6 +17,8 @@ import { toast } from "@/hooks/use-toast";
 import SimpleScheduleHeader from "@/components/schedule/SimpleScheduleHeader";
 import BasicWeeklyCalendar from "@/components/schedule/BasicWeeklyCalendar";
 import NowPlayingPreview from "@/components/schedule/NowPlayingPreview";
+import { useTenant } from "@/features/auth/useTenant";
+import { useBusinessScheduleBlocks } from "@/hooks/useScheduleData";
 import PublishFooterBar from "@/components/schedule/PublishFooterBar";
 import AddContentWizard from "@/components/schedule/AddContentWizard";
 import ConflictAlertDialog from "@/components/schedule/ConflictAlertDialog";
@@ -204,6 +206,29 @@ const Schedule = () => {
 
   const enabledBlocks = blocks.filter((b) => b.is_enabled);
 
+  // Zona del negocio: las horas guardadas son locales al local.
+  const { timezone } = useTenant();
+  const { data: allBlocks = [] } = useBusinessScheduleBlocks(businessId);
+
+  /** Otras pantallas con exactamente la misma programación que la actual. */
+  const sharedScreens = useMemo(() => {
+    if (!selectedScreenId) return [];
+    const sign = (rows: typeof allBlocks) =>
+      rows
+        .map((b) => `${b.playlist_id}|${b.start_time}|${b.end_time}|${[...b.days_of_week].sort().join(",")}`)
+        .sort()
+        .join("//");
+    const byScreen = new Map<string, typeof allBlocks>();
+    allBlocks.forEach((b) => {
+      byScreen.set(b.screen_id, [...(byScreen.get(b.screen_id) || []), b]);
+    });
+    const mine = sign(byScreen.get(selectedScreenId) || []);
+    if (!mine) return [];
+    return (screens as any[])
+      .filter((s) => s.id !== selectedScreenId && sign(byScreen.get(s.id) || []) === mine)
+      .map((s) => s.name as string);
+  }, [allBlocks, screens, selectedScreenId]);
+
   return (
     <div className="flex flex-col h-full gap-3 p-2">
       {/* Header */}
@@ -230,6 +255,7 @@ const Schedule = () => {
               onDeleteBlock={handleDeleteBlock}
               conflicts={conflicts}
               scrollToTime={scrollToTime}
+              timezone={timezone}
             />
           </div>
         ) : (
@@ -250,6 +276,8 @@ const Schedule = () => {
             blocks={blocks}
             layers={layers}
             selectedBlockId={selectedBlockId}
+            timezone={timezone}
+            sharedScreens={sharedScreens}
           />
         )}
       </div>

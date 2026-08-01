@@ -74,12 +74,12 @@ const SimpleScheduleHeader = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <div className={cn(
-              "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium",
+              "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
               isOnline
-                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                : "bg-destructive/10 text-destructive border border-destructive/20"
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "bg-destructive/10 text-destructive"
             )}>
-              {isOnline ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+              {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
               {isOnline ? "Conectada" : "Desconectada"}
             </div>
           </TooltipTrigger>
@@ -93,10 +93,10 @@ const SimpleScheduleHeader = ({
       <Badge
         variant="outline"
         className={cn(
-          "text-sm px-4 py-2 rounded-xl font-medium",
+          "text-xs px-2.5 py-1 rounded-full font-medium border-transparent",
           isPublished && !hasChanges
-            ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-            : "border-amber-500/30 text-amber-400 bg-amber-500/10 animate-pulse"
+            ? "text-emerald-400 bg-emerald-500/10"
+            : "text-amber-400 bg-amber-500/10"
         )}
       >
         {isPublished && !hasChanges ? "✓ Publicado" : "● Sin publicar"}
