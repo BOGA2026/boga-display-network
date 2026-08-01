@@ -31,8 +31,11 @@ export function LocationSwitcher() {
     );
   }
 
+  const label = activeLocation ? activeLocation.name : "Todas las sedes";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
+
       <PopoverTrigger asChild>
         <Button
           variant="outline"
