@@ -344,8 +344,10 @@ table th {
   background: hsl(var(--card));
 }
 
-/* Teclado en pantalla: el campo enfocado nunca queda tapado. */
-@media (max-width: 767px) {
+/* Teclado en pantalla: el campo enfocado nunca queda tapado.
+   Solo en dispositivos táctiles: en escritorio el scroll-margin hace saltar la
+   página al enfocar y el 16px rompe la densidad de shadcn (14px). */
+@media (max-width: 767px) and (pointer: coarse) {
   input,
   textarea,
   select {
@@ -354,12 +356,25 @@ table th {
   }
 }
 
-/* Ningún texto por debajo de 12px en móvil. */
+/* Ningún texto por debajo de 12px en móvil.
+   Excepción: chips y etiquetas cortas en mayúscula (orientación, KPI), que son
+   legibles a 10-11px y no son texto corrido. */
 @media (max-width: 767px) {
-  .dash-scope .text-\[10px\],
-  .dash-scope .text-\[11px\],
-  .dash-scope .text-xs {
+  .dash-scope .text-\[10px\]:not(.v-thumb-chip):not(.v-kpi-label),
+  .dash-scope .text-\[11px\]:not(.v-thumb-chip):not(.v-kpi-label),
+  .dash-scope .text-xs:not(.v-thumb-chip):not(.v-kpi-label) {
     font-size: 12px;
     line-height: 1.35;
   }
+
+  .dash-scope .v-thumb-chip {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .dash-scope .v-kpi-label {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+  }
 }
+
