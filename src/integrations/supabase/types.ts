@@ -495,6 +495,81 @@ export type Database = {
           },
         ]
       }
+      device_orders: {
+        Row: {
+          address: string
+          business_id: string
+          city: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          included: boolean
+          model_id: string | null
+          model_name: string | null
+          notes: string | null
+          price_cop: number
+          requested_by: string | null
+          screen_id: string | null
+          status: string
+          tracking_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          business_id: string
+          city: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          id?: string
+          included?: boolean
+          model_id?: string | null
+          model_name?: string | null
+          notes?: string | null
+          price_cop?: number
+          requested_by?: string | null
+          screen_id?: string | null
+          status?: string
+          tracking_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          business_id?: string
+          city?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          included?: boolean
+          model_id?: string | null
+          model_name?: string | null
+          notes?: string | null
+          price_cop?: number
+          requested_by?: string | null
+          screen_id?: string | null
+          status?: string
+          tracking_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_orders_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_orders_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       devices: {
         Row: {
           address: string | null
@@ -1818,6 +1893,7 @@ export type Database = {
           created_at: string
           device_model: string | null
           device_token: string | null
+          device_type: string
           gps_accuracy: number | null
           gps_lat: number | null
           gps_lng: number | null
@@ -1850,6 +1926,7 @@ export type Database = {
           created_at?: string
           device_model?: string | null
           device_token?: string | null
+          device_type?: string
           gps_accuracy?: number | null
           gps_lat?: number | null
           gps_lng?: number | null
@@ -1882,6 +1959,7 @@ export type Database = {
           created_at?: string
           device_model?: string | null
           device_token?: string | null
+          device_type?: string
           gps_accuracy?: number | null
           gps_lat?: number | null
           gps_lng?: number | null
