@@ -917,7 +917,20 @@ const Screens = () => {
         onOpenChange={setPairModalOpen}
         onPaired={() => { setSuccessScreen("Pantalla"); fetchData(); }}
       />
+
+      {/* ─── CONSULTA PERMANENTE: ¿MI TELEVISOR SIRVE? ─── */}
+      <div className="mt-10 border-t border-border/30 pt-4 text-center">
+        <button
+          type="button"
+          onClick={() => setCompatDialogOpen(true)}
+          className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          {COPY.dispositivo.enlaceConsulta}
+        </button>
+      </div>
+      <TvCompatibilityDialog open={compatDialogOpen} onOpenChange={setCompatDialogOpen} />
     </div>
+
   );
 };
 
