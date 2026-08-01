@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Info, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import InlineVideo from "@/components/media/InlineVideo";
-import { COMPAT_CLIPS, clipSources, clipPoster } from "@/config/compatibilityMedia";
+import SequenceVideo, { type SequenceClip } from "@/components/media/SequenceVideo";
+import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,19 +42,24 @@ async function logBrandCheck(brandId: string, verdict: string) {
   }
 }
 
-const STEPS = [
+/** Secuencia continua: dispositivo → HDMI → código → menú al aire. */
+const SEQUENCE: SequenceClip[] = [
+  { label: "El dispositivo", ...COMPAT_CLIPS.dispositivo },
+  { label: "Conectalo al HDMI", ...COMPAT_CLIPS.paso1 },
+  { label: "Vinculá tu pantalla", ...COMPAT_CLIPS.paso2 },
+  { label: "Ya estás al aire", ...COMPAT_CLIPS.paso3 },
+];
+
+const STEP_TEXTS = [
   {
-    clip: COMPAT_CLIPS.paso1,
     title: "Conectalo al HDMI",
     desc: "Enchufás el aparatito en la entrada HDMI del televisor y a la corriente.",
   },
   {
-    clip: COMPAT_CLIPS.paso2,
     title: "Vinculá tu pantalla",
     desc: "El televisor muestra un código y vos lo escribís una sola vez desde tu celular.",
   },
   {
-    clip: COMPAT_CLIPS.paso3,
     title: "Listo, ya estás al aire",
     desc: "Tu menú aparece en pantalla y lo cambiás cuando quieras desde el celular.",
   },
@@ -165,14 +170,9 @@ export default function CompatibilitySection() {
           )}
         </div>
 
-        {/* BLOQUE 2 — El dispositivo */}
-        <div id="dispositivo" className="mt-12 grid items-center gap-8 md:grid-cols-2">
-          <InlineVideo
-            sources={clipSources(COMPAT_CLIPS.dispositivo)}
-            poster={clipPoster(COMPAT_CLIPS.dispositivo)}
-            label="El aparatito que se conecta al televisor"
-            placeholder="Video del aparatito"
-          />
+        {/* BLOQUE 2 — El dispositivo, con la secuencia continua */}
+        <div id="dispositivo" className="mt-12 grid items-start gap-8 md:grid-cols-2">
+          <SequenceVideo clips={SEQUENCE} placeholder="Video del aparatito" />
           <div>
             <h3 className="font-display text-2xl font-bold text-foreground">Un aparato pequeño y ya.</h3>
             <p className="mt-3 text-muted-foreground">
@@ -207,15 +207,12 @@ export default function CompatibilitySection() {
 
         {/* BLOQUE 3 — Cómo funciona */}
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <div key={s.title}>
-              <InlineVideo
-                sources={clipSources(s.clip)}
-                poster={clipPoster(s.clip)}
-                label={s.title}
-                placeholder={`Video del paso ${i + 1}`}
-              />
-              <h4 className="mt-3 text-base font-semibold text-foreground">{s.title}</h4>
+          {STEP_TEXTS.map((s, i) => (
+            <div key={s.title} className="rounded-2xl border border-border/40 bg-card/30 p-5">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+                Paso {i + 1}
+              </span>
+              <h4 className="mt-2 text-base font-semibold text-foreground">{s.title}</h4>
               <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
             </div>
           ))}

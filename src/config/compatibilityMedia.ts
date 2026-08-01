@@ -1,39 +1,52 @@
 /**
  * compatibilityMedia.ts — clips de la sección "¿Sirve mi televisor?".
  *
- * Los archivos viven en Supabase Storage (bucket `media`, carpeta `landing/`),
- * NUNCA en public/ ni en el repositorio. Subí cada clip en WebM (principal) y
- * MP4 (respaldo), sin pista de audio, y dejá acá el nombre del archivo.
+ * Los archivos NUNCA viven en public/ ni en el repositorio: se sirven desde
+ * CDN mediante punteros `.asset.json` (o desde Supabase Storage cuando la
+ * cuenta tenga permiso de subida al bucket `media/landing`).
  *
- * Si un clip todavía no está subido, dejá el nombre en null: la sección muestra
- * un marcador y no pide nada a la red.
+ * Cada clip lleva WebM (VP9) primero y MP4 (H.264) de respaldo, sin pista de
+ * audio. Si un clip todavía no existe, dejá `sources: []`: la secuencia lo
+ * salta sin romperse.
  */
 import type { InlineVideoSource } from "@/components/media/InlineVideo";
 
-const BUCKET_BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/media/landing`;
+import dispositivoWebm from "@/assets/landing/dispositivo.webm.asset.json";
+import dispositivoMp4 from "@/assets/landing/dispositivo.mp4.asset.json";
+import dispositivoPoster from "@/assets/landing/dispositivo.jpg.asset.json";
+import paso1Webm from "@/assets/landing/paso1.webm.asset.json";
+import paso1Mp4 from "@/assets/landing/paso1.mp4.asset.json";
+import paso3Webm from "@/assets/landing/paso3.webm.asset.json";
+import paso3Mp4 from "@/assets/landing/paso3.mp4.asset.json";
 
 export interface ClipConfig {
-  /** Nombre base del archivo, sin extensión. null = todavía no subido. */
-  file: string | null;
-  /** Imagen de portada opcional (misma carpeta). */
-  poster?: string | null;
+  sources: InlineVideoSource[];
+  poster?: string;
 }
 
-export const COMPAT_CLIPS = {
-  dispositivo: { file: null, poster: null } as ClipConfig,
-  paso1: { file: null, poster: null } as ClipConfig,
-  paso2: { file: null, poster: null } as ClipConfig,
-  paso3: { file: null, poster: null } as ClipConfig,
+const pair = (webm: { url: string }, mp4: { url: string }): InlineVideoSource[] => [
+  { src: webm.url, type: "video/webm" },
+  { src: mp4.url, type: "video/mp4" },
+];
+
+export const COMPAT_CLIPS: Record<
+  "dispositivo" | "paso1" | "paso2" | "paso3",
+  ClipConfig
+> = {
+  dispositivo: {
+    sources: pair(dispositivoWebm, dispositivoMp4),
+    poster: dispositivoPoster.url,
+  },
+  paso1: { sources: pair(paso1Webm, paso1Mp4) },
+  // Pendiente: clip del código en pantalla.
+  paso2: { sources: [] },
+  paso3: { sources: pair(paso3Webm, paso3Mp4) },
 };
 
 export function clipSources(clip: ClipConfig): InlineVideoSource[] {
-  if (!clip.file) return [];
-  return [
-    { src: `${BUCKET_BASE}/${clip.file}.webm`, type: "video/webm" },
-    { src: `${BUCKET_BASE}/${clip.file}.mp4`, type: "video/mp4" },
-  ];
+  return clip.sources;
 }
 
 export function clipPoster(clip: ClipConfig): string | undefined {
-  return clip.poster ? `${BUCKET_BASE}/${clip.poster}` : undefined;
+  return clip.poster;
 }
