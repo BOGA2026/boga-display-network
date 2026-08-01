@@ -281,9 +281,11 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
     <button
       onClick={onOpen}
       className="inline-flex h-11 min-w-[44px] items-center justify-center gap-2 rounded-full border border-border bg-muted/30 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-      aria-label="Abrir command palette"
+      aria-label="Buscar"
     >
-      <CommandIcon className="h-3.5 w-3.5" />
+      {/* En móvil una lupa; el atajo ⌘K sólo tiene sentido con teclado. */}
+      <Search className="h-5 w-5 md:hidden" />
+      <CommandIcon className="hidden h-3.5 w-3.5 md:inline" />
       <span className="hidden md:inline">{COPY.actions.search}</span>
       <kbd className="ml-1 hidden rounded border border-border bg-background px-1.5 py-0.5 text-xs font-medium md:inline">
         {isMac ? "⌘" : "Ctrl"} K
@@ -291,6 +293,7 @@ function PaletteTrigger({ onOpen }: { onOpen: () => void }) {
     </button>
   );
 }
+
 
 /**
  * Public export. Handles auth + admin redirect, then hydrates the shell
