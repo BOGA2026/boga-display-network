@@ -46,6 +46,7 @@ import {
   Check,
   Download,
   Smartphone,
+  Link2Off,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
@@ -524,7 +525,7 @@ const Screens = () => {
                     {locationName || "Sin sede asignada"}
                   </div>
                   <div className="flex items-center gap-1.5 text-xs mt-2">
-                    <span className={`v-dot ${online ? "v-dot-live" : neverPaired ? "v-dot-warn" : "v-dot-muted"}`} />
+                    <span className={`v-dot ${online ? "v-dot-live" : neverPaired ? "v-dot-warning" : "v-dot-offline"}`} />
                     {neverPaired ? (
                       <span className="text-amber-400">Falta completar el emparejamiento</span>
                     ) : (
