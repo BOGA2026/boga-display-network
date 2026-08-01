@@ -642,11 +642,12 @@ const Content = () => {
 
       {/* Barra de acciones sobre la selección */}
       {selectedIds.size > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+        <div className="v-bottom-bar v-safe-bottom mb-4 flex flex-wrap items-center gap-3 border border-primary/30 bg-primary/10 p-3 backdrop-blur md:bg-primary/5 md:backdrop-blur-none">
           <span className="text-sm font-medium">
             {selectedIds.size} {selectedIds.size === 1 ? "pieza seleccionada" : "piezas seleccionadas"}
           </span>
           <div className="ml-auto flex flex-wrap gap-2">
+
             <Button size="sm" variant="outline" className="gap-2" onClick={openBulkAssign}>
               <ListPlus className="h-4 w-4" />
               Agregar a lista
