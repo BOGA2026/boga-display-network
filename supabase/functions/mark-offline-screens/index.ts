@@ -1,6 +1,12 @@
-// Cron job: marks screens as 'offline' when their last_seen_at is older than 3 minutes.
+// Cron job: marks screens as 'offline' when their last_seen_at is older than
+// OFFLINE_THRESHOLD_SECONDS (shared with sweep-devices so both views agree).
 // Scheduled via pg_cron (see migration). No JWT required — invoked from inside Supabase.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  OFFLINE_THRESHOLD_SECONDS,
+  neverSeenCutoffISO,
+  offlineCutoffISO,
+} from "../_shared/offlineThreshold.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +25,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const cutoff = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    const cutoff = offlineCutoffISO();
 
     const { data, error } = await supabase
       .from("screens")
@@ -36,8 +42,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Also mark screens that have NEVER reported in (last_seen_at is null and created_at > 5 min ago)
-    const createdCutoff = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    // Also mark screens that have NEVER reported in (null last_seen_at and
+    // created long enough ago that pairing should have happened).
+    const createdCutoff = neverSeenCutoffISO();
     await supabase
       .from("screens")
       .update({ status: "offline" })
@@ -46,7 +53,11 @@ Deno.serve(async (req) => {
       .neq("status", "offline");
 
     return new Response(
-      JSON.stringify({ marked_offline: data?.length ?? 0, cutoff }),
+      JSON.stringify({
+        marked_offline: data?.length ?? 0,
+        cutoff,
+        threshold_seconds: OFFLINE_THRESHOLD_SECONDS,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
