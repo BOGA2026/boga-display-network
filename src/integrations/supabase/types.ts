@@ -250,6 +250,7 @@ export type Database = {
           demo_data_seeded_at: string | null
           id: string
           name: string
+          timezone: string
           updated_at: string
         }
         Insert: {
@@ -258,6 +259,7 @@ export type Database = {
           demo_data_seeded_at?: string | null
           id?: string
           name: string
+          timezone?: string
           updated_at?: string
         }
         Update: {
@@ -266,6 +268,7 @@ export type Database = {
           demo_data_seeded_at?: string | null
           id?: string
           name?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: []
@@ -786,6 +789,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           name: string
+          timezone: string | null
           updated_at: string
         }
         Insert: {
@@ -796,6 +800,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name: string
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
@@ -806,6 +811,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name?: string
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: [
