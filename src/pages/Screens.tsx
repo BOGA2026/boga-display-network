@@ -457,7 +457,7 @@ const Screens = () => {
       ) : loadError ? (
         <ErrorState description={COPY.error.screens} onRetry={fetchData} />
       ) : screens.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="v-media-grid">
           {screens.map((screen) => {
             const online = isOnline(screen.last_seen_at);
             return (

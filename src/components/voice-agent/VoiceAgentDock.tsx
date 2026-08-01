@@ -69,7 +69,7 @@ export const VoiceAgentDock = () => {
     <>
       {/* Botón flotante con etiqueta */}
       {!open && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <div className="fixed bottom-6 right-6 z-50 hidden flex-col items-end gap-2 md:flex">
           {showHint && (
             <div className="v-card flex max-w-[260px] items-start gap-2 border-primary/30 bg-background/95 p-3 shadow-lg animate-fade-in">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -106,7 +106,7 @@ export const VoiceAgentDock = () => {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-3rem)] flex flex-col rounded-2xl border border-primary/30 bg-background/95 backdrop-blur-xl shadow-[0_0_50px_hsl(270_100%_50%/0.3)] overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 hidden w-[380px] md:flex max-w-[calc(100vw-2rem)] max-h-[calc(100vh-3rem)] flex-col rounded-2xl border border-primary/30 bg-background/95 backdrop-blur-xl shadow-[0_0_50px_hsl(270_100%_50%/0.3)] overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-gradient-to-r from-primary/10 to-purple-600/10">
             <div className="flex items-center gap-2">
