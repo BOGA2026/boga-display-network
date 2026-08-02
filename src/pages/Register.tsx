@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { captureTvChoiceFromUrl } from "@/lib/attribution";
+
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
