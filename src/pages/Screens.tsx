@@ -130,8 +130,13 @@ const Screens = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
   // Paso previo: comprobar que el televisor sirve antes de dar el código.
-  const [compatDone, setCompatDone] = useState(false);
-  const [deviceType, setDeviceType] = useState<DeviceType>("desconocido");
+  // Si ya lo respondió en la landing, no se le vuelve a preguntar.
+  const tvChoice = getAttribution();
+  const [compatDone, setCompatDone] = useState(tvChoice.needs_device === false);
+  const [deviceType, setDeviceType] = useState<DeviceType>(
+    tvChoice.needs_device === false ? "tv_google" : "desconocido",
+  );
+
   const [compatDialogOpen, setCompatDialogOpen] = useState(false);
 
   // Edit state
