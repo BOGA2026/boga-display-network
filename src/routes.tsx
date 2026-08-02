@@ -33,6 +33,7 @@ const Login = lazyRoute("/login");
 const Register = lazyRoute("/registro");
 const Pricing = lazyRoute("/precios");
 const AboutPage = lazyRoute("/acerca");
+const NosotrosPage = lazy(() => import("@/pages/NosotrosPage"));
 const RestaurantSolutionPage = lazyRoute("/soluciones/restaurantes");
 const DescargarApk = lazyRoute("/descargar-apk");
 const Studio = lazyRoute("/studio");
@@ -103,6 +104,7 @@ export default function AppRoutes() {
 
       <Route path="/soluciones/restaurantes" element={page(RestaurantSolutionPage, pathname)} />
       <Route path="/acerca" element={page(AboutPage, pathname)} />
+      <Route path="/nosotros" element={page(NosotrosPage, pathname)} />
       <Route path="/studio" element={page(Studio, pathname)} />
       <Route path="/login" element={page(Login, pathname)} />
       <Route path="/registro" element={page(Register, pathname)} />
