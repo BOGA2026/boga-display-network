@@ -884,6 +884,7 @@ const Landing = () => {
                 <li><a href="mailto:hola@visualiamedia.com" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">hola@visualiamedia.com</a></li>
                 <li><a href="https://wa.me/573163265696" target="_blank" rel="noopener noreferrer" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">WhatsApp: +57 316 3265696</a></li>
                 <li>Bogotá, Colombia</li>
+                <li><Link to="/nosotros" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Quiénes somos</Link></li>
                 <li><Link to="/soporte" className="rounded-sm transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Soporte</Link></li>
               </ul>
             </div>
