@@ -1,5 +1,5 @@
 import { MessageCircle } from "lucide-react";
-import { getAttribution, trackConversion } from "@/lib/attribution";
+import { attributionLabel, trackConversion } from "@/lib/attribution";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
 
 interface Props {
@@ -19,11 +19,13 @@ export default function WhatsappButton({
   className = "",
   children = "Escríbenos por WhatsApp",
 }: Props) {
-  const attribution = typeof window !== "undefined" ? getAttribution() : {};
-  const text = `${message} (campaña: ${campaignSlug}${
-    attribution.utm_source ? `, ${attribution.utm_source}` : ""
-  })`;
+  // El origen que se manda en el mensaje sale de la campaña y el canal reales
+  // del anuncio (utm_campaign / utm_source). La clave de la ruta no sirve como
+  // etiqueta: "default" no le dice nada a quien atiende el chat.
+  const origin = typeof window !== "undefined" ? attributionLabel() : null;
+  const text = origin ? `${message} (${origin})` : message;
   const href = `https://wa.me/${SUPPORT_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+
 
   return (
     <a
