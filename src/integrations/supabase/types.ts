@@ -809,6 +809,7 @@ export type Database = {
           inquiry: string | null
           landing_path: string | null
           name: string | null
+          needs_device: boolean | null
           phone: string | null
           preferred_contact: string | null
           preferred_time: string | null
@@ -817,6 +818,7 @@ export type Database = {
           source: string
           status: string
           ttclid: string | null
+          tv_brand: string | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
@@ -840,6 +842,7 @@ export type Database = {
           inquiry?: string | null
           landing_path?: string | null
           name?: string | null
+          needs_device?: boolean | null
           phone?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
@@ -848,6 +851,7 @@ export type Database = {
           source?: string
           status?: string
           ttclid?: string | null
+          tv_brand?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
@@ -871,6 +875,7 @@ export type Database = {
           inquiry?: string | null
           landing_path?: string | null
           name?: string | null
+          needs_device?: boolean | null
           phone?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
@@ -879,6 +884,7 @@ export type Database = {
           source?: string
           status?: string
           ttclid?: string | null
+          tv_brand?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
