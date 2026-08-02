@@ -53,12 +53,14 @@ export default function NosotrosPage() {
 
           <section className="mt-12">
             <h2 className="text-2xl font-bold text-foreground">
-              No somos estas empresas
+              Una empresa colombiana detrás del producto
             </h2>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              Existen compañías con nombres parecidos, como Visualia 360 Media y Visualia Mass Media
-              S.L. (España). No tenemos ninguna relación con ellas. La única empresa detrás de
-              visualiamedia.com es Boga Casa de Contenidos S.A.S., con NIT 900.325.011-10.
+              <strong className="text-foreground">Visualia</strong> es desarrollado y operado por{" "}
+              <strong className="text-foreground">Boga Casa de Contenidos S.A.S.</strong>, una
+              empresa constituida en Colombia con NIT 900.325.011-10 y sede en Bogotá, D.C. Toda la
+              operación —desarrollo, soporte y facturación— se hace desde el país, para negocios
+              físicos en Colombia.
             </p>
           </section>
 
