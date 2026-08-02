@@ -795,53 +795,86 @@ export type Database = {
       leads: {
         Row: {
           budget: string | null
+          city: string | null
           company: string | null
           created_at: string | null
           email: string | null
+          fbclid: string | null
+          gclid: string | null
           goal: string | null
           id: string
           inquiry: string | null
+          landing_path: string | null
           name: string | null
           phone: string | null
           preferred_contact: string | null
           preferred_time: string | null
+          referrer: string | null
           screens: number
           source: string
           status: string
+          ttclid: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
           whatsapp: string | null
         }
         Insert: {
           budget?: string | null
+          city?: string | null
           company?: string | null
           created_at?: string | null
           email?: string | null
+          fbclid?: string | null
+          gclid?: string | null
           goal?: string | null
           id?: string
           inquiry?: string | null
+          landing_path?: string | null
           name?: string | null
           phone?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
+          referrer?: string | null
           screens?: number
           source?: string
           status?: string
+          ttclid?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           whatsapp?: string | null
         }
         Update: {
           budget?: string | null
+          city?: string | null
           company?: string | null
           created_at?: string | null
           email?: string | null
+          fbclid?: string | null
+          gclid?: string | null
           goal?: string | null
           id?: string
           inquiry?: string | null
+          landing_path?: string | null
           name?: string | null
           phone?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
+          referrer?: string | null
           screens?: number
           source?: string
           status?: string
+          ttclid?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           whatsapp?: string | null
         }
         Relationships: []
