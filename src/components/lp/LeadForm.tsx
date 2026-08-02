@@ -19,8 +19,10 @@ interface Props {
  * Si cambia el texto, se sube la versión.
  */
 export const CONSENT_VERSION = "2026-08-lp-v1";
-export const CONSENT_TEXT =
-  "Autorizo a Boga Casa de Contenidos S.A.S. (Visualia) a tratar mis datos personales para contactarme por WhatsApp, llamada o correo con información comercial sobre el servicio, conforme a la política de tratamiento de datos.";
+const CONSENT_PREFIX =
+  "Autorizo a Boga Casa de Contenidos S.A.S. (Visualia) a tratar mis datos personales para contactarme por WhatsApp, llamada o correo con información comercial sobre el servicio, conforme a la ";
+export const CONSENT_TEXT = `${CONSENT_PREFIX}política de tratamiento de datos.`;
+
 
 /** Celular colombiano: 10 dígitos empezando en 3, con o sin +57. */
 function normalizeCoPhone(raw: string): string | null {
