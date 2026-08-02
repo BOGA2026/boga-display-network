@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { getCampaign } from "@/config/campaigns";
+import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { MAX_PRICE_PER_SCREEN } from "@/config/pricing";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
@@ -25,6 +25,7 @@ import { captureAttribution } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
 import WhatsappButton from "@/components/lp/WhatsappButton";
+
 
 const STEPS = [
   {
