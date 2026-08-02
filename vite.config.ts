@@ -102,8 +102,13 @@ export default defineConfig(({ mode }) => ({
           // Utilidades diminutas que usa TODA la app. Sin regla propia rollup
           // las esconde dentro del primer chunk pesado que las pida y obliga a
           // bajarlo entero en cualquier ruta.
-          if (/node_modules\/(clsx|tailwind-merge|class-variance-authority)\//.test(id))
+          if (
+            /node_modules\/(clsx|tailwind-merge|class-variance-authority|tiny-invariant|fast-equals|eventemitter3)\//.test(
+              id
+            )
+          )
             return "utils-vendor";
+
           // Only split heavy, self-contained libs to avoid cross-chunk TDZ cycles.
           if (id.includes("fabric")) return "fabric";
           if (id.includes("leaflet")) return "leaflet";
