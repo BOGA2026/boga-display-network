@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { name, email, phone, whatsapp, company, city, screens, goal, budget, inquiry, preferred_time, preferred_contact, source, attribution = {}, events = [] } = body;
+    const { name, email, phone, whatsapp, company, city, screens, goal, budget, inquiry, preferred_time, preferred_contact, source, consent_at, consent_text, consent_version, attribution = {}, events = [] } = body;
 
     // --- Validación y saneamiento de entrada (endpoint público) ---
     const clean = (v: unknown, max: number): string | null => {
