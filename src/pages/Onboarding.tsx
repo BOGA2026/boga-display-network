@@ -18,6 +18,8 @@ import { TvCompatibilityWizard } from "@/features/devices";
 import { tenantQueryKey } from "@/features/auth/tenant";
 import { logError } from "@/lib/errorLogger";
 import { Button } from "@/components/ui/button";
+import { captureTvChoiceFromUrl } from "@/lib/attribution";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
