@@ -94,10 +94,13 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: (id) => {
           // Los stubs y helpers que inyecta Vite/rollup (interop CommonJS,
-          // módulos de Node vacíos) los importan varios vendors: si caen dentro
-          // de una librería pesada, esa librería se precarga en todas las rutas.
+          // módulos de Node vacíos) los importan varios vendors —incluido
+          // react-vendor—. Si caen en "vendor" se arma un ciclo
+          // vendor ⇄ react-vendor y explota en runtime con "Cannot access X
+          // before initialization". Van en un chunk propio sin dependencias.
           if (id.includes("__vite-browser-external") || id.includes("commonjsHelpers"))
-            return "vendor";
+            return "runtime-vendor";
+
 
           if (!id.includes("node_modules")) return;
 
