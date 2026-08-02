@@ -59,7 +59,13 @@ export default function Onboarding() {
       // El tenant cacheado quedó viejo: se recarga con el negocio nuevo.
       await queryClient.invalidateQueries({ queryKey: tenantQueryKey(session?.user?.id) });
       toast.success("Listo, tu negocio ya está configurado");
+      // Si en la landing ya confirmó que su televisor sirve, este paso sobra.
+      if (tvChoice.needs_device === false) {
+        navigate("/dashboard/pantallas", { replace: true });
+        return;
+      }
       setPhase("televisor");
+
     } catch (err) {
       logError(err, { label: "onboarding.complete", scope: "onboarding", section: "onboarding" });
       toast.error("No pudimos crear tu negocio. Intentá de nuevo.");
