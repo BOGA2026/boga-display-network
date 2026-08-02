@@ -46,6 +46,8 @@ const VisualiaLunchTemplate = lazy(() => import("@/templates/lunch-dual/Visualia
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const ScreensList = lazy(() => import("@/pages/digital-signage/ScreensList"));
 const SignageScreenDetail = lazy(() => import("@/pages/digital-signage/ScreenDetail"));
+const CampaignLanding = lazy(() => import("@/pages/lp/CampaignLanding"));
+const CampaignThanks = lazy(() => import("@/pages/lp/CampaignThanks"));
 
 // Dashboard
 const Dashboard = lazyRoute("/dashboard");
