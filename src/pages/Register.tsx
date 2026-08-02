@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { captureTvChoiceFromUrl } from "@/lib/attribution";
+
 import logoVisualia from "@/assets/logo-visualia.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +33,11 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // ?marca=samsung&dispositivo=si — la elección del verificador viaja con la
+  // persona y se guarda antes de que el registro pueda perder la URL.
+  const tvChoice = useMemo(() => captureTvChoiceFromUrl(), []);
+
 
   // ─── Google login ───
   const handleGoogleLogin = async () => {
@@ -140,9 +147,11 @@ const Register = () => {
 
       toast({ title: "Cuenta creada exitosamente" });
 
-      // If session exists (email confirmation disabled), go to dashboard
+      // If session exists (email confirmation disabled), go to dashboard.
+      // Quien ya respondió el verificador sigue directo a conectar su pantalla.
       if (authData.session) {
-        navigate("/dashboard");
+        navigate(tvChoice.tv_brand ? "/dashboard/pantallas" : "/dashboard");
+
       } else {
         toast({
           title: "Revisa tu correo",

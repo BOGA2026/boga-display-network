@@ -113,6 +113,10 @@ Deno.serve(async (req) => {
         ttclid: clean(attr.ttclid, 300),
         landing_path: clean(attr.landing_path, 300),
         referrer: clean(attr.referrer, 500),
+        // Verificador de televisor: sirve para dimensionar inventario de dispositivos.
+        tv_brand: clean(attr.tv_brand, 40),
+        needs_device: typeof attr.needs_device === "boolean" ? attr.needs_device : null,
+
         // Evidencia de autorización (Ley 1581): momento y texto literal.
         consent_at: (() => {
           const raw = clean(consent_at, 40);

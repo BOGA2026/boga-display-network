@@ -18,6 +18,8 @@ import { TvCompatibilityWizard } from "@/features/devices";
 import { tenantQueryKey } from "@/features/auth/tenant";
 import { logError } from "@/lib/errorLogger";
 import { Button } from "@/components/ui/button";
+import { captureTvChoiceFromUrl } from "@/lib/attribution";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -33,6 +35,9 @@ export default function Onboarding() {
   const [saving, setSaving] = React.useState(false);
   // Antes de pedir la primera vinculación hay que saber si su televisor sirve.
   const [phase, setPhase] = React.useState<"negocio" | "televisor">("negocio");
+  // Elección del verificador de la landing: evita repetir la pregunta.
+  const tvChoice = React.useMemo(() => captureTvChoiceFromUrl(), []);
+
 
   // Ya tiene negocio → no hay nada que configurar.
   React.useEffect(() => {
@@ -54,7 +59,13 @@ export default function Onboarding() {
       // El tenant cacheado quedó viejo: se recarga con el negocio nuevo.
       await queryClient.invalidateQueries({ queryKey: tenantQueryKey(session?.user?.id) });
       toast.success("Listo, tu negocio ya está configurado");
+      // Si en la landing ya confirmó que su televisor sirve, este paso sobra.
+      if (tvChoice.needs_device === false) {
+        navigate("/dashboard/pantallas", { replace: true });
+        return;
+      }
       setPhase("televisor");
+
     } catch (err) {
       logError(err, { label: "onboarding.complete", scope: "onboarding", section: "onboarding" });
       toast.error("No pudimos crear tu negocio. Intentá de nuevo.");
@@ -77,9 +88,11 @@ export default function Onboarding() {
         <div className="v-card w-full max-w-lg p-6 sm:p-8">
           <TvCompatibilityWizard
             continueLabel="Seguir"
+            initialBrandId={tvChoice.needs_device ? tvChoice.tv_brand ?? null : null}
             onCompatible={() => navigate("/dashboard/pantallas", { replace: true })}
             onClose={() => navigate("/dashboard", { replace: true })}
           />
+
           <button
             type="button"
             onClick={() => navigate("/dashboard", { replace: true })}

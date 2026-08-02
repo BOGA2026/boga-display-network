@@ -57,6 +57,8 @@ import type { DeviceType } from "@/config/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { getAttribution } from "@/lib/attribution";
+
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
@@ -130,8 +132,13 @@ const Screens = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
   // Paso previo: comprobar que el televisor sirve antes de dar el código.
-  const [compatDone, setCompatDone] = useState(false);
-  const [deviceType, setDeviceType] = useState<DeviceType>("desconocido");
+  // Si ya lo respondió en la landing, no se le vuelve a preguntar.
+  const tvChoice = getAttribution();
+  const [compatDone, setCompatDone] = useState(tvChoice.needs_device === false);
+  const [deviceType, setDeviceType] = useState<DeviceType>(
+    tvChoice.needs_device === false ? "tv_google" : "desconocido",
+  );
+
   const [compatDialogOpen, setCompatDialogOpen] = useState(false);
 
   // Edit state
@@ -220,8 +227,10 @@ const Screens = () => {
     setNameError("");
     setGeneratedCode(null);
     setCodeCopied(false);
-    setDeviceType("desconocido");
-    setCompatDone(false);
+    // Se vuelve al estado que dejó el verificador, no a cero.
+    setDeviceType(tvChoice.needs_device === false ? "tv_google" : "desconocido");
+    setCompatDone(tvChoice.needs_device === false);
+
   };
 
   const validateForm = () => {
@@ -589,6 +598,8 @@ const Screens = () => {
               </SheetHeader>
               <div className="py-4">
                 <TvCompatibilityWizard
+                  initialBrandId={tvChoice.needs_device ? tvChoice.tv_brand ?? null : null}
+
                   onCompatible={(type) => {
                     setDeviceType(type);
                     setCompatDone(true);

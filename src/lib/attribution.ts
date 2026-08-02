@@ -22,6 +22,10 @@ export interface Attribution {
   ttclid?: string | null;
   landing_path?: string | null;
   referrer?: string | null;
+  /** Marca de televisor elegida en el verificador (id de TV_BRANDS). */
+  tv_brand?: string | null;
+  /** True cuando esa marca necesita el dispositivo externo. */
+  needs_device?: boolean | null;
 }
 
 interface Stored {
@@ -102,6 +106,31 @@ export function captureAttribution(landingPath?: string): Attribution {
 export function getAttribution(): Attribution {
   return read();
 }
+
+/**
+ * Guarda la respuesta del verificador de televisor. A diferencia de los UTM,
+ * esta sí se sobrescribe: la última elección de la persona es la buena.
+ */
+export function setTvChoice(brandId: string, needsDevice: boolean): Attribution {
+  const next: Attribution = { ...read(), tv_brand: brandId.slice(0, 40), needs_device: needsDevice };
+  write(next);
+  return next;
+}
+
+/** Lee ?marca=samsung&dispositivo=si de la URL y lo persiste. */
+export function captureTvChoiceFromUrl(search?: string): Attribution {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(search ?? window.location.search);
+  const brand = params.get("marca")?.trim();
+  const device = params.get("dispositivo")?.trim();
+  if (!brand && !device) return read();
+  const next: Attribution = { ...read() };
+  if (brand) next.tv_brand = brand.slice(0, 40);
+  if (device) next.needs_device = device === "si" || device === "true" || device === "1";
+  write(next);
+  return next;
+}
+
 
 /**
  * Etiqueta legible del origen para mensajes y reportes.
