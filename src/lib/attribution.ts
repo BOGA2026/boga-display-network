@@ -22,6 +22,10 @@ export interface Attribution {
   ttclid?: string | null;
   landing_path?: string | null;
   referrer?: string | null;
+  /** Marca de televisor elegida en el verificador (id de TV_BRANDS). */
+  tv_brand?: string | null;
+  /** True cuando esa marca necesita el dispositivo externo. */
+  needs_device?: boolean | null;
 }
 
 interface Stored {
