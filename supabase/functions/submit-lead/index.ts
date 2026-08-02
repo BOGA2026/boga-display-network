@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { name, email, phone, whatsapp, company, screens, goal, budget, inquiry, preferred_time, preferred_contact, events = [] } = body;
+    const { name, email, phone, whatsapp, company, city, screens, goal, budget, inquiry, preferred_time, preferred_contact, source, attribution = {}, events = [] } = body;
 
     // --- Validación y saneamiento de entrada (endpoint público) ---
     const clean = (v: unknown, max: number): string | null => {
@@ -83,6 +83,10 @@ Deno.serve(async (req) => {
 
     const safeScreens = Math.min(1000, Math.max(1, Math.floor(Number(screens) || 1)));
 
+    // Atribución: de qué anuncio vino el lead. Todo saneado como texto corto.
+    const attr = (attribution ?? {}) as Record<string, unknown>;
+    const safeSource = clean(source, 60) ?? "web";
+
     const { data: lead, error } = await supabase
       .from("leads")
       .insert({
@@ -91,12 +95,24 @@ Deno.serve(async (req) => {
         phone: safePhone,
         whatsapp: safeWhatsapp,
         company: clean(company, 160),
+        city: clean(city, 120),
         screens: safeScreens,
         goal: clean(goal, 200),
         budget: clean(budget, 100),
         inquiry: clean(inquiry, 2000),
         preferred_time: clean(preferred_time, 100),
         preferred_contact: clean(preferred_contact, 40),
+        source: safeSource,
+        utm_source: clean(attr.utm_source, 200),
+        utm_medium: clean(attr.utm_medium, 200),
+        utm_campaign: clean(attr.utm_campaign, 200),
+        utm_content: clean(attr.utm_content, 200),
+        utm_term: clean(attr.utm_term, 200),
+        gclid: clean(attr.gclid, 300),
+        fbclid: clean(attr.fbclid, 300),
+        ttclid: clean(attr.ttclid, 300),
+        landing_path: clean(attr.landing_path, 300),
+        referrer: clean(attr.referrer, 500),
       })
       .select("id")
       .single();

@@ -10,7 +10,7 @@ import { AppErrorBoundary } from "@/components/system/ErrorBoundary";
 import { AuthProvider } from "@/context/AuthContext";
 
 // Rutas donde NO se renderizan las partículas (áreas privadas / full-screen).
-const PARTICLES_EXCLUDE_PREFIXES = ["/dashboard", "/admin", "/player", "/digital-signage", "/templates", "/tv"];
+const PARTICLES_EXCLUDE_PREFIXES = ["/dashboard", "/admin", "/player", "/digital-signage", "/templates", "/tv", "/lp"];
 
 const GlobalParticles = () => {
   const { pathname } = useLocation();

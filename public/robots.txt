@@ -8,5 +8,6 @@ Disallow: /oauth/consent
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /player
+Disallow: /lp
 
 Sitemap: https://visualiamedia.com/sitemap.xml

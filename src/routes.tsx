@@ -46,6 +46,8 @@ const VisualiaLunchTemplate = lazy(() => import("@/templates/lunch-dual/Visualia
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const ScreensList = lazy(() => import("@/pages/digital-signage/ScreensList"));
 const SignageScreenDetail = lazy(() => import("@/pages/digital-signage/ScreenDetail"));
+const CampaignLanding = lazy(() => import("@/pages/lp/CampaignLanding"));
+const CampaignThanks = lazy(() => import("@/pages/lp/CampaignThanks"));
 
 // Dashboard
 const Dashboard = lazyRoute("/dashboard");
@@ -91,6 +93,13 @@ export default function AppRoutes() {
       <Route path="/descargar-apk" element={page(DescargarApk, pathname)} />
       <Route path="/tv" element={page(TvLanding, pathname)} />
       <Route path="/onboarding" element={page(Onboarding, pathname)} />
+
+      {/* Landings de tráfico pagado: "gracias" va antes del parámetro. */}
+      <Route path="/lp/gracias" element={page(CampaignThanks, pathname)} />
+      <Route path="/lp" element={page(CampaignLanding, pathname)} />
+      <Route path="/lp/:campana" element={page(CampaignLanding, pathname)} />
+
+
 
       <Route path="/soluciones/restaurantes" element={page(RestaurantSolutionPage, pathname)} />
       <Route path="/acerca" element={page(AboutPage, pathname)} />
