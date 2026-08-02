@@ -33,6 +33,7 @@ const Login = lazyRoute("/login");
 const Register = lazyRoute("/registro");
 const Pricing = lazyRoute("/precios");
 const AboutPage = lazyRoute("/acerca");
+const NosotrosPage = lazy(() => import("@/pages/NosotrosPage"));
 const RestaurantSolutionPage = lazyRoute("/soluciones/restaurantes");
 const DescargarApk = lazyRoute("/descargar-apk");
 const Studio = lazyRoute("/studio");
