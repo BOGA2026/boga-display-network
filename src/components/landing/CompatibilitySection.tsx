@@ -45,23 +45,23 @@ async function logBrandCheck(brandId: string, verdict: string) {
 /** Secuencia continua: dispositivo → HDMI → código → menú al aire. */
 const SEQUENCE: SequenceClip[] = [
   { label: "El dispositivo", ...COMPAT_CLIPS.dispositivo },
-  { label: "Conectalo al HDMI", ...COMPAT_CLIPS.paso1 },
-  { label: "Vinculá tu pantalla", ...COMPAT_CLIPS.paso2 },
+  { label: "Conéctalo al HDMI", ...COMPAT_CLIPS.paso1 },
+  { label: "Vincula tu pantalla", ...COMPAT_CLIPS.paso2 },
   { label: "Ya estás al aire", ...COMPAT_CLIPS.paso3 },
 ];
 
 const STEP_TEXTS = [
   {
-    title: "Conectalo al HDMI",
-    desc: "Enchufás el aparatito en la entrada HDMI del televisor y a la corriente.",
+    title: "Conéctalo al HDMI",
+    desc: "Enchufas el aparato en la entrada HDMI del televisor y a la corriente.",
   },
   {
-    title: "Vinculá tu pantalla",
-    desc: "El televisor muestra un código y vos lo escribís una sola vez desde tu celular.",
+    title: "Vincula tu pantalla",
+    desc: "El televisor muestra un código y lo escribes una sola vez desde tu celular.",
   },
   {
     title: "Listo, ya estás al aire",
-    desc: "Tu menú aparece en pantalla y lo cambiás cuando quieras desde el celular.",
+    desc: "Tu menú aparece en pantalla y lo cambias cuando quieras desde el celular.",
   },
 ];
 
