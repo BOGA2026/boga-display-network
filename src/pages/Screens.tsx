@@ -596,6 +596,8 @@ const Screens = () => {
               </SheetHeader>
               <div className="py-4">
                 <TvCompatibilityWizard
+                  initialBrandId={tvChoice.needs_device ? tvChoice.tv_brand ?? null : null}
+
                   onCompatible={(type) => {
                     setDeviceType(type);
                     setCompatDone(true);
