@@ -93,7 +93,14 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
+          // Los stubs y helpers que inyecta Vite/rollup (interop CommonJS,
+          // módulos de Node vacíos) los importan varios vendors: si caen dentro
+          // de una librería pesada, esa librería se precarga en todas las rutas.
+          if (id.includes("__vite-browser-external") || id.includes("commonjsHelpers"))
+            return "vendor";
+
           if (!id.includes("node_modules")) return;
+
           // React va SIEMPRE en su propio chunk. Si no se fija acá, rollup lo
           // mete dentro del primer chunk manual que lo necesite (pasó con
           // "charts") y entonces toda la app arrastra recharts para arrancar.

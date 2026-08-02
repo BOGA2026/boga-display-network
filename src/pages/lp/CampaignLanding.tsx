@@ -9,7 +9,6 @@ import {
   Headphones,
   ChevronDown,
 } from "lucide-react";
-import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import InlineVideo from "@/components/media/InlineVideo";
 import {
   Accordion,
@@ -19,31 +18,48 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import { MAX_PRICE_PER_SCREEN } from "@/config/pricing";
+import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { captureAttribution } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
+import VisualiaLockup from "@/components/lp/VisualiaLockup";
 import WhatsappButton from "@/components/lp/WhatsappButton";
 
+/**
+ * Contenedor único de la landing: el MISMO ancho y el MISMO margen lateral en
+ * todas las secciones. Sin esto cada bloque arranca en una x distinta y la
+ * página se lee desordenada.
+ */
+const SHELL = "mx-auto w-full max-w-4xl px-5 md:px-8";
+const H2 = "font-display text-left text-2xl font-bold text-foreground md:text-3xl";
 
 const STEPS = [
   {
     title: "Conéctalo al HDMI",
     desc: "Enchufas el aparato en la entrada HDMI del televisor y a la corriente.",
     clip: COMPAT_CLIPS.paso1,
+    // El clip original queda muy oscuro y no se ve el conector.
+    brighten: true,
   },
   {
     title: "Vincula tu pantalla",
     desc: "El televisor muestra un código y lo escribes una sola vez desde tu celular.",
     clip: COMPAT_CLIPS.paso2,
+    brighten: false,
   },
   {
     title: "Listo, ya estás al aire",
     desc: "Tu menú aparece en pantalla y lo cambias cuando quieras desde el celular.",
     clip: COMPAT_CLIPS.paso3,
+    brighten: false,
   },
 ];
+
+/** Escala real de precios por volumen, tomada de la fuente única. */
+const PRICE_SCALE = PRICING_TIERS.slice(1).map(
+  (t) => `desde ${t.min} pantallas, ${formatCop(t.pricePerScreen)}`,
+);
 
 const BENEFITS = [
   { icon: Clock, text: "Pantalla de menú que cambia sola según la hora" },
@@ -52,6 +68,7 @@ const BENEFITS = [
   { icon: Smartphone, text: "Panel para cambiar todo desde tu teléfono, en segundos" },
   { icon: Headphones, text: "Soporte en Colombia, en español" },
 ];
+
 
 const FAQ = [
   {
@@ -137,14 +154,17 @@ export default function CampaignLanding() {
       </Helmet>
 
 
-      {/* Logo sin enlace: de esta página solo se sale convirtiendo. */}
-      <header className="px-4 pt-5 md:px-6">
-        <img src={simboloVisualia} alt="Visualia" width={32} height={32} className="h-8 w-auto" />
+      {/* Encabezado: lockup completo. Sin enlaces: de esta página solo se sale
+          convirtiendo. */}
+      <header className="border-b border-border/50">
+        <div className={`${SHELL} flex h-16 items-center`}>
+          <VisualiaLockup size={32} />
+        </div>
       </header>
 
       {/* 1 — HERO */}
-      <section className="px-4 pb-8 pt-4 md:px-6">
-        <div className="mx-auto max-w-3xl">
+      <section className="py-8">
+        <div className={SHELL}>
           <h1 className="font-display text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-5xl">
             {campaign.headline}
           </h1>
@@ -161,6 +181,12 @@ export default function CampaignLanding() {
 
           <div className="mt-4">
             <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+            {/* El botón es verde de WhatsApp a propósito: esta línea lo convierte
+                en una acción de Visualia y no en un botón genérico. */}
+            <p className="mt-2 flex items-center justify-center gap-2 text-[13px] text-muted-foreground">
+              <VisualiaLockup size={16} symbolOnly />
+              Te responde el equipo de Visualia
+            </p>
             <a
               href="#formulario"
               className="mt-3 flex items-center justify-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
@@ -170,15 +196,18 @@ export default function CampaignLanding() {
             </a>
           </div>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            +150 pantallas funcionando · Empresa colombiana · Soporte en español
+          {/* Barra de confianza: símbolo primero y en su propia columna para
+              que el texto no lo empuje a una línea suelta en móvil. */}
+          <p className="mt-5 flex items-center gap-2 text-sm font-medium text-foreground">
+            <VisualiaLockup size={16} symbolOnly className="shrink-0" />
+            <span>+150 pantallas funcionando · Empresa colombiana · Soporte en español</span>
           </p>
         </div>
       </section>
 
       {/* 2 — EL PROBLEMA */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl space-y-1.5 text-base leading-relaxed text-foreground/90 md:text-lg">
+      <section className="py-5">
+        <div className={`${SHELL} space-y-1.5 text-base leading-relaxed text-foreground/90 md:text-lg`}>
           <p>Cambias un precio y toca reimprimir.</p>
           <p>Se acabó un plato y el cartel sigue ahí.</p>
           <p className="text-muted-foreground">
@@ -188,16 +217,19 @@ export default function CampaignLanding() {
       </section>
 
       {/* 3 — LA SOLUCIÓN EN 3 PASOS */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-            Estás al aire en tres pasos
-          </h2>
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Estás al aire en tres pasos</h2>
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             {STEPS.map((s, i) => (
               <div key={s.title} className="rounded-2xl border border-border/60 bg-card/40 p-4">
                 <div className="overflow-hidden rounded-xl">
-                  <InlineVideo sources={s.clip.sources} poster={s.clip.poster} label={s.title} />
+                  <InlineVideo
+                    sources={s.clip.sources}
+                    poster={s.clip.poster}
+                    label={s.title}
+                    className={s.brighten ? "[&>video]:brightness-[1.35] [&>video]:contrast-[1.08]" : ""}
+                  />
                 </div>
                 <span className="mt-3 block text-xs font-semibold uppercase tracking-widest text-primary">
                   Paso {i + 1}
@@ -211,9 +243,9 @@ export default function CampaignLanding() {
       </section>
 
       {/* 4 — QUÉ RECIBES */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">Qué recibes</h2>
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Qué recibes</h2>
           <ul className="mt-6 space-y-4 p-0">
             {BENEFITS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex list-none items-start gap-3">
@@ -227,41 +259,63 @@ export default function CampaignLanding() {
         </div>
       </section>
 
-      {/* 5 — PRECIO */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">Cuánto cuesta</h2>
-          <div className="mt-5 space-y-2">
-            <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-4">
-              <span className="text-sm font-medium text-foreground">Por pantalla, al mes</span>
-              <span className="font-display text-xl font-bold text-foreground">
-                {formatCop(MAX_PRICE_PER_SCREEN)}
+      {/* 5 — PRECIO: el servicio y el dispositivo son dos cosas distintas y se
+          separan para que no se lean como tres planes alternativos. */}
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Cuánto cuesta</h2>
+
+          <h3 className="mt-6 text-sm font-semibold uppercase tracking-widest text-primary">El servicio</h3>
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-4">
+            <span className="text-sm font-medium text-foreground">Por pantalla, al mes</span>
+            <span className="font-display text-xl font-bold text-foreground">
+              {formatCop(MAX_PRICE_PER_SCREEN)}
+            </span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Si tienes varias pantallas, el precio por pantalla baja:{" "}
+            {PRICE_SCALE.map((t, i) => (
+              <span key={t}>
+                {i > 0 && " · "}
+                {t}
               </span>
-            </div>
+            ))}
+            .
+          </p>
+
+          <hr className="my-7 border-border/60" />
+
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-primary">
+            El dispositivo (una sola vez)
+          </h3>
+          <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-              <span className="text-sm text-muted-foreground">Dispositivo, plan mensual</span>
-              <span className="text-sm font-semibold text-muted-foreground">
+              <span className="text-sm text-muted-foreground">Con plan mensual</span>
+              <span className="text-sm font-semibold text-foreground">
                 {formatCop(VISUALIA_DEVICE_PRICE_COP)}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-              <span className="text-sm text-muted-foreground">Dispositivo, pago anual adelantado</span>
+            <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-3">
+              <span className="text-sm font-medium text-foreground">Con pago anual adelantado</span>
               <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
                 Incluido
               </span>
             </div>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Con el pago anual, el dispositivo va incluido. Si tienes varias pantallas, el precio por pantalla
-            baja.
+          <p className="mt-2 text-sm text-muted-foreground">
+            El dispositivo solo hace falta si tu televisor no es compatible.{" "}
+            <a href="#compatibilidad" className="text-primary underline underline-offset-4">
+              Averígualo aquí
+            </a>
+            .
           </p>
         </div>
       </section>
 
       {/* 6 — ¿SIRVE MI TELEVISOR? */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">¿Sirve mi televisor?</h2>
+      <section id="compatibilidad" className="scroll-mt-6 py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>¿Sirve mi televisor?</h2>
           <p className="mt-2 text-muted-foreground">Depende de la marca. Averígualo en dos clics.</p>
           <div className="mt-5">
             <BrandChecker />
@@ -270,11 +324,9 @@ export default function CampaignLanding() {
       </section>
 
       {/* 7 — PRUEBA SOCIAL */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-            Funciona igual con una pantalla que con 150
-          </h2>
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Funciona igual con una pantalla que con 150</h2>
           <div className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">
             <p>
               Hoy tenemos más de 150 pantallas funcionando en restaurantes de Colombia, desde locales de una
@@ -285,15 +337,15 @@ export default function CampaignLanding() {
               Visualia es una empresa colombiana. Desarrollamos el reproductor, el panel y la generación de
               menús aquí, y lo operamos desde aquí. Cuando algo se rompe, contestamos nosotros.
             </p>
-
           </div>
         </div>
       </section>
 
+
       {/* 8 — PREGUNTAS FRECUENTES */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">Preguntas frecuentes</h2>
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Preguntas frecuentes</h2>
           <Accordion type="single" collapsible className="mt-4">
             {FAQ.map((f) => (
               <AccordionItem key={f.q} value={f.q}>
@@ -306,32 +358,35 @@ export default function CampaignLanding() {
       </section>
 
       {/* 9 — CIERRE + FORMULARIO */}
-      <section id="formulario" ref={formRef} className="scroll-mt-6 px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-            Cuéntanos de tu restaurante
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Te escribimos por WhatsApp y te decimos con franqueza si te sirve.
-          </p>
+      <section id="formulario" ref={formRef} className="scroll-mt-6 py-10">
+        <div className={SHELL}>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
+            <h2 className={H2}>Cuéntanos de tu restaurante</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Te escribimos por WhatsApp y te decimos con franqueza si te sirve.
+            </p>
 
-          <div className="mt-6 grid gap-8 md:grid-cols-2">
-            <LeadForm campaignSlug={campaign.slug} />
-            <div className="flex flex-col justify-center gap-3 rounded-2xl border border-border/50 bg-background/40 p-5">
-              <p className="text-base text-foreground/90">
-                ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
-              </p>
-              <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+            <div className="mt-6 grid gap-8 md:grid-cols-2">
+              <LeadForm campaignSlug={campaign.slug} />
+              <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-background/40 p-5">
+                <VisualiaLockup size={28} />
+                <p className="text-base text-foreground/90">
+                  ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
+                </p>
+                <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pie legal: los únicos enlaces de la página, obligatorios por Ley 1581. */}
-      <footer className="px-4 pb-10 pt-4 md:px-6">
-        <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
-          <p>© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
-          <p className="mt-1 flex flex-wrap justify-center gap-3">
+      <footer className="border-t border-border/50 pb-10 pt-6">
+        <div className={`${SHELL} text-xs leading-relaxed text-muted-foreground`}>
+          <VisualiaLockup size={24} />
+          <p className="mt-3">© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
+          <p className="mt-1 flex flex-wrap gap-3">
+
             <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
               Política de tratamiento de datos
             </a>
