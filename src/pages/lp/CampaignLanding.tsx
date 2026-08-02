@@ -341,9 +341,9 @@ export default function CampaignLanding() {
 
 
       {/* 8 — PREGUNTAS FRECUENTES */}
-      <section className="px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">Preguntas frecuentes</h2>
+      <section className="py-10">
+        <div className={SHELL}>
+          <h2 className={H2}>Preguntas frecuentes</h2>
           <Accordion type="single" collapsible className="mt-4">
             {FAQ.map((f) => (
               <AccordionItem key={f.q} value={f.q}>
@@ -356,32 +356,35 @@ export default function CampaignLanding() {
       </section>
 
       {/* 9 — CIERRE + FORMULARIO */}
-      <section id="formulario" ref={formRef} className="scroll-mt-6 px-4 py-10 md:px-6">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
-          <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-            Cuéntanos de tu restaurante
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Te escribimos por WhatsApp y te decimos con franqueza si te sirve.
-          </p>
+      <section id="formulario" ref={formRef} className="scroll-mt-6 py-10">
+        <div className={SHELL}>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
+            <h2 className={H2}>Cuéntanos de tu restaurante</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Te escribimos por WhatsApp y te decimos con franqueza si te sirve.
+            </p>
 
-          <div className="mt-6 grid gap-8 md:grid-cols-2">
-            <LeadForm campaignSlug={campaign.slug} />
-            <div className="flex flex-col justify-center gap-3 rounded-2xl border border-border/50 bg-background/40 p-5">
-              <p className="text-base text-foreground/90">
-                ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
-              </p>
-              <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+            <div className="mt-6 grid gap-8 md:grid-cols-2">
+              <LeadForm campaignSlug={campaign.slug} />
+              <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-background/40 p-5">
+                <VisualiaLockup size={28} />
+                <p className="text-base text-foreground/90">
+                  ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
+                </p>
+                <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pie legal: los únicos enlaces de la página, obligatorios por Ley 1581. */}
-      <footer className="px-4 pb-10 pt-4 md:px-6">
-        <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
-          <p>© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
-          <p className="mt-1 flex flex-wrap justify-center gap-3">
+      <footer className="border-t border-border/50 pb-10 pt-6">
+        <div className={`${SHELL} text-xs leading-relaxed text-muted-foreground`}>
+          <VisualiaLockup size={24} />
+          <p className="mt-3">© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
+          <p className="mt-1 flex flex-wrap gap-3">
+
             <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
               Política de tratamiento de datos
             </a>
