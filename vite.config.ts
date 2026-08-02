@@ -109,8 +109,8 @@ export default defineConfig(({ mode }) => ({
           )
             return "utils-vendor";
 
-          // Only split heavy, self-contained libs to avoid cross-chunk TDZ cycles.
-          if (id.includes("fabric")) return "fabric";
+          // Librerías pesadas y autocontenidas, cada una en su chunk.
+          if (id.includes("node_modules/fabric/")) return "fabric";
           if (id.includes("leaflet")) return "leaflet";
           // lodash lo comparten recharts y otras libs: chunk propio para que
           // nadie tenga que bajar los gráficos solo por una utilidad.
@@ -118,6 +118,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("recharts") || id.includes("d3-")) return "charts";
           if (id.includes("@supabase")) return "supabase";
           if (id.includes("html2canvas")) return "html2canvas";
+          // Resto de dependencias: un vendor común. Sin esta red de seguridad
+          // rollup mete los módulos compartidos dentro del primer chunk pesado
+          // que los pida (pasó con recharts y con fabric) y la app termina
+          // bajando esa librería en TODAS las rutas.
+          return "vendor";
+
 
         },
 
