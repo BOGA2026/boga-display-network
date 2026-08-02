@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { CheckCircle2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TV_BRANDS } from "@/config/devices";
+import InlineVideo from "@/components/media/InlineVideo";
+import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
+import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import BrandLogo, { brandColor, isWordmark } from "@/components/lp/BrandLogo";
+import { setTvChoice, trackConversion } from "@/lib/attribution";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
 
 /**
- * Verificador de marcas para la landing de campañas. Misma lógica que la
- * página principal, pero sin ningún enlace de salida: la única acción es
- * bajar al formulario o escribir por WhatsApp.
+ * Verificador de marcas de la landing de campañas.
+ *
+ * Es una decisión con dos salidas, no un catálogo: el bloque del dispositivo
+ * (precio y video) no existe hasta que la persona elige una marca que lo
+ * necesita. Mostrarlo antes le pone precio a quien no lo va a pagar.
  */
 export default function BrandChecker() {
   const [brand, setBrand] = useState<string | null>(null);
@@ -18,9 +23,26 @@ export default function BrandChecker() {
   const pick = (id: string) => {
     const verdict = TV_BRANDS.find((t) => t.id === id)?.verdict ?? "desconocido";
     setBrand(id);
-    setAnswer(
-      verdict === "probable" ? "compatible" : verdict === "necesita_dispositivo" ? "necesita" : "preguntar",
-    );
+    const next: Answer =
+      verdict === "probable" ? "compatible" : verdict === "necesita_dispositivo" ? "necesita" : "preguntar";
+    setAnswer(next);
+    // "Otra marca" todavía no es una respuesta: no se guarda hasta que responda.
+    if (next !== "preguntar") setTvChoice(id, next === "necesita");
+  };
+
+  /** Resuelve el caso "Otra marca" según lo que la persona ve en su televisor. */
+  const resolveUnknown = (needsDevice: boolean) => {
+    setAnswer(needsDevice ? "necesita" : "compatible");
+    setTvChoice(brand ?? "otra", needsDevice);
+  };
+
+  /** Enlace al alta con la elección puesta en la URL. */
+  const registerHref = (needsDevice: boolean) =>
+    `/registro?marca=${encodeURIComponent(brand ?? "otra")}&dispositivo=${needsDevice ? "si" : "no"}`;
+
+  const goRegister = (needsDevice: boolean) => {
+    setTvChoice(brand ?? "otra", needsDevice);
+    trackConversion("tv_check_cta", { tv_brand: brand ?? "otra", needs_device: needsDevice });
   };
 
   return (
@@ -60,38 +82,93 @@ export default function BrandChecker() {
         })}
       </div>
 
-
       {answer && (
-        <div className="mt-5 rounded-xl border border-border/50 bg-background/40 p-4">
+        <div className="mt-5 animate-fade-in">
+          {/* RESULTADO A — el televisor sirve solo */}
           {answer === "compatible" && (
-            <div className="flex gap-3">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">Tu televisor probablemente ya funciona.</span>{" "}
-                Solo confirma que en el menú de aplicaciones aparezca Google Play Store. Si está, no necesitas
-                comprar nada más.
-              </p>
+            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4 md:p-5">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Tu televisor sirve</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    No necesitas comprar ningún equipo adicional. Instalas la aplicación de Visualia desde la
+                    tienda de tu televisor y listo.
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Confirma que en el menú de aplicaciones te aparezca Google Play Store. Si está, ya puedes
+                    empezar.
+                  </p>
+                </div>
+              </div>
+              <Button asChild className="mt-4 w-full">
+                <a href={registerHref(false)} onClick={() => goRegister(false)}>
+                  Crear mi cuenta
+                </a>
+              </Button>
             </div>
           )}
+
+          {/* RESULTADO B — hace falta el dispositivo */}
           {answer === "necesita" && (
-            <div className="flex gap-3">
-              <Info className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">Ese televisor necesita un aparato pequeño.</span>{" "}
-                Te lo enviamos configurado y con tu pantalla ya vinculada. Con el pago anual va incluido.
+            <div className="rounded-xl border border-primary/50 bg-primary/5 p-4 md:p-5">
+              <div className="flex items-start gap-3">
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    Tu televisor necesita un dispositivo
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Los televisores Samsung y LG no usan Android, así que no pueden instalar aplicaciones como
+                    la nuestra. Se resuelve con un aparato pequeño que se conecta al HDMI.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 overflow-hidden rounded-xl">
+                <InlineVideo
+                  sources={COMPAT_CLIPS.dispositivo.sources}
+                  poster={COMPAT_CLIPS.dispositivo.poster}
+                  label="El dispositivo que se conecta al HDMI del televisor"
+                />
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
+                  <span className="text-sm text-muted-foreground">Plan mensual</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {formatCop(VISUALIA_DEVICE_PRICE_COP)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-3">
+                  <span className="text-sm font-medium text-foreground">Pago anual adelantado</span>
+                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                    Incluido
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Con el pago anual, el dispositivo va incluido.
               </p>
+
+              <Button asChild className="mt-4 w-full">
+                <a href={registerHref(true)} onClick={() => goRegister(true)}>
+                  Crear mi cuenta con dispositivo
+                </a>
+              </Button>
             </div>
           )}
+
+          {/* RESULTADO C — no sabemos la marca: que mire su televisor */}
           {answer === "preguntar" && (
-            <div>
-              <p className="text-sm text-foreground">
-                Busca Google Play Store en el menú de aplicaciones de tu televisor.
+            <div className="rounded-xl border border-border/60 bg-background/40 p-4 md:p-5">
+              <h3 className="text-base font-semibold text-foreground">Búscalo en tu televisor</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Entra al menú de aplicaciones de tu televisor y busca Google Play Store.
               </p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                <Button size="sm" onClick={() => setAnswer("compatible")}>
-                  Sí, la veo
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => setAnswer("necesita")}>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <Button onClick={() => resolveUnknown(false)}>Sí, la veo</Button>
+                <Button variant="outline" onClick={() => resolveUnknown(true)}>
                   No la encuentro
                 </Button>
               </div>
