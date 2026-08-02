@@ -328,7 +328,7 @@ export default function CampaignLanding() {
 
       {/* Pie legal: los únicos enlaces de la página, obligatorios por Ley 1581. */}
       <footer className="px-4 pb-10 pt-4 md:px-6">
-        <div className="mx-auto max-w-3xl text-center text-[11px] leading-relaxed text-muted-foreground">
+        <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
           <p>© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
           <p className="mt-1 flex flex-wrap justify-center gap-3">
             <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
