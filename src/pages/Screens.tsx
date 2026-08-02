@@ -227,8 +227,10 @@ const Screens = () => {
     setNameError("");
     setGeneratedCode(null);
     setCodeCopied(false);
-    setDeviceType("desconocido");
-    setCompatDone(false);
+    // Se vuelve al estado que dejó el verificador, no a cero.
+    setDeviceType(tvChoice.needs_device === false ? "tv_google" : "desconocido");
+    setCompatDone(tvChoice.needs_device === false);
+
   };
 
   const validateForm = () => {
