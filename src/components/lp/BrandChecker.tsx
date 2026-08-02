@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CheckCircle2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TV_BRANDS } from "@/config/devices";
+import BrandLogo, { brandColor } from "@/components/lp/BrandLogo";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
 
@@ -24,7 +25,7 @@ export default function BrandChecker() {
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card/40 p-4 md:p-6">
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:gap-3">
         {TV_BRANDS.filter((b) => b.id !== "no_se").map((b) => {
           const active = brand === b.id;
           return (
@@ -33,17 +34,26 @@ export default function BrandChecker() {
               type="button"
               onClick={() => pick(b.id)}
               aria-pressed={active}
-              className={`flex h-14 items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold transition ${
+              style={{ ["--brand" as string]: brandColor(b.id) }}
+              className={`group flex h-[72px] flex-col items-center justify-center gap-2 rounded-xl border px-2 transition ${
                 active
-                  ? "border-primary bg-primary/15 text-foreground"
-                  : "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                  ? "border-primary bg-primary/15"
+                  : "border-border/50 bg-card/40 hover:border-primary/50"
               }`}
             >
-              {b.name}
+              <BrandLogo id={b.id} name={b.name} active={active} />
+              <span
+                className={`text-[11px] leading-none ${
+                  active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                }`}
+              >
+                {b.name}
+              </span>
             </button>
           );
         })}
       </div>
+
 
       {answer && (
         <div className="mt-5 rounded-xl border border-border/50 bg-background/40 p-4">
