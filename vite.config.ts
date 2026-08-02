@@ -94,14 +94,39 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: (id) => {
           if (!id.includes("node_modules")) return;
-          // Only split heavy, self-contained libs to avoid cross-chunk TDZ cycles.
-          if (id.includes("fabric")) return "fabric";
+          // React va SIEMPRE en su propio chunk. Si no se fija acá, rollup lo
+          // mete dentro del primer chunk manual que lo necesite (pasó con
+          // "charts") y entonces toda la app arrastra recharts para arrancar.
+          if (/node_modules\/(react|react-dom|scheduler|react-is|use-sync-external-store|object-assign|prop-types)\//.test(id))
+            return "react-vendor";
+          // Utilidades diminutas que usa TODA la app. Sin regla propia rollup
+          // las esconde dentro del primer chunk pesado que las pida y obliga a
+          // bajarlo entero en cualquier ruta.
+          if (
+            /node_modules\/(clsx|tailwind-merge|class-variance-authority|tiny-invariant|fast-equals|eventemitter3)\//.test(
+              id
+            )
+          )
+            return "utils-vendor";
+
+          // Librerías pesadas y autocontenidas, cada una en su chunk.
+          if (id.includes("node_modules/fabric/")) return "fabric";
           if (id.includes("leaflet")) return "leaflet";
+          // lodash lo comparten recharts y otras libs: chunk propio para que
+          // nadie tenga que bajar los gráficos solo por una utilidad.
+          if (id.includes("node_modules/lodash/")) return "lodash-vendor";
           if (id.includes("recharts") || id.includes("d3-")) return "charts";
-          
           if (id.includes("@supabase")) return "supabase";
           if (id.includes("html2canvas")) return "html2canvas";
+          // Resto de dependencias: un vendor común. Sin esta red de seguridad
+          // rollup mete los módulos compartidos dentro del primer chunk pesado
+          // que los pida (pasó con recharts y con fabric) y la app termina
+          // bajando esa librería en TODAS las rutas.
+          return "vendor";
+
+
         },
+
       },
     },
   },

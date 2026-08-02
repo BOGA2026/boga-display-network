@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { getCampaign } from "@/config/campaigns";
+import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { MAX_PRICE_PER_SCREEN } from "@/config/pricing";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
@@ -25,6 +25,7 @@ import { captureAttribution } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
 import WhatsappButton from "@/components/lp/WhatsappButton";
+
 
 const STEPS = [
   {
@@ -86,10 +87,33 @@ const FAQ = [
 export default function CampaignLanding() {
   const { campana } = useParams();
   const campaign = getCampaign(campana);
+  const formRef = useRef<HTMLElement | null>(null);
+  const [barVisible, setBarVisible] = useState(false);
+  const [formOnScreen, setFormOnScreen] = useState(false);
 
   useEffect(() => {
     captureAttribution(window.location.pathname);
   }, [campaign.slug]);
+
+  // La barra aparece cuando la persona ya pasó el hero y se retira cuando el
+  // formulario está a la vista: dos botones compitiendo bajan la conversión.
+  useEffect(() => {
+    const onScroll = () => setBarVisible(window.scrollY > 320);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const el = formRef.current;
+    const io = el
+      ? new IntersectionObserver(([e]) => setFormOnScreen(e.isIntersecting), { threshold: 0.15 })
+      : null;
+    if (el && io) io.observe(el);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      io?.disconnect();
+    };
+  }, []);
+
+  const pageUrl = `${SITE_URL}/lp/${campaign.slug}`;
+  const ogImage = campaignOgImage(campaign);
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -97,7 +121,21 @@ export default function CampaignLanding() {
         <title>{campaign.headline}</title>
         <meta name="description" content={campaign.subheadline} />
         <meta name="robots" content="noindex, nofollow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Visualia" />
+        <meta property="og:locale" content="es_CO" />
+        <meta property="og:title" content={campaign.headline} />
+        <meta property="og:description" content={campaign.subheadline} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={campaign.headline} />
+        <meta name="twitter:description" content={campaign.subheadline} />
+        <meta name="twitter:image" content={ogImage} />
       </Helmet>
+
 
       {/* Logo sin enlace: de esta página solo se sale convirtiendo. */}
       <header className="px-4 pt-5 md:px-6">
@@ -245,8 +283,9 @@ export default function CampaignLanding() {
             </p>
             <p>
               Visualia es una empresa colombiana. Desarrollamos el reproductor, el panel y la generación de
-              menús acá, y lo operamos desde acá. Cuando algo se rompe, contestamos nosotros.
+              menús aquí, y lo operamos desde aquí. Cuando algo se rompe, contestamos nosotros.
             </p>
+
           </div>
         </div>
       </section>
@@ -267,7 +306,7 @@ export default function CampaignLanding() {
       </section>
 
       {/* 9 — CIERRE + FORMULARIO */}
-      <section id="formulario" className="scroll-mt-6 px-4 py-10 md:px-6">
+      <section id="formulario" ref={formRef} className="scroll-mt-6 px-4 py-10 md:px-6">
         <div className="mx-auto max-w-3xl rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
           <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
             Cuéntanos de tu restaurante
@@ -290,7 +329,7 @@ export default function CampaignLanding() {
 
       {/* Pie legal: los únicos enlaces de la página, obligatorios por Ley 1581. */}
       <footer className="px-4 pb-10 pt-4 md:px-6">
-        <div className="mx-auto max-w-3xl text-center text-[11px] leading-relaxed text-muted-foreground">
+        <div className="mx-auto max-w-3xl text-center text-xs leading-relaxed text-muted-foreground">
           <p>© {new Date().getFullYear()} Boga Casa de Contenidos S.A.S. · NIT 900.325.011-10 · Bogotá, Colombia</p>
           <p className="mt-1 flex flex-wrap justify-center gap-3">
             <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
@@ -305,11 +344,20 @@ export default function CampaignLanding() {
 
       {/* 10 — BARRA FIJA EN MÓVIL */}
       <div
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur md:hidden"
-        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-2 backdrop-blur transition-all duration-300 md:hidden ${
+          barVisible && !formOnScreen
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-full opacity-0"
+        }`}
+        style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
       >
-        <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+        <WhatsappButton
+          campaignSlug={campaign.slug}
+          message={campaign.whatsappMessage}
+          className="h-14 py-0"
+        />
       </div>
+
     </div>
   );
 }

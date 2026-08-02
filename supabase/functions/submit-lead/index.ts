@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { name, email, phone, whatsapp, company, city, screens, goal, budget, inquiry, preferred_time, preferred_contact, source, attribution = {}, events = [] } = body;
+    const { name, email, phone, whatsapp, company, city, screens, goal, budget, inquiry, preferred_time, preferred_contact, source, consent_at, consent_text, consent_version, attribution = {}, events = [] } = body;
 
     // --- Validación y saneamiento de entrada (endpoint público) ---
     const clean = (v: unknown, max: number): string | null => {
@@ -113,6 +113,15 @@ Deno.serve(async (req) => {
         ttclid: clean(attr.ttclid, 300),
         landing_path: clean(attr.landing_path, 300),
         referrer: clean(attr.referrer, 500),
+        // Evidencia de autorización (Ley 1581): momento y texto literal.
+        consent_at: (() => {
+          const raw = clean(consent_at, 40);
+          const d = raw ? new Date(raw) : null;
+          return d && !isNaN(d.getTime()) ? d.toISOString() : null;
+        })(),
+        consent_text: clean(consent_text, 2000),
+        consent_version: clean(consent_version, 60),
+
       })
       .select("id")
       .single();
