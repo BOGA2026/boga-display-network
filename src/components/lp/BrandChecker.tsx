@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CheckCircle2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TV_BRANDS } from "@/config/devices";
-import BrandLogo, { brandColor } from "@/components/lp/BrandLogo";
+import BrandLogo, { brandColor, isWordmark } from "@/components/lp/BrandLogo";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
 
@@ -42,10 +42,16 @@ export default function BrandChecker() {
               }`}
             >
               <BrandLogo id={b.id} name={b.name} active={active} />
+              {/* Con logo el nombre acompaña; con wordmark ya está escrito y
+                  repetirlo se ve como error, así que queda solo para lectores. */}
               <span
-                className={`text-[11px] leading-none ${
-                  active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                }`}
+                className={
+                  isWordmark(b.id)
+                    ? "sr-only"
+                    : `text-[11px] leading-none ${
+                        active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      }`
+                }
               >
                 {b.name}
               </span>

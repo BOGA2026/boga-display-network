@@ -20,14 +20,14 @@ interface BrandMark {
 }
 
 const BRAND_MARKS: Record<string, BrandMark> = {
-  samsung: { mark: samsungMark, color: "#1428A0" },
-  lg: { mark: lgMark, color: "#A50034" },
+  samsung: { mark: samsungMark, color: "#4A6DFF" },
+  lg: { mark: lgMark, color: "#E0567B" },
   sony: { mark: sonyMark, color: "#FFFFFF" },
   xiaomi: { mark: xiaomiMark, color: "#FF6900" },
-  tcl: { color: "#E60012" },
+  tcl: { color: "#FF4D57" },
   hisense: { color: "#00A0E9" },
-  philips: { color: "#0B5ED7" },
-  kalley: { color: "#E4002B" },
+  philips: { color: "#4D8DFF" },
+  kalley: { color: "#FF4D6D" },
   otra: { color: "#B19EEF" },
 };
 
@@ -75,4 +75,9 @@ export default function BrandLogo({ id, name, active }: Props) {
       }}
     />
   );
+}
+
+/** True cuando la marca se dibuja con su nombre y no con un logo. */
+export function isWordmark(id: string): boolean {
+  return !BRAND_MARKS[id]?.mark;
 }
