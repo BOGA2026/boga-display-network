@@ -147,9 +147,11 @@ const Register = () => {
 
       toast({ title: "Cuenta creada exitosamente" });
 
-      // If session exists (email confirmation disabled), go to dashboard
+      // If session exists (email confirmation disabled), go to dashboard.
+      // Quien ya respondió el verificador sigue directo a conectar su pantalla.
       if (authData.session) {
-        navigate("/dashboard");
+        navigate(tvChoice.tv_brand ? "/dashboard/pantallas" : "/dashboard");
+
       } else {
         toast({
           title: "Revisa tu correo",
