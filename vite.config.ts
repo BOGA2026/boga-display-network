@@ -93,7 +93,12 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
+          // El stub de módulos de Node que inyecta Vite lo importan varios
+          // vendors: si cae dentro de una librería pesada, esa librería se
+          // precarga en todas las rutas.
+          if (id.includes("__vite-browser-external")) return "vendor";
           if (!id.includes("node_modules")) return;
+
           // React va SIEMPRE en su propio chunk. Si no se fija acá, rollup lo
           // mete dentro del primer chunk manual que lo necesite (pasó con
           // "charts") y entonces toda la app arrastra recharts para arrancar.
