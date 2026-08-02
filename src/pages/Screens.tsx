@@ -57,6 +57,8 @@ import type { DeviceType } from "@/config/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { getAttribution } from "@/lib/attribution";
+
 
 const TIMEZONES = [
   { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
