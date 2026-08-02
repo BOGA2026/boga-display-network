@@ -94,6 +94,13 @@ export default function AppRoutes() {
       <Route path="/tv" element={page(TvLanding, pathname)} />
       <Route path="/onboarding" element={page(Onboarding, pathname)} />
 
+      {/* Landings de tráfico pagado: "gracias" va antes del parámetro. */}
+      <Route path="/lp/gracias" element={page(CampaignThanks, pathname)} />
+      <Route path="/lp" element={page(CampaignLanding, pathname)} />
+      <Route path="/lp/:campana" element={page(CampaignLanding, pathname)} />
+
+
+
       <Route path="/soluciones/restaurantes" element={page(RestaurantSolutionPage, pathname)} />
       <Route path="/acerca" element={page(AboutPage, pathname)} />
       <Route path="/studio" element={page(Studio, pathname)} />
