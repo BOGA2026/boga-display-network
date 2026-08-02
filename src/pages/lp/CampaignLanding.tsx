@@ -305,7 +305,7 @@ export default function CampaignLanding() {
       </section>
 
       {/* 9 — CIERRE + FORMULARIO */}
-      <section id="formulario" className="scroll-mt-6 px-4 py-10 md:px-6">
+      <section id="formulario" ref={formRef} className="scroll-mt-6 px-4 py-10 md:px-6">
         <div className="mx-auto max-w-3xl rounded-2xl border border-border/60 bg-card/40 p-5 md:p-8">
           <h2 className="font-display text-2xl font-bold text-foreground md:text-3xl">
             Cuéntanos de tu restaurante
