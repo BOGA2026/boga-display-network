@@ -111,7 +111,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("leaflet")) return "leaflet";
           // lodash solo lo usa recharts: se ancla al mismo chunk para que no
           // termine siendo un vendor compartido que cargue toda la app.
-          if (id.includes("recharts") || id.includes("d3-") || id.includes("node_modules/lodash/"))
+          if (id.includes("node_modules/lodash/")) return "lodash-vendor";
+          if (id.includes("recharts") || id.includes("d3-"))
             return "charts";
 
           if (id.includes("@supabase")) return "supabase";
