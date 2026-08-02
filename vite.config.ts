@@ -107,16 +107,13 @@ export default defineConfig(({ mode }) => ({
           // Only split heavy, self-contained libs to avoid cross-chunk TDZ cycles.
           if (id.includes("fabric")) return "fabric";
           if (id.includes("leaflet")) return "leaflet";
-
-          if (id.includes("leaflet")) return "leaflet";
-          // lodash solo lo usa recharts: se ancla al mismo chunk para que no
-          // termine siendo un vendor compartido que cargue toda la app.
+          // lodash lo comparten recharts y otras libs: chunk propio para que
+          // nadie tenga que bajar los gráficos solo por una utilidad.
           if (id.includes("node_modules/lodash/")) return "lodash-vendor";
-          if (id.includes("recharts") || id.includes("d3-"))
-            return "charts";
-
+          if (id.includes("recharts") || id.includes("d3-")) return "charts";
           if (id.includes("@supabase")) return "supabase";
           if (id.includes("html2canvas")) return "html2canvas";
+
         },
 
       },
