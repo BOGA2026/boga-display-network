@@ -196,9 +196,11 @@ export default function CampaignLanding() {
             </a>
           </div>
 
-          <p className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm font-medium text-foreground/90">
-            <VisualiaLockup size={16} symbolOnly />
-            +150 pantallas funcionando · Empresa colombiana · Soporte en español
+          {/* Barra de confianza: símbolo primero y en su propia columna para
+              que el texto no lo empuje a una línea suelta en móvil. */}
+          <p className="mt-5 flex items-center gap-2 text-sm font-medium text-foreground">
+            <VisualiaLockup size={16} symbolOnly className="shrink-0" />
+            <span>+150 pantallas funcionando · Empresa colombiana · Soporte en español</span>
           </p>
         </div>
       </section>
