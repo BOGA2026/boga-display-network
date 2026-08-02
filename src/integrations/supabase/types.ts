@@ -797,6 +797,9 @@ export type Database = {
           budget: string | null
           city: string | null
           company: string | null
+          consent_at: string | null
+          consent_text: string | null
+          consent_version: string | null
           created_at: string | null
           email: string | null
           fbclid: string | null
@@ -825,6 +828,9 @@ export type Database = {
           budget?: string | null
           city?: string | null
           company?: string | null
+          consent_at?: string | null
+          consent_text?: string | null
+          consent_version?: string | null
           created_at?: string | null
           email?: string | null
           fbclid?: string | null
@@ -853,6 +859,9 @@ export type Database = {
           budget?: string | null
           city?: string | null
           company?: string | null
+          consent_at?: string | null
+          consent_text?: string | null
+          consent_version?: string | null
           created_at?: string | null
           email?: string | null
           fbclid?: string | null
