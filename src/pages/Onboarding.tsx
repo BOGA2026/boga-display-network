@@ -33,6 +33,9 @@ export default function Onboarding() {
   const [saving, setSaving] = React.useState(false);
   // Antes de pedir la primera vinculación hay que saber si su televisor sirve.
   const [phase, setPhase] = React.useState<"negocio" | "televisor">("negocio");
+  // Elección del verificador de la landing: evita repetir la pregunta.
+  const tvChoice = React.useMemo(() => captureTvChoiceFromUrl(), []);
+
 
   // Ya tiene negocio → no hay nada que configurar.
   React.useEffect(() => {
