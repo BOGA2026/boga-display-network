@@ -343,11 +343,20 @@ export default function CampaignLanding() {
 
       {/* 10 — BARRA FIJA EN MÓVIL */}
       <div
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur md:hidden"
-        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/95 px-4 py-2 backdrop-blur transition-all duration-300 md:hidden ${
+          barVisible && !formOnScreen
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-full opacity-0"
+        }`}
+        style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
       >
-        <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+        <WhatsappButton
+          campaignSlug={campaign.slug}
+          message={campaign.whatsappMessage}
+          className="h-14 py-0"
+        />
       </div>
+
     </div>
   );
 }
