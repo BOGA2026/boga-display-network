@@ -99,8 +99,15 @@ export default defineConfig(({ mode }) => ({
           // "charts") y entonces toda la app arrastra recharts para arrancar.
           if (/node_modules\/(react|react-dom|scheduler|react-is|use-sync-external-store|object-assign|prop-types)\//.test(id))
             return "react-vendor";
+          // Utilidades diminutas que usa TODA la app. Sin regla propia rollup
+          // las esconde dentro del primer chunk pesado que las pida y obliga a
+          // bajarlo entero en cualquier ruta.
+          if (/node_modules\/(clsx|tailwind-merge|class-variance-authority)\//.test(id))
+            return "utils-vendor";
           // Only split heavy, self-contained libs to avoid cross-chunk TDZ cycles.
           if (id.includes("fabric")) return "fabric";
+          if (id.includes("leaflet")) return "leaflet";
+
           if (id.includes("leaflet")) return "leaflet";
           // lodash solo lo usa recharts: se ancla al mismo chunk para que no
           // termine siendo un vendor compartido que cargue toda la app.
