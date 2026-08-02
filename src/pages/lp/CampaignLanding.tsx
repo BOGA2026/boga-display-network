@@ -283,8 +283,9 @@ export default function CampaignLanding() {
             </p>
             <p>
               Visualia es una empresa colombiana. Desarrollamos el reproductor, el panel y la generación de
-              menús acá, y lo operamos desde acá. Cuando algo se rompe, contestamos nosotros.
+              menús aquí, y lo operamos desde aquí. Cuando algo se rompe, contestamos nosotros.
             </p>
+
           </div>
         </div>
       </section>
