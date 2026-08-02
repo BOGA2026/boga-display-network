@@ -77,9 +77,11 @@ export default function Onboarding() {
         <div className="v-card w-full max-w-lg p-6 sm:p-8">
           <TvCompatibilityWizard
             continueLabel="Seguir"
+            initialBrandId={tvChoice.needs_device ? tvChoice.tv_brand ?? null : null}
             onCompatible={() => navigate("/dashboard/pantallas", { replace: true })}
             onClose={() => navigate("/dashboard", { replace: true })}
           />
+
           <button
             type="button"
             onClick={() => navigate("/dashboard", { replace: true })}
