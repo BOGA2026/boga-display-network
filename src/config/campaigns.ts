@@ -18,9 +18,21 @@ export interface Campaign {
   subheadline: string;
   /** Video del hero, en bucle y silenciado. */
   hero: ClipConfig;
-  /** Mensaje prellenado de WhatsApp (se le agrega la campaña). */
+  /** Mensaje prellenado de WhatsApp (se le agrega el origen del anuncio). */
   whatsappMessage: string;
+  /** Imagen de vista previa al compartir (1200x630, ruta absoluta del sitio). */
+  ogImage?: string;
 }
+
+/** Dominio público: las etiquetas para compartir necesitan URL absoluta. */
+export const SITE_URL = "https://visualiamedia.com";
+const DEFAULT_OG_IMAGE = "/og-lp-default.jpg";
+
+/** URL absoluta de la imagen para compartir de una campaña. */
+export function campaignOgImage(c: Campaign): string {
+  return `${SITE_URL}${c.ogImage ?? DEFAULT_OG_IMAGE}`;
+}
+
 
 const CAMPAIGNS: Record<string, Campaign> = {
   default: {
