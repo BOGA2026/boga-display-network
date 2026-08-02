@@ -89,7 +89,7 @@ export default function CompatibilitySection() {
           <h2 id="compatibilidad-title" className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             ¿Sirve mi televisor?
           </h2>
-          <p className="mt-3 text-muted-foreground">Depende de la marca. Averigualo en dos clics.</p>
+          <p className="mt-3 text-muted-foreground">Depende de la marca. Averígualo en dos clics.</p>
         </div>
 
         {/* BLOQUE 1 — Verificador */}
@@ -125,11 +125,11 @@ export default function CompatibilitySection() {
                       Tu televisor probablemente ya funciona.
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Solo confirmá que en el menú de aplicaciones te aparezca Google Play Store. Si está, no
-                      necesitás comprar nada más.
+                      Solo confirma que en el menú de aplicaciones te aparezca Google Play Store. Si está, no
+                      necesitas comprar nada más.
                     </p>
                     <Button asChild className="mt-4">
-                      <Link to="/register">Empezar ahora</Link>
+                      <Link to="/registro">Empezar ahora</Link>
                     </Button>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export default function CompatibilitySection() {
                     <p className="mt-1 text-sm text-muted-foreground">
                       Nosotros te lo enviamos configurado.{" "}
                       <a href="#dispositivo" className="text-primary underline underline-offset-4">
-                        Mirá cómo es
+                        Mira cómo es
                       </a>
                       .
                     </p>
@@ -156,7 +156,7 @@ export default function CompatibilitySection() {
               {answer === "preguntar" && (
                 <div>
                   <p className="text-base text-foreground">
-                    Buscá Google Play Store en el menú de aplicaciones de tu televisor.
+                    Busca Google Play Store en el menú de aplicaciones de tu televisor.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <Button onClick={() => setAnswer("compatible")}>Sí, la veo</Button>
@@ -187,20 +187,15 @@ export default function CompatibilitySection() {
                   {formatCop(VISUALIA_DEVICE_PRICE_COP)}
                 </span>
               </div>
-              {["Pago anual adelantado", "Contrato a 1 año"].map((label) => (
-                <div
-                  key={label}
-                  className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/15 px-4 py-3"
-                >
-                  <span className="text-sm font-medium text-foreground">{label}</span>
-                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                    Incluido
-                  </span>
-                </div>
-              ))}
+              <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/15 px-4 py-3">
+                <span className="text-sm font-medium text-foreground">Pago anual adelantado</span>
+                <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                  Incluido
+                </span>
+              </div>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Con pago anual o contrato a un año, el dispositivo no te cuesta nada.
+              Con el pago anual, el dispositivo va incluido.
             </p>
           </div>
         </div>
@@ -221,7 +216,7 @@ export default function CompatibilitySection() {
         {/* Cierre */}
         <div className="mt-12 flex flex-col items-center gap-3">
           <Button asChild size="lg" className="px-8">
-            <Link to="/register">Empezar ahora</Link>
+            <Link to="/registro">Empezar ahora</Link>
           </Button>
           <a
             href={WHATSAPP_URL}
