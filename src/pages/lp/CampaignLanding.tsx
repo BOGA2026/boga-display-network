@@ -87,10 +87,33 @@ const FAQ = [
 export default function CampaignLanding() {
   const { campana } = useParams();
   const campaign = getCampaign(campana);
+  const formRef = useRef<HTMLElement | null>(null);
+  const [barVisible, setBarVisible] = useState(false);
+  const [formOnScreen, setFormOnScreen] = useState(false);
 
   useEffect(() => {
     captureAttribution(window.location.pathname);
   }, [campaign.slug]);
+
+  // La barra aparece cuando la persona ya pasó el hero y se retira cuando el
+  // formulario está a la vista: dos botones compitiendo bajan la conversión.
+  useEffect(() => {
+    const onScroll = () => setBarVisible(window.scrollY > 320);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const el = formRef.current;
+    const io = el
+      ? new IntersectionObserver(([e]) => setFormOnScreen(e.isIntersecting), { threshold: 0.15 })
+      : null;
+    if (el && io) io.observe(el);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      io?.disconnect();
+    };
+  }, []);
+
+  const pageUrl = `${SITE_URL}/lp/${campaign.slug}`;
+  const ogImage = campaignOgImage(campaign);
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -98,7 +121,21 @@ export default function CampaignLanding() {
         <title>{campaign.headline}</title>
         <meta name="description" content={campaign.subheadline} />
         <meta name="robots" content="noindex, nofollow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Visualia" />
+        <meta property="og:locale" content="es_CO" />
+        <meta property="og:title" content={campaign.headline} />
+        <meta property="og:description" content={campaign.subheadline} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={campaign.headline} />
+        <meta name="twitter:description" content={campaign.subheadline} />
+        <meta name="twitter:image" content={ogImage} />
       </Helmet>
+
 
       {/* Logo sin enlace: de esta página solo se sale convirtiendo. */}
       <header className="px-4 pt-5 md:px-6">
