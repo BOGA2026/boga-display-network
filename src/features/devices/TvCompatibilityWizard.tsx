@@ -41,6 +41,8 @@ interface Props {
   /** Modo consulta: sin continuar al código (enlace "¿Mi televisor sirve?"). */
   consultOnly?: boolean;
   onClose?: () => void;
+  /** Marca ya elegida antes (por ejemplo en la landing): no se vuelve a preguntar. */
+  initialBrandId?: string | null;
 }
 
 const C = COPY.dispositivo;
@@ -50,9 +52,16 @@ export function TvCompatibilityWizard({
   continueLabel = "Seguir al código",
   consultOnly = false,
   onClose,
+  initialBrandId = null,
 }: Props) {
-  const [step, setStep] = React.useState<Step>("marca");
-  const [brand, setBrand] = React.useState<TvBrand | null>(null);
+  // Si la persona ya respondió el verificador de la landing, el asistente
+  // arranca en el resultado y no le repite la misma pregunta.
+  const preset = initialBrandId ? TV_BRANDS.find((b) => b.id === initialBrandId) ?? null : null;
+  const [step, setStep] = React.useState<Step>(
+    preset ? (preset.verdict === "necesita_dispositivo" ? "dispositivo" : "playstore") : "marca",
+  );
+  const [brand, setBrand] = React.useState<TvBrand | null>(preset);
+
   const { businessId } = useTenant();
   const { userId } = useAuthContext();
 
