@@ -32,6 +32,11 @@ const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // ?marca=samsung&dispositivo=si — la elección del verificador viaja con la
+  // persona y se guarda antes de que el registro pueda perder la URL.
+  const tvChoice = useMemo(() => captureTvChoiceFromUrl(), []);
+
+
   // ─── Google login ───
   const handleGoogleLogin = async () => {
     if (!acceptedLegal) {
