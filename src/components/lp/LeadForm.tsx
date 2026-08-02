@@ -180,7 +180,7 @@ export default function LeadForm({ campaignSlug }: Props) {
           aria-describedby={show("consent") ? "lp-consent-error" : undefined}
         />
         <Label htmlFor="lp-consent" className="text-xs font-normal leading-relaxed text-muted-foreground">
-          {CONSENT_TEXT.replace(", conforme a la política de tratamiento de datos.", ", conforme a la ")}
+          {CONSENT_PREFIX}
           <a
             href="/legal/privacidad"
             target="_blank"
