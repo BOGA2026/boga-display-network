@@ -9,7 +9,6 @@ import {
   Headphones,
   ChevronDown,
 } from "lucide-react";
-import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import InlineVideo from "@/components/media/InlineVideo";
 import {
   Accordion,
@@ -19,31 +18,48 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import { MAX_PRICE_PER_SCREEN } from "@/config/pricing";
+import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { captureAttribution } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
+import VisualiaLockup from "@/components/lp/VisualiaLockup";
 import WhatsappButton from "@/components/lp/WhatsappButton";
 
+/**
+ * Contenedor único de la landing: el MISMO ancho y el MISMO margen lateral en
+ * todas las secciones. Sin esto cada bloque arranca en una x distinta y la
+ * página se lee desordenada.
+ */
+const SHELL = "mx-auto w-full max-w-4xl px-5 md:px-8";
+const H2 = "font-display text-left text-2xl font-bold text-foreground md:text-3xl";
 
 const STEPS = [
   {
     title: "Conéctalo al HDMI",
     desc: "Enchufas el aparato en la entrada HDMI del televisor y a la corriente.",
     clip: COMPAT_CLIPS.paso1,
+    // El clip original queda muy oscuro y no se ve el conector.
+    brighten: true,
   },
   {
     title: "Vincula tu pantalla",
     desc: "El televisor muestra un código y lo escribes una sola vez desde tu celular.",
     clip: COMPAT_CLIPS.paso2,
+    brighten: false,
   },
   {
     title: "Listo, ya estás al aire",
     desc: "Tu menú aparece en pantalla y lo cambias cuando quieras desde el celular.",
     clip: COMPAT_CLIPS.paso3,
+    brighten: false,
   },
 ];
+
+/** Escala real de precios por volumen, tomada de la fuente única. */
+const PRICE_SCALE = PRICING_TIERS.slice(1).map(
+  (t) => `desde ${t.min} pantallas, ${formatCop(t.pricePerScreen)}`,
+);
 
 const BENEFITS = [
   { icon: Clock, text: "Pantalla de menú que cambia sola según la hora" },
@@ -52,6 +68,7 @@ const BENEFITS = [
   { icon: Smartphone, text: "Panel para cambiar todo desde tu teléfono, en segundos" },
   { icon: Headphones, text: "Soporte en Colombia, en español" },
 ];
+
 
 const FAQ = [
   {
