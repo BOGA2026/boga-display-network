@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
+import { ANNUAL_PRICE_PER_SCREEN, MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
 import { formatCop } from "@/config/devices";
 import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
@@ -117,7 +117,7 @@ export default function CampaignLanding() {
     setPlanChoice("anual");
   }, [campaign.slug]);
 
-  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan}`;
+  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan === "anual" ? `anual (${formatCop(ANNUAL_PRICE_PER_SCREEN)} por pantalla al año)` : `mensual (${formatCop(MAX_PRICE_PER_SCREEN)} por pantalla al mes)`}`;
 
 
   // La barra aparece cuando la persona ya pasó el hero y se retira cuando el

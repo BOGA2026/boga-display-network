@@ -6,6 +6,7 @@ import SequenceVideo, { type SequenceClip } from "@/components/media/SequenceVid
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
+import { PlanPriceCards } from "@/components/pricing/PlanPriceCards";
 import { supabase } from "@/integrations/supabase/client";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
@@ -180,23 +181,10 @@ export default function CompatibilitySection() {
               con la aplicación instalada y tu pantalla ya vinculada. Solo lo conectás.
             </p>
 
-            <div className="mt-6 space-y-2">
-              <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-                <span className="text-sm text-muted-foreground">Plan mensual</span>
-                <span className="text-sm font-semibold text-muted-foreground">
-                  {formatCop(VISUALIA_DEVICE_PRICE_COP)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/15 px-4 py-3">
-                <span className="text-sm font-medium text-foreground">Pago anual adelantado</span>
-                <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                  Incluido
-                </span>
-              </div>
+            <div className="mt-6">
+              <PlanPriceCards />
             </div>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Con el pago anual, el dispositivo va incluido.
-            </p>
+
           </div>
         </div>
 
