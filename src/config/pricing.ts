@@ -28,3 +28,28 @@ export const MIN_PRICE_PER_SCREEN =
 
 /** Most expensive price per screen (entry tier). */
 export const MAX_PRICE_PER_SCREEN = PRICING_TIERS[0].pricePerScreen;
+
+/* ── Plan anual ───────────────────────────────────────────────────────────
+ * Precio de lista (mensual × 12), precio real y los dos meses gratis.
+ * La landing, la página principal y el panel leen de acá: si cambia el
+ * precio, cambia en los tres lugares a la vez.
+ */
+
+/** Precio de lista del año: el mensual por doce meses. Se muestra tachado. */
+export const ANNUAL_LIST_PRICE_PER_SCREEN = MAX_PRICE_PER_SCREEN * 12;
+
+/** Precio real del pago anual adelantado, por pantalla. */
+export const ANNUAL_PRICE_PER_SCREEN = 500000;
+
+/** Meses regalados frente al mensual (redondeado hacia abajo). */
+export const ANNUAL_FREE_MONTHS = Math.round(
+  (ANNUAL_LIST_PRICE_PER_SCREEN - ANNUAL_PRICE_PER_SCREEN) / MAX_PRICE_PER_SCREEN,
+);
+
+/** Costo real del primer año con dispositivo, en cada modalidad. */
+export function firstYearTotals(devicePriceCop: number) {
+  return {
+    mensual: ANNUAL_LIST_PRICE_PER_SCREEN + devicePriceCop,
+    anual: ANNUAL_PRICE_PER_SCREEN,
+  };
+}
