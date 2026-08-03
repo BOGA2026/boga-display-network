@@ -286,29 +286,22 @@ export default function CampaignLanding() {
           <hr className="my-7 border-border/60" />
 
           <h3 className="text-sm font-semibold uppercase tracking-widest text-primary">
-            El dispositivo (una sola vez)
+            Cómo prefieres pagarlo
           </h3>
-          <div className="mt-3 space-y-2">
-            <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-              <span className="text-sm text-muted-foreground">Con plan mensual</span>
-              <span className="text-sm font-semibold text-foreground">
-                {formatCop(VISUALIA_DEVICE_PRICE_COP)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-3">
-              <span className="text-sm font-medium text-foreground">Con pago anual adelantado</span>
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                Incluido
-              </span>
-            </div>
-          </div>
           <p className="mt-2 text-sm text-muted-foreground">
+            Elige una opción: la usamos cuando te escribamos.
+          </p>
+          <div className="mt-3">
+            <PlanSelector value={plan} onChange={setPlan} />
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">
             El dispositivo solo hace falta si tu televisor no es compatible.{" "}
             <a href="#compatibilidad" className="text-primary underline underline-offset-4">
               Averígualo aquí
             </a>
             .
           </p>
+
         </div>
       </section>
 
