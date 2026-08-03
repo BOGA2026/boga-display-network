@@ -19,7 +19,7 @@ import {
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
-import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
+import { formatCop } from "@/config/devices";
 import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
