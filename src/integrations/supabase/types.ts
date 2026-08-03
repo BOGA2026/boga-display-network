@@ -811,6 +811,7 @@ export type Database = {
           name: string | null
           needs_device: boolean | null
           phone: string | null
+          plan: string | null
           preferred_contact: string | null
           preferred_time: string | null
           referrer: string | null
@@ -844,6 +845,7 @@ export type Database = {
           name?: string | null
           needs_device?: boolean | null
           phone?: string | null
+          plan?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
           referrer?: string | null
@@ -877,6 +879,7 @@ export type Database = {
           name?: string | null
           needs_device?: boolean | null
           phone?: string | null
+          plan?: string | null
           preferred_contact?: string | null
           preferred_time?: string | null
           referrer?: string | null
