@@ -11,6 +11,10 @@ import {
   formatCop,
 } from "@/config/devices";
 import { useDeviceOrders, PriceComparison } from "@/features/devices";
+import { ANNUAL_FREE_MONTHS, firstYearTotals } from "@/config/pricing";
+import { VISUALIA_DEVICE_PRICE_COP } from "@/config/devices";
+
+const FIRST_YEAR = firstYearTotals(VISUALIA_DEVICE_PRICE_COP);
 
 interface Props {
   billingCycle?: string | null;
@@ -35,7 +39,19 @@ export function DeviceOrdersCard({ billingCycle }: Props) {
         </div>
       </div>
 
-      {!included && <PriceComparison />}
+      {!included && (
+        <>
+          <PriceComparison />
+          <p className="text-xs text-muted-foreground">
+            Primer año con dispositivo:{" "}
+            <span className="v-numeric">{formatCop(FIRST_YEAR.mensual)}</span> mensual ·{" "}
+            <span className="v-numeric font-semibold text-foreground">
+              {formatCop(FIRST_YEAR.anual)}
+            </span>{" "}
+            anual ({ANNUAL_FREE_MONTHS} meses gratis).
+          </p>
+        </>
+      )}
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Cargando…</p>
