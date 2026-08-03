@@ -6,6 +6,7 @@ import SequenceVideo, { type SequenceClip } from "@/components/media/SequenceVid
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
+import { PlanPriceCards } from "@/components/pricing/PlanPriceCards";
 import { supabase } from "@/integrations/supabase/client";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
