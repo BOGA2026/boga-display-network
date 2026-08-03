@@ -1,16 +1,15 @@
-import { useRef } from "react";
-import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import { MAX_PRICE_PER_SCREEN } from "@/config/pricing";
-import { setPlanChoice, trackConversion, type PlanChoice } from "@/lib/attribution";
+import { getAttribution, setPlanChoice, trackConversion, type PlanChoice } from "@/lib/attribution";
 
 interface Props {
-  value: PlanChoice;
-  onChange: (plan: PlanChoice) => void;
+  /** Se avisa al padre para que el mensaje de WhatsApp mencione el plan. */
+  onChange?: (plan: PlanChoice) => void;
 }
 
-/** El anual es el mensual por doce meses. Si algún día lleva descuento, se
- *  cambia acá y el ahorro mostrado se recalcula solo. */
+/** El anual es el mensual por doce meses, sin descuento adicional. */
 const ANNUAL_PRICE_COP = MAX_PRICE_PER_SCREEN * 12;
 
 const OPTIONS: {
@@ -24,7 +23,7 @@ const OPTIONS: {
   {
     id: "mensual",
     title: "Mensual",
-    price: `${formatCop(MAX_PRICE_PER_SCREEN)} por pantalla, al mes`,
+    price: `${formatCop(MAX_PRICE_PER_SCREEN)} por pantalla al mes`,
     device: `Dispositivo: ${formatCop(VISUALIA_DEVICE_PRICE_COP)}`,
     tag: "Sin permanencia",
     highlight: false,
@@ -32,68 +31,45 @@ const OPTIONS: {
   {
     id: "anual",
     title: "Anual",
-    price: `${formatCop(ANNUAL_PRICE_COP)} por pantalla, al año`,
-    device: "Dispositivo: incluido",
+    price: `${formatCop(ANNUAL_PRICE_COP)} por pantalla al año`,
+    device: "Dispositivo incluido",
     tag: `Ahorras ${formatCop(VISUALIA_DEVICE_PRICE_COP)}`,
     highlight: true,
   },
 ];
 
 /**
- * Selector real de plan. Antes eran dos filas de texto con pinta de opción
- * marcada: la persona hacía clic y no pasaba nada. Ahora es un radiogroup
- * navegable con Tab y flechas, y la elección viaja con el lead.
+ * Dos tarjetas que navegan al alta con el plan elegido. Un clic, una
+ * navegación: sin estado intermedio que hiciera parecer que nada pasaba.
  */
-export default function PlanSelector({ value, onChange }: Props) {
-  const refs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  const select = (plan: PlanChoice) => {
-    onChange(plan);
-    setPlanChoice(plan);
-    trackConversion("plan_select", { plan });
+export default function PlanSelector({ onChange }: Props) {
+  const href = (plan: PlanChoice) => {
+    const { tv_brand, needs_device } = getAttribution();
+    const params = new URLSearchParams({ plan });
+    if (tv_brand) {
+      params.set("marca", tv_brand);
+      params.set("dispositivo", needs_device ? "si" : "no");
+    }
+    return `/registro?${params.toString()}`;
   };
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) return;
-    e.preventDefault();
-    const next: PlanChoice = value === "mensual" ? "anual" : "mensual";
-    select(next);
-    refs.current[next]?.focus();
+  const go = (plan: PlanChoice) => {
+    setPlanChoice(plan);
+    trackConversion("plan_select", { plan });
+    onChange?.(plan);
   };
 
   return (
-    <div role="radiogroup" aria-label="Elige tu plan" className="grid gap-3 sm:grid-cols-2">
-      {OPTIONS.map((o) => {
-        const checked = value === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            aria-checked={checked}
-            tabIndex={checked ? 0 : -1}
-            ref={(el) => {
-              refs.current[o.id] = el;
-            }}
-            onClick={() => select(o.id)}
-            onKeyDown={onKeyDown}
-            className={`flex min-h-[56px] cursor-pointer flex-col items-start gap-1 rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-              checked
-                ? "border-primary bg-primary/10"
-                : "border-border/60 bg-card/40 hover:border-primary/50 hover:bg-card/60"
-            }`}
-          >
-            <span className="flex w-full items-center justify-between gap-2">
-              <span className="text-base font-semibold text-foreground">{o.title}</span>
-              <span
-                aria-hidden="true"
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-                  checked ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                }`}
-              >
-                {checked && <Check className="h-3 w-3" />}
-              </span>
-            </span>
+    <div className="grid gap-3 sm:grid-cols-2">
+      {OPTIONS.map((o) => (
+        <Link
+          key={o.id}
+          to={href(o.id)}
+          onClick={() => go(o.id)}
+          className="v-focus-ring group flex min-h-[56px] cursor-pointer items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/40 p-4 text-left transition hover:border-primary/60 hover:bg-card/70"
+        >
+          <span className="flex min-h-[44px] flex-col items-start justify-center gap-1">
+            <span className="text-base font-semibold text-foreground">{o.title}</span>
             <span className="text-sm text-foreground/90">{o.price}</span>
             <span className="text-sm text-muted-foreground">{o.device}</span>
             <span
@@ -105,9 +81,13 @@ export default function PlanSelector({ value, onChange }: Props) {
             >
               {o.tag}
             </span>
-          </button>
-        );
-      })}
+          </span>
+          <ChevronRight
+            aria-hidden="true"
+            className="h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
+          />
+        </Link>
+      ))}
     </div>
   );
 }
