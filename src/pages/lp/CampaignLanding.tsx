@@ -20,11 +20,12 @@ import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
-import { captureAttribution } from "@/lib/attribution";
+import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
 import VisualiaLockup from "@/components/lp/VisualiaLockup";
 import WhatsappButton from "@/components/lp/WhatsappButton";
+import PlanSelector from "@/components/lp/PlanSelector";
 
 /**
  * Contenedor único de la landing: el MISMO ancho y el MISMO margen lateral en
@@ -187,7 +188,7 @@ export default function CampaignLanding() {
           </div>
 
           <div className="mt-4">
-            <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+            <WhatsappButton campaignSlug={campaign.slug} message={waMessage} />
             {/* El botón es verde de WhatsApp a propósito: esta línea lo convierte
                 en una acción de Visualia y no en un botón genérico. */}
             <p className="mt-2 flex items-center justify-center gap-2 text-[13px] text-muted-foreground">
@@ -373,7 +374,7 @@ export default function CampaignLanding() {
                 <p className="text-base text-foreground/90">
                   ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
                 </p>
-                <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+                <WhatsappButton campaignSlug={campaign.slug} message={waMessage} />
               </div>
             </div>
           </div>
@@ -408,7 +409,7 @@ export default function CampaignLanding() {
       >
         <WhatsappButton
           campaignSlug={campaign.slug}
-          message={campaign.whatsappMessage}
+          message={waMessage}
           className="h-14 py-0"
         />
       </div>
