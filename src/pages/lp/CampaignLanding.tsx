@@ -107,10 +107,17 @@ export default function CampaignLanding() {
   const formRef = useRef<HTMLElement | null>(null);
   const [barVisible, setBarVisible] = useState(false);
   const [formOnScreen, setFormOnScreen] = useState(false);
+  // El anual viene marcado: es el que mejor le queda al cliente y el que
+  // conviene al negocio. La persona puede cambiarlo.
+  const [plan, setPlan] = useState<PlanChoice>("anual");
 
   useEffect(() => {
     captureAttribution(window.location.pathname);
+    setPlanChoice("anual");
   }, [campaign.slug]);
+
+  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan}`;
+
 
   // La barra aparece cuando la persona ya pasó el hero y se retira cuando el
   // formulario está a la vista: dos botones compitiendo bajan la conversión.
