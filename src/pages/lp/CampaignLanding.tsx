@@ -300,7 +300,7 @@ export default function CampaignLanding() {
             Elige una opción: la usamos cuando te escribamos.
           </p>
           <div className="mt-3">
-            <PlanSelector value={plan} onChange={setPlan} />
+            <PlanSelector onChange={setPlan} />
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
             El dispositivo solo hace falta si tu televisor no es compatible.{" "}
