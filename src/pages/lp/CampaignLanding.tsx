@@ -19,12 +19,13 @@ import {
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
-import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
-import { captureAttribution } from "@/lib/attribution";
+import { formatCop } from "@/config/devices";
+import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
 import VisualiaLockup from "@/components/lp/VisualiaLockup";
 import WhatsappButton from "@/components/lp/WhatsappButton";
+import PlanSelector from "@/components/lp/PlanSelector";
 
 /**
  * Contenedor único de la landing: el MISMO ancho y el MISMO margen lateral en
@@ -107,10 +108,17 @@ export default function CampaignLanding() {
   const formRef = useRef<HTMLElement | null>(null);
   const [barVisible, setBarVisible] = useState(false);
   const [formOnScreen, setFormOnScreen] = useState(false);
+  // El anual viene marcado: es el que mejor le queda al cliente y el que
+  // conviene al negocio. La persona puede cambiarlo.
+  const [plan, setPlan] = useState<PlanChoice>("anual");
 
   useEffect(() => {
     captureAttribution(window.location.pathname);
+    setPlanChoice("anual");
   }, [campaign.slug]);
+
+  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan}`;
+
 
   // La barra aparece cuando la persona ya pasó el hero y se retira cuando el
   // formulario está a la vista: dos botones compitiendo bajan la conversión.
@@ -180,7 +188,7 @@ export default function CampaignLanding() {
           </div>
 
           <div className="mt-4">
-            <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+            <WhatsappButton campaignSlug={campaign.slug} message={waMessage} />
             {/* El botón es verde de WhatsApp a propósito: esta línea lo convierte
                 en una acción de Visualia y no en un botón genérico. */}
             <p className="mt-2 flex items-center justify-center gap-2 text-[13px] text-muted-foreground">
@@ -286,29 +294,22 @@ export default function CampaignLanding() {
           <hr className="my-7 border-border/60" />
 
           <h3 className="text-sm font-semibold uppercase tracking-widest text-primary">
-            El dispositivo (una sola vez)
+            Cómo prefieres pagarlo
           </h3>
-          <div className="mt-3 space-y-2">
-            <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-              <span className="text-sm text-muted-foreground">Con plan mensual</span>
-              <span className="text-sm font-semibold text-foreground">
-                {formatCop(VISUALIA_DEVICE_PRICE_COP)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-3">
-              <span className="text-sm font-medium text-foreground">Con pago anual adelantado</span>
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                Incluido
-              </span>
-            </div>
-          </div>
           <p className="mt-2 text-sm text-muted-foreground">
+            Elige una opción: la usamos cuando te escribamos.
+          </p>
+          <div className="mt-3">
+            <PlanSelector value={plan} onChange={setPlan} />
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">
             El dispositivo solo hace falta si tu televisor no es compatible.{" "}
             <a href="#compatibilidad" className="text-primary underline underline-offset-4">
               Averígualo aquí
             </a>
             .
           </p>
+
         </div>
       </section>
 
@@ -373,7 +374,7 @@ export default function CampaignLanding() {
                 <p className="text-base text-foreground/90">
                   ¿Prefieres escribir ahora? Te contestamos por WhatsApp.
                 </p>
-                <WhatsappButton campaignSlug={campaign.slug} message={campaign.whatsappMessage} />
+                <WhatsappButton campaignSlug={campaign.slug} message={waMessage} />
               </div>
             </div>
           </div>
@@ -408,7 +409,7 @@ export default function CampaignLanding() {
       >
         <WhatsappButton
           campaignSlug={campaign.slug}
-          message={campaign.whatsappMessage}
+          message={waMessage}
           className="h-14 py-0"
         />
       </div>

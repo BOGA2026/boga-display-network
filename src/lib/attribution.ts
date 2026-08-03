@@ -26,7 +26,11 @@ export interface Attribution {
   tv_brand?: string | null;
   /** True cuando esa marca necesita el dispositivo externo. */
   needs_device?: boolean | null;
+  /** Plan elegido en el selector de precio de la landing. */
+  plan?: PlanChoice | null;
 }
+
+export type PlanChoice = "mensual" | "anual";
 
 interface Stored {
   savedAt: number;
@@ -117,19 +121,32 @@ export function setTvChoice(brandId: string, needsDevice: boolean): Attribution 
   return next;
 }
 
-/** Lee ?marca=samsung&dispositivo=si de la URL y lo persiste. */
+/**
+ * Guarda el plan elegido en el selector de precio. Igual que la marca, la
+ * última elección manda: es una decisión, no un dato de origen.
+ */
+export function setPlanChoice(plan: PlanChoice): Attribution {
+  const next: Attribution = { ...read(), plan };
+  write(next);
+  return next;
+}
+
+/** Lee ?marca=samsung&dispositivo=si&plan=anual de la URL y lo persiste. */
 export function captureTvChoiceFromUrl(search?: string): Attribution {
   if (typeof window === "undefined") return {};
   const params = new URLSearchParams(search ?? window.location.search);
   const brand = params.get("marca")?.trim();
   const device = params.get("dispositivo")?.trim();
-  if (!brand && !device) return read();
+  const plan = params.get("plan")?.trim();
+  if (!brand && !device && !plan) return read();
   const next: Attribution = { ...read() };
   if (brand) next.tv_brand = brand.slice(0, 40);
   if (device) next.needs_device = device === "si" || device === "true" || device === "1";
+  if (plan === "anual" || plan === "mensual") next.plan = plan;
   write(next);
   return next;
 }
+
 
 
 /**
