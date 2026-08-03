@@ -117,7 +117,7 @@ export default function CampaignLanding() {
     setPlanChoice("anual");
   }, [campaign.slug]);
 
-  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan}`;
+  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan === "anual" ? "anual ($500.000 por pantalla al año)" : "mensual ($50.000 por pantalla al mes)"}`;
 
 
   // La barra aparece cuando la persona ya pasó el hero y se retira cuando el

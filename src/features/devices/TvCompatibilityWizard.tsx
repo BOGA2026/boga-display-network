@@ -357,7 +357,7 @@ export function PriceComparison() {
   return (
     <div className="space-y-1.5">
       <Row label={C.planMensual} value={formatCop(VISUALIA_DEVICE_PRICE_COP)} />
-      <Row label={C.pagoAnual} value={C.sinCosto} highlight />
+      <Row label={C.pagoAnual} value={`Te ahorras ${formatCop(VISUALIA_DEVICE_PRICE_COP)}`} highlight />
       <Row label={C.contratoAnual} value={C.sinCosto} highlight />
     </div>
   );
