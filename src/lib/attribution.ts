@@ -26,7 +26,11 @@ export interface Attribution {
   tv_brand?: string | null;
   /** True cuando esa marca necesita el dispositivo externo. */
   needs_device?: boolean | null;
+  /** Plan elegido en el selector de precio de la landing. */
+  plan?: PlanChoice | null;
 }
+
+export type PlanChoice = "mensual" | "anual";
 
 interface Stored {
   savedAt: number;
