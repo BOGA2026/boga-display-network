@@ -137,23 +137,13 @@ export default function BrandChecker() {
                 />
               </div>
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card/40 px-4 py-3">
-                  <span className="text-sm text-muted-foreground">Plan mensual</span>
-                  <span className="text-sm font-semibold text-foreground">
-                    {formatCop(VISUALIA_DEVICE_PRICE_COP)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-3">
-                  <span className="text-sm font-medium text-foreground">Pago anual adelantado</span>
-                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                    Incluido
-                  </span>
-                </div>
+              {/* Informativo, no seleccionable: el plan se elige en el bloque
+                  de precio. Se muestra en tono neutro para que no parezca una
+                  opción marcada. */}
+              <div className="mt-4 rounded-xl border border-border/50 bg-card/40 px-4 py-3 text-sm text-muted-foreground">
+                Cuesta {formatCop(VISUALIA_DEVICE_PRICE_COP)} con el plan mensual y va incluido si pagas
+                el año por adelantado.
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Con el pago anual, el dispositivo va incluido.
-              </p>
 
               <Button asChild className="mt-4 w-full">
                 <a href={registerHref(true)} onClick={() => goRegister(true)}>
