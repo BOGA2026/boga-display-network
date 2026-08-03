@@ -5,7 +5,7 @@ import InlineVideo from "@/components/media/InlineVideo";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import { TV_BRANDS, VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import BrandLogo, { brandColor, isWordmark } from "@/components/lp/BrandLogo";
-import { setTvChoice, trackConversion } from "@/lib/attribution";
+import { getAttribution, setTvChoice, trackConversion } from "@/lib/attribution";
 
 type Answer = "compatible" | "necesita" | "preguntar" | null;
 
@@ -37,8 +37,12 @@ export default function BrandChecker() {
   };
 
   /** Enlace al alta con la elección puesta en la URL. */
-  const registerHref = (needsDevice: boolean) =>
-    `/registro?marca=${encodeURIComponent(brand ?? "otra")}&dispositivo=${needsDevice ? "si" : "no"}`;
+  const registerHref = (needsDevice: boolean) => {
+    const plan = getAttribution().plan;
+    return `/registro?marca=${encodeURIComponent(brand ?? "otra")}&dispositivo=${
+      needsDevice ? "si" : "no"
+    }${plan ? `&plan=${plan}` : ""}`;
+  };
 
   const goRegister = (needsDevice: boolean) => {
     setTvChoice(brand ?? "otra", needsDevice);

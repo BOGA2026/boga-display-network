@@ -116,6 +116,8 @@ Deno.serve(async (req) => {
         // Verificador de televisor: sirve para dimensionar inventario de dispositivos.
         tv_brand: clean(attr.tv_brand, 40),
         needs_device: typeof attr.needs_device === "boolean" ? attr.needs_device : null,
+        // Plan elegido en el selector de precio de la landing.
+        plan: attr.plan === "anual" || attr.plan === "mensual" ? attr.plan : null,
 
         // Evidencia de autorización (Ley 1581): momento y texto literal.
         consent_at: (() => {
@@ -167,6 +169,7 @@ Deno.serve(async (req) => {
         budget: clean(budget, 100),
         inquiry: clean(inquiry, 2000),
         preferred_time: clean(preferred_time, 100),
+        plan: attr.plan === "anual" || attr.plan === "mensual" ? attr.plan : null,
         mensaje: "Nuevo lead de Visualia para atención inmediata.",
       },
     });
