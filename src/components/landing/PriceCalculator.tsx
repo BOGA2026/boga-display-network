@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
-import { PRICING_TIERS, findTier } from "@/config/pricing";
+import { PRICING_TIERS, findTier, MAX_PRICE_PER_SCREEN } from "@/config/pricing";
+import { PlanPriceCards } from "@/components/pricing/PlanPriceCards";
+import { formatCop } from "@/config/devices";
 
 const fmtCOP = new Intl.NumberFormat("es-CO", {
   style: "currency",
