@@ -205,7 +205,7 @@ export function PriceCalculator() {
 
           <div className="mt-10">
             <h3 className="mb-4 inline-flex items-center gap-2 font-display text-lg font-semibold text-foreground">
-              Tabla de precios
+              Descuentos por volumen (plan mensual)
               <InfoTooltip label="Qué incluye cada plan" side="bottom">
                 Todos los planes incluyen gestión remota, programación de contenido, playlists automáticas, soporte prioritario, actualizaciones continuas y seguridad con respaldos.
               </InfoTooltip>
