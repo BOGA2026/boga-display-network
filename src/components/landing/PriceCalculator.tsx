@@ -60,7 +60,20 @@ export function PriceCalculator() {
 
   return (
     <section aria-labelledby="calc-title" className="px-6 pb-20">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <div className="v-card rounded-2xl p-8 md:p-12">
+          <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">
+            Un solo precio, dos formas de pagarlo
+          </h2>
+          <p className="mt-2 text-muted-foreground">
+            {formatCop(MAX_PRICE_PER_SCREEN)} por pantalla al mes. Si pagas el año por
+            adelantado, te salen dos meses gratis y el dispositivo va incluido. IVA incluido.
+          </p>
+          <div className="mt-6">
+            <PlanPriceCards />
+          </div>
+        </div>
+
         <div className="v-card rounded-2xl p-8 md:p-14 lg:p-16 glow-primary-sm">
           <div className="grid gap-10 lg:grid-cols-2">
             <div>
@@ -68,10 +81,11 @@ export function PriceCalculator() {
                 id="calc-title"
                 className="font-display text-3xl font-bold text-foreground md:text-4xl"
               >
-                ¿Cuánto me cuesta?
+                ¿Tienes varias pantallas?
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Ajusta el número de pantallas y conoce tu precio al instante. IVA incluido.
+                El precio por pantalla baja a medida que agregas más. Ajusta el número y mira
+                cuánto pagarías al mes. IVA incluido.
               </p>
 
               <div className="mt-8 space-y-6">
