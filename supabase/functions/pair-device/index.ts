@@ -515,13 +515,23 @@ Deno.serve(async (req) => {
       if (device.status === "paired" && device.screen_id) {
         const { data: schedule } = await supabase
           .from("schedules")
-          .select("id, playlist_id, playlists(id, name, playlist_items(id, sort_order, content(id, name, file_url, type, duration_seconds)))")
+          .select("id, playlist_id, playlists(id, name, playlist_items(id, sort_order, content(id, name, file_url, type, duration_seconds, expires_at)))")
           .eq("screen_id", device.screen_id)
           .eq("is_active", true)
           .order("start_time", { ascending: false })
           .limit(1)
           .maybeSingle();
 
+        // El player nunca reproduce contenido vencido.
+        const nowIso = Date.now();
+        if (schedule?.playlists?.playlist_items) {
+          (schedule as any).playlists.playlist_items = (schedule as any).playlists.playlist_items.filter(
+            (it: any) => {
+              const exp = it?.content?.expires_at;
+              return !exp || new Date(exp).getTime() > nowIso;
+            },
+          );
+        }
         config = schedule;
 
         const { data: screenRow } = await supabase

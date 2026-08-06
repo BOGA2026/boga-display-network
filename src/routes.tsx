@@ -63,6 +63,7 @@ const Monitoring = lazyRoute("/dashboard/monitoreo");
 const QRCodes = lazyRoute("/dashboard/qr");
 const Analytics = lazyRoute("/dashboard/analiticas");
 const Subscription = lazyRoute("/dashboard/suscripcion");
+const BusinessSettings = lazyRoute("/dashboard/ajustes");
 const GenerateAI = lazyRoute("/dashboard/generar-ia");
 const EditorPage = lazyRoute("/dashboard/editor");
 const Soporte = lazyRoute("/dashboard/soporte");
@@ -134,6 +135,7 @@ export default function AppRoutes() {
         <Route path="programacion" element={page(Schedule, pathname)} />
         <Route path="analiticas" element={page(Analytics, pathname)} />
         <Route path="suscripcion" element={page(Subscription, pathname)} />
+        <Route path="ajustes" element={page(BusinessSettings, pathname)} />
         <Route path="generar-ia" element={page(GenerateAI, pathname)} />
         <Route path="editor" element={page(EditorPage, pathname)} />
         <Route path="leads" element={page(LeadsPage, pathname)} />

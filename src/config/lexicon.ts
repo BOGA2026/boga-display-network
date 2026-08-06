@@ -21,6 +21,7 @@ import {
   LifeBuoy,
   Sparkles,
   PenTool,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +36,7 @@ export type NavKey =
   | "qr"
   | "analiticas"
   | "suscripcion"
+  | "ajustes"
   | "soporte"
   | "generarIa"
   | "editor";
@@ -155,6 +157,15 @@ export const NAV: Record<NavKey, NavEntry> = {
     icon: CreditCard,
     aliases: ["Billing", "Plan", "Pagos", "Facturación", "Settings"],
   },
+  ajustes: {
+    path: "/dashboard/ajustes",
+    label: "Ajustes del negocio",
+    breadcrumb: "Ajustes del negocio",
+    pageTitle: "Ajustes del negocio",
+    pageSubtitle: "Datos del local, cupo del plan y valores por defecto del contenido.",
+    icon: Settings,
+    aliases: ["Configuración", "Settings", "Ajustes", "Zona horaria", "Logo", "Almacenamiento"],
+  },
   soporte: {
     path: "/dashboard/soporte",
     label: "Soporte",
@@ -164,6 +175,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     icon: LifeBuoy,
     aliases: ["Support", "Ayuda", "PQRS", "Contacto"],
   },
+
   generarIa: {
     path: "/dashboard/generar-ia",
     label: "Generar con IA",
@@ -197,7 +209,7 @@ export const NAV_GROUPS: NavGroup[] = [
   { id: "general", label: "General", items: ["inicio"] },
   { id: "operacion", label: "Operación", items: ["pantallas", "contenido", "listas", "horarios"] },
   { id: "red", label: "Red", items: ["mapa", "monitoreo", "qr"] },
-  { id: "negocio", label: "Negocio", items: ["analiticas", "suscripcion", "soporte"] },
+  { id: "negocio", label: "Negocio", items: ["analiticas", "suscripcion", "ajustes", "soporte"] },
 ];
 
 /** Rutas antiguas → ruta canónica actual. */
