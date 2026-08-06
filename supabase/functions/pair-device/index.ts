@@ -522,6 +522,16 @@ Deno.serve(async (req) => {
           .limit(1)
           .maybeSingle();
 
+        // El player nunca reproduce contenido vencido.
+        const nowIso = Date.now();
+        if (schedule?.playlists?.playlist_items) {
+          (schedule as any).playlists.playlist_items = (schedule as any).playlists.playlist_items.filter(
+            (it: any) => {
+              const exp = it?.content?.expires_at;
+              return !exp || new Date(exp).getTime() > nowIso;
+            },
+          );
+        }
         config = schedule;
 
         const { data: screenRow } = await supabase
