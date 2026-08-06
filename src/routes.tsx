@@ -136,7 +136,7 @@ export default function AppRoutes() {
         <Route path="soporte" element={page(Soporte, pathname)} />
       </Route>
 
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/master" element={<AdminLayout />}>
         <Route index element={page(AdminOverview, pathname)} />
         <Route path="trafico" element={page(AdminTraffic, pathname)} />
         <Route path="suscripciones" element={page(AdminSubscriptions, pathname)} />
@@ -149,6 +149,10 @@ export default function AppRoutes() {
         <Route path="leads" element={page(LeadsPage, pathname)} />
         <Route path="admins" element={page(AdminAdmins, pathname)} />
       </Route>
+
+      {/* Compatibilidad: las URL viejas /admin/* siguen funcionando. */}
+      <Route path="/admin" element={<Navigate to="/master" replace />} />
+      <Route path="/admin/:seccion" element={<LegacyRedirect to="/master/:seccion" />} />
 
       {Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
         <Route key={from} path={from} element={<Navigate to={to} replace />} />

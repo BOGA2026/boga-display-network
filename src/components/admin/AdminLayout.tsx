@@ -42,36 +42,36 @@ const groups: NavGroup[] = [
   {
     label: "General",
     items: [
-      { to: "/admin", label: "Resumen", icon: LayoutDashboard, end: true },
-      { to: "/admin/trafico", label: "Tráfico", icon: Activity },
+      { to: "/master", label: "Resumen", icon: LayoutDashboard, end: true },
+      { to: "/master/trafico", label: "Tráfico", icon: Activity },
     ],
   },
   {
     label: "Comercial",
     items: [
-      { to: "/admin/suscripciones", label: "Suscripciones", icon: CreditCard },
-      { to: "/admin/pagos", label: "Vencimientos", icon: CalendarClock },
-      { to: "/admin/leads", label: "Leads", icon: Inbox },
+      { to: "/master/suscripciones", label: "Suscripciones", icon: CreditCard },
+      { to: "/master/pagos", label: "Vencimientos", icon: CalendarClock },
+      { to: "/master/leads", label: "Leads", icon: Inbox },
     ],
   },
   {
     label: "Operaciones",
     items: [
-      { to: "/admin/pantallas", label: "Pantallas", icon: Monitor },
-      { to: "/admin/mapa", label: "Mapa", icon: MapIcon },
-      { to: "/admin/negocios", label: "Negocios", icon: Building2 },
+      { to: "/master/pantallas", label: "Pantallas", icon: Monitor },
+      { to: "/master/mapa", label: "Mapa", icon: MapIcon },
+      { to: "/master/negocios", label: "Negocios", icon: Building2 },
     ],
   },
   {
     label: "Atención",
     items: [
-      { to: "/admin/pqrs", label: "PQRS", icon: FileText, badgeKey: "pqrs" },
-      { to: "/admin/soporte", label: "Soporte", icon: MessageSquare, badgeKey: "chat" },
+      { to: "/master/pqrs", label: "PQRS", icon: FileText, badgeKey: "pqrs" },
+      { to: "/master/soporte", label: "Soporte", icon: MessageSquare, badgeKey: "chat" },
     ],
   },
   {
     label: "Sistema",
-    items: [{ to: "/admin/admins", label: "Administradores", icon: Users }],
+    items: [{ to: "/master/admins", label: "Administradores", icon: Users }],
   },
 ];
 

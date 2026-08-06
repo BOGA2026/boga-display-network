@@ -34,17 +34,17 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
   "/dashboard/leads": () => import("@/pages/AdminLeadsPage"),
 
   // Admin
-  "/admin": () => import("@/pages/admin/AdminOverview"),
-  "/admin/trafico": () => import("@/pages/admin/AdminTraffic"),
-  "/admin/suscripciones": () => import("@/pages/admin/AdminSubscriptions"),
-  "/admin/pagos": () => import("@/pages/admin/AdminPayments"),
-  "/admin/pantallas": () => import("@/pages/admin/AdminScreens"),
-  "/admin/mapa": () => import("@/pages/admin/AdminMap"),
-  "/admin/negocios": () => import("@/pages/admin/AdminBusinesses"),
-  "/admin/pqrs": () => import("@/pages/admin/AdminPQRS"),
-  "/admin/soporte": () => import("@/pages/admin/AdminSupport"),
-  "/admin/leads": () => import("@/pages/AdminLeadsPage"),
-  "/admin/admins": () => import("@/pages/admin/AdminAdmins"),
+  "/master": () => import("@/pages/admin/AdminOverview"),
+  "/master/trafico": () => import("@/pages/admin/AdminTraffic"),
+  "/master/suscripciones": () => import("@/pages/admin/AdminSubscriptions"),
+  "/master/pagos": () => import("@/pages/admin/AdminPayments"),
+  "/master/pantallas": () => import("@/pages/admin/AdminScreens"),
+  "/master/mapa": () => import("@/pages/admin/AdminMap"),
+  "/master/negocios": () => import("@/pages/admin/AdminBusinesses"),
+  "/master/pqrs": () => import("@/pages/admin/AdminPQRS"),
+  "/master/soporte": () => import("@/pages/admin/AdminSupport"),
+  "/master/leads": () => import("@/pages/AdminLeadsPage"),
+  "/master/admins": () => import("@/pages/admin/AdminAdmins"),
 };
 
 const cache = new Map<string, Promise<unknown>>();

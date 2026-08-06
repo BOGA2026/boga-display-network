@@ -319,7 +319,7 @@ export default function AppShell() {
       if (!active) return;
       if (error) console.error("No se pudo verificar el acceso de administrador", error);
       if (isAdmin) {
-        navigate("/admin", { replace: true });
+        navigate("/master", { replace: true });
         return;
       }
       setCheckingRole(false);
