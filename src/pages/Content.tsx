@@ -69,6 +69,10 @@ import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/
 import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
 import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
 import { ContentTable } from "@/components/content/ContentTable";
+import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
+import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
+import { getTenant } from "@/features/auth/tenant";
+import { queryClient } from "@/lib/query-client";
 import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
 
 
@@ -81,6 +85,7 @@ interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  expires_at?: string | null;
   created_at: string;
 }
 
@@ -444,9 +449,21 @@ const Content = () => {
       return;
     }
 
+    // Cupo del plan: se mide sobre el consumo real del negocio.
+    const { ok, usage } = await hasStorageRoom(selectedFile.size);
+    if (!ok && usage) {
+      toast({
+        title: "Sin espacio en tu plan",
+        description: `Usaste ${formatGB(usage.usedBytes)} de ${formatGB(usage.limitBytes)}. Elimina piezas que ya no uses o amplía el plan para seguir subiendo contenido.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
 
-    const businessId = await getBusinessId();
+    const tenant = await getTenant();
+    const businessId = tenant.businessId;
     if (!businessId) { setUploading(false); return; }
 
     const ext = selectedFile.name.split(".").pop();
@@ -469,6 +486,9 @@ const Content = () => {
       type: selectedType,
       file_url: urlData.publicUrl,
       file_size_bytes: selectedFile.size,
+      // Valores por defecto del negocio (Ajustes del negocio).
+      duration_seconds: selectedType === "image" ? tenant.defaultDurationSeconds : null,
+      expires_at: expiresAtFromDefault(tenant.defaultExpiryDays),
       business_id: businessId,
     });
 
@@ -480,6 +500,7 @@ const Content = () => {
       return;
     }
 
+    queryClient.invalidateQueries({ queryKey: usageQueryKey(businessId) });
     toast({ title: "Contenido agregado" });
     setUploadOpen(false);
     resetUploadForm();
