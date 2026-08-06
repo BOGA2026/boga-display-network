@@ -155,6 +155,15 @@ export const NAV: Record<NavKey, NavEntry> = {
     icon: CreditCard,
     aliases: ["Billing", "Plan", "Pagos", "Facturación", "Settings"],
   },
+  ajustes: {
+    path: "/dashboard/ajustes",
+    label: "Ajustes del negocio",
+    breadcrumb: "Ajustes del negocio",
+    pageTitle: "Ajustes del negocio",
+    pageSubtitle: "Datos del local, cupo del plan y valores por defecto del contenido.",
+    icon: Settings,
+    aliases: ["Configuración", "Settings", "Ajustes", "Zona horaria", "Logo", "Almacenamiento"],
+  },
   soporte: {
     path: "/dashboard/soporte",
     label: "Soporte",
@@ -164,6 +173,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     icon: LifeBuoy,
     aliases: ["Support", "Ayuda", "PQRS", "Contacto"],
   },
+
   generarIa: {
     path: "/dashboard/generar-ia",
     label: "Generar con IA",
