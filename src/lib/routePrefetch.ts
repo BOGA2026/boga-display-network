@@ -28,6 +28,7 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
   "/dashboard/qr": () => import("@/pages/QRCodes"),
   "/dashboard/analiticas": () => import("@/pages/Analytics"),
   "/dashboard/suscripcion": () => import("@/pages/Subscription"),
+  "/dashboard/ajustes": () => import("@/pages/BusinessSettings"),
   "/dashboard/generar-ia": () => import("@/pages/GenerateAI"),
   "/dashboard/editor": () => import("@/pages/EditorPage"),
   "/dashboard/soporte": () => import("@/pages/Soporte"),
