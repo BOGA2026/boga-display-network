@@ -68,15 +68,17 @@ export default function AdminOverview() {
 
   const s = stats;
   const kpis: Array<{ label: string; value: any; hint?: string; icon: any; tone: any }> = [
-    { label: "Negocios", value: s?.businesses ?? 0, icon: Building2, tone: "accent" },
-    { label: "Pantallas online", value: `${s?.screensOnline ?? 0} / ${s?.screens ?? 0}`, hint: "Conectadas / totales", icon: Monitor, tone: "success" },
-    { label: "Ubicaciones", value: s?.locations ?? 0, icon: MapPin, tone: "neutral" },
-    { label: "Contenido", value: s?.content ?? 0, icon: FileImage, tone: "neutral" },
+    { label: "Negocios", value: totals.businesses, icon: Building2, tone: "accent" },
+    { label: "Pantallas online", value: `${totals.screensOnline} / ${totals.screens}`, hint: "Conectadas / totales", icon: Monitor, tone: "success" },
+    { label: "Ubicaciones", value: totals.locations, icon: MapPin, tone: "neutral" },
+    { label: "Contenido", value: totals.content, icon: FileImage, tone: "neutral" },
     { label: "Leads", value: s?.leads ?? 0, hint: `${s?.leadsNew ?? 0} nuevos`, icon: Inbox, tone: "warning" },
-    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: BadgeCheck, tone: "success" },
+    { label: "Suscripciones vigentes", value: totals.activeSubscriptions, hint: `${totals.pastDue} vencidas`, icon: BadgeCheck, tone: totals.pastDue > 0 ? "danger" : "success" },
+    { label: "MRR estimado", value: fmtCOP(totals.mrr), hint: "Precio por pantalla × pantallas reales", icon: DollarSign, tone: "accent" },
     { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), hint: "Pagos aprobados este mes (Wompi)", icon: TrendingUp, tone: "accent" },
     { label: "Ingresos totales", value: fmtCOP(s?.revenueTotal ?? 0), hint: `${s?.paymentsCount ?? 0} pagos`, icon: CreditCard, tone: "success" },
   ];
+
 
   return (
     <div className="p-8 space-y-8 max-w-[1400px]">
