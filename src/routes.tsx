@@ -68,16 +68,16 @@ const Soporte = lazyRoute("/dashboard/soporte");
 const LeadsPage = lazyRoute("/dashboard/leads");
 
 // Admin
-const AdminOverview = lazyRoute("/admin");
-const AdminTraffic = lazyRoute("/admin/trafico");
-const AdminSubscriptions = lazyRoute("/admin/suscripciones");
-const AdminPayments = lazyRoute("/admin/pagos");
-const AdminScreens = lazyRoute("/admin/pantallas");
-const AdminMap = lazyRoute("/admin/mapa");
-const AdminBusinesses = lazyRoute("/admin/negocios");
-const AdminPQRS = lazyRoute("/admin/pqrs");
-const AdminSupport = lazyRoute("/admin/soporte");
-const AdminAdmins = lazyRoute("/admin/admins");
+const AdminOverview = lazyRoute("/master");
+const AdminTraffic = lazyRoute("/master/trafico");
+const AdminSubscriptions = lazyRoute("/master/suscripciones");
+const AdminPayments = lazyRoute("/master/pagos");
+const AdminScreens = lazyRoute("/master/pantallas");
+const AdminMap = lazyRoute("/master/mapa");
+const AdminBusinesses = lazyRoute("/master/negocios");
+const AdminPQRS = lazyRoute("/master/pqrs");
+const AdminSupport = lazyRoute("/master/soporte");
+const AdminAdmins = lazyRoute("/master/admins");
 
 export default function AppRoutes() {
   // Fuerza re-mount del boundary por ruta (limpia errores al navegar).
