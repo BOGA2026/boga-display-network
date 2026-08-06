@@ -246,27 +246,42 @@ export type Database = {
       businesses: {
         Row: {
           ai_monthly_limit: number
+          category: string | null
+          city: string | null
           created_at: string
+          default_duration_seconds: number
+          default_expiry_days: number | null
           demo_data_seeded_at: string | null
           id: string
+          logo_url: string | null
           name: string
           timezone: string
           updated_at: string
         }
         Insert: {
           ai_monthly_limit?: number
+          category?: string | null
+          city?: string | null
           created_at?: string
+          default_duration_seconds?: number
+          default_expiry_days?: number | null
           demo_data_seeded_at?: string | null
           id?: string
+          logo_url?: string | null
           name: string
           timezone?: string
           updated_at?: string
         }
         Update: {
           ai_monthly_limit?: number
+          category?: string | null
+          city?: string | null
           created_at?: string
+          default_duration_seconds?: number
+          default_expiry_days?: number | null
           demo_data_seeded_at?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
           timezone?: string
           updated_at?: string
@@ -279,6 +294,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           duration_seconds: number | null
+          expires_at: string | null
           file_size_bytes: number | null
           file_url: string | null
           id: string
@@ -293,6 +309,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           duration_seconds?: number | null
+          expires_at?: string | null
           file_size_bytes?: number | null
           file_url?: string | null
           id?: string
@@ -307,6 +324,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           duration_seconds?: number | null
+          expires_at?: string | null
           file_size_bytes?: number | null
           file_url?: string | null
           id?: string
@@ -2496,6 +2514,15 @@ export type Database = {
           playbacks: number
           thumbnail_url: string
           total_ms: number
+        }[]
+      }
+      business_usage: {
+        Args: { p_business_id: string }
+        Returns: {
+          content_count: number
+          screens_licensed: number
+          screens_used: number
+          used_bytes: number
         }[]
       }
       can_manage_business: { Args: { _business_id: string }; Returns: boolean }
