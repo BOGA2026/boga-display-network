@@ -1,3 +1,4 @@
+import { useAdminBusinessStats } from "@/hooks/useAdminBusinessStats";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -147,14 +148,14 @@ export default function AdminSupport() {
             <span className="text-xs text-muted-foreground">Offline</span>
             <WifiOff className="h-4 w-4 text-red-400" />
           </div>
-          <div className="text-2xl font-bold text-red-400">{offlineScreens.length}</div>
+          <div className="text-2xl font-bold text-red-400">{totalOffline}</div>
         </Card>
         <Card className="p-4 bg-background/40 border-border/50">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-muted-foreground">Total pantallas</span>
             <Power className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold">{screens.length}</div>
+          <div className="text-2xl font-bold">{totalScreens}</div>
         </Card>
         <Card className="p-4 bg-background/40 border-border/50">
           <div className="flex items-center justify-between mb-1">
