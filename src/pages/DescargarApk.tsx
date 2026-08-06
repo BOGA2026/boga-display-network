@@ -18,13 +18,14 @@ import { useState } from "react";
 import Seo from "@/components/Seo";
 import LegalFooter from "@/components/landing/LegalFooter";
 
-// Metadatos del APK oficial. En CI reemplazar version/size/updatedAt/sha256 al publicar.
+import { APK_URL, APK_INFO, SHORT_URL, SHORT_URL_FULL, VERSION_URL_FULL } from "@/config/apk";
+
 const APK = {
-  url: "https://ovuhtroiuuqsiltqgqpp.supabase.co/storage/v1/object/public/downloads/visualia-firetv.apk",
-  version: "1.0.0",
-  sizeMB: 5.58,
-  updatedAt: "2026-04-27",
-  sha256: "891dd2e0ac5c87e7464c3f5391f031c3b220c239c0faac87cecab2cf01eb8573",
+  url: APK_URL,
+  version: APK_INFO.version,
+  sizeMB: APK_INFO.sizeMB,
+  updatedAt: APK_INFO.buildDate,
+  sha256: APK_INFO.sha256,
 };
 
 const compatibleDevices = [
@@ -41,7 +42,7 @@ const guidedSteps = [
   },
   {
     title: "Escribe la dirección corta",
-    desc: "En el campo URL de Downloader escribe la dirección que aparece en pantalla y presiona 'Go'.",
+    desc: "En el campo URL de Downloader escribe visualiamedia.com/tv y presiona 'Go'. Son veinte pulsaciones, no doscientas.",
   },
   {
     title: "Acepta instalar Visualia",
@@ -57,7 +58,7 @@ export default function DescargarApk() {
   const [copied, setCopied] = useState(false);
 
   const copyUrl = async () => {
-    await navigator.clipboard.writeText(APK.url);
+    await navigator.clipboard.writeText(SHORT_URL_FULL);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -147,18 +148,20 @@ export default function DescargarApk() {
             <div className="grid md:grid-cols-2 gap-6 items-center mb-6">
               <div className="flex flex-col items-center">
                 <div className="bg-white p-4 rounded-xl">
-                  <QRCodeSVG value={APK.url} size={180} level="H" />
+                  <QRCodeSVG value={SHORT_URL_FULL} size={180} level="H" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-3 text-center">
-                  Escaneá con tu celular para ver esta página en la TV
+                  Escaneá con el celular y se abre la descarga
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium mb-2">Dirección para Downloader:</p>
-                <div className="flex gap-2 mb-3">
-                  <code className="flex-1 bg-muted px-3 py-2 rounded text-xs break-all">
-                    {APK.url}
+                <p className="text-sm font-medium mb-2">
+                  Dirección para escribir en el televisor:
+                </p>
+                <div className="flex items-center gap-2 mb-3">
+                  <code className="flex-1 bg-muted px-4 py-4 rounded text-2xl md:text-3xl font-bold tracking-tight text-center">
+                    {SHORT_URL}
                   </code>
                   <Button
                     variant="outline"
@@ -174,8 +177,12 @@ export default function DescargarApk() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Escribe esta dirección en Downloader (o pídele ayuda a
-                  soporte, la ingresamos contigo).
+                  Siempre entrega la última versión publicada. Para confirmar
+                  cuál está sirviendo, abrí{" "}
+                  <a href="/tv/version" className="underline">
+                    {VERSION_URL_FULL.replace("https://", "")}
+                  </a>
+                  .
                 </p>
               </div>
             </div>
