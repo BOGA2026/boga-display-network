@@ -20,6 +20,7 @@ import {
   relativeDate,
   typeLabel,
 } from "./mediaMeta";
+import { expiryLabel, expiryState } from "@/config/businessSettings";
 
 export interface ContentItem {
   id: string;
@@ -30,6 +31,7 @@ export interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  expires_at?: string | null;
   created_at: string;
 }
 
@@ -78,6 +80,9 @@ export function ContentCard({
 }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
   const ratio = ratioLabel(dims);
+  // Vigencia: ámbar si vence en menos de 7 días, rojo si ya venció.
+  const expState = expiryState(item.expires_at);
+  const expText = expiryLabel(item.expires_at);
   const duration = formatDuration(item.duration_seconds);
   const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
   const thumbPending = !thumbSrc && item.thumbnail_status === "pendiente";
@@ -137,6 +142,18 @@ export function ContentCard({
 
         {/* Chip de tipo */}
         <span className="v-thumb-chip right-2 top-2 bg-black/50">{typeLabel(item.type)}</span>
+
+        {/* Vigencia del contenido */}
+        {(expState === "vencido" || expState === "porVencer") && (
+          <span
+            className={cn(
+              "v-thumb-chip left-2 top-2 font-medium",
+              expState === "vencido" ? "bg-destructive text-destructive-foreground" : "bg-amber-500/90 text-black",
+            )}
+          >
+            {expText}
+          </span>
+        )}
 
         {/* Chip de orientación */}
         {ratio && <span className="v-thumb-chip bottom-2 left-2 bg-black/60">{ratio}</span>}

@@ -515,7 +515,7 @@ Deno.serve(async (req) => {
       if (device.status === "paired" && device.screen_id) {
         const { data: schedule } = await supabase
           .from("schedules")
-          .select("id, playlist_id, playlists(id, name, playlist_items(id, sort_order, content(id, name, file_url, type, duration_seconds)))")
+          .select("id, playlist_id, playlists(id, name, playlist_items(id, sort_order, content(id, name, file_url, type, duration_seconds, expires_at)))")
           .eq("screen_id", device.screen_id)
           .eq("is_active", true)
           .order("start_time", { ascending: false })
