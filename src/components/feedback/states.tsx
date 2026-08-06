@@ -190,8 +190,8 @@ export function EmptyState({
         className,
       )}
     >
-      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/60 text-muted-foreground">
-        {icon ?? <Inbox className="h-9 w-9" />}
+      <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/20 [&_svg]:h-6 [&_svg]:w-6">
+        {icon ?? <Inbox className="h-6 w-6" />}
       </div>
       <h2 className="font-display text-xl font-bold mb-2">{title}</h2>
       {description && (
