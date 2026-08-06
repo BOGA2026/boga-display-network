@@ -96,8 +96,10 @@ export default function AdminScreens() {
   }, [refetch]);
 
   const { totals: statTotals, byBusiness: byBusinessStats } = useAdminBusinessStats();
-  const online = statTotals.screens > 0 ? statTotals.screensOnline : useMemo(() => screens.filter(isOnline).length, [screens, tick]);
+  const listOnline = useMemo(() => screens.filter(isOnline).length, [screens, tick]);
+  const online = statTotals.screens > 0 ? statTotals.screensOnline : listOnline;
   const offline = (statTotals.screens || screens.length) - online;
+
 
 
   const filtered = screens.filter(s => {
