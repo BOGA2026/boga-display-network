@@ -199,7 +199,7 @@ function InlineLeadForm({ onSubmitted }: { onSubmitted: () => void }) {
 /* ─── Main Chat ─── */
 const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "¡Hola! 👋 Soy tu asesor de Visualia. ¿En qué puedo ayudarte hoy?" },
+    { role: "assistant", content: "Hola, soy tu asesor de Visualia. ¿En qué puedo ayudarte hoy?" },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -226,7 +226,7 @@ const ExpertChat = ({ open, onOpenChange }: ExpertChatProps) => {
     // Add confirmation as assistant message
     setMessages((prev) => [
       ...prev,
-      { role: "assistant", content: "✅ ¡Perfecto, recibimos tus datos! Un asesor de Visualia se pondrá en contacto contigo muy pronto. ¿Hay algo más en lo que pueda ayudarte?" },
+      { role: "assistant", content: "Perfecto, recibimos tus datos. Un asesor de Visualia se pondrá en contacto contigo muy pronto. ¿Hay algo más en lo que pueda ayudarte?" },
     ]);
   };
 

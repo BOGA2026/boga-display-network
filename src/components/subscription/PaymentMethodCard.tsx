@@ -11,10 +11,10 @@ interface Props {
 
 function brandIcon(brand: string) {
   const b = brand.toLowerCase();
-  if (b === "visa") return "💳 Visa";
-  if (b === "mastercard") return "💳 Mastercard";
-  if (b === "amex") return "💳 Amex";
-  return `💳 ${brand}`;
+  if (b === "visa") return "Visa";
+  if (b === "mastercard") return "Mastercard";
+  if (b === "amex") return "Amex";
+  return brand;
 }
 
 export function PaymentMethodCard({ methods, onAddMethod, onEditMethod }: Props) {
@@ -37,8 +37,8 @@ export function PaymentMethodCard({ methods, onAddMethod, onEditMethod }: Props)
       <CardContent className="px-6 pb-6">
         {defaultMethod ? (
           <div className="flex items-center gap-4 rounded-xl border border-border/30 bg-secondary/20 p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-2xl">
-              💳
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <CreditCard className="h-6 w-6" />
             </div>
             <div className="flex-1">
               <p className="font-medium text-sm">{brandIcon(defaultMethod.brand)} •••• {defaultMethod.last4}</p>

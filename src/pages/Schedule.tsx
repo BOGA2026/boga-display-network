@@ -23,6 +23,8 @@ import PublishFooterBar from "@/components/schedule/PublishFooterBar";
 import AddContentWizard from "@/components/schedule/AddContentWizard";
 import ConflictAlertDialog from "@/components/schedule/ConflictAlertDialog";
 import CopyToDaysDialog from "@/components/schedule/CopyToDaysDialog";
+import { EmptyState } from "@/components/feedback/states";
+import { CalendarClock } from "lucide-react";
 
 const Schedule = () => {
   const { data: businessId } = useBusinessId();
@@ -259,14 +261,12 @@ const Schedule = () => {
             />
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 rounded-2xl border border-border/40 bg-card/20 p-8">
-            <div className="text-6xl">📺</div>
-            <div>
-              <h2 className="text-xl font-bold font-display">¡Bienvenido a la programación!</h2>
-              <p className="text-sm text-muted-foreground mt-2 max-w-md">
-                Selecciona una pantalla arriba para empezar a programar el contenido que se mostrará.
-              </p>
-            </div>
+          <div className="flex-1 rounded-2xl border border-border/40 bg-card/20">
+            <EmptyState
+              icon={<CalendarClock />}
+              title="Elige una pantalla para empezar"
+              description="Selecciona arriba la pantalla que quieres programar. Vas a poder definir qué contenido se muestra en cada franja horaria."
+            />
           </div>
         )}
 

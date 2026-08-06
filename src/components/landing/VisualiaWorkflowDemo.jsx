@@ -129,7 +129,7 @@ export default function VisualiaWorkflowDemo() {
                       <span className="vzd-mini-price">{price}</span>
                     </div>
                   ))}
-                  <div className="vzd-btn ia vzd-up d5">✨ Generar con IA</div>
+                  <div className="vzd-btn ia vzd-up d5">Generar con IA</div>
                 </>
               )}
               {step === 3 && (
