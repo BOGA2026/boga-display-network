@@ -23,6 +23,8 @@ import PublishFooterBar from "@/components/schedule/PublishFooterBar";
 import AddContentWizard from "@/components/schedule/AddContentWizard";
 import ConflictAlertDialog from "@/components/schedule/ConflictAlertDialog";
 import CopyToDaysDialog from "@/components/schedule/CopyToDaysDialog";
+import { EmptyState } from "@/components/feedback/states";
+import { CalendarClock } from "lucide-react";
 
 const Schedule = () => {
   const { data: businessId } = useBusinessId();
