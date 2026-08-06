@@ -21,6 +21,7 @@ import {
   LifeBuoy,
   Sparkles,
   PenTool,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +36,7 @@ export type NavKey =
   | "qr"
   | "analiticas"
   | "suscripcion"
+  | "ajustes"
   | "soporte"
   | "generarIa"
   | "editor";
@@ -207,7 +209,7 @@ export const NAV_GROUPS: NavGroup[] = [
   { id: "general", label: "General", items: ["inicio"] },
   { id: "operacion", label: "Operación", items: ["pantallas", "contenido", "listas", "horarios"] },
   { id: "red", label: "Red", items: ["mapa", "monitoreo", "qr"] },
-  { id: "negocio", label: "Negocio", items: ["analiticas", "suscripcion", "soporte"] },
+  { id: "negocio", label: "Negocio", items: ["analiticas", "suscripcion", "ajustes", "soporte"] },
 ];
 
 /** Rutas antiguas → ruta canónica actual. */
