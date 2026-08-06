@@ -41,6 +41,8 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
   "/master/pantallas": () => import("@/pages/admin/AdminScreens"),
   "/master/mapa": () => import("@/pages/admin/AdminMap"),
   "/master/negocios": () => import("@/pages/admin/AdminBusinesses"),
+  "/master/negocios/:id/diagnostico": () => import("@/pages/admin/AdminBusinessDiagnostics"),
+
   "/master/pqrs": () => import("@/pages/admin/AdminPQRS"),
   "/master/soporte": () => import("@/pages/admin/AdminSupport"),
   "/master/leads": () => import("@/pages/AdminLeadsPage"),
