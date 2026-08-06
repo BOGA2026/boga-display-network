@@ -148,6 +148,8 @@ export default function AppRoutes() {
         <Route path="pqrs" element={page(AdminPQRS, pathname)} />
         <Route path="soporte" element={page(AdminSupport, pathname)} />
         <Route path="negocios" element={page(AdminBusinesses, pathname)} />
+        <Route path="negocios/:id/diagnostico" element={page(AdminBusinessDiagnostics, pathname)} />
+
         <Route path="leads" element={page(LeadsPage, pathname)} />
         <Route path="admins" element={page(AdminAdmins, pathname)} />
       </Route>
