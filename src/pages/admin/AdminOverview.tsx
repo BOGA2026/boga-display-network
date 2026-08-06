@@ -44,25 +44,25 @@ async function loadOverview(): Promise<{ stats: Stats; businesses: Business[] }>
 
 export default function AdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { rows: businesses, totals, refetch: refetchStats } = useAdminBusinessStats();
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    refetchStats();
     try {
       const data = await loadOverview();
       setStats(data?.stats ?? null);
-      setBusinesses(data?.businesses ?? []);
     } catch (e: any) {
       setError(e?.message ?? "No se pudo cargar el resumen.");
       setStats(null);
-      setBusinesses([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refetchStats]);
+
 
   useEffect(() => {
     load();
