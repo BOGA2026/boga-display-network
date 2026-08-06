@@ -180,8 +180,12 @@ export default function AdminScreens() {
             <Card key={bId} className="bg-background/40 border-border/50 overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border/50 flex items-center justify-between">
                 <span className="font-semibold text-sm">{name}</span>
-                <span className="text-xs text-muted-foreground">{bs.filter(isOnline).length}/{bs.length} online</span>
+                <span className="text-xs text-muted-foreground">
+                  {byBusinessStats.get(bId)?.screens_online ?? bs.filter(isOnline).length}/
+                  {byBusinessStats.get(bId)?.screens_total ?? bs.length} online
+                </span>
               </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-xs uppercase text-muted-foreground border-b border-border/30">
