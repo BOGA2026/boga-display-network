@@ -94,8 +94,12 @@ export default function AdminSupport() {
   const totalUnread = threads.reduce((a, t) => a + (t.unread_by_admin || 0), 0);
   const selected = threads.find(t => t.id === selectedId);
 
+  const { totals: statTotals } = useAdminBusinessStats();
   const offlineScreens = useMemo(() => screens.filter(s => !isOnline(s)), [screens]);
-  const totalOnline = screens.length - offlineScreens.length;
+  const totalScreens = statTotals.screens || screens.length;
+  const totalOnline = statTotals.screens > 0 ? statTotals.screensOnline : screens.length - offlineScreens.length;
+  const totalOffline = totalScreens - totalOnline;
+
 
   const send = async () => {
     if (!selected || !input.trim()) return;
