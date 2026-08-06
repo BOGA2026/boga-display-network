@@ -58,7 +58,7 @@ const Login = () => {
     // Platform administrators must always enter the platform console. A stale
     // `next=/dashboard` value previously overrode this check and sent them to
     // the customer dashboard even though their admin grant was valid.
-    if (isAdmin) return explicitNextTarget?.startsWith("/admin") ? explicitNextTarget : "/admin";
+    if (isAdmin) return explicitNextTarget?.startsWith("/master") ? explicitNextTarget : "/master";
     return explicitNextTarget ?? "/dashboard";
   }, [explicitNextTarget]);
 
