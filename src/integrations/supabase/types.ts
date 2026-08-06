@@ -2406,6 +2406,29 @@ export type Database = {
         Args: { _email: string; _ip?: string; _user_agent?: string }
         Returns: Json
       }
+      admin_business_stats: {
+        Args: never
+        Returns: {
+          billing_cycle: string
+          business_id: string
+          business_name: string
+          content_total: number
+          created_at: string
+          days_overdue: number
+          grace_period_ends_at: string
+          locations_total: number
+          members_total: number
+          mrr: number
+          next_billing_date: string
+          plan: string
+          price_per_screen: number
+          screens_online: number
+          screens_total: number
+          status: string
+          status_stored: string
+          subscription_id: string
+        }[]
+      }
       analytics_airtime: {
         Args: { p_business_id: string; p_from: string; p_to: string }
         Returns: {
@@ -2551,6 +2574,7 @@ export type Database = {
         Args: { p_business_id: string }
         Returns: undefined
       }
+      recalc_subscription_statuses: { Args: never; Returns: number }
       revoke_platform_admin: {
         Args: { _email: string; _ip?: string; _user_agent?: string }
         Returns: Json
@@ -2559,6 +2583,14 @@ export type Database = {
       seed_demo_analytics: {
         Args: { p_business_id: string }
         Returns: undefined
+      }
+      subscription_status_derived: {
+        Args: {
+          _grace_period_ends_at: string
+          _next_billing_date: string
+          _status: string
+        }
+        Returns: string
       }
       sweep_offline_devices: {
         Args: { _threshold_seconds?: number }
