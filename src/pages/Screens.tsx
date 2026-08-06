@@ -125,6 +125,7 @@ const Screens = () => {
   const [subscriptionGateOpen, setSubscriptionGateOpen] = useState(false);
   const [limitGateOpen, setLimitGateOpen] = useState(false);
   const [pairModalOpen, setPairModalOpen] = useState(false);
+  const [assignTarget, setAssignTarget] = useState<{ id: string; name: string } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
