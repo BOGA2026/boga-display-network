@@ -872,6 +872,16 @@ const Screens = () => {
         </button>
       </div>
       <TvCompatibilityDialog open={compatDialogOpen} onOpenChange={setCompatDialogOpen} />
+
+      {assignTarget && (
+        <AssignPlaylistDialog
+          open={!!assignTarget}
+          onOpenChange={(open) => { if (!open) setAssignTarget(null); }}
+          screenId={assignTarget.id}
+          screenName={assignTarget.name}
+          onAssigned={() => { setAssignTarget(null); fetchData(); }}
+        />
+      )}
     </div>
 
   );
