@@ -8,6 +8,8 @@ import { es } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWithRetry } from "@/lib/adminFetch";
 import { AdminTableSkeleton, AdminInlineError } from "@/components/admin/AdminSkeletons";
+import { useAdminBusinessStats } from "@/hooks/useAdminBusinessStats";
+
 
 type Screen = {
   id: string;
@@ -95,8 +97,12 @@ export default function AdminScreens() {
     };
   }, [refetch]);
 
-  const online = useMemo(() => screens.filter(isOnline).length, [screens, tick]);
-  const offline = screens.length - online;
+  const { totals: statTotals, byBusiness: byBusinessStats } = useAdminBusinessStats();
+  const listOnline = useMemo(() => screens.filter(isOnline).length, [screens, tick]);
+  const online = statTotals.screens > 0 ? statTotals.screensOnline : listOnline;
+  const offline = (statTotals.screens || screens.length) - online;
+
+
 
   const filtered = screens.filter(s => {
     const q = search.toLowerCase();
@@ -180,8 +186,12 @@ export default function AdminScreens() {
             <Card key={bId} className="bg-background/40 border-border/50 overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border/50 flex items-center justify-between">
                 <span className="font-semibold text-sm">{name}</span>
-                <span className="text-xs text-muted-foreground">{bs.filter(isOnline).length}/{bs.length} online</span>
+                <span className="text-xs text-muted-foreground">
+                  {byBusinessStats.get(bId)?.screens_online ?? bs.filter(isOnline).length}/
+                  {byBusinessStats.get(bId)?.screens_total ?? bs.length} online
+                </span>
               </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-xs uppercase text-muted-foreground border-b border-border/30">

@@ -1,38 +1,28 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, Building2 } from "lucide-react";
 import { AdminTableSkeleton, AdminInlineError } from "@/components/admin/AdminSkeletons";
 import { AdminPageHeader } from "@/components/admin/AdminUI";
-
-type Row = {
-  id: string;
-  name: string;
-  created_at: string;
-  screenCount: number;
-  memberCount: number;
-};
+import { useAdminBusinessStats, statusMeta, TONE_STYLE } from "@/hooks/useAdminBusinessStats";
 
 export default function AdminBusinesses() {
-  const [rows, setRows] = useState<Row[]>([]);
+  const { rows: stats, isLoading: loading, error, refetch } = useAdminBusinessStats();
   const [q, setQ] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
-    setLoading(true);
-    setError(null);
-    const { data, error } = await supabase.functions.invoke("admin-overview");
-    if (error) setError(error.message);
-    else setRows(data?.businesses ?? []);
-    setLoading(false);
-  };
+  const load = () => refetch();
 
-  useEffect(() => {
-    load();
-  }, []);
+  const rows = stats.map((r) => ({
+    id: r.business_id,
+    name: r.business_name,
+    created_at: r.created_at,
+    screenCount: r.screens_total,
+    memberCount: r.members_total,
+    status: r.status,
+    subscription_id: r.subscription_id,
+  }));
 
   const filtered = rows.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()));
+
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-[1400px]">
@@ -49,7 +39,7 @@ export default function AdminBusinesses() {
       </div>
 
       {error ? (
-        <AdminInlineError message={error} onRetry={load} />
+        <AdminInlineError message={(error as Error).message} onRetry={load} />
       ) : loading ? (
         <div className="admin-card overflow-hidden">
           <AdminTableSkeleton rows={6} cols={5} />
@@ -80,6 +70,7 @@ export default function AdminBusinesses() {
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>
                   <th className="text-right px-4 py-3 font-medium">Pantallas</th>
                   <th className="text-right px-4 py-3 font-medium">Miembros</th>
+                  <th className="text-left px-4 py-3 font-medium">Suscripción</th>
                   <th className="text-left px-4 py-3 font-medium">Registrado</th>
                   <th className="text-left px-4 py-3 font-medium">ID</th>
                 </tr>
@@ -95,12 +86,28 @@ export default function AdminBusinesses() {
                     </td>
                     <td className="px-4 py-3.5 text-right v-numeric">{r.screenCount}</td>
                     <td className="px-4 py-3.5 text-right v-numeric">{r.memberCount}</td>
+                    <td className="px-4 py-3.5">
+                      {r.subscription_id ? (
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={TONE_STYLE[statusMeta(r.status).tone] && {
+                            background: TONE_STYLE[statusMeta(r.status).tone].bg,
+                            color: TONE_STYLE[statusMeta(r.status).tone].fg,
+                          }}
+                        >
+                          {statusMeta(r.status).label}
+                        </span>
+                      ) : (
+                        <span className="admin-dim text-xs">Sin suscripción</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(r.created_at).toLocaleDateString("es-CO")}
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs admin-dim">
                       {r.id.slice(0, 8)}
                     </td>
+
                   </tr>
                 ))}
               </tbody>

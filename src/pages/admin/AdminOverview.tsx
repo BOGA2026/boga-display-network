@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, BadgeCheck, RefreshCw } from "lucide-react";
+import { Building2, Monitor, MapPin, FileImage, Inbox, CreditCard, TrendingUp, BadgeCheck, RefreshCw, DollarSign } from "lucide-react";
+import { useAdminBusinessStats, statusMeta, TONE_STYLE } from "@/hooks/useAdminBusinessStats";
+
 import { AdminKpiCard, AdminPageHeader } from "@/components/admin/AdminUI";
 import { fetchWithRetry } from "@/lib/adminFetch";
 
@@ -42,25 +44,25 @@ async function loadOverview(): Promise<{ stats: Stats; businesses: Business[] }>
 
 export default function AdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { rows: businesses, totals, refetch: refetchStats } = useAdminBusinessStats();
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    refetchStats();
     try {
       const data = await loadOverview();
       setStats(data?.stats ?? null);
-      setBusinesses(data?.businesses ?? []);
     } catch (e: any) {
       setError(e?.message ?? "No se pudo cargar el resumen.");
       setStats(null);
-      setBusinesses([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [refetchStats]);
+
 
   useEffect(() => {
     load();
@@ -68,15 +70,17 @@ export default function AdminOverview() {
 
   const s = stats;
   const kpis: Array<{ label: string; value: any; hint?: string; icon: any; tone: any }> = [
-    { label: "Negocios", value: s?.businesses ?? 0, icon: Building2, tone: "accent" },
-    { label: "Pantallas online", value: `${s?.screensOnline ?? 0} / ${s?.screens ?? 0}`, hint: "Conectadas / totales", icon: Monitor, tone: "success" },
-    { label: "Ubicaciones", value: s?.locations ?? 0, icon: MapPin, tone: "neutral" },
-    { label: "Contenido", value: s?.content ?? 0, icon: FileImage, tone: "neutral" },
+    { label: "Negocios", value: totals.businesses, icon: Building2, tone: "accent" },
+    { label: "Pantallas online", value: `${totals.screensOnline} / ${totals.screens}`, hint: "Conectadas / totales", icon: Monitor, tone: "success" },
+    { label: "Ubicaciones", value: totals.locations, icon: MapPin, tone: "neutral" },
+    { label: "Contenido", value: totals.content, icon: FileImage, tone: "neutral" },
     { label: "Leads", value: s?.leads ?? 0, hint: `${s?.leadsNew ?? 0} nuevos`, icon: Inbox, tone: "warning" },
-    { label: "Suscripciones activas", value: s?.activeSubscriptions ?? 0, icon: BadgeCheck, tone: "success" },
+    { label: "Suscripciones vigentes", value: totals.activeSubscriptions, hint: `${totals.pastDue} vencidas`, icon: BadgeCheck, tone: totals.pastDue > 0 ? "danger" : "success" },
+    { label: "MRR estimado", value: fmtCOP(totals.mrr), hint: "Precio por pantalla × pantallas reales", icon: DollarSign, tone: "accent" },
     { label: "Ingresos del mes", value: fmtCOP(s?.revenueMonth ?? 0), hint: "Pagos aprobados este mes (Wompi)", icon: TrendingUp, tone: "accent" },
     { label: "Ingresos totales", value: fmtCOP(s?.revenueTotal ?? 0), hint: `${s?.paymentsCount ?? 0} pagos`, icon: CreditCard, tone: "success" },
   ];
+
 
   return (
     <div className="p-8 space-y-8 max-w-[1400px]">
@@ -173,26 +177,43 @@ export default function AdminOverview() {
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>
                   <th className="text-right px-4 py-3 font-medium">Pantallas</th>
                   <th className="text-right px-4 py-3 font-medium">Miembros</th>
+                  <th className="text-left px-4 py-3 font-medium">Suscripción</th>
                   <th className="text-left px-4 py-3 font-medium">Registrado</th>
                 </tr>
               </thead>
               <tbody>
                 {businesses.map((b) => (
                   <tr
-                    key={b.id}
+                    key={b.business_id}
                     className="admin-card-hover transition-colors"
                     style={{ borderBottom: "1px solid hsl(var(--admin-border) / 0.6)" }}
                   >
                     <td className="px-4 py-3.5 font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
-                      {b.name}
+                      {b.business_name}
                     </td>
-                    <td className="px-4 py-3.5 text-right v-numeric">{b.screenCount}</td>
-                    <td className="px-4 py-3.5 text-right v-numeric">{b.memberCount}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.screens_total}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.members_total}</td>
+                    <td className="px-4 py-3.5">
+                      {b.subscription_id ? (
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={{
+                            background: TONE_STYLE[statusMeta(b.status).tone].bg,
+                            color: TONE_STYLE[statusMeta(b.status).tone].fg,
+                          }}
+                        >
+                          {statusMeta(b.status).label}
+                        </span>
+                      ) : (
+                        <span className="admin-dim text-xs">Sin suscripción</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(b.created_at).toLocaleDateString("es-CO")}
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
