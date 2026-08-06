@@ -92,9 +92,19 @@ export default function AdminLayout() {
   useEffect(() => {
     if (loading || !session) return;
     (async () => {
-      const { data: hasAdminAccess, error } = await supabase.rpc("is_platform_admin");
-      if (error || !hasAdminAccess) {
-        if (error) logError(error, { label: "is_platform_admin" });
+      // Un fallo de red no debe sacar al administrador al panel de cliente:
+      // solo se expulsa cuando la respuesta llega y dice que no es admin.
+      let res = await supabase.rpc("is_platform_admin");
+      if (res.error) {
+        logError(res.error, { label: "is_platform_admin" });
+        await new Promise((r) => setTimeout(r, 700));
+        res = await supabase.rpc("is_platform_admin");
+      }
+      if (res.error) {
+        logError(res.error, { label: "is_platform_admin:retry" });
+        return; // deja el spinner; no redirige por un error transitorio
+      }
+      if (!res.data) {
         navigate("/dashboard", { replace: true });
         return;
       }
