@@ -344,7 +344,7 @@ export default function AdminBusinessDiagnostics() {
                       <tr key={s.id} style={{ borderBottom: "1px solid hsl(var(--admin-border) / 0.6)" }}>
                         <Td>
                           <div className="flex items-center gap-2">
-                            <span className={`v-dot ${syncSeverity(s.last_seen_at).severity === "ok" ? "v-dot-ok" : syncSeverity(s.last_seen_at).severity === "warn" ? "v-dot-warn" : "v-dot-danger"}`} />
+                            <span className={`v-dot ${syncSeverity(s.last_seen_at).severity === "ok" ? "v-dot-online" : syncSeverity(s.last_seen_at).severity === "warn" ? "v-dot-warning" : "v-dot-error"}`} />
                             <span className="font-medium" style={{ color: "hsl(var(--admin-fg))" }}>{s.name}</span>
                           </div>
                           <span className="text-[11px] admin-dim ml-4">{s.location_name}</span>
