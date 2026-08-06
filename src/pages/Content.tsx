@@ -72,7 +72,6 @@ import { ContentTable } from "@/components/content/ContentTable";
 import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
 import { getTenant } from "@/features/auth/tenant";
-import { queryClient } from "@/lib/query-client";
 import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
 
 
