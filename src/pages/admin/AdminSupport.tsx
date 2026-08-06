@@ -228,7 +228,7 @@ export default function AdminSupport() {
           </div>
           <div className="flex-1 overflow-y-auto">
             {offlineScreens.length === 0 ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">Todas las pantallas están online ✨</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">Todas las pantallas están online</div>
             ) : offlineScreens.map(s => (
               <div key={s.id} className="p-3 border-b border-border/30">
                 <div className="text-sm font-medium">{s.name}</div>
