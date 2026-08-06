@@ -130,18 +130,30 @@ export function TvCompatibilityWizard({
               key={b.id}
               type="button"
               onClick={() => pickBrand(b)}
-              className="v-card v-card-interactive flex h-20 flex-col items-center justify-center gap-1 px-2 text-center"
+              style={{ ["--brand" as string]: brandColor(b.id) }}
+              className="group v-card v-card-interactive flex h-20 flex-col items-center justify-center gap-1.5 px-2 text-center"
             >
-              <span className="font-display text-base font-bold tracking-tight text-foreground">
-                {b.short}
-              </span>
-              <span className="text-[11px] leading-tight text-muted-foreground">{b.name}</span>
+              <BrandLogo id={b.id} name={b.name} active={brand?.id === b.id} />
+              {!isWordmark(b.id) && (
+                <span className="text-[11px] leading-tight text-muted-foreground">{b.name}</span>
+              )}
             </button>
           ))}
         </div>
+
+        {!consultOnly && (
+          <Button
+            variant="ghost"
+            className="w-full text-sm text-muted-foreground hover:text-foreground"
+            onClick={() => onCompatible?.("dispositivo_externo")}
+          >
+            Ya tengo un dispositivo conectado al HDMI
+          </Button>
+        )}
       </div>
     );
   }
+
 
   // ─────────────────────────── Paso 2 ───────────────────────────
   if (step === "playstore") {
