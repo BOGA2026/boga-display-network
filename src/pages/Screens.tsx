@@ -56,6 +56,9 @@ import { TvCompatibilityWizard, TvCompatibilityDialog } from "@/features/devices
 import type { DeviceType } from "@/config/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
+import ScreensWorkspace from "@/features/screens/ScreensWorkspace";
+import type { ScreenRow } from "@/features/screens/types";
+import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
 import { getAttribution } from "@/lib/attribution";
 
