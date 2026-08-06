@@ -8,6 +8,8 @@ import { es } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWithRetry } from "@/lib/adminFetch";
 import { AdminTableSkeleton, AdminInlineError } from "@/components/admin/AdminSkeletons";
+import { useAdminBusinessStats } from "@/hooks/useAdminBusinessStats";
+
 
 type Screen = {
   id: string;
