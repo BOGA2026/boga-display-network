@@ -30,6 +30,7 @@ import {
   type TvBrand,
 } from "@/config/devices";
 import playStoreIcon from "@/assets/play-store-icon.png";
+import BrandLogo, { brandColor, isWordmark } from "@/components/lp/BrandLogo";
 
 type Step = "marca" | "playstore" | "dispositivo" | "pedido" | "pedido_ok";
 
