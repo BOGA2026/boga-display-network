@@ -1195,16 +1195,73 @@ export type Database = {
       }
       platform_admin_allowlist: {
         Row: {
+          activated_at: string | null
+          activated_by: string | null
           created_at: string
           email: string
+          expires_at: string
+          invited_at: string
+          invited_by: string | null
+          status: string
         }
         Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
           created_at?: string
           email: string
+          expires_at?: string
+          invited_at?: string
+          invited_by?: string | null
+          status?: string
         }
         Update: {
+          activated_at?: string | null
+          activated_by?: string | null
           created_at?: string
           email?: string
+          expires_at?: string
+          invited_at?: string
+          invited_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      platform_admin_audit: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          ip: unknown
+          target_email: string
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          ip?: unknown
+          target_email: string
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          ip?: unknown
+          target_email?: string
+          target_user_id?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -2345,6 +2402,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_platform_admin: {
+        Args: { _email: string; _ip?: string; _user_agent?: string }
+        Returns: Json
+      }
       analytics_airtime: {
         Args: { p_business_id: string; p_from: string; p_to: string }
         Returns: {
@@ -2423,6 +2484,10 @@ export type Database = {
         Args: { _business_id: string }
         Returns: boolean
       }
+      cancel_platform_admin_invite: {
+        Args: { _email: string; _ip?: string; _user_agent?: string }
+        Returns: Json
+      }
       complete_onboarding: {
         Args: { p_business_name: string; p_city: string }
         Returns: Json
@@ -2439,11 +2504,28 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_platform_admin: {
+        Args: { _email: string; _ip?: string; _user_agent?: string }
+        Returns: Json
+      }
       is_member_of_business: {
         Args: { _business_id: string }
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      list_platform_admin_access: {
+        Args: never
+        Returns: {
+          activated_at: string
+          email: string
+          email_confirmed: boolean
+          expires_at: string
+          has_account: boolean
+          invited_at: string
+          is_expired: boolean
+          status: string
+        }[]
+      }
       log_audit: {
         Args: {
           _action: string
@@ -2454,9 +2536,24 @@ export type Database = {
         }
         Returns: string
       }
+      log_platform_admin_event: {
+        Args: {
+          _action: string
+          _details: Json
+          _ip: string
+          _target_email: string
+          _target_user_id: string
+          _user_agent: string
+        }
+        Returns: undefined
+      }
       purge_demo_analytics: {
         Args: { p_business_id: string }
         Returns: undefined
+      }
+      revoke_platform_admin: {
+        Args: { _email: string; _ip?: string; _user_agent?: string }
+        Returns: Json
       }
       rollup_screen_uptime: { Args: { p_day?: string }; Returns: number }
       seed_demo_analytics: {
