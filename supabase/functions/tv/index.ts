@@ -2,7 +2,6 @@
 // GET  /tv          -> 302 al APK más reciente del bucket "downloads"
 // GET  /tv/version  -> texto plano con versión y fecha de compilación
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const APK_FILE = "visualia-tv.apk";
 const APK_URL = `${SUPABASE_URL}/storage/v1/object/public/downloads/${APK_FILE}`;
@@ -10,11 +9,6 @@ const APK_VERSION = "1.0.0";
 
 async function fetchBuildDate(): Promise<string | null> {
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/`,
-      { method: "HEAD", headers: { apikey: SERVICE_ROLE } },
-    ).catch(() => null);
-    void res;
     const head = await fetch(APK_URL, { method: "HEAD" });
     const lm = head.headers.get("last-modified");
     return lm ? new Date(lm).toISOString() : null;
