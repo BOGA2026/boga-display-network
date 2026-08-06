@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, Building2 } from "lucide-react";
+import { Search, Building2, Stethoscope } from "lucide-react";
+import { Link } from "react-router-dom";
 import { AdminTableSkeleton, AdminInlineError } from "@/components/admin/AdminSkeletons";
 import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { useAdminBusinessStats, statusMeta, TONE_STYLE } from "@/hooks/useAdminBusinessStats";
@@ -73,6 +74,7 @@ export default function AdminBusinesses() {
                   <th className="text-left px-4 py-3 font-medium">Suscripción</th>
                   <th className="text-left px-4 py-3 font-medium">Registrado</th>
                   <th className="text-left px-4 py-3 font-medium">ID</th>
+                  <th className="text-right px-4 py-3 font-medium">Soporte</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,6 +108,19 @@ export default function AdminBusinesses() {
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs admin-dim">
                       {r.id.slice(0, 8)}
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <Link
+                        to={`/master/negocios/${r.id}/diagnostico`}
+                        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors hover:opacity-80"
+                        style={{
+                          background: "hsl(var(--admin-surface-2))",
+                          color: "hsl(var(--admin-fg))",
+                        }}
+                      >
+                        <Stethoscope className="h-3.5 w-3.5" />
+                        Diagnóstico
+                      </Link>
                     </td>
 
                   </tr>
