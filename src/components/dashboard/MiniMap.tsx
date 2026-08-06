@@ -3,7 +3,7 @@
  * Renders one pin per location; clicking a pin navigates to /dashboard/mapa
  * (or to a specific screen detail when a locationId has exactly one screen).
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -69,6 +69,10 @@ function FitToMarkers({ points }: { points: [number, number][] }) {
 
 export function MiniMap({ points, height = 280, className }: Props) {
   const navigate = useNavigate();
+  // Leaflet lanza "Map container is already initialized" si React reutiliza el
+  // mismo nodo tras un remount (StrictMode/HMR). Una key estable por instancia
+  // fuerza un contenedor nuevo.
+  const mapKey = useId();
 
   const center = useMemo<[number, number]>(() => {
     if (points.length === 0) return [4.711, -74.0721]; // Bogotá fallback
@@ -85,6 +89,7 @@ export function MiniMap({ points, height = 280, className }: Props) {
   return (
     <div className={className} style={{ height }}>
       <MapContainer
+        key={mapKey}
         center={center}
         zoom={points.length ? 11 : 5}
         className="v-map"
