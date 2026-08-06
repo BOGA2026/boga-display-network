@@ -233,7 +233,9 @@ const Screens = () => {
     setCodeCopied(false);
     // Se vuelve al estado que dejó el verificador, no a cero.
     setDeviceType(tvChoice.needs_device === false ? "tv_google" : "desconocido");
-    setCompatDone(tvChoice.needs_device === false);
+    // El verificador es para el primer montaje: si el negocio ya tiene una
+    // pantalla vinculada, se va directo al código.
+    setCompatDone(tvChoice.needs_device === false || screens.length > 0);
 
   };
 
@@ -548,6 +550,14 @@ const Screens = () => {
                   Dale un nombre a tu pantalla y te generaremos un código para conectarla desde el dispositivo.
                 </SheetDescription>
               </SheetHeader>
+
+              <button
+                type="button"
+                onClick={() => setCompatDone(false)}
+                className="mt-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                ¿Es un televisor distinto? Verificar compatibilidad
+              </button>
 
               <div className="space-y-5 py-4">
                 {/* Field — Name */}
