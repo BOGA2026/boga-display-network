@@ -70,6 +70,7 @@ export default function AdminBusinesses() {
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>
                   <th className="text-right px-4 py-3 font-medium">Pantallas</th>
                   <th className="text-right px-4 py-3 font-medium">Miembros</th>
+                  <th className="text-left px-4 py-3 font-medium">Suscripción</th>
                   <th className="text-left px-4 py-3 font-medium">Registrado</th>
                   <th className="text-left px-4 py-3 font-medium">ID</th>
                 </tr>
@@ -85,12 +86,28 @@ export default function AdminBusinesses() {
                     </td>
                     <td className="px-4 py-3.5 text-right v-numeric">{r.screenCount}</td>
                     <td className="px-4 py-3.5 text-right v-numeric">{r.memberCount}</td>
+                    <td className="px-4 py-3.5">
+                      {r.subscription_id ? (
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={TONE_STYLE[statusMeta(r.status).tone] && {
+                            background: TONE_STYLE[statusMeta(r.status).tone].bg,
+                            color: TONE_STYLE[statusMeta(r.status).tone].fg,
+                          }}
+                        >
+                          {statusMeta(r.status).label}
+                        </span>
+                      ) : (
+                        <span className="admin-dim text-xs">Sin suscripción</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(r.created_at).toLocaleDateString("es-CO")}
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs admin-dim">
                       {r.id.slice(0, 8)}
                     </td>
+
                   </tr>
                 ))}
               </tbody>
