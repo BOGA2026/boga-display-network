@@ -10,6 +10,7 @@ const BUCKET = "downloads";
 const publicUrl = (f: string) =>
   `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${f}`;
 const APK_VERSION = "1.0.0";
+const APK_BUILD_DATE = "2026-04-27"; // fecha de compilación del binario
 
 async function exists(file: string): Promise<Response | null> {
   const res = await fetch(publicUrl(file), { method: "HEAD" });
@@ -58,7 +59,8 @@ Deno.serve(async (req) => {
       `Visualia TV\n` +
       `version: ${APK_VERSION}\n` +
       `archivo: ${served}\n` +
-      `compilado: ${lm ? new Date(lm).toISOString() : "desconocido"}\n`;
+      `compilado: ${APK_BUILD_DATE}\n` +
+      `publicado: ${lm ? new Date(lm).toISOString() : "desconocido"}\n`;
     return new Response(body, {
       status: 200,
       headers: {
