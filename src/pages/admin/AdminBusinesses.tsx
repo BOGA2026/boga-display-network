@@ -39,7 +39,7 @@ export default function AdminBusinesses() {
       </div>
 
       {error ? (
-        <AdminInlineError message={error} onRetry={load} />
+        <AdminInlineError message={(error as Error).message} onRetry={load} />
       ) : loading ? (
         <div className="admin-card overflow-hidden">
           <AdminTableSkeleton rows={6} cols={5} />
