@@ -25,6 +25,13 @@ export interface Tenant {
   businessName: string | null;
   /** Zona horaria IANA del negocio. Las horas de programación son locales a esta zona. */
   timezone: string;
+  category: string | null;
+  city: string | null;
+  logoUrl: string | null;
+  /** Segundos que dura una imagen recién subida. */
+  defaultDurationSeconds: number;
+  /** Días hasta el vencimiento automático del contenido nuevo (null = nunca). */
+  defaultExpiryDays: number | null;
   role: TenantRole | null;
 }
 
@@ -33,6 +40,11 @@ export const EMPTY_TENANT: Tenant = {
   businessId: null,
   businessName: null,
   timezone: DEFAULT_TIMEZONE,
+  category: null,
+  city: null,
+  logoUrl: null,
+  defaultDurationSeconds: 15,
+  defaultExpiryDays: 30,
   role: null,
 };
 
@@ -47,9 +59,18 @@ export async function fetchTenant(): Promise<Tenant> {
     businessId: (t.business_id as string) ?? null,
     businessName: (t.business_name as string) ?? null,
     timezone: (t.timezone as string) || DEFAULT_TIMEZONE,
+    category: (t.category as string) ?? null,
+    city: (t.city as string) ?? null,
+    logoUrl: (t.logo_url as string) ?? null,
+    defaultDurationSeconds: Number(t.default_duration_seconds ?? 15),
+    defaultExpiryDays:
+      t.default_expiry_days === null || t.default_expiry_days === undefined
+        ? null
+        : Number(t.default_expiry_days),
     role: (t.role as TenantRole) ?? null,
   };
 }
+
 
 /** Opciones compartidas por el provider y por la resolución imperativa. */
 export const tenantQueryOptions = (userId?: string | null) => ({
