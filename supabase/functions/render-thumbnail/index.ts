@@ -48,13 +48,23 @@ Deno.serve(async (req) => {
 
   const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
+  let body: { content_id?: string; backfill?: boolean; limit?: number; business_id?: string } = {};
+  try { body = await req.json(); } catch { /* body vacío */ }
+
   const { data: profile } = await admin
     .from("profiles").select("business_id").eq("id", userId).maybeSingle();
-  const businessId = profile?.business_id as string | undefined;
+  let businessId = profile?.business_id as string | undefined;
+
+  // Soporte: un super-admin puede reprocesar miniaturas de otro negocio.
+  if (body.business_id && body.business_id !== businessId) {
+    const { data: isPlatformAdmin } = await admin
+      .from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle();
+    if (!isPlatformAdmin) return json({ error: "No autorizado" }, 403);
+    businessId = body.business_id;
+  }
+
   if (!businessId) return json({ error: "Sin negocio asociado" }, 403);
 
-  let body: { content_id?: string; backfill?: boolean; limit?: number } = {};
-  try { body = await req.json(); } catch { /* body vacío */ }
 
   // Selección de piezas a procesar: una sola, o lote de pendientes (backfill).
   let targets: { id: string; file_url: string | null }[] = [];
