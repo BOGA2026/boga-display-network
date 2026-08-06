@@ -177,26 +177,43 @@ export default function AdminOverview() {
                   <th className="text-left px-4 py-3 font-medium">Nombre</th>
                   <th className="text-right px-4 py-3 font-medium">Pantallas</th>
                   <th className="text-right px-4 py-3 font-medium">Miembros</th>
+                  <th className="text-left px-4 py-3 font-medium">Suscripción</th>
                   <th className="text-left px-4 py-3 font-medium">Registrado</th>
                 </tr>
               </thead>
               <tbody>
                 {businesses.map((b) => (
                   <tr
-                    key={b.id}
+                    key={b.business_id}
                     className="admin-card-hover transition-colors"
                     style={{ borderBottom: "1px solid hsl(var(--admin-border) / 0.6)" }}
                   >
                     <td className="px-4 py-3.5 font-medium" style={{ color: "hsl(var(--admin-fg))" }}>
-                      {b.name}
+                      {b.business_name}
                     </td>
-                    <td className="px-4 py-3.5 text-right v-numeric">{b.screenCount}</td>
-                    <td className="px-4 py-3.5 text-right v-numeric">{b.memberCount}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.screens_total}</td>
+                    <td className="px-4 py-3.5 text-right v-numeric">{b.members_total}</td>
+                    <td className="px-4 py-3.5">
+                      {b.subscription_id ? (
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={{
+                            background: TONE_STYLE[statusMeta(b.status).tone].bg,
+                            color: TONE_STYLE[statusMeta(b.status).tone].fg,
+                          }}
+                        >
+                          {statusMeta(b.status).label}
+                        </span>
+                      ) : (
+                        <span className="admin-dim text-xs">Sin suscripción</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3.5 admin-muted v-numeric">
                       {new Date(b.created_at).toLocaleDateString("es-CO")}
                     </td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
