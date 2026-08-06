@@ -34,9 +34,15 @@ export function useTenant() {
   );
 
   return {
+    userId: tenant.userId,
     businessId: tenant.businessId,
     businessName: tenant.businessName,
     timezone: tenant.timezone,
+    category: tenant.category,
+    city: tenant.city,
+    logoUrl: tenant.logoUrl,
+    defaultDurationSeconds: tenant.defaultDurationSeconds,
+    defaultExpiryDays: tenant.defaultExpiryDays,
     role: tenant.role,
     loading: authLoading || (!!userId && isLoading),
     hasRole,
