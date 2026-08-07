@@ -252,6 +252,7 @@ export type Database = {
           default_duration_seconds: number
           default_expiry_days: number | null
           demo_data_seeded_at: string | null
+          device_offer_dismissed: boolean
           id: string
           logo_url: string | null
           name: string
@@ -266,6 +267,7 @@ export type Database = {
           default_duration_seconds?: number
           default_expiry_days?: number | null
           demo_data_seeded_at?: string | null
+          device_offer_dismissed?: boolean
           id?: string
           logo_url?: string | null
           name: string
@@ -280,6 +282,7 @@ export type Database = {
           default_duration_seconds?: number
           default_expiry_days?: number | null
           demo_data_seeded_at?: string | null
+          device_offer_dismissed?: boolean
           id?: string
           logo_url?: string | null
           name?: string
