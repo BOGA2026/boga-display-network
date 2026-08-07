@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import { ANNUAL_PRICE_PER_SCREEN, MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
+import {
+  ANNUAL_PRICE_PER_SCREEN,
+  MAX_PRICE_PER_SCREEN,
+  PRICING_TIERS,
+  IVA_LEGEND,
+  PRICING_FOOTNOTE,
+} from "@/config/pricing";
 import { formatCop } from "@/config/devices";
 import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
