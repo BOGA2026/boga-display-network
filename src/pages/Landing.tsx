@@ -119,14 +119,6 @@ const HEADLINE = "Tu menú en pantalla, siempre actualizado y vendiendo más";
 const SUBHEAD =
   "Cambia precios y promociones desde tu celular y se actualizan al instante en todas las pantallas de tu restaurante. Sin diseñador, sin técnico, sin imprimir cartas nunca más.";
 
-function formatCOP(value: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 // ---------- Fire TV redirect ----------
 const isFireTvBrowser = () => {
