@@ -4,6 +4,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CreditCard, Calendar, Shield } from "lucide-react";
 import { fmtCOP, fmtDate, nextBillingDate } from "@/lib/proration";
+import { IVA_LEGEND, splitIva } from "@/config/pricing";
 
 interface Props {
   open: boolean;
@@ -42,7 +43,12 @@ export function ImmediateChargeModal({
                 Cobro inmediato
               </div>
               <p className="font-display text-2xl font-bold text-gradient-primary">{fmtCOP(immediateCharge)}</p>
-              <p className="text-xs text-muted-foreground">Prorrateo por los días restantes del ciclo actual</p>
+              <p className="text-xs text-muted-foreground">
+                Prorrateo por los días restantes del ciclo actual · {IVA_LEGEND}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Base {fmtCOP(splitIva(immediateCharge).base)} + IVA {fmtCOP(splitIva(immediateCharge).iva)}
+              </p>
             </div>
           )}
 
@@ -53,7 +59,7 @@ export function ImmediateChargeModal({
             </div>
             <p className="font-display text-xl font-bold">{fmtCOP(nextCycleTotal)} /mes</p>
             <p className="text-xs text-muted-foreground">
-              {newScreenCount} pantallas · A partir del {fmtDate(nextDate)}
+              {newScreenCount} pantallas · {IVA_LEGEND} · A partir del {fmtDate(nextDate)}
             </p>
           </div>
 
