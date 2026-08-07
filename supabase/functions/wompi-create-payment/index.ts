@@ -13,6 +13,13 @@ const WOMPI_INTEGRITY_SECRET = Deno.env.get("WOMPI_INTEGRITY_SECRET")!;
 // Detect environment from key prefix (pub_test_ vs pub_prod_)
 const IS_SANDBOX = WOMPI_PUBLIC_KEY.startsWith("pub_test_");
 
+/** IVA colombiano. Espejo de src/config/pricing.ts (splitIva). */
+const IVA_RATE = 0.19;
+function splitIva(grossCop: number) {
+  const base = Math.round(grossCop / (1 + IVA_RATE));
+  return { base, iva: grossCop - base, total: grossCop };
+}
+
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const hash = await crypto.subtle.digest("SHA-256", data);
