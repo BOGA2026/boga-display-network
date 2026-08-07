@@ -391,10 +391,9 @@ export const COPY = {
       "Te lo enviamos con la app instalada y tu pantalla ya vinculada. Solo lo conectas al HDMI del televisor.",
     planMensual: "Plan mensual",
     pagoAnual: "Pago anual adelantado",
-    contratoAnual: "Contrato a 1 año",
     sinCosto: "Sin costo",
     incluido: "Incluido",
-    incluidoNota: "Con pago anual o contrato a un año, el dispositivo va incluido.",
+    incluidoNota: "Con pago anual adelantado, el dispositivo va incluido.",
     ahorroMensual: "Cambia a pago anual y el dispositivo te sale sin costo. Te ahorras $250.000.",
     pedirloAVisualia: "Que Visualia me lo envíe",
     pedirIncluido: "Pedir mi dispositivo incluido",
@@ -407,8 +406,8 @@ export const COPY = {
     pedidoOkSub:
       "Puedes seguir el estado de tu dispositivo desde Suscripción, sin escribirle a nadie.",
 
-    pedidosTitulo: "Tus dispositivos",
-    pedidosVacio: "Todavía no has pedido ningún dispositivo.",
+    pedidosTitulo: "Tu plan",
+    pedidosVacio: "Aún no has solicitado el envío del dispositivo.",
     anualArgumento:
       "Con pago anual adelantado te enviamos el dispositivo configurado sin costo. Son $250.000 que no pagas.",
   },
