@@ -129,17 +129,21 @@ Deno.serve(async (req) => {
       sub = newSub;
     }
 
-    // Create pending invoice
+    // Create pending invoice.
+    // Los precios publicados YA incluyen IVA: la factura DIAN debe guardar
+    // la base gravable y el impuesto por separado, no el total en subtotal.
     const invoiceNumber = `INV-${reference}`;
+    const { base: taxBase, iva } = splitIva(Number(amount_cop));
     const { data: invoice, error: invErr } = await admin
       .from("invoices")
       .insert({
         subscription_id: sub.id,
         business_id,
         invoice_number: invoiceNumber,
-        subtotal: amount_cop,
-        tax: 0,
+        subtotal: taxBase,
+        tax: iva,
         total: amount_cop,
+
         currency: "COP",
         status: "pending",
         due_date: new Date().toISOString().slice(0, 10),
