@@ -103,59 +103,7 @@ const steps = [
   },
 ];
 
-type PricingCard = {
-  name: string;
-  price: number | null;
-  priceLabel?: string;
-  detail: string;
-  features: string[];
-  cta: string;
-  ctaHref?: string;
-  highlight: boolean;
-  contact?: boolean;
-};
-
-const pricingTiers: PricingCard[] = [
-  {
-    name: `${PRICING_TIERS[0].min} a ${PRICING_TIERS[0].max} pantallas`,
-    price: PRICING_TIERS[0].pricePerScreen,
-    detail: "por pantalla / mes",
-    features: [
-      "Actualizaciones ilimitadas",
-      "Editor y plantillas listas",
-      "Soporte por chat",
-    ],
-    cta: "Empezar",
-    highlight: false,
-  },
-  {
-    name: `${PRICING_TIERS[1].min} a ${PRICING_TIERS[1].max} pantallas`,
-    price: PRICING_TIERS[1].pricePerScreen,
-    detail: "por pantalla / mes",
-    features: [
-      "Todo lo anterior",
-      "Multi-sede en un solo panel",
-      "Programación por horario",
-      "Soporte prioritario",
-    ],
-    cta: "Prueba gratis 14 días",
-    highlight: true,
-  },
-  {
-    name: `${PRICING_TIERS[2].min} o más`,
-    price: null,
-    priceLabel: `desde ${formatCOPStatic(MIN_PRICE_PER_SCREEN)}`,
-    detail: "por pantalla / mes, según volumen",
-    features: [
-      "Descuentos por volumen",
-      "Onboarding personalizado",
-      "Gerente de cuenta",
-    ],
-    cta: "Ver calculadora",
-    ctaHref: "/precios",
-    highlight: false,
-  },
-];
+// Las tarjetas de precio viven en src/components/landing/PricingSection.tsx
 
 const testimonials = [
   {
