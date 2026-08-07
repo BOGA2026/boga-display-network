@@ -24,6 +24,7 @@ export interface ScreenItem {
   activated_at: string | null;
   payment_expires_at: string | null;
   license_status: string;
+  device_type?: string | null;
   location_name?: string;
 }
 
@@ -63,7 +64,7 @@ export const subscriptionQuery = {
         supabase.from("subscriptions").select("id, plan, screens_count, billing_cycle, price_per_screen, total_amount, status, next_billing_date, billing_anchor, expires_at, grace_period_ends_at").eq("business_id", businessId).maybeSingle(),
         supabase
           .from("screens")
-          .select("id, name, status, activated_at, payment_expires_at, license_status, location_id, locations(name)")
+          .select("id, name, status, activated_at, payment_expires_at, license_status, device_type, location_id, locations(name)")
           .order("created_at", { ascending: true }),
         supabase.from("invoices").select("id, invoice_number, total, status, due_date, paid_at, pdf_url, created_at").eq("business_id", businessId).order("created_at", { ascending: false }),
         supabase.from("payment_methods").select("id, brand, last4, exp_month, exp_year, is_default").eq("business_id", businessId),
@@ -77,6 +78,7 @@ export const subscriptionQuery = {
         activated_at: s.activated_at,
         payment_expires_at: s.payment_expires_at,
         license_status: s.license_status,
+        device_type: s.device_type,
         location_name: s.locations?.name ?? "—",
       }));
 
