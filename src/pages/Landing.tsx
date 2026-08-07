@@ -43,14 +43,8 @@ import {
 } from "lucide-react";
 import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
-import {
-  PRICING_TIERS,
-  MIN_PRICE_PER_SCREEN,
-  IVA_LEGEND,
-  PRICING_FOOTNOTE,
-  ANNUAL_FREE_MONTHS,
-  annualPricePerScreen,
-} from "@/config/pricing";
+import { PRICING_TIERS, MIN_PRICE_PER_SCREEN } from "@/config/pricing";
+import PricingSection from "@/components/landing/PricingSection";
 
 const _fmtCOP = new Intl.NumberFormat("es-CO", {
   style: "currency",
