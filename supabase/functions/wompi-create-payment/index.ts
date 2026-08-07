@@ -13,6 +13,13 @@ const WOMPI_INTEGRITY_SECRET = Deno.env.get("WOMPI_INTEGRITY_SECRET")!;
 // Detect environment from key prefix (pub_test_ vs pub_prod_)
 const IS_SANDBOX = WOMPI_PUBLIC_KEY.startsWith("pub_test_");
 
+/** IVA colombiano. Espejo de src/config/pricing.ts (splitIva). */
+const IVA_RATE = 0.19;
+function splitIva(grossCop: number) {
+  const base = Math.round(grossCop / (1 + IVA_RATE));
+  return { base, iva: grossCop - base, total: grossCop };
+}
+
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const hash = await crypto.subtle.digest("SHA-256", data);
@@ -129,17 +136,21 @@ Deno.serve(async (req) => {
       sub = newSub;
     }
 
-    // Create pending invoice
+    // Create pending invoice.
+    // Los precios publicados YA incluyen IVA: la factura DIAN debe guardar
+    // la base gravable y el impuesto por separado, no el total en subtotal.
     const invoiceNumber = `INV-${reference}`;
+    const { base: taxBase, iva } = splitIva(Number(amount_cop));
     const { data: invoice, error: invErr } = await admin
       .from("invoices")
       .insert({
         subscription_id: sub.id,
         business_id,
         invoice_number: invoiceNumber,
-        subtotal: amount_cop,
-        tax: 0,
+        subtotal: taxBase,
+        tax: iva,
         total: amount_cop,
+
         currency: "COP",
         status: "pending",
         due_date: new Date().toISOString().slice(0, 10),

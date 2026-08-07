@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import { ANNUAL_PRICE_PER_SCREEN, MAX_PRICE_PER_SCREEN, PRICING_TIERS } from "@/config/pricing";
+import {
+  ANNUAL_PRICE_PER_SCREEN,
+  MAX_PRICE_PER_SCREEN,
+  PRICING_TIERS,
+  IVA_LEGEND,
+  PRICING_FOOTNOTE,
+} from "@/config/pricing";
 import { formatCop } from "@/config/devices";
 import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
@@ -276,8 +282,11 @@ export default function CampaignLanding() {
           <h3 className="mt-6 text-sm font-semibold uppercase tracking-widest text-primary">El servicio</h3>
           <div className="mt-3 flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-4">
             <span className="text-sm font-medium text-foreground">Por pantalla, al mes</span>
-            <span className="font-display text-xl font-bold text-foreground">
-              {formatCop(MAX_PRICE_PER_SCREEN)}
+            <span className="text-right">
+              <span className="block font-display text-xl font-bold text-foreground">
+                {formatCop(MAX_PRICE_PER_SCREEN)}
+              </span>
+              <span className="block text-xs text-muted-foreground">{IVA_LEGEND}</span>
             </span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -290,6 +299,8 @@ export default function CampaignLanding() {
             ))}
             .
           </p>
+          <p className="mt-2 text-xs text-muted-foreground">{PRICING_FOOTNOTE}</p>
+
 
           <hr className="my-7 border-border/60" />
 

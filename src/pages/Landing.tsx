@@ -43,14 +43,8 @@ import {
 } from "lucide-react";
 import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
-import { PRICING_TIERS, MIN_PRICE_PER_SCREEN } from "@/config/pricing";
+import PricingSection from "@/components/landing/PricingSection";
 
-const _fmtCOP = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-const formatCOPStatic = (n: number) => _fmtCOP.format(n);
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
 import destacaPromocionesWebm from "@/assets/destaca-promociones.webm";
@@ -102,59 +96,7 @@ const steps = [
   },
 ];
 
-type PricingCard = {
-  name: string;
-  price: number | null;
-  priceLabel?: string;
-  detail: string;
-  features: string[];
-  cta: string;
-  ctaHref?: string;
-  highlight: boolean;
-  contact?: boolean;
-};
-
-const pricingTiers: PricingCard[] = [
-  {
-    name: `${PRICING_TIERS[0].min} a ${PRICING_TIERS[0].max} pantallas`,
-    price: PRICING_TIERS[0].pricePerScreen,
-    detail: "por pantalla / mes",
-    features: [
-      "Actualizaciones ilimitadas",
-      "Editor y plantillas listas",
-      "Soporte por chat",
-    ],
-    cta: "Empezar",
-    highlight: false,
-  },
-  {
-    name: `${PRICING_TIERS[1].min} a ${PRICING_TIERS[1].max} pantallas`,
-    price: PRICING_TIERS[1].pricePerScreen,
-    detail: "por pantalla / mes",
-    features: [
-      "Todo lo anterior",
-      "Multi-sede en un solo panel",
-      "Programación por horario",
-      "Soporte prioritario",
-    ],
-    cta: "Prueba gratis 14 días",
-    highlight: true,
-  },
-  {
-    name: `${PRICING_TIERS[2].min} o más`,
-    price: null,
-    priceLabel: `desde ${formatCOPStatic(MIN_PRICE_PER_SCREEN)}`,
-    detail: "por pantalla / mes, según volumen",
-    features: [
-      "Descuentos por volumen",
-      "Onboarding personalizado",
-      "Gerente de cuenta",
-    ],
-    cta: "Ver calculadora",
-    ctaHref: "/precios",
-    highlight: false,
-  },
-];
+// Las tarjetas de precio viven en src/components/landing/PricingSection.tsx
 
 const testimonials = [
   {
@@ -177,14 +119,6 @@ const HEADLINE = "Tu menú en pantalla, siempre actualizado y vendiendo más";
 const SUBHEAD =
   "Cambia precios y promociones desde tu celular y se actualizan al instante en todas las pantallas de tu restaurante. Sin diseñador, sin técnico, sin imprimir cartas nunca más.";
 
-function formatCOP(value: number) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 // ---------- Fire TV redirect ----------
 const isFireTvBrowser = () => {
@@ -720,87 +654,8 @@ const Landing = () => {
 
       {/* 5. PRICING */}
 
-      <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24">
-        <div className="section-glow" aria-hidden="true" />
-        <div className="relative z-10 mx-auto max-w-6xl">
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-xs font-medium uppercase tracking-widest text-primary">
-              Precios
-            </p>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-              Un precio simple por pantalla
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Sin permanencia. Sin costos ocultos. Cancela cuando quieras.
-            </p>
-          </div>
+      <PricingSection />
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {pricingTiers.map((t, i) => (
-              <div
-                key={t.name}
-                className={`relative flex flex-col p-7 ${
-                  t.highlight
-                    ? "gradient-border-shine reveal-on-scroll"
-                    : "bento-card reveal-on-scroll"
-                }`}
-                style={{ transitionDelay: `${i * 120}ms` }}
-              >
-                {t.highlight && (
-                  <span className="absolute -top-3 left-7 rounded-full bg-[#5227FF] px-3 py-1 text-xs font-semibold text-white">
-                    Más popular
-                  </span>
-                )}
-                <h3 className="font-display text-lg font-semibold text-white">
-                  {t.name}
-                </h3>
-                <div className="mt-4">
-                  {t.price !== null ? (
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-display text-4xl font-bold text-white">
-                        {formatCOP(t.price)}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="font-display text-2xl font-semibold text-white">
-                      {t.priceLabel ?? "A medida"}
-                    </span>
-                  )}
-                  <p className="mt-1 text-sm text-white/60">{t.detail}</p>
-                </div>
-
-                <ul className="mt-6 space-y-2.5 text-sm text-white/90">
-                  {t.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#B19EEF]" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-auto pt-7">
-                  <Link
-                    to={t.ctaHref ?? "/registro"}
-                    className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] ${
-                      t.highlight
-                        ? "bg-[#5227FF] text-white hover:shadow-[0_0_40px_rgba(82,39,255,0.55)]"
-                        : "border border-white/15 bg-transparent text-white hover:bg-white/5"
-                    }`}
-                  >
-                    {t.cta}
-                    {t.highlight && <ArrowRight className="h-4 w-4" />}
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Precios en pesos colombianos (COP). Facturación mensual.
-          </p>
-        </div>
-      </section>
 
       {/* Testimonials (real only — see src/components/landing/Testimonials.tsx) */}
       <Testimonials />

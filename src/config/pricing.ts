@@ -53,3 +53,38 @@ export function firstYearTotals(devicePriceCop: number) {
     anual: ANNUAL_PRICE_PER_SCREEN,
   };
 }
+
+/* ── IVA ──────────────────────────────────────────────────────────────────
+ * Todos los precios publicados YA incluyen el IVA del 19%. La leyenda vive
+ * acá para que la página principal, la landing de campaña, la suscripción,
+ * el resumen previo al pago y los correos digan exactamente lo mismo.
+ */
+
+/** IVA colombiano vigente. */
+export const IVA_RATE = 0.19;
+
+/** Leyenda corta que acompaña a cada precio. */
+export const IVA_LEGEND = "IVA incluido";
+
+/** Leyenda larga para notas al pie de las secciones de precios. */
+export const PRICING_FOOTNOTE =
+  "Precios en pesos colombianos (COP), IVA del 19% incluido. Facturación mensual.";
+
+/**
+ * Desglosa un monto con IVA incluido en base gravable + IVA, como lo exige
+ * la DIAN en la factura electrónica. Nunca aplicar 19% sobre el total.
+ * Ej: 50.000 → { base: 42.017, iva: 7.983 }
+ */
+export function splitIva(grossCop: number) {
+  const base = Math.round(grossCop / (1 + IVA_RATE));
+  return { base, iva: grossCop - base, total: grossCop };
+}
+
+/** Meses que se pagan al elegir el plan anual (12 menos los gratis). */
+export const ANNUAL_BILLED_MONTHS = 12 - ANNUAL_FREE_MONTHS;
+
+/** Precio anual por pantalla para cualquier tramo mensual. */
+export function annualPricePerScreen(monthlyPerScreen: number) {
+  return monthlyPerScreen * ANNUAL_BILLED_MONTHS;
+}
+

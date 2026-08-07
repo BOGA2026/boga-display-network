@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Monitor, Calendar, CreditCard, TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { fmtCOP, fmtDate, daysRemaining, calculateMonthlyTotal, marginalPrice, getStorage } from "@/lib/proration";
+import { IVA_LEGEND } from "@/config/pricing";
 import type { SubscriptionRow, ScreenItem } from "@/hooks/useSubscriptionData";
 
 interface Props {
@@ -81,7 +82,7 @@ export function SubscriptionOverview({ subscription, screens, onManageScreens, o
           icon={CreditCard}
           label="Valor mensual"
           value={fmtCOP(monthlyTotal)}
-          subtitle={`prom. ${fmtCOP(avgPerScreen)} / pantalla · próxima ${fmtCOP(nextScreenPrice)}`}
+          subtitle={`${IVA_LEGEND} · prom. ${fmtCOP(avgPerScreen)} / pantalla · próxima ${fmtCOP(nextScreenPrice)}`}
         />
         <KpiCard
           icon={Calendar}
