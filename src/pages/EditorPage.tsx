@@ -9,6 +9,7 @@ import {
   Type,
   Image as ImageIcon,
   Star,
+  Shapes,
   Palette,
   Layers,
   Settings,
@@ -39,6 +40,7 @@ import { PresetPicker } from "@/components/editor/PresetPicker";
 import { DraggableLayer } from "@/components/editor/DraggableLayer";
 import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
 import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
+import ElementsPanel, { type ElementInsertPayload } from "@/components/editor/ElementsPanel";
 import { WidgetRenderer } from "@/components/editor/WidgetRenderer";
 import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
 import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
@@ -52,6 +54,8 @@ import { cn } from "@/lib/utils";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
 import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
 import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
+import { useTenant } from "@/features/auth/useTenant";
+import { DEFAULT_ELEMENT_COLORS } from "@/features/editor/elements/svg";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -101,6 +105,7 @@ export default function EditorPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+  const [elementsPanelOpen, setElementsPanelOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -320,6 +325,76 @@ export default function EditorPage() {
     setSelectedIds([id]);
     setImageGalleryOpen(false);
   };
+
+  const tenant = useTenant();
+
+  /** Colores de la marca aplicados a los elementos SVG monocromos. */
+  const elementColors = useMemo(
+    () => ({
+      accent: brand?.accent_color ?? brand?.primary_color ?? DEFAULT_ELEMENT_COLORS.accent,
+      primary: brand?.primary_color ?? DEFAULT_ELEMENT_COLORS.primary,
+      secondary: brand?.secondary_color ?? DEFAULT_ELEMENT_COLORS.secondary,
+    }),
+    [brand],
+  );
+
+  /** Inserta un elemento de la galería curada (y su texto editable si es una insignia). */
+  const addElementLayer = useCallback(
+    (payload: ElementInsertPayload) => {
+      saveSnapshot();
+      const isBackground = payload.width >= baseResolution.w;
+      const w = Math.min(payload.width, baseResolution.w);
+      const h = Math.min(payload.height, baseResolution.h);
+      const x = isBackground ? 0 : Math.round((baseResolution.w - w) / 2);
+      const y = isBackground ? 0 : Math.round((baseResolution.h - h) / 2);
+      const shapeId = crypto.randomUUID();
+      const textId = crypto.randomUUID();
+
+      const shapeLayer: LayerItem = {
+        id: shapeId,
+        name: payload.name,
+        type: "image",
+        x,
+        y,
+        w,
+        h,
+        color: "transparent",
+        imageUrl: payload.url,
+      };
+
+      const next: LayerItem[] = [shapeLayer];
+      if (payload.text) {
+        next.push({
+          id: textId,
+          name: payload.text,
+          type: "text",
+          x: x + Math.round(w * 0.1),
+          y: y + Math.round(h / 2) - 40,
+          w: Math.round(w * 0.8),
+          h: 80,
+          color: "transparent",
+          textStyle: {
+            ...brandTextStyle(),
+            content: payload.text,
+            fontSize: payload.textSize ?? 54,
+            fontWeight: 800,
+            color: "#FFFFFF",
+            textAlign: "center",
+            bannerStyle: "none",
+            paddingX: 0,
+            paddingY: 0,
+          },
+        });
+      }
+
+      setLayers((prev) => (isBackground ? [...next, ...prev] : [...prev, ...next]));
+      setSelectedIds([payload.text ? textId : shapeId]);
+      setElementsPanelOpen(false);
+    },
+    [baseResolution, brandTextStyle, saveSnapshot],
+  );
+
+
 
   const addLocalImageLayer = (file: File) => {
     const src = URL.createObjectURL(file);
@@ -938,6 +1013,20 @@ export default function EditorPage() {
               </PopoverTrigger>
               <PopoverContent side="right" align="start" className="w-72 p-0 border-0 bg-transparent shadow-none">
                 <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
+              </PopoverContent>
+            </Popover>
+            <Popover open={elementsPanelOpen} onOpenChange={setElementsPanelOpen}>
+              <PopoverTrigger asChild>
+                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Elementos">
+                  <Shapes className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className="w-auto p-0 border-0 bg-transparent shadow-none">
+                <ElementsPanel
+                  colors={elementColors}
+                  businessCategory={tenant.category}
+                  onInsert={addElementLayer}
+                />
               </PopoverContent>
             </Popover>
             <span className="h-px w-full bg-border" />
