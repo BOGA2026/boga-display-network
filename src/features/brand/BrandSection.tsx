@@ -298,8 +298,8 @@ export default function BrandSection() {
         />
         <EmptyState
           icon={<Sparkles className="h-9 w-9" />}
-          title="Define tu marca una sola vez"
-          description="Sube tu logo y elige tus colores. Todos los menús que generes van a usarlos automáticamente."
+          title="Definí tu marca una sola vez"
+          description="Subí tu logo y elegí tus colores. Esta base gráfica se usa automáticamente en el generador con IA, el editor y cada menú nuevo que crees."
           action={
             <Button
               size="lg"
