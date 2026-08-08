@@ -50,6 +50,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { storageThumb } from "@/lib/storageImage";
 import { cn } from "@/lib/utils";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
+import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -162,6 +164,43 @@ export default function EditorPage() {
   const dragSnapshotSaved = useRef(false);
   const MAX_HISTORY = 80;
 
+  /**
+   * La marca del negocio (Contenido → Tu marca). El editor arranca con esa
+   * paleta y esas tipografías: nadie vuelve a elegir el mismo rojo dos veces.
+   */
+  const [brand, setBrand] = useState<BrandKit | null>(null);
+  useEffect(() => {
+    let vivo = true;
+    fetchBrandKit()
+      .then((k) => {
+        if (!vivo || !k) return;
+        setBrand(k);
+        ensureFont(k.heading_font ?? DEFAULT_HEADING_FONT);
+        ensureFont(k.body_font ?? DEFAULT_BODY_FONT);
+        if (!searchParams.get("contentId")) setBackground(k.background_color);
+      })
+      .catch(() => undefined);
+    return () => {
+      vivo = false;
+    };
+    // Solo al montar: cambiar de pieza no debe pisar el lienzo abierto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Estilo de texto por defecto, ya vestido con la marca. */
+  const brandTextStyle = useCallback(
+    (): TextStyle => ({
+      ...defaultTextStyle,
+      fontFamily: brand?.heading_font ?? defaultTextStyle.fontFamily,
+      color: brand?.text_color ?? defaultTextStyle.color,
+      bannerColor: brand?.primary_color ?? defaultTextStyle.bannerColor,
+      bannerFrom: brand?.primary_color ?? defaultTextStyle.bannerFrom,
+      bannerTo: brand?.secondary_color ?? defaultTextStyle.bannerTo,
+    }),
+    [brand],
+  );
+
+
   // Load existing layout when contentId param is present
   useEffect(() => {
     const cid = searchParams.get("contentId");
@@ -252,7 +291,7 @@ export default function EditorPage() {
         w: isText ? 700 : 300,
         h: isText ? 120 : 180,
         color: isText ? "transparent" : "#8B5CF6",
-        textStyle: isText ? { ...defaultTextStyle } : undefined,
+        textStyle: isText ? brandTextStyle() : undefined,
       },
     ]);
     if (isText) {
@@ -789,6 +828,67 @@ export default function EditorPage() {
       toast.error("No se pudo cargar el preset");
     }
   }, [saveSnapshot]);
+
+  /**
+   * Abrir una plantilla de "Tu marca" (`?preset=<id>`): trae la estructura y le
+   * aplica los colores y tipografías de la marca. La plantilla guarda la
+   * estructura, nunca el contenido.
+   */
+  useEffect(() => {
+    const pid = searchParams.get("preset");
+    if (!pid || !brand) return;
+    let vivo = true;
+    (async () => {
+      const { data } = await supabase
+        .from("content")
+        .select("file_url")
+        .eq("id", pid)
+        .eq("type", "preset")
+        .maybeSingle();
+      if (!vivo || !data?.file_url) return;
+      try {
+        const base64 = data.file_url.replace(/^data:[^;]+;base64,/, "");
+        const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+        if (payload.orientation) setOrientation(payload.orientation);
+        if (payload.width && payload.height) {
+          setCustomResolution(true);
+          setCustomW(payload.width);
+          setCustomH(payload.height);
+        }
+        setBackground(brand.background_color);
+        if (Array.isArray(payload.layers)) {
+          setLayers(
+            (payload.layers as LayerItem[]).map((l) =>
+              l.type === "text" && l.textStyle
+                ? {
+                    ...l,
+                    textStyle: {
+                      ...l.textStyle,
+                      fontFamily:
+                        l.textStyle.fontSize >= 40
+                          ? brand.heading_font ?? l.textStyle.fontFamily
+                          : brand.body_font ?? l.textStyle.fontFamily,
+                      color: brand.text_color,
+                      bannerColor: brand.primary_color,
+                      bannerFrom: brand.primary_color,
+                      bannerTo: brand.secondary_color,
+                    },
+                  }
+                : l,
+            ),
+          );
+        }
+        toast.success("Plantilla abierta con los colores de tu marca");
+      } catch {
+        toast.error("No se pudo abrir la plantilla");
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [searchParams, brand]);
+
+
 
   const deletePreset = useCallback(async (id: string) => {
     const { error } = await supabase.from("content").delete().eq("id", id);

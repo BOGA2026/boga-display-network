@@ -418,6 +418,11 @@ type BrandKit = {
   primary_color?: string | null;
   secondary_color?: string | null;
   accent_color?: string | null;
+  background_color?: string | null;
+  text_color?: string | null;
+  extra_color?: string | null;
+  heading_font?: string | null;
+  body_font?: string | null;
   font_family?: string | null;
   logo_url?: string | null;
 };
@@ -665,8 +670,12 @@ BRAND KIT DEL NEGOCIO — APLÍCALO DESDE LA GENERACIÓN:
 - Color primario (acento): ${brandKit.primary_color ?? "no definido"}
 - Color secundario (fondo): ${brandKit.secondary_color ?? "no definido"}
 - Color de realce: ${brandKit.accent_color ?? "no definido"}
-- Tipografía de marca: ${brandKit.font_family ?? "no definida"}
+- Color de fondo de marca: ${brandKit.background_color ?? "no definido"}
+- Color de texto de marca: ${brandKit.text_color ?? "no definido"}
+- Tipografía de títulos: ${brandKit.heading_font ?? brandKit.font_family ?? "no definida"}
+- Tipografía de cuerpo: ${brandKit.body_font ?? "no definida"}
 Usa estos colores en background_color, color_acento y color_texto manteniendo buen contraste.
+El negocio ya definió su marca en Visualia: no inventes otra paleta ni otras tipografías.
 `
       : "";
 
@@ -812,10 +821,12 @@ REGLAS:
         texto_cta: isMenuResponse
           ? (normalizedFooter ?? "")
           : (isPlaceholderText(p.texto_cta) ? "Descubre más" : p.texto_cta),
-        color_texto: p.color_texto ?? "#FFFFFF",
+        color_texto: brandKit?.text_color ?? p.color_texto ?? "#FFFFFF",
         color_acento: brandKit?.accent_color ?? brandKit?.primary_color ?? p.color_acento ?? "#00e5c4",
-        fuente_titulo: validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald",
-        fuente_cuerpo: validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter",
+        fuente_titulo: brandKit?.heading_font
+          ?? (validTitleFonts.includes(p.fuente_titulo) ? p.fuente_titulo : "Oswald"),
+        fuente_cuerpo: brandKit?.body_font
+          ?? (validBodyFonts.includes(p.fuente_cuerpo) ? p.fuente_cuerpo : "Inter"),
         titulo_size: typeof p.titulo_size === "number" ? p.titulo_size : 84,
         subtitulo_size: typeof p.subtitulo_size === "number" ? p.subtitulo_size : 28,
         elementos: Array.isArray(p.elementos) ? p.elementos : [],
