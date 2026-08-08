@@ -91,7 +91,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageTitle: "Contenido",
     pageSubtitle: "Sube, organiza y publica el material que ven tus clientes.",
     icon: ImageIcon,
-    aliases: ["Content", "Media", "Biblioteca", "Archivos"],
+    aliases: ["Content", "Media", "Biblioteca", "Archivos", "Menú", "Menu", "Carta", "Piezas"],
   },
   listas: {
     path: "/dashboard/listas",
@@ -137,7 +137,7 @@ export const NAV: Record<NavKey, NavEntry> = {
     pageSubtitle:
       "Códigos dinámicos: cambia el destino cuando quieras sin reimprimir. Cada escaneo se registra en tiempo real.",
     icon: QrCode,
-    aliases: ["QR", "Códigos", "Codigos QR", "Scan"],
+    aliases: ["QR", "Códigos", "Codigos QR", "Scan", "Menú", "Menu", "Carta", "Carta digital"],
   },
   analiticas: {
     path: "/dashboard/analiticas",
