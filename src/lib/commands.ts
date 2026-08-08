@@ -240,3 +240,40 @@ export function buildCommands({
   const seen = new Set<string>();
   return all.filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
 }
+
+/* ─────────────────────────  Relevancia de búsqueda  ─────────────────────────
+ * cmdk filtra con coincidencia difusa por subsecuencia: escribir "menu" hacía
+ * match con "MonitorEo" (m-o-n… las letras aparecen en orden). Por eso la
+ * paleta corre con `shouldFilter={false}` y usa esto: coincidencia REAL de
+ * prefijo o de subcadena sobre etiqueta y alias, sin acentos.
+ */
+export function normalizeTerm(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/** > 0 si el comando coincide de verdad con la consulta; 0 si no coincide. */
+export function matchScore(
+  command: Pick<CommandDef, "label" | "keywords">,
+  query: string,
+): number {
+  const q = normalizeTerm(query);
+  if (!q) return 1;
+
+  const label = normalizeTerm(command.label);
+  const keywords = (command.keywords ?? []).filter(Boolean).map(normalizeTerm);
+
+  const scoreOne = (term: string): number => {
+    if (term === q) return 500;
+    if (term.startsWith(q)) return 320;
+    if (term.split(/[\s/·-]+/).some((w) => w.startsWith(q))) return 220;
+    if (term.includes(q)) return 110;
+    return 0;
+  };
+
+  const best = Math.max(scoreOne(label), ...keywords.map((k) => scoreOne(k) * 0.8));
+  return best > 0 ? best : 0;
+}

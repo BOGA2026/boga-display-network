@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useBusinessId } from "@/hooks/useScheduleData";
 import { useDeviceMonitoring } from "@/features/monitoring/useDeviceMonitoring";
-import { useMonitoringStore, selectStatusCounts, selectDevicesArray } from "@/features/monitoring/store";
+import { useMonitoringStore, useStatusCounts, useMonitoredDevices } from "@/features/monitoring/store";
 import DeferredMount from "@/components/system/DeferredMount";
 import DeviceDetailPanel from "@/features/monitoring/DeviceDetailPanel";
 import NotificationCenter from "@/features/monitoring/NotificationCenter";
@@ -32,7 +32,7 @@ const DOT: Record<string, string> = {
 
 /** Lista de pantallas — se pinta sin esperar al mapa. */
 function DeviceList() {
-  const devices = useMonitoringStore(selectDevicesArray);
+  const devices = useMonitoredDevices();
   const selectedId = useMonitoringStore((s) => s.selectedId);
   const select = useMonitoringStore((s) => s.select);
   if (devices.length === 0) return null;
@@ -102,7 +102,7 @@ function LivePulse() {
 export default function Monitoring() {
   const { data: businessId } = useBusinessId();
   useDeviceMonitoring(businessId);
-  const counts = useMonitoringStore(selectStatusCounts);
+  const counts = useStatusCounts();
   const selectedId = useMonitoringStore((s) => s.selectedId);
 
   return (

@@ -21,15 +21,21 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-interface CommandDialogProps extends DialogProps {}
+interface CommandDialogProps extends DialogProps {
+  /** Se reenvía al <Command> interno (p. ej. `shouldFilter={false}`). */
+  commandProps?: React.ComponentPropsWithoutRef<typeof CommandPrimitive>;
+}
 
-const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
+const CommandDialog = ({ children, commandProps, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
       {/* En móvil ocupa la pantalla completa; desde md es el modal clásico. */}
-      <DialogContent className="inset-0 top-0 max-h-none h-[100dvh] max-w-none rounded-none overflow-hidden p-0 shadow-lg md:inset-auto md:h-auto md:max-h-[85vh] md:max-w-lg md:rounded-lg">
+      {/* Ojo: nada de `inset-0` / `md:inset-auto` acá. `cn()` usa tailwind-merge y
+          `md:inset-auto` BORRA el `md:left-[50%] md:top-[50%]` del DialogContent
+          base, dejando el panel en la esquina inferior izquierda. */}
+      <DialogContent className="top-0 max-h-none h-[100dvh] max-w-none rounded-none overflow-hidden p-0 shadow-lg md:top-[50%] md:h-auto md:max-h-[85vh] md:max-w-lg md:rounded-lg">
 
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        <Command {...commandProps} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
       </DialogContent>

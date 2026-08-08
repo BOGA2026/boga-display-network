@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
-import { useMonitoringStore, selectDevicesArray } from "./store";
+import { useMonitoringStore } from "./store";
 import UptimeChart from "./UptimeChart";
 import OfflineHistory from "./OfflineHistory";
 import { updateDeviceLocation } from "./api";

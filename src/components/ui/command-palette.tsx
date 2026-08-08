@@ -18,7 +18,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useCommandRegistry, type CommandItem as Cmd } from "@/hooks/useCommandRegistry";
-import { GROUP_ORDER, recordUsage, sortByScore } from "@/lib/commands";
+import { GROUP_ORDER, getCommandScore, matchScore, recordUsage, sortByScore } from "@/lib/commands";
 
 interface Props {
   open: boolean;
@@ -33,27 +33,50 @@ export function CommandPalette({ open, onOpenChange }: Props) {
     if (open) setRankKey((k) => k + 1);
   }, [open]);
 
+  const [query, setQuery] = React.useState("");
+  React.useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
   const grouped = React.useMemo(() => {
-    const map = new Map<string, Cmd[]>();
-    for (const item of items) {
-      const arr = map.get(item.group) ?? [];
-      arr.push(item);
-      map.set(item.group, arr);
+    // Filtrado y orden propios: cmdk queda con `shouldFilter={false}` porque su
+    // coincidencia difusa devolvía "Monitoreo" al escribir "menu".
+    const scored = items
+      .map((item) => ({ item, relevance: matchScore(item, query) }))
+      .filter((entry) => entry.relevance > 0);
+
+    const map = new Map<string, typeof scored>();
+    for (const entry of scored) {
+      const arr = map.get(entry.item.group) ?? [];
+      arr.push(entry);
+      map.set(entry.item.group, arr);
     }
+
+    const rank = (arr: typeof scored) =>
+      query.trim()
+        ? [...arr]
+            .sort(
+              (a, b) =>
+                b.relevance - a.relevance ||
+                getCommandScore(b.item) - getCommandScore(a.item) ||
+                a.item.label.localeCompare(b.item.label, "es"),
+            )
+            .map((e) => e.item)
+        : sortByScore(arr.map((e) => e.item));
 
     const sorted: [string, Cmd[]][] = [];
     for (const key of GROUP_ORDER) {
       const group = map.get(key);
       if (group?.length) {
-        sorted.push([key, sortByScore(group)]);
+        sorted.push([key, rank(group)]);
         map.delete(key);
       }
     }
     // Grupos contextuales registrados por páginas: al final.
-    for (const [k, v] of map) sorted.push([k, sortByScore(v)]);
+    for (const [k, v] of map) sorted.push([k, rank(v)]);
     return sorted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, rankKey]);
+  }, [items, rankKey, query]);
 
   const handleSelect = (item: Cmd) => {
     recordUsage(item.id);
@@ -62,8 +85,8 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Buscar o ejecutar…" />
+    <CommandDialog open={open} onOpenChange={onOpenChange} commandProps={{ shouldFilter: false }}>
+      <CommandInput placeholder="Buscar o ejecutar…" value={query} onValueChange={setQuery} />
       <CommandList>
         <CommandEmpty>Sin resultados.</CommandEmpty>
         {grouped.map(([group, groupItems], idx) => (
