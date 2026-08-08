@@ -16,7 +16,7 @@ import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useMonitoringStore, selectDevicesArray } from "./store";
+import { useMonitoringStore, useMonitoredDevices } from "./store";
 import { MapPin } from "lucide-react";
 
 const HOUR = 60 * 60 * 1000;
@@ -92,7 +92,7 @@ function FitToMarkers({ points }: { points: [number, number][] }) {
 
 
 export default function MapView() {
-  const devices = useMonitoringStore(selectDevicesArray);
+  const devices = useMonitoredDevices();
   const select = useMonitoringStore((s) => s.select);
   const tick = useMonitoringStore((s) => s.tick);
 

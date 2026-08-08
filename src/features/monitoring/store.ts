@@ -23,6 +23,7 @@
  *    cada refetch.
  */
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 import { OFFLINE_THRESHOLD_SECONDS } from "@shared/offlineThreshold";
 
 export type DeviceStatus = "online" | "offline" | "syncing" | "pending";
@@ -204,3 +205,12 @@ export const selectStatusCounts = (s: MonitoringState) => {
   }
   return { online, offline, syncing, pending, total: s.order.length };
 };
+
+/**
+ * Zustand v5 usa `useSyncExternalStore`: un selector que devuelve un objeto o
+ * arreglo NUEVO en cada llamada hace que React entre en bucle infinito
+ * ("The result of getSnapshot should be cached") y tumbe la vista.
+ * Por eso estos dos selectores derivados SIEMPRE se consumen con `useShallow`.
+ */
+export const useMonitoredDevices = () => useMonitoringStore(useShallow(selectDevicesArray));
+export const useStatusCounts = () => useMonitoringStore(useShallow(selectStatusCounts));
