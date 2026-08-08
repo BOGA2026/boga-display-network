@@ -252,7 +252,8 @@ export default function GenerateAI() {
     try {
       const bid = await getBusinessId();
       if (!bid) throw new Error("No business");
-      const path = `brand/${bid}/logo-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+      // La carpeta raíz debe ser el id del negocio: así lo exige la política del bucket.
+      const path = `${bid}/marca/logos/${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("media").upload(path, file, { upsert: true });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
@@ -277,7 +278,7 @@ export default function GenerateAI() {
 
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const fileName = `ai-designs/${Date.now()}.png`;
+      const fileName = `${bid}/disenos-ia/${Date.now()}.png`;
 
       const { error: uploadErr } = await supabase.storage
         .from("media")
