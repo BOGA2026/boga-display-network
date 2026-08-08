@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState, useCallback, useEffect } from "react"
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { captureElement, preloadCapture } from "@/components/system/DeferredMount";
+import simboloVisualia from "@/assets/simbolo-visualia.webp";
 import {
   Undo2,
   Redo2,
@@ -91,6 +92,8 @@ export default function EditorPage() {
   const [background, setBackground] = useState("#FFFFFF");
   const [tab, setTab] = useState<"settings" | "layers" | "actions" | "presets">("settings");
   const [saving, setSaving] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [dirty, setDirty] = useState(true);
   const [capturing, setCapturing] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveFileName, setSaveFileName] = useState("");
@@ -879,6 +882,8 @@ export default function EditorPage() {
       if (savedId) requestThumbnail(savedId);
 
       setContentName(saveFileName.trim());
+      setLastSavedAt(Date.now());
+      setDirty(false);
       toast.success(`"${saveFileName.trim()}" guardado en Contenido`);
       setSaveDialogOpen(false);
     } catch (err: any) {
@@ -931,6 +936,8 @@ export default function EditorPage() {
       if (error) throw error;
       if (inserted) requestThumbnail(inserted.id);
 
+      setLastSavedAt(Date.now());
+      setDirty(false);
       toast.success(`Preset "${presetName.trim()}" guardado`);
       setPresetDialogOpen(false);
       setTab("presets");
@@ -1045,12 +1052,25 @@ export default function EditorPage() {
         onSavePreset={onSavePreset}
         saving={saving}
         capturing={capturing}
+        lastSavedAt={lastSavedAt}
+        dirty={dirty}
       />
 
       <div className="grid h-[calc(100%-56px)] grid-cols-[56px_1fr_320px]">
         {/* Left tools */}
          <aside className="border-r border-border bg-card p-2">
           <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-center gap-2 pb-1">
+              <img
+                src={simboloVisualia}
+                alt="Visualia"
+                width={20}
+                height={20}
+                style={{ height: 20, width: "auto" }}
+                className="shrink-0 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
+              />
+              <span className="h-px w-full bg-border" />
+            </div>
             <button onClick={() => addLayer("Zona", "zone")} className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Zona">
               <LayoutGrid className="h-5 w-5" />
             </button>
@@ -1262,6 +1282,18 @@ export default function EditorPage() {
                 onPointerMove={onCanvasPointerMove}
                 onPointerUp={onCanvasPointerUp}
               >
+              {/* Marca de agua: solo mientras el lienzo está vacío */}
+              {layers.length === 0 && (
+                <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+                  <img
+                    src={simboloVisualia}
+                    alt=""
+                    aria-hidden
+                    style={{ width: 200, height: "auto", opacity: 0.06 }}
+                    draggable={false}
+                  />
+                </div>
+              )}
               {/* Snap guides */}
               {guides.v && (
                 <div className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-50" style={{ left: baseResolution.w / 2 }} />
