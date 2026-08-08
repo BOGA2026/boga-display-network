@@ -17,6 +17,10 @@ export type ElementInsertPayload = {
   name: string;
   width: number;
   height: number;
+  /** Markup SVG original con tokens de color, para poder recolorear después. */
+  svg: string;
+  /** Color aplicado al insertar. */
+  color: string;
   /** Texto editable que debe insertarse como capa de texto encima (insignias). */
   text?: string;
   textSize?: number;
