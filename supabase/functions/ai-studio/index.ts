@@ -172,7 +172,8 @@ async function uploadImageDataUri(businessId: string, dataUri: string) {
   const contentType = match[1];
   const ext = contentType.split("/")[1].split("+")[0];
   const bytes = Uint8Array.from(atob(match[2]), (c) => c.charCodeAt(0));
-  const path = `ai/${businessId}/${crypto.randomUUID()}.${ext}`;
+  // Carpeta raíz = id del negocio (requisito de las políticas del bucket).
+  const path = `${businessId}/ia/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabaseService().storage.from("media").upload(path, bytes, {
     contentType,
     upsert: false,
