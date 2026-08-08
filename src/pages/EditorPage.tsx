@@ -94,10 +94,6 @@ export default function EditorPage() {
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [dirty, setDirty] = useState(true);
-  // Cualquier cambio en el lienzo invalida el último guardado.
-  useEffect(() => {
-    setDirty(true);
-  }, [layers, background]);
   const [capturing, setCapturing] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveFileName, setSaveFileName] = useState("");
@@ -105,6 +101,10 @@ export default function EditorPage() {
   const [presetName, setPresetName] = useState("");
   const [presets, setPresets] = useState<{ id: string; name: string; thumbnail_url: string | null; file_url: string | null }[]>([]);
   const [layers, setLayers] = useState<LayerItem[]>([]);
+  // Cualquier cambio en el lienzo invalida el último guardado.
+  useEffect(() => {
+    setDirty(true);
+  }, [layers, background]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [guides, setGuides] = useState({ v: false, h: false });
