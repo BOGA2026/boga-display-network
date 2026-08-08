@@ -1015,6 +1015,20 @@ export default function EditorPage() {
                 <WidgetPresetPicker orientation={orientation} onInsertPreset={addWidgetFromPreset} />
               </PopoverContent>
             </Popover>
+            <Popover open={elementsPanelOpen} onOpenChange={setElementsPanelOpen}>
+              <PopoverTrigger asChild>
+                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Elementos">
+                  <Shapes className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="start" className="w-auto p-0 border-0 bg-transparent shadow-none">
+                <ElementsPanel
+                  colors={elementColors}
+                  businessCategory={tenant.category}
+                  onInsert={addElementLayer}
+                />
+              </PopoverContent>
+            </Popover>
             <span className="h-px w-full bg-border" />
             <button onClick={() => fileInputRef.current?.click()} className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Subir imagen (PNG)">
               <Upload className="h-5 w-5" />
