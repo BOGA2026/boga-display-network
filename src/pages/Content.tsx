@@ -116,7 +116,7 @@ const SAMPLE_CONTENT = [
   { name: "Bebidas Especiales", type: "image", url: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=1920&q=80" },
 ];
 
-const Content = () => {
+const ContentLibrary = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
