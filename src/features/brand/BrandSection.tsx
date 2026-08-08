@@ -19,7 +19,6 @@ import {
   RotateCcw,
   Info,
   Wand2,
-  Palette,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
