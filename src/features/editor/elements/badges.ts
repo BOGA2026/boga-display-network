@@ -25,6 +25,10 @@ const LABELS: { id: string; text: string; tags: string[] }[] = [
   { id: "happy-hour", text: "HAPPY HOUR", tags: ["happy hour", "hora feliz", "bar", "promo"] },
   { id: "promo-dia", text: "PROMO DEL DÍA", tags: ["promo del dia", "plato del dia", "corrientazo"] },
   { id: "fin-semana", text: "FIN DE SEMANA", tags: ["fin de semana", "sabado", "domingo", "promo"] },
+  { id: "gratis", text: "GRATIS", tags: ["gratis", "obsequio", "cortesia"] },
+  { id: "familiar", text: "COMBO FAMILIAR", tags: ["combo familiar", "para compartir", "familia"] },
+  { id: "envio-gratis", text: "ENVÍO GRATIS", tags: ["envio gratis", "domicilio gratis", "delivery"] },
+  { id: "compartir", text: "PARA COMPARTIR", tags: ["para compartir", "picada", "grupo"] },
 ];
 
 function shapeSvg(shape: Shape) {
