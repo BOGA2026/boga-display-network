@@ -303,3 +303,142 @@ export const BACKGROUND_ELEMENTS: ElementDef[] = [
 
 /** Iconos auxiliares reutilizados por sugerencias (no exportados en categorías). */
 export const _unusedStroke = strokeSvg;
+
+/* ── Formas adicionales ── */
+SHAPE_ELEMENTS.push(
+  g("forma-hexagono", "Hexágono", ["hexagono", "forma", "geometrico"], "formas", [260, 240],
+    rawSvg(`<path d="M65 0h130l65 120-65 120H65L0 120Z" fill="__C__"/>`, "0 0 260 240")),
+  g("forma-rombo", "Rombo", ["rombo", "diamante", "forma"], "formas", [240, 240],
+    rawSvg(`<path d="M120 0 240 120 120 240 0 120Z" fill="__C__"/>`, "0 0 240 240")),
+  g("forma-pentagono", "Pentágono", ["pentagono", "forma", "geometrico"], "formas", [250, 240],
+    rawSvg(`<path d="M125 0 250 92l-48 148H48L0 92Z" fill="__C__"/>`, "0 0 250 240")),
+  g("forma-cruz", "Cruz", ["cruz", "mas", "forma"], "formas", [240, 240],
+    rawSvg(`<path d="M92 0h56v92h92v56h-92v92H92v-92H0V92h92Z" fill="__C__"/>`, "0 0 240 240")),
+  g("forma-corazon", "Corazón", ["corazon", "amor", "favorito", "forma"], "formas", [260, 240],
+    rawSvg(`<path d="M130 235S8 162 8 82A72 72 0 0 1 130 34 72 72 0 0 1 252 82c0 80-122 153-122 153Z" fill="__C__"/>`, "0 0 260 240")),
+  g("forma-rayo", "Rayo", ["rayo", "energia", "forma", "destacado"], "formas", [180, 260],
+    rawSvg(`<path d="M108 0 12 148h60L60 260l108-160h-66Z" fill="__C__"/>`, "0 0 180 260")),
+  g("forma-check", "Check", ["check", "chulo", "listo", "aprobado"], "formas", [260, 200],
+    rawSvg(`<path d="M20 108 92 178 240 24" fill="none" stroke="__C__" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>`, "0 0 260 200")),
+  g("forma-equis", "Equis", ["equis", "x", "cerrado", "no"], "formas", [220, 220],
+    rawSvg(`<path d="M28 28 192 192M192 28 28 192" fill="none" stroke="__C__" stroke-width="34" stroke-linecap="round"/>`, "0 0 220 220")),
+  g("forma-burbuja-pensamiento", "Burbuja de pensamiento", ["burbuja", "pensamiento", "nube", "dialogo"], "formas", [400, 300],
+    rawSvg(`<path d="M96 40h208a76 76 0 0 1 0 152H150l-52 44v-44h-2a76 76 0 0 1 0-152Z" fill="__C__"/><circle cx="72" cy="252" r="22" fill="__C__"/><circle cx="34" cy="284" r="13" fill="__C__"/>`, "0 0 400 300")),
+  g("forma-flecha-curva", "Flecha curva", ["flecha", "curva", "direccion", "señala"], "formas", [300, 220],
+    rawSvg(`<path d="M20 190c30-110 130-160 240-150" fill="none" stroke="__C__" stroke-width="24" stroke-linecap="round"/><path d="M210 8h58v58" fill="none" stroke="__C__" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>`, "0 0 300 220")),
+  g("forma-cinta-esquina", "Cinta de esquina", ["cinta", "esquina", "forma", "destacado"], "formas", [300, 300],
+    rawSvg(`<path d="M0 0h300v300Z" fill="__C__"/>`, "0 0 300 300")),
+  g("forma-semicirculo", "Semicírculo", ["semicirculo", "media luna", "forma"], "formas", [280, 150],
+    rawSvg(`<path d="M0 140a140 140 0 0 1 280 0Z" fill="__C__"/>`, "0 0 280 150")),
+);
+
+/* ── Divisores adicionales ── */
+DIVIDER_ELEMENTS.push(
+  g("div-rombos", "Línea con rombos", ["divisor", "rombos", "adorno", "separador"], "divisores", [900, 60],
+    rawSvg(`<path d="M0 30h340M560 30h340" stroke="__C__" stroke-width="8" stroke-linecap="round"/><path d="M400 30 420 10l20 20-20 20Z" fill="__C__"/><path d="M460 30 480 10l20 20-20 20Z" fill="__C__"/>`, "0 0 900 60")),
+  g("div-zigzag", "Zigzag", ["divisor", "zigzag", "separador"], "divisores", [900, 60],
+    rawSvg(`<path d="M0 44 30 16l30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28 30-28 30 28" fill="none" stroke="__C__" stroke-width="8" stroke-linejoin="round"/>`, "0 0 900 60")),
+  g("div-gruesa", "Línea gruesa", ["divisor", "gruesa", "barra", "separador"], "divisores", [900, 40],
+    rawSvg(`<rect y="8" width="900" height="24" rx="12" fill="__C__"/>`, "0 0 900 40")),
+  g("marco-doble", "Marco doble", ["marco", "doble", "seccion", "borde"], "divisores", [820, 480],
+    rawSvg(`<rect x="8" y="8" width="804" height="464" fill="none" stroke="__C__" stroke-width="14"/><rect x="34" y="34" width="752" height="412" fill="none" stroke="__C__" stroke-width="6"/>`, "0 0 820 480")),
+  g("marco-arco", "Marco con arco", ["marco", "arco", "seccion", "menu"], "divisores", [640, 520],
+    rawSvg(`<path d="M20 500V200a300 300 0 0 1 600 0v300Z" fill="none" stroke="__C__" stroke-width="14" stroke-linejoin="round"/>`, "0 0 640 520")),
+  g("banda-diagonal", "Banda diagonal", ["banda", "diagonal", "fondo de seccion"], "divisores", [900, 200],
+    rawSvg(`<path d="M0 40h900v90H0Z" fill="__C__" transform="rotate(-4 450 85)"/>`, "0 0 900 200")),
+);
+
+/* ── Precios adicionales ── */
+PRICE_ELEMENTS.push(
+  g("precio-porcentaje", "Círculo de descuento %", ["descuento", "porcentaje", "%", "promocion", "precio"], "precios", [280, 280],
+    rawSvg(`<circle cx="110" cy="110" r="104" fill="__C__"/>` + centeredText("%", { x: 110, y: 118, size: 120, fill: "#FFFFFF", weight: 800, letter: 0 }), "0 0 220 220")),
+  g("precio-etiqueta-off", "Etiqueta de descuento", ["descuento", "off", "etiqueta", "precio", "rebaja"], "precios", [360, 180],
+    rawSvg(`<path d="M10 30h230l70 60-70 60H10Z" fill="__C__"/><circle cx="60" cy="90" r="14" fill="#FFFFFF"/>`, "0 0 340 180")),
+  g("precio-hexagono", "Marco de precio · hexágono", ["precio", "hexagono", "marco"], "precios", [280, 260],
+    rawSvg(`<path d="M65 0h130l65 120-65 120H65L0 120Z" fill="__C__"/>`, "0 0 260 240")),
+  g("precio-cuadro", "Marco de precio · cuadro", ["precio", "cuadro", "marco", "valor"], "precios", [300, 200],
+    rawSvg(`<rect x="6" y="6" width="288" height="188" rx="18" fill="__C__"/><rect x="26" y="26" width="248" height="148" rx="10" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-opacity="0.55"/>`, "0 0 300 200")),
+  g("precio-desde", "Sello «Desde»", ["desde", "precio", "sello", "valor"], "precios", [260, 130],
+    rawSvg(`<rect x="4" y="4" width="252" height="122" rx="61" fill="__C__"/>` + centeredText("DESDE", { x: 130, y: 66, size: 44, fill: "#FFFFFF", weight: 800, letter: 3 }), "0 0 260 130")),
+  g("precio-iva", "Sello «IVA incluido»", ["iva incluido", "impuesto", "precio", "colombia"], "precios", [300, 90],
+    rawSvg(`<rect x="3" y="3" width="294" height="84" rx="42" fill="none" stroke="__C__" stroke-width="6"/>` + centeredText("IVA INCLUIDO", { x: 150, y: 46, size: 32, fill: "__C__", weight: 700, letter: 2 }), "0 0 300 90")),
+  g("ficha-0", "Ficha 0", ["numero", "ficha", "0", "menu numerado"], "precios", [180, 180],
+    rawSvg(`<circle cx="90" cy="90" r="84" fill="__C__"/>` + centeredText("0", { x: 90, y: 96, size: 96, fill: "#FFFFFF", weight: 800, letter: 0 }), "0 0 180 180")),
+  g("ficha-10", "Ficha 10", ["numero", "ficha", "10", "menu numerado"], "precios", [180, 180],
+    rawSvg(`<circle cx="90" cy="90" r="84" fill="__C__"/>` + centeredText("10", { x: 90, y: 96, size: 82, fill: "#FFFFFF", weight: 800, letter: 0 }), "0 0 180 180")),
+);
+
+/* ── Fondos adicionales ── */
+BACKGROUND_ELEMENTS.push(
+  {
+    id: "fondo-ladrillo",
+    label: "Ladrillo",
+    tags: ["ladrillo", "pared", "rustico", "textura", "fondo"],
+    category: "fondos",
+    kind: "background",
+    size: [1920, 1080],
+    svg: () =>
+      rawSvg(
+        `<rect width="960" height="540" fill="__C__" opacity="0.2"/><defs><pattern id="lb" width="120" height="60" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="116" height="26" fill="__C__" opacity="0.3"/><rect x="-58" y="32" width="116" height="26" fill="__C__" opacity="0.3"/><rect x="62" y="32" width="116" height="26" fill="__C__" opacity="0.3"/></pattern></defs><rect width="960" height="540" fill="url(%23lb)"/>`,
+        "0 0 960 540",
+      ),
+  },
+  {
+    id: "fondo-patron-cuadros",
+    label: "Patrón cuadros",
+    tags: ["patron", "cuadros", "mantel", "fondo"],
+    category: "fondos",
+    kind: "background",
+    size: [1920, 1080],
+    svg: () =>
+      rawSvg(
+        `<defs><pattern id="cd" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="__C__" opacity="0.28"/><rect x="40" y="40" width="40" height="40" fill="__C__" opacity="0.28"/></pattern></defs><rect width="960" height="540" fill="url(%23cd)"/>`,
+        "0 0 960 540",
+      ),
+  },
+  {
+    id: "fondo-patron-rombos",
+    label: "Patrón rombos",
+    tags: ["patron", "rombos", "geometrico", "fondo"],
+    category: "fondos",
+    kind: "background",
+    size: [1920, 1080],
+    svg: () =>
+      rawSvg(
+        `<defs><pattern id="rb" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M40 8 72 40 40 72 8 40Z" fill="none" stroke="__C__" stroke-width="5" opacity="0.3"/></pattern></defs><rect width="960" height="540" fill="url(%23rb)"/>`,
+        "0 0 960 540",
+      ),
+  },
+  {
+    id: "fondo-terrazo",
+    label: "Terrazo",
+    tags: ["terrazo", "textura", "moderno", "fondo"],
+    category: "fondos",
+    kind: "background",
+    size: [1920, 1080],
+    svg: () =>
+      rawSvg(
+        `<rect width="960" height="540" fill="__C__" opacity="0.12"/>` +
+          Array.from({ length: 40 }, (_, i) => {
+            const x = (i * 173) % 930 + 15;
+            const y = (i * 97) % 510 + 15;
+            const r = 5 + (i % 5) * 3;
+            return `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.7}" fill="__C__" opacity="0.3" transform="rotate(${(i * 37) % 180} ${x} ${y})"/>`;
+          }).join(""),
+        "0 0 960 540",
+      ),
+  },
+  {
+    id: "fondo-degradado-suave",
+    label: "Degradado suave",
+    tags: ["degradado", "gradiente", "suave", "fondo", "marca"],
+    category: "fondos",
+    kind: "background",
+    size: [1920, 1080],
+    svg: () =>
+      rawSvg(
+        `<defs><linearGradient id="gs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="__P__" stop-opacity="0.9"/><stop offset="100%" stop-color="__S__" stop-opacity="0.45"/></linearGradient></defs><rect width="960" height="540" fill="url(%23gs)"/>`,
+        "0 0 960 540",
+      ),
+  },
+);
