@@ -17,6 +17,8 @@ import {
   LayoutTemplate,
   PenTool,
   RotateCcw,
+  Info,
+  Wand2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -295,8 +297,8 @@ export default function BrandSection() {
         />
         <EmptyState
           icon={<Sparkles className="h-9 w-9" />}
-          title="Define tu marca una sola vez"
-          description="Sube tu logo y elige tus colores. Todos los menús que generes van a usarlos automáticamente."
+          title="Definí tu marca una sola vez"
+          description="Subí tu logo y elegí tus colores. Esta base gráfica se usa automáticamente en el generador con IA, el editor y cada menú nuevo que crees."
           action={
             <Button
               size="lg"
@@ -315,6 +317,41 @@ export default function BrandSection() {
 
   return (
     <div className="mx-auto max-w-[800px] space-y-4">
+      {/* Info banner: explain the default graphic base usage */}
+      <div className="v-card overflow-hidden">
+        <div className="flex items-start gap-3 p-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Info className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 space-y-1">
+            <p className="text-sm font-semibold">Esta es tu base gráfica predeterminada</p>
+            <p className="text-xs text-muted-foreground">
+              Lo que configures aquí se indexa automáticamente y se usa como punto de partida para
+              todo lo nuevo que crees en Visualia.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs">
+                <Wand2 className="h-3.5 w-3.5 text-primary" />
+                Generador con IA
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs">
+                <PenTool className="h-3.5 w-3.5 text-primary" />
+                Editor de diseños
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-2.5 py-1 text-xs">
+                <LayoutTemplate className="h-3.5 w-3.5 text-primary" />
+                Menús y plantillas
+              </span>
+            </div>
+            <p className="pt-1 text-[11px] text-muted-foreground/80">
+              Guardado en <span className="font-medium text-foreground">brand_kits</span> y en el
+              bucket <span className="font-medium text-foreground">media/{"{tu-negocio}"}/marca/</span>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* 1. LOGOS */}
       <Section
         title="Logos"
