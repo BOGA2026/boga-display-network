@@ -320,6 +320,51 @@ export default function BrandSection() {
         title="Logos"
         description="Hasta cuatro versiones. Si solo subes la principal, la usamos en las demás."
       >
+        <div className="mb-4 grid grid-cols-3 gap-2 rounded-xl border border-border/60 bg-muted/30 p-3">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={subiendo === "logo_url" || save.isPending}
+            onClick={() => {
+              setSugeridos([]);
+              setSubiendo(null);
+              setDragSlot(null);
+              Object.values(inputs.current).forEach((input) => {
+                if (input) input.value = "";
+              });
+              toast({ title: "Subida cancelada", description: "Podés elegir el logo nuevamente." });
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            size="sm"
+            disabled={!b.logo_url || subiendo === "logo_url" || save.isPending}
+            onClick={() => {
+              if (sugeridos.length > 0) {
+                guardar({
+                  primary_color: sugeridos[0] ?? b.primary_color,
+                  secondary_color: sugeridos[1] ?? b.secondary_color,
+                  accent_color: sugeridos[2] ?? b.accent_color,
+                });
+                setSugeridos([]);
+              }
+              toast({ title: "Marca guardada" });
+            }}
+          >
+            <Check className="mr-1.5 h-4 w-4" />
+            Guardar
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={subiendo === "logo_url" || save.isPending}
+            onClick={cancelarSubida}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" />
+            Reset
+          </Button>
+        </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {LOGO_SLOTS.map(({ key, label, hint }) => (
             <div key={key} className="space-y-1.5">
@@ -381,47 +426,6 @@ export default function BrandSection() {
               ? "Tu logo venía con fondo blanco: lo recortamos para que salga limpio sobre cualquier color."
               : "Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG."}
           </p>
-          {b.logo_url && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="destructive"
-                disabled={subiendo === "logo_url" || save.isPending}
-                onClick={cancelarSubida}
-              >
-                <RotateCcw className="mr-1.5 h-4 w-4" />
-                Cancelar
-              </Button>
-              <Button
-                size="sm"
-                disabled={subiendo === "logo_url" || save.isPending}
-                onClick={() => {
-                  if (sugeridos.length > 0) {
-                    guardar({
-                      primary_color: sugeridos[0] ?? b.primary_color,
-                      secondary_color: sugeridos[1] ?? b.secondary_color,
-                      accent_color: sugeridos[2] ?? b.accent_color,
-                    });
-                    setSugeridos([]);
-                  }
-                  toast({ title: "Marca guardada" });
-                }}
-              >
-                <Check className="mr-1.5 h-4 w-4" />
-                Guardar
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-2"
-                disabled={subiendo === "logo_url" || save.isPending}
-                onClick={() => reprocesar("versiones")}
-              >
-                <Sparkles className="h-4 w-4" />
-                {subiendo === "logo_url" ? "Generando…" : "Reset"}
-              </Button>
-            </div>
-          )}
         </div>
       </Section>
 
