@@ -568,9 +568,9 @@ const Landing = () => {
 
           <div className="flex flex-col gap-4 md:flex-row md:items-stretch md:gap-6">
             {steps.map((s, i) => (
-              <div key={s.num} className="flex flex-1 items-center gap-4 md:flex-col md:items-stretch">
+              <div key={s.num} className="flex flex-1 items-stretch gap-4 md:flex-col">
                 <div
-                  className="bento-card reveal-on-scroll flex-1 p-6"
+                  className="bento-card reveal-on-scroll h-full w-full flex-1 p-6"
                   style={{ transitionDelay: `${i * 120}ms` }}
                 >
                   <div className="font-display text-5xl font-bold leading-none tracking-tight md:text-6xl bg-gradient-to-r from-[#5227FF] to-[#B19EEF] bg-clip-text text-transparent">
@@ -594,6 +594,7 @@ const Landing = () => {
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
