@@ -164,37 +164,61 @@ export type Database = {
       brand_kits: {
         Row: {
           accent_color: string | null
+          background_color: string
+          body_font: string | null
           business_id: string
           created_at: string
+          extra_color: string | null
           font_family: string | null
+          heading_font: string | null
           id: string
+          logo_dark_url: string | null
+          logo_light_url: string | null
+          logo_symbol_url: string | null
           logo_url: string | null
           primary_color: string
           secondary_color: string
+          text_color: string
           updated_at: string
           watermark_disabled: boolean
         }
         Insert: {
           accent_color?: string | null
+          background_color?: string
+          body_font?: string | null
           business_id: string
           created_at?: string
+          extra_color?: string | null
           font_family?: string | null
+          heading_font?: string | null
           id?: string
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          logo_symbol_url?: string | null
           logo_url?: string | null
           primary_color?: string
           secondary_color?: string
+          text_color?: string
           updated_at?: string
           watermark_disabled?: boolean
         }
         Update: {
           accent_color?: string | null
+          background_color?: string
+          body_font?: string | null
           business_id?: string
           created_at?: string
+          extra_color?: string | null
           font_family?: string | null
+          heading_font?: string | null
           id?: string
+          logo_dark_url?: string | null
+          logo_light_url?: string | null
+          logo_symbol_url?: string | null
           logo_url?: string | null
           primary_color?: string
           secondary_color?: string
+          text_color?: string
           updated_at?: string
           watermark_disabled?: boolean
         }
@@ -203,6 +227,44 @@ export type Database = {
             foreignKeyName: "brand_kits_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_photos: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          tag: string | null
+          url: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          tag?: string | null
+          url: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          tag?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
