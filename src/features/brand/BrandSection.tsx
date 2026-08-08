@@ -379,16 +379,43 @@ export default function BrandSection() {
               : "Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG."}
           </p>
           {b.logo_url && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              disabled={subiendo === "logo_url"}
-              onClick={() => reprocesar("versiones")}
-            >
-              <Sparkles className="h-4 w-4" />
-              {subiendo === "logo_url" ? "Generando…" : "Volver a generar versiones"}
-            </Button>
+            <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto">
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={subiendo === "logo_url" || save.isPending}
+                onClick={cancelarSubida}
+              >
+                Cancelar subida
+              </Button>
+              <Button
+                size="sm"
+                disabled={subiendo === "logo_url" || save.isPending}
+                onClick={() => {
+                  if (sugeridos.length > 0) {
+                    guardar({
+                      primary_color: sugeridos[0] ?? b.primary_color,
+                      secondary_color: sugeridos[1] ?? b.secondary_color,
+                      accent_color: sugeridos[2] ?? b.accent_color,
+                    });
+                    setSugeridos([]);
+                  }
+                  toast({ title: "Marca guardada" });
+                }}
+              >
+                Guardar
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                disabled={subiendo === "logo_url" || save.isPending}
+                onClick={() => reprocesar("versiones")}
+              >
+                <Sparkles className="h-4 w-4" />
+                {subiendo === "logo_url" ? "Generando…" : "Volver a generar versiones"}
+              </Button>
+            </div>
           )}
         </div>
       </Section>
@@ -429,20 +456,6 @@ export default function BrandSection() {
                 </span>
               ))}
               <div className="mt-3 flex flex-col gap-2 sm:mt-0 sm:flex-row sm:items-center sm:justify-end">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={cancelarSubida}
-                >
-                  Cancelar subida
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setSugeridos([])}
-                >
-                  Guardar
-                </Button>
                 <Button
                   size="sm"
                   onClick={() => {
