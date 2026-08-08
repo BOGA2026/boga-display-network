@@ -428,7 +428,21 @@ export default function BrandSection() {
                   {c}
                 </span>
               ))}
-              <div className="ml-auto flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-col gap-2 sm:mt-0 sm:flex-row sm:items-center sm:justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={cancelarSubida}
+                >
+                  Cancelar subida
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSugeridos([])}
+                >
+                  Guardar
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => {
@@ -443,13 +457,8 @@ export default function BrandSection() {
                 >
                   Usar estos colores
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => setSugeridos([])}>
-                  Ahora no
-                </Button>
-                <Button size="sm" variant="ghost" onClick={cancelarSubida}>
-                  Cancelar
-                </Button>
               </div>
+
 
             </div>
           </div>
