@@ -225,17 +225,18 @@ export default function BrandSection() {
     [b, guardar, toast],
   );
 
-  /** Cancela la subida actual del logo y permite volver a subir uno nuevo. */
+  /** Cancela la configuración actual y devuelve todo el tablero a su estado inicial. */
   const cancelarSubida = useCallback(() => {
     setSugeridos([]);
+    setAvisoColores(false);
     setRecorte(false);
-    guardar({
-      logo_url: null,
-      logo_dark_url: null,
-      logo_light_url: null,
-      logo_symbol_url: null,
+    setSubiendo(null);
+    setDragSlot(null);
+    Object.values(inputs.current).forEach((input) => {
+      if (input) input.value = "";
     });
-    toast({ title: "Subida cancelada", description: "Subí otro logo cuando quieras." });
+    guardar({ ...DEFAULT_BRAND });
+    toast({ title: "Tablero reiniciado", description: "Podés subir otro logo y empezar de nuevo." });
   }, [guardar, toast]);
 
 
