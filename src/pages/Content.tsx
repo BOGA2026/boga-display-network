@@ -1026,4 +1026,61 @@ const ContentLibrary = () => {
   );
 };
 
+/**
+ * Contenido tiene dos pestañas: la biblioteca de archivos y "Tu marca",
+ * que es de donde el generador con IA y el editor toman colores y logo.
+ */
+const Content = () => {
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") === "marca" ? "marca" : "biblioteca";
+
+  const setTab = (next: "biblioteca" | "marca") => {
+    const p = new URLSearchParams(params);
+    if (next === "marca") p.set("tab", "marca");
+    else p.delete("tab");
+    setParams(p, { replace: true });
+  };
+
+  return (
+    <>
+      <div className="v-page pb-0">
+        <div className="flex items-center gap-1 rounded-lg border border-border/40 p-0.5 w-fit">
+          {([
+            { id: "biblioteca" as const, label: "Biblioteca" },
+            { id: "marca" as const, label: "Tu marca" },
+          ]).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              aria-pressed={tab === t.id}
+              className={cn(
+                "h-9 rounded-md px-4 text-sm transition-colors",
+                tab === t.id
+                  ? "bg-secondary font-medium text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {tab === "marca" ? (
+        <div className="v-page">
+          <div className="mb-6">
+            <h1 className="font-display text-2xl font-bold">Tu marca</h1>
+            <p className="text-sm text-muted-foreground">
+              Defínela una vez: tus menús con IA y el editor la usan automáticamente.
+            </p>
+          </div>
+          <BrandSection />
+        </div>
+      ) : (
+        <ContentLibrary />
+      )}
+    </>
+  );
+};
+
 export default Content;
