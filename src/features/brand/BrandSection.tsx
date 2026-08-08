@@ -225,8 +225,22 @@ export default function BrandSection() {
     [b, guardar, toast],
   );
 
+  /** Cancela la subida actual del logo y permite volver a subir uno nuevo. */
+  const cancelarSubida = useCallback(() => {
+    setSugeridos([]);
+    setRecorte(false);
+    guardar({
+      logo_url: null,
+      logo_dark_url: null,
+      logo_light_url: null,
+      logo_symbol_url: null,
+    });
+    toast({ title: "Subida cancelada", description: "Subí otro logo cuando quieras." });
+  }, [guardar, toast]);
+
 
   /* ── Colores ── */
+
 
   const cambiarColor = (key: BrandColorKey, value: string) => {
     const hex = normalizeHex(value);
@@ -414,7 +428,7 @@ export default function BrandSection() {
                   {c}
                 </span>
               ))}
-              <div className="ml-auto flex gap-2">
+              <div className="ml-auto flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   onClick={() => {
@@ -432,7 +446,11 @@ export default function BrandSection() {
                 <Button size="sm" variant="ghost" onClick={() => setSugeridos([])}>
                   Ahora no
                 </Button>
+                <Button size="sm" variant="ghost" onClick={cancelarSubida}>
+                  Cancelar
+                </Button>
               </div>
+
             </div>
           </div>
         )}
