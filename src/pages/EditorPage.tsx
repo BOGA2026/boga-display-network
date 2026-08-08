@@ -291,7 +291,7 @@ export default function EditorPage() {
         w: isText ? 700 : 300,
         h: isText ? 120 : 180,
         color: isText ? "transparent" : "#8B5CF6",
-        textStyle: isText ? { ...defaultTextStyle } : undefined,
+        textStyle: isText ? brandTextStyle() : undefined,
       },
     ]);
     if (isText) {
