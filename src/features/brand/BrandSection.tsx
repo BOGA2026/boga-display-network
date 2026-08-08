@@ -102,6 +102,7 @@ export default function BrandSection() {
   const [dragSlot, setDragSlot] = useState<LogoSlot | null>(null);
   const [sugeridos, setSugeridos] = useState<string[]>([]);
   const [avisoColores, setAvisoColores] = useState(false);
+  const [recorte, setRecorte] = useState(false);
   const inputs = useRef<Partial<Record<LogoSlot, HTMLInputElement | null>>>({});
   const fotoInput = useRef<HTMLInputElement>(null);
 
