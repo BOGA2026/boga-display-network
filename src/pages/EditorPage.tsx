@@ -94,6 +94,10 @@ export default function EditorPage() {
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [dirty, setDirty] = useState(true);
+  // Cualquier cambio en el lienzo invalida el último guardado.
+  useEffect(() => {
+    setDirty(true);
+  }, [layers, background]);
   const [capturing, setCapturing] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveFileName, setSaveFileName] = useState("");
