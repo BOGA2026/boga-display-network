@@ -45,7 +45,14 @@ import {
   ensureAllBrandFonts,
   ensureFont,
 } from "./fonts";
-import { MIN_TV_CONTRAST, contrastRatio, extractPalette, isHex, normalizeHex } from "./colors";
+import {
+  MIN_TV_CONTRAST,
+  contrastRatio,
+  deriveLogoVariants,
+  extractPalette,
+  isHex,
+  normalizeHex,
+} from "./colors";
 
 /** Tablero de cuadros: delata al instante un logo sin transparencia. */
 const CHECKER: React.CSSProperties = {
@@ -95,6 +102,7 @@ export default function BrandSection() {
   const [dragSlot, setDragSlot] = useState<LogoSlot | null>(null);
   const [sugeridos, setSugeridos] = useState<string[]>([]);
   const [avisoColores, setAvisoColores] = useState(false);
+  const [recorte, setRecorte] = useState(false);
   const inputs = useRef<Partial<Record<LogoSlot, HTMLInputElement | null>>>({});
   const fotoInput = useRef<HTMLInputElement>(null);
 
@@ -121,36 +129,102 @@ export default function BrandSection() {
 
   /* ── Logos ── */
 
+  /**
+   * Al subir el logo principal hacemos el trabajo que nadie quiere hacer a mano:
+   * leerle los colores y sacar las versiones clara y oscura. Todo en el
+   * navegador, sobre el archivo local, para no depender de CORS del bucket.
+   */
   const subirLogo = useCallback(
     async (slot: LogoSlot, file: File) => {
       setSubiendo(slot);
+      const objectUrl = URL.createObjectURL(file);
       try {
         const url = await uploadBrandFile(file, "logos");
         const patch: Partial<BrandKit> = { [slot]: url } as Partial<BrandKit>;
-        // Si solo sube el principal, ese logo cubre las ranuras vacías.
-        if (slot === "logo_url" && b) {
-          LOGO_SLOTS.forEach(({ key }) => {
-            if (key !== "logo_url" && !b[key]) (patch as any)[key] = url;
-          });
-        }
-        guardar(patch);
+
         if (slot === "logo_url") {
+          // 1. Colores del logo.
           try {
-            const paleta = await extractPalette(url);
-            if (paleta.length) setSugeridos(paleta);
+            const paleta = await extractPalette(objectUrl);
+            if (paleta.length) {
+              setSugeridos(paleta);
+              const sinTocar =
+                b?.primary_color === DEFAULT_BRAND.primary_color &&
+                b?.secondary_color === DEFAULT_BRAND.secondary_color;
+              if (sinTocar) {
+                patch.primary_color = paleta[0];
+                if (paleta[1]) patch.secondary_color = paleta[1];
+                if (paleta[2]) patch.accent_color = paleta[2];
+                setSugeridos([]);
+                setAvisoColores(true);
+              }
+            }
           } catch {
-            /* logo sin CORS o formato raro: seguimos sin sugerencias */
+            /* formato raro: seguimos sin sugerencias */
+          }
+
+          // 2. Versiones clara y oscura.
+          try {
+            const v = await deriveLogoVariants(objectUrl);
+            const [claro, oscuro, transparente] = await Promise.all([
+              uploadBrandFile(v.claro, "logos", "logo-claro.png"),
+              uploadBrandFile(v.oscuro, "logos", "logo-oscuro.png"),
+              v.recorto ? uploadBrandFile(v.transparente, "logos", "logo-recortado.png") : Promise.resolve(url),
+            ]);
+            patch.logo_url = transparente;
+            patch.logo_dark_url = claro;
+            patch.logo_light_url = oscuro;
+            if (!b?.logo_symbol_url) patch.logo_symbol_url = transparente;
+            setRecorte(v.recorto);
+          } catch {
+            // Si no se pudo derivar, al menos el principal cubre las ranuras vacías.
+            LOGO_SLOTS.forEach(({ key }) => {
+              if (key !== "logo_url" && b && !b[key]) (patch as any)[key] = url;
+            });
           }
         }
+
+        guardar(patch);
         toast({ title: "Logo cargado" });
       } catch (e: any) {
         toast({ title: "No pudimos subir el logo", description: e.message, variant: "destructive" });
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+        setSubiendo(null);
+      }
+    },
+    [b, guardar, toast],
+  );
+
+  /** Rehace versiones y paleta desde el logo que ya está guardado. */
+  const reprocesar = useCallback(
+    async (que: "versiones" | "colores") => {
+      if (!b?.logo_url) return;
+      setSubiendo("logo_url");
+      try {
+        if (que === "colores") {
+          const paleta = await extractPalette(b.logo_url);
+          if (!paleta.length) throw new Error("No encontramos colores claros en el logo");
+          setSugeridos(paleta);
+        } else {
+          const v = await deriveLogoVariants(b.logo_url);
+          const [claro, oscuro] = await Promise.all([
+            uploadBrandFile(v.claro, "logos", "logo-claro.png"),
+            uploadBrandFile(v.oscuro, "logos", "logo-oscuro.png"),
+          ]);
+          guardar({ logo_dark_url: claro, logo_light_url: oscuro });
+          setRecorte(v.recorto);
+          toast({ title: "Versiones actualizadas" });
+        }
+      } catch (e: any) {
+        toast({ title: "No pudimos leer el logo", description: e.message, variant: "destructive" });
       } finally {
         setSubiendo(null);
       }
     },
     [b, guardar, toast],
   );
+
 
   /* ── Colores ── */
 
@@ -284,14 +358,46 @@ export default function BrandSection() {
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un
-          rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG.
-        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="max-w-[420px] text-xs text-muted-foreground">
+            {recorte
+              ? "Tu logo venía con fondo blanco: lo recortamos para que salga limpio sobre cualquier color."
+              : "Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG."}
+          </p>
+          {b.logo_url && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={subiendo === "logo_url"}
+              onClick={() => reprocesar("versiones")}
+            >
+              <Sparkles className="h-4 w-4" />
+              {subiendo === "logo_url" ? "Generando…" : "Volver a generar versiones"}
+            </Button>
+          )}
+        </div>
       </Section>
 
       {/* 2. COLORES */}
-      <Section title="Colores" description="Los que usan tus menús y todo lo que genere la IA.">
+      <Section
+        title="Colores"
+        description="Los que usan tus menús y todo lo que genere la IA."
+        action={
+          b.logo_url ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={subiendo === "logo_url"}
+              onClick={() => reprocesar("colores")}
+            >
+              <Sparkles className="h-4 w-4" />
+              Tomar los del logo
+            </Button>
+          ) : undefined
+        }
+      >
         {sugeridos.length > 0 && (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
             <p className="text-sm font-medium">Colores que encontramos en tu logo</p>

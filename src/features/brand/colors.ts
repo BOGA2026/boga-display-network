@@ -93,3 +93,117 @@ export async function extractPalette(src: string, max = 5): Promise<string[]> {
   }
   return out;
 }
+
+/* ─────────────── Versiones del logo ─────────────── */
+
+async function cargarImagen(src: string): Promise<HTMLImageElement> {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.src = src;
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("No pudimos leer la imagen del logo"));
+  });
+  return img;
+}
+
+function dibujar(img: HTMLImageElement, maxLado = 1024) {
+  const w = img.naturalWidth || 512;
+  const h = img.naturalHeight || 512;
+  const escala = Math.min(1, maxLado / Math.max(w, h));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(w * escala));
+  canvas.height = Math.max(1, Math.round(h * escala));
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Sin canvas");
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return { canvas, ctx };
+}
+
+/**
+ * Quita el fondo plano del logo (el típico recuadro blanco) mirando las cuatro
+ * esquinas. Si las esquinas no coinciden entre sí, se asume que el fondo es
+ * parte del diseño y no se toca nada.
+ */
+function quitarFondoPlano(data: Uint8ClampedArray, w: number, h: number): boolean {
+  const px = (x: number, y: number) => {
+    const i = (y * w + x) * 4;
+    return [data[i], data[i + 1], data[i + 2], data[i + 3]] as const;
+  };
+  const esquinas = [px(0, 0), px(w - 1, 0), px(0, h - 1), px(w - 1, h - 1)];
+  if (esquinas.some((c) => c[3] < 200)) return false; // ya es transparente
+  const [r0, g0, b0] = esquinas[0];
+  const parecidas = esquinas.every(
+    (c) => Math.abs(c[0] - r0) + Math.abs(c[1] - g0) + Math.abs(c[2] - b0) < 40,
+  );
+  if (!parecidas) return false;
+  const tol = 46;
+  for (let i = 0; i < data.length; i += 4) {
+    const d =
+      Math.abs(data[i] - r0) + Math.abs(data[i + 1] - g0) + Math.abs(data[i + 2] - b0);
+    if (d < tol) data[i + 3] = 0;
+  }
+  return true;
+}
+
+function aBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("No pudimos generar el PNG"))), "image/png"),
+  );
+}
+
+export interface LogoVariants {
+  /** Logo a color con el fondo plano recortado. */
+  transparente: Blob;
+  /** Monocromo claro, para poner sobre fondos oscuros. */
+  claro: Blob;
+  /** Monocromo oscuro, para poner sobre fondos claros. */
+  oscuro: Blob;
+  /** true si hubo que recortarle un fondo opaco al original. */
+  recorto: boolean;
+}
+
+/** Genera las versiones clara y oscura a partir del logo principal. */
+export async function deriveLogoVariants(src: string): Promise<LogoVariants> {
+  const img = await cargarImagen(src);
+  const { canvas, ctx } = dibujar(img);
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const recorto = quitarFondoPlano(imgData.data, canvas.width, canvas.height);
+  ctx.putImageData(imgData, 0, 0);
+  const transparente = await aBlob(canvas);
+
+  const monocromo = async (r: number, g: number, b: number) => {
+    const c2 = document.createElement("canvas");
+    c2.width = canvas.width;
+    c2.height = canvas.height;
+    const ctx2 = c2.getContext("2d");
+    if (!ctx2) throw new Error("Sin canvas");
+    const copia = ctx2.createImageData(canvas.width, canvas.height);
+    copia.data.set(imgData.data);
+    for (let i = 0; i < copia.data.length; i += 4) {
+      if (copia.data[i + 3] === 0) continue;
+      copia.data[i] = r;
+      copia.data[i + 1] = g;
+      copia.data[i + 2] = b;
+    }
+    ctx2.putImageData(copia, 0, 0);
+    return aBlob(c2);
+  };
+
+  return {
+    transparente,
+    claro: await monocromo(255, 255, 255),
+    oscuro: await monocromo(17, 17, 17),
+    recorto,
+  };
+}
+
+/** Paleta a partir de un archivo local: evita depender de CORS del bucket. */
+export async function extractPaletteFromFile(file: File, max = 5): Promise<string[]> {
+  const url = URL.createObjectURL(file);
+  try {
+    return await extractPalette(url, max);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
