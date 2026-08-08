@@ -389,7 +389,8 @@ export default function BrandSection() {
                 disabled={subiendo === "logo_url" || save.isPending}
                 onClick={cancelarSubida}
               >
-                Cancelar subida
+                <RotateCcw className="mr-1.5 h-4 w-4" />
+                Reset
               </Button>
               <Button
                 size="sm"
@@ -420,6 +421,7 @@ export default function BrandSection() {
               </Button>
             </div>
           )}
+
         </div>
       </Section>
 
