@@ -196,6 +196,36 @@ export default function BrandSection() {
     [b, guardar, toast],
   );
 
+  /** Rehace versiones y paleta desde el logo que ya está guardado. */
+  const reprocesar = useCallback(
+    async (que: "versiones" | "colores") => {
+      if (!b?.logo_url) return;
+      setSubiendo("logo_url");
+      try {
+        if (que === "colores") {
+          const paleta = await extractPalette(b.logo_url);
+          if (!paleta.length) throw new Error("No encontramos colores claros en el logo");
+          setSugeridos(paleta);
+        } else {
+          const v = await deriveLogoVariants(b.logo_url);
+          const [claro, oscuro] = await Promise.all([
+            uploadBrandFile(v.claro, "logos", "logo-claro.png"),
+            uploadBrandFile(v.oscuro, "logos", "logo-oscuro.png"),
+          ]);
+          guardar({ logo_dark_url: claro, logo_light_url: oscuro });
+          setRecorte(v.recorto);
+          toast({ title: "Versiones actualizadas" });
+        }
+      } catch (e: any) {
+        toast({ title: "No pudimos leer el logo", description: e.message, variant: "destructive" });
+      } finally {
+        setSubiendo(null);
+      }
+    },
+    [b, guardar, toast],
+  );
+
+
   /* ── Colores ── */
 
   const cambiarColor = (key: BrandColorKey, value: string) => {
