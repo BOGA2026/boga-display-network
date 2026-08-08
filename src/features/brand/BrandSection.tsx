@@ -45,7 +45,14 @@ import {
   ensureAllBrandFonts,
   ensureFont,
 } from "./fonts";
-import { MIN_TV_CONTRAST, contrastRatio, extractPalette, isHex, normalizeHex } from "./colors";
+import {
+  MIN_TV_CONTRAST,
+  contrastRatio,
+  deriveLogoVariants,
+  extractPalette,
+  isHex,
+  normalizeHex,
+} from "./colors";
 
 /** Tablero de cuadros: delata al instante un logo sin transparencia. */
 const CHECKER: React.CSSProperties = {
