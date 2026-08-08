@@ -40,6 +40,7 @@ import { PresetPicker } from "@/components/editor/PresetPicker";
 import { DraggableLayer } from "@/components/editor/DraggableLayer";
 import { CanvasAlignToolbar } from "@/components/editor/CanvasAlignToolbar";
 import ImageGalleryMenu from "@/components/editor/ImageGalleryMenu";
+import ElementsPanel, { type ElementInsertPayload } from "@/components/editor/ElementsPanel";
 import { WidgetRenderer } from "@/components/editor/WidgetRenderer";
 import { WidgetPresetPicker } from "@/components/editor/WidgetPresetPicker";
 import { EditableWidgetPanel } from "@/components/editor/EditableWidgetPanel";
