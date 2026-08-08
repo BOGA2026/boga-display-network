@@ -326,6 +326,76 @@ export default function EditorPage() {
     setImageGalleryOpen(false);
   };
 
+  const tenant = useTenant();
+
+  /** Colores de la marca aplicados a los elementos SVG monocromos. */
+  const elementColors = useMemo(
+    () => ({
+      accent: brand?.accent_color ?? brand?.primary_color ?? DEFAULT_ELEMENT_COLORS.accent,
+      primary: brand?.primary_color ?? DEFAULT_ELEMENT_COLORS.primary,
+      secondary: brand?.secondary_color ?? DEFAULT_ELEMENT_COLORS.secondary,
+    }),
+    [brand],
+  );
+
+  /** Inserta un elemento de la galería curada (y su texto editable si es una insignia). */
+  const addElementLayer = useCallback(
+    (payload: ElementInsertPayload) => {
+      saveSnapshot();
+      const isBackground = payload.width >= baseResolution.w;
+      const w = Math.min(payload.width, baseResolution.w);
+      const h = Math.min(payload.height, baseResolution.h);
+      const x = isBackground ? 0 : Math.round((baseResolution.w - w) / 2);
+      const y = isBackground ? 0 : Math.round((baseResolution.h - h) / 2);
+      const shapeId = crypto.randomUUID();
+      const textId = crypto.randomUUID();
+
+      const shapeLayer: LayerItem = {
+        id: shapeId,
+        name: payload.name,
+        type: "image",
+        x,
+        y,
+        w,
+        h,
+        color: "transparent",
+        imageUrl: payload.url,
+      };
+
+      const next: LayerItem[] = [shapeLayer];
+      if (payload.text) {
+        next.push({
+          id: textId,
+          name: payload.text,
+          type: "text",
+          x: x + Math.round(w * 0.1),
+          y: y + Math.round(h / 2) - 40,
+          w: Math.round(w * 0.8),
+          h: 80,
+          color: "transparent",
+          textStyle: {
+            ...brandTextStyle(),
+            content: payload.text,
+            fontSize: payload.textSize ?? 54,
+            fontWeight: 800,
+            color: "#FFFFFF",
+            textAlign: "center",
+            bannerStyle: "none",
+            paddingX: 0,
+            paddingY: 0,
+          },
+        });
+      }
+
+      setLayers((prev) => (isBackground ? [...next, ...prev] : [...prev, ...next]));
+      setSelectedIds([payload.text ? textId : shapeId]);
+      setElementsPanelOpen(false);
+    },
+    [baseResolution, brandTextStyle, saveSnapshot],
+  );
+
+
+
   const addLocalImageLayer = (file: File) => {
     const src = URL.createObjectURL(file);
     const img = new window.Image();
