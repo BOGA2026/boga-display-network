@@ -375,14 +375,14 @@ export default function BrandSection() {
             </div>
           ))}
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="mt-4 flex flex-col gap-3 rounded-xl border border-border/40 bg-background/50 p-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-[420px] text-xs text-muted-foreground">
             {recorte
               ? "Tu logo venía con fondo blanco: lo recortamos para que salga limpio sobre cualquier color."
               : "Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG."}
           </p>
           {b.logo_url && (
-            <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto">
+            <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="destructive"
@@ -390,7 +390,7 @@ export default function BrandSection() {
                 onClick={cancelarSubida}
               >
                 <RotateCcw className="mr-1.5 h-4 w-4" />
-                Reset
+                Cancelar
               </Button>
               <Button
                 size="sm"
@@ -407,6 +407,7 @@ export default function BrandSection() {
                   toast({ title: "Marca guardada" });
                 }}
               >
+                <Check className="mr-1.5 h-4 w-4" />
                 Guardar
               </Button>
               <Button
@@ -417,11 +418,10 @@ export default function BrandSection() {
                 onClick={() => reprocesar("versiones")}
               >
                 <Sparkles className="h-4 w-4" />
-                {subiendo === "logo_url" ? "Generando…" : "Volver a generar versiones"}
+                {subiendo === "logo_url" ? "Generando…" : "Reset"}
               </Button>
             </div>
           )}
-
         </div>
       </Section>
 
