@@ -358,14 +358,46 @@ export default function BrandSection() {
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un
-          rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG.
-        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="max-w-[420px] text-xs text-muted-foreground">
+            {recorte
+              ? "Tu logo venía con fondo blanco: lo recortamos para que salga limpio sobre cualquier color."
+              : "Los cuadros grises de atrás te dejan ver si el logo tiene fondo transparente. Si ves un rectángulo blanco, ese logo va a salir con recuadro en la pantalla. Acepta PNG y SVG."}
+          </p>
+          {b.logo_url && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={subiendo === "logo_url"}
+              onClick={() => reprocesar("versiones")}
+            >
+              <Sparkles className="h-4 w-4" />
+              {subiendo === "logo_url" ? "Generando…" : "Volver a generar versiones"}
+            </Button>
+          )}
+        </div>
       </Section>
 
       {/* 2. COLORES */}
-      <Section title="Colores" description="Los que usan tus menús y todo lo que genere la IA.">
+      <Section
+        title="Colores"
+        description="Los que usan tus menús y todo lo que genere la IA."
+        action={
+          b.logo_url ? (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={subiendo === "logo_url"}
+              onClick={() => reprocesar("colores")}
+            >
+              <Sparkles className="h-4 w-4" />
+              Tomar los del logo
+            </Button>
+          ) : undefined
+        }
+      >
         {sugeridos.length > 0 && (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3">
             <p className="text-sm font-medium">Colores que encontramos en tu logo</p>
