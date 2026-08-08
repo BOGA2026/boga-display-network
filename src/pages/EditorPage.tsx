@@ -110,6 +110,7 @@ export default function EditorPage() {
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
   const [elementsPanelOpen, setElementsPanelOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -1117,13 +1118,22 @@ export default function EditorPage() {
               hidden
               onChange={onPickVideoFile}
             />
-            <Popover>
+            <Popover open={paletteOpen} onOpenChange={setPaletteOpen}>
               <PopoverTrigger asChild>
-                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Paleta de tu marca">
+                <button
+                  type="button"
+                  aria-label="Abrir paleta de tu marca"
+                  aria-expanded={paletteOpen}
+                  className={cn(
+                    "rounded-lg p-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)]",
+                    paletteOpen ? "bg-primary/10 text-primary" : "text-muted-foreground",
+                  )}
+                  title="Paleta de tu marca"
+                >
                   <Palette className="h-5 w-5" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent side="right" align="end" className="w-64 space-y-3 p-3">
+              <PopoverContent side="right" align="start" sideOffset={8} collisionPadding={12} className="w-64 space-y-3 p-3">
                 <p className="text-sm font-semibold text-foreground">Paleta de tu marca</p>
                 <p className="text-xs text-muted-foreground">
                   {selectedLayer
