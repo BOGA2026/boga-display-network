@@ -278,7 +278,7 @@ export default function GenerateAI() {
 
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const fileName = `ai-designs/${Date.now()}.png`;
+      const fileName = `${bid}/disenos-ia/${Date.now()}.png`;
 
       const { error: uploadErr } = await supabase.storage
         .from("media")
