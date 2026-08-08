@@ -118,9 +118,12 @@ export function useSaveBrandKit() {
 
 /** Sube un archivo de marca al bucket del negocio y devuelve su URL pública. */
 export async function uploadBrandFile(file: File, carpeta: "logos" | "fotos"): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Tu sesión se cerró. Vuelve a entrar e inténtalo de nuevo.");
   const businessId = await getBusinessId();
   if (!businessId) throw new Error("Sin negocio asociado");
   const safe = file.name.replace(/[^\w.-]/g, "_");
+  // La carpeta raíz es el id del negocio: es lo que valida la política del bucket.
   const path = `${businessId}/marca/${carpeta}/${Date.now()}-${safe}`;
   const { error } = await supabase.storage.from("media").upload(path, file, { upsert: true });
   if (error) throw error;
