@@ -50,6 +50,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { storageThumb } from "@/lib/storageImage";
 import { cn } from "@/lib/utils";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
+import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
