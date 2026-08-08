@@ -225,8 +225,22 @@ export default function BrandSection() {
     [b, guardar, toast],
   );
 
+  /** Cancela la subida actual del logo y permite volver a subir uno nuevo. */
+  const cancelarSubida = useCallback(() => {
+    setSugeridos([]);
+    setRecorte(false);
+    guardar({
+      logo_url: null,
+      logo_dark_url: null,
+      logo_light_url: null,
+      logo_symbol_url: null,
+    });
+    toast({ title: "Subida cancelada", description: "Subí otro logo cuando quieras." });
+  }, [guardar, toast]);
+
 
   /* ── Colores ── */
+
 
   const cambiarColor = (key: BrandColorKey, value: string) => {
     const hex = normalizeHex(value);
