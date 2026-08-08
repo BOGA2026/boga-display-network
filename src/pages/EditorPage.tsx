@@ -54,6 +54,8 @@ import { cn } from "@/lib/utils";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
 import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
 import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
+import { useTenant } from "@/features/auth/useTenant";
+import { DEFAULT_ELEMENT_COLORS } from "@/features/editor/elements/svg";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
