@@ -83,7 +83,7 @@ const SUGGESTED_BY_CATEGORY: Record<string, string[]> = {
   restaurante: ["comida-bandeja", "comida-carne", "comida-pollo", "comida-sopa", "comida-pescado", "comida-ensalada", "comida-jugo", "comida-postre"],
   cafeteria: ["comida-cafe", "comida-capuchino", "comida-te", "comida-croissant", "comida-torta", "comida-galleta", "comida-cheesecake", "comida-chocolate"],
   comidas_rapidas: ["comida-hamburguesa", "comida-papas", "comida-perro", "comida-salchipapa", "comida-gaseosa", "comida-pizza", "comida-nachos", "comida-malteada"],
-  panaderia: ["comida-pan", "comida-croissant", "comida-buñuelo", "comida-tostada", "comida-cafe", "comida-torta", "comida-galleta", "comida-dona"],
+  panaderia: ["comida-pan", "comida-croissant", "comida-waffle", "comida-tostada", "comida-cafe", "comida-torta", "comida-galleta", "comida-dona"],
   bar: ["comida-cerveza", "comida-coctel", "comida-vino", "comida-michelada", "comida-alitas", "comida-nachos", "comida-papas", "etiqueta-happy-hour-pildora"],
 };
 
