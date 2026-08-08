@@ -9,6 +9,7 @@ import {
   Type,
   Image as ImageIcon,
   Star,
+  Shapes,
   Palette,
   Layers,
   Settings,
