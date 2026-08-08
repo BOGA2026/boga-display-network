@@ -55,7 +55,7 @@ import { getBusinessId, getUserId } from "@/features/auth/tenant";
 import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
 import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
 import { useTenant } from "@/features/auth/useTenant";
-import { DEFAULT_ELEMENT_COLORS } from "@/features/editor/elements/svg";
+import { DEFAULT_ELEMENT_COLORS, toDataUri } from "@/features/editor/elements/svg";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -70,6 +70,10 @@ type LayerItem = {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  /** Markup SVG original (elementos de la galería) para poder recolorear. */
+  svgTemplate?: string;
+  /** Color actual del elemento SVG. */
+  elementColor?: string;
   videoUrl?: string;
   widgetType?: "product_card" | "menu_board" | "promo";
   widgetData?: ProductCardData | MenuBoardData | PromoData;
@@ -338,6 +342,61 @@ export default function EditorPage() {
     [brand],
   );
 
+  /** Paleta de "Tu marca" para recolorear elementos y fondo. */
+  const brandPalette = useMemo(
+    () =>
+      [
+        { label: "Primario", value: brand?.primary_color ?? DEFAULT_ELEMENT_COLORS.primary },
+        { label: "Secundario", value: brand?.secondary_color ?? DEFAULT_ELEMENT_COLORS.secondary },
+        { label: "Acento", value: elementColors.accent },
+        { label: "Fondo", value: brand?.background_color ?? "#FFFFFF" },
+        { label: "Texto", value: brand?.text_color ?? "#111111" },
+        { label: "Blanco", value: "#FFFFFF" },
+        { label: "Negro", value: "#111111" },
+        { label: "Rojo", value: "#EF4444" },
+        { label: "Verde", value: "#22C55E" },
+        { label: "Amarillo", value: "#FACC15" },
+      ].filter((c, i, arr) => arr.findIndex((o) => o.value.toLowerCase() === c.value.toLowerCase()) === i),
+    [brand, elementColors],
+  );
+
+  /** Recolorea un elemento SVG de la galería. */
+  const recolorElement = useCallback((id: string, color: string) => {
+    setLayers((prev) =>
+      prev.map((l) =>
+        l.id === id && l.svgTemplate
+          ? {
+              ...l,
+              elementColor: color,
+              imageUrl: toDataUri(l.svgTemplate, { accent: color, primary: color, secondary: color }),
+            }
+          : l,
+      ),
+    );
+  }, []);
+
+  /** Aplica un color de la paleta: a la capa seleccionada o al fondo del lienzo. */
+  const applyPaletteColor = useCallback(
+    (color: string) => {
+      saveSnapshot();
+      const target = layers.find((l) => l.id === selectedIds[0]);
+      if (!target) {
+        setBackground(color);
+        return;
+      }
+      if (target.svgTemplate) {
+        recolorElement(target.id, color);
+        return;
+      }
+      if (target.type === "text" && target.textStyle) {
+        updateLayerTextStyle(target.id, { ...target.textStyle, color });
+        return;
+      }
+      setLayers((prev) => prev.map((l) => (l.id === target.id ? { ...l, color } : l)));
+    },
+    [layers, selectedIds, recolorElement, saveSnapshot],
+  );
+
   /** Inserta un elemento de la galería curada (y su texto editable si es una insignia). */
   const addElementLayer = useCallback(
     (payload: ElementInsertPayload) => {
@@ -360,6 +419,8 @@ export default function EditorPage() {
         h,
         color: "transparent",
         imageUrl: payload.url,
+        svgTemplate: payload.svg,
+        elementColor: payload.color,
       };
 
       const next: LayerItem[] = [shapeLayer];
@@ -1056,9 +1117,39 @@ export default function EditorPage() {
               hidden
               onChange={onPickVideoFile}
             />
-            <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Paleta">
-              <Palette className="h-5 w-5" />
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="rounded-lg p-2 hover:bg-primary/10 hover:shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] transition-all duration-200 text-muted-foreground hover:text-primary" title="Paleta de tu marca">
+                  <Palette className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" align="end" className="w-64 space-y-3 p-3">
+                <p className="text-sm font-semibold text-foreground">Paleta de tu marca</p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedLayer
+                    ? `Aplicar color a “${selectedLayer.name}”`
+                    : "Sin capa seleccionada: se aplica al fondo del lienzo"}
+                </p>
+                <div className="grid grid-cols-5 gap-2">
+                  {brandPalette.map((c) => (
+                    <button
+                      key={c.value + c.label}
+                      onClick={() => applyPaletteColor(c.value)}
+                      title={c.label}
+                      className="h-9 w-full rounded-md border border-border transition-transform hover:scale-105"
+                      style={{ background: c.value }}
+                    />
+                  ))}
+                </div>
+                <label className="block text-xs text-muted-foreground">Color personalizado</label>
+                <input
+                  type="color"
+                  value={selectedLayer?.elementColor ?? background}
+                  onChange={(e) => applyPaletteColor(e.target.value)}
+                  className="h-9 w-full rounded border border-border p-1"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </aside>
 
@@ -1350,6 +1441,28 @@ export default function EditorPage() {
                       </button>
                     </div>
                   </div>
+                  {selectedLayer.svgTemplate && (
+                    <div>
+                      <label className="mb-1 block text-muted-foreground text-xs">Color del elemento</label>
+                      <div className="mb-2 grid grid-cols-5 gap-1.5">
+                        {brandPalette.map((c) => (
+                          <button
+                            key={c.value + c.label}
+                            onClick={() => recolorElement(selectedLayer.id, c.value)}
+                            title={c.label}
+                            className="h-7 w-full rounded border border-border transition-transform hover:scale-105"
+                            style={{ background: c.value }}
+                          />
+                        ))}
+                      </div>
+                      <input
+                        type="color"
+                        value={selectedLayer.elementColor ?? elementColors.accent}
+                        onChange={(e) => recolorElement(selectedLayer.id, e.target.value)}
+                        className="h-9 w-full rounded border border-border p-1"
+                      />
+                    </div>
+                  )}
                   {selectedLayer.type === "text" && selectedLayer.textStyle ? (
                     <>
                       <PresetPicker

@@ -17,6 +17,10 @@ export type ElementInsertPayload = {
   name: string;
   width: number;
   height: number;
+  /** Markup SVG original con tokens de color, para poder recolorear después. */
+  svg: string;
+  /** Color aplicado al insertar. */
+  color: string;
   /** Texto editable que debe insertarse como capa de texto encima (insignias). */
   text?: string;
   textSize?: number;
@@ -43,12 +47,15 @@ export default function ElementsPanel({ colors, businessCategory, onInsert }: Pr
   }, [all, suggested, query, category]);
 
   const insert = (el: ElementDef) => {
-    const url = toDataUri(el.svg(colors), colors);
+    const markup = el.svg(colors);
+    const url = toDataUri(markup, colors);
     onInsert({
       url,
       name: el.label,
       width: el.size[0],
       height: el.size[1],
+      svg: markup,
+      color: colors.accent,
       text: el.text,
       textSize: el.textSize,
     });
