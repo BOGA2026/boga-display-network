@@ -121,31 +121,67 @@ export default function BrandSection() {
 
   /* ── Logos ── */
 
+  /**
+   * Al subir el logo principal hacemos el trabajo que nadie quiere hacer a mano:
+   * leerle los colores y sacar las versiones clara y oscura. Todo en el
+   * navegador, sobre el archivo local, para no depender de CORS del bucket.
+   */
   const subirLogo = useCallback(
     async (slot: LogoSlot, file: File) => {
       setSubiendo(slot);
+      const objectUrl = URL.createObjectURL(file);
       try {
         const url = await uploadBrandFile(file, "logos");
         const patch: Partial<BrandKit> = { [slot]: url } as Partial<BrandKit>;
-        // Si solo sube el principal, ese logo cubre las ranuras vacías.
-        if (slot === "logo_url" && b) {
-          LOGO_SLOTS.forEach(({ key }) => {
-            if (key !== "logo_url" && !b[key]) (patch as any)[key] = url;
-          });
-        }
-        guardar(patch);
+
         if (slot === "logo_url") {
+          // 1. Colores del logo.
           try {
-            const paleta = await extractPalette(url);
-            if (paleta.length) setSugeridos(paleta);
+            const paleta = await extractPalette(objectUrl);
+            if (paleta.length) {
+              setSugeridos(paleta);
+              const sinTocar =
+                b?.primary_color === DEFAULT_BRAND.primary_color &&
+                b?.secondary_color === DEFAULT_BRAND.secondary_color;
+              if (sinTocar) {
+                patch.primary_color = paleta[0];
+                if (paleta[1]) patch.secondary_color = paleta[1];
+                if (paleta[2]) patch.accent_color = paleta[2];
+                setSugeridos([]);
+                setAvisoColores(true);
+              }
+            }
           } catch {
-            /* logo sin CORS o formato raro: seguimos sin sugerencias */
+            /* formato raro: seguimos sin sugerencias */
+          }
+
+          // 2. Versiones clara y oscura.
+          try {
+            const v = await deriveLogoVariants(objectUrl);
+            const [claro, oscuro, transparente] = await Promise.all([
+              uploadBrandFile(v.claro, "logos", "logo-claro.png"),
+              uploadBrandFile(v.oscuro, "logos", "logo-oscuro.png"),
+              v.recorto ? uploadBrandFile(v.transparente, "logos", "logo-recortado.png") : Promise.resolve(url),
+            ]);
+            patch.logo_url = transparente;
+            patch.logo_dark_url = claro;
+            patch.logo_light_url = oscuro;
+            if (!b?.logo_symbol_url) patch.logo_symbol_url = transparente;
+            setRecorte(v.recorto);
+          } catch {
+            // Si no se pudo derivar, al menos el principal cubre las ranuras vacías.
+            LOGO_SLOTS.forEach(({ key }) => {
+              if (key !== "logo_url" && b && !b[key]) (patch as any)[key] = url;
+            });
           }
         }
+
+        guardar(patch);
         toast({ title: "Logo cargado" });
       } catch (e: any) {
         toast({ title: "No pudimos subir el logo", description: e.message, variant: "destructive" });
       } finally {
+        URL.revokeObjectURL(objectUrl);
         setSubiendo(null);
       }
     },
