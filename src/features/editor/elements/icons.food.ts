@@ -135,3 +135,27 @@ export const FOOD_ICONS: ElementDef[] = [
   ic("waffle", "Waffle", ["waffle", "wafle", "postre", "desayuno"],
     `<rect x="22" y="26" width="56" height="52" rx="10"/><path d="M40 26v52"/><path d="M58 26v52"/><path d="M22 44h56"/><path d="M22 62h56"/>`),
 ];
+
+/* ── Extras colombianos y de carta ── */
+FOOD_ICONS.push(
+  ic("ceviche", "Ceviche", ["ceviche", "camaron", "mar", "entrada"],
+    `<path d="M18 52h64a32 32 0 0 1-64 0Z"/><path d="M18 52c8-8 22-12 32-12s24 4 32 12"/><circle cx="40" cy="44" r="5"/><circle cx="60" cy="46" r="5"/>`),
+  ic("ajiaco", "Ajiaco", ["ajiaco", "sopa", "bogotano", "colombiana"],
+    `<path d="M16 54h68a34 34 0 0 1-68 0Z"/><path d="M46 32c-6-6 6-10 0-16"/><path d="M62 34c-6-6 6-10 0-16"/><path d="M24 66h52"/>`),
+  ic("arroz", "Arroz", ["arroz", "chino", "acompanamiento"],
+    `<path d="M18 50h64a32 32 0 0 1-64 0Z"/><path d="M28 44c8-10 36-10 44 0"/><path d="M36 36c6 4 22 4 28 0"/>`),
+  ic("crepe", "Crepe", ["crepe", "postre", "dulce"],
+    `<path d="M16 66h68l-16-28H32Z"/><path d="M32 38c8-8 28-8 36 0"/>`),
+  ic("yogur", "Yogur", ["yogur", "kumis", "lacteo", "desayuno"],
+    `<path d="M30 34h40l-6 48H36Z"/><path d="M28 34c4-8 40-8 44 0"/><path d="M38 52h24"/>`),
+  ic("smoothie", "Batido de frutas", ["batido", "smoothie", "jugo", "fruta"],
+    `<path d="M32 36h36l-5 46H37Z"/><path d="M32 36c4-10 32-10 36 0"/><path d="M58 28 70 12"/><path d="M36 60h28"/>`),
+  ic("bunuelo", "Buñuelo", ["bunuelo", "navidad", "panaderia", "colombiana"],
+    `<circle cx="50" cy="52" r="28"/><path d="M32 40c8 6 28 6 36 0"/><path d="M34 66c10 4 22 4 32 0"/>`),
+  ic("pandebono", "Pandebono", ["pandebono", "pan de bono", "panaderia", "colombiana"],
+    `<circle cx="50" cy="54" r="26"/><path d="M50 28c8-10 20-4 14 6"/>`),
+  ic("almojabana", "Almojábana", ["almojabana", "panaderia", "desayuno"],
+    `<path d="M22 56c0-16 12-26 28-26s28 10 28 26-12 22-28 22-28-6-28-22Z"/><path d="M34 50c10-6 22-6 32 0"/>`),
+  ic("energizante", "Bebida energizante", ["energizante", "bebida", "lata", "gaseosa"],
+    `<rect x="34" y="20" width="32" height="62" rx="8"/><path d="M34 34h32"/><path d="M50 44 42 60h14l-8 14"/>`),
+);

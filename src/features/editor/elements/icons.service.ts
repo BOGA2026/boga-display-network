@@ -95,3 +95,18 @@ export function seasonElements(now = new Date()): ElementDef[] {
       svg: () => strokeSvg(s.inner),
     }));
 }
+
+SERVICE_ICONS.push(
+  svc("pedido-qr", "Pedido por QR", ["qr", "carta digital", "pedido", "menu digital"],
+    `<rect x="16" y="16" width="26" height="26"/><rect x="58" y="16" width="26" height="26"/><rect x="16" y="58" width="26" height="26"/><path d="M58 58h12v12H58Z"/><path d="M78 58h6M58 82h26M84 68v16"/>`),
+  svc("aire", "Aire acondicionado", ["aire acondicionado", "clima", "fresco"],
+    `<rect x="14" y="24" width="72" height="30" rx="8"/><path d="M28 66c6 6 12 0 18 6"/><path d="M56 66c6 6 12 0 18 6"/>`),
+  svc("terraza", "Terraza", ["terraza", "aire libre", "exterior", "patio"],
+    `<path d="M14 46 50 18l36 28Z"/><path d="M50 46v36"/><path d="M30 82h40"/>`),
+  svc("reserva", "Reservas", ["reserva", "agenda", "calendario", "cita"],
+    `<rect x="16" y="24" width="68" height="60" rx="10"/><path d="M16 44h68"/><path d="M34 16v16M66 16v16"/><path d="m40 62 8 8 14-16"/>`),
+  svc("domicilio-gratis", "Domicilio gratis", ["domicilio gratis", "envio gratis", "delivery", "promocion"],
+    `<circle cx="26" cy="70" r="11"/><circle cx="74" cy="70" r="11"/><path d="M26 70 44 44h18l12 26"/><path d="M40 24h34"/>`),
+  svc("propina", "Propina", ["propina", "servicio", "voluntaria"],
+    `<circle cx="50" cy="46" r="26"/><path d="M50 32v28M42 40h14a6 6 0 0 1 0 12h-12a6 6 0 0 0 0 12h14"/><path d="M22 84h56"/>`),
+);
