@@ -829,6 +829,67 @@ export default function EditorPage() {
     }
   }, [saveSnapshot]);
 
+  /**
+   * Abrir una plantilla de "Tu marca" (`?preset=<id>`): trae la estructura y le
+   * aplica los colores y tipografías de la marca. La plantilla guarda la
+   * estructura, nunca el contenido.
+   */
+  useEffect(() => {
+    const pid = searchParams.get("preset");
+    if (!pid || !brand) return;
+    let vivo = true;
+    (async () => {
+      const { data } = await supabase
+        .from("content")
+        .select("file_url")
+        .eq("id", pid)
+        .eq("type", "preset")
+        .maybeSingle();
+      if (!vivo || !data?.file_url) return;
+      try {
+        const base64 = data.file_url.replace(/^data:[^;]+;base64,/, "");
+        const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+        if (payload.orientation) setOrientation(payload.orientation);
+        if (payload.width && payload.height) {
+          setCustomResolution(true);
+          setCustomW(payload.width);
+          setCustomH(payload.height);
+        }
+        setBackground(brand.background_color);
+        if (Array.isArray(payload.layers)) {
+          setLayers(
+            (payload.layers as LayerItem[]).map((l) =>
+              l.type === "text" && l.textStyle
+                ? {
+                    ...l,
+                    textStyle: {
+                      ...l.textStyle,
+                      fontFamily:
+                        l.textStyle.fontSize >= 40
+                          ? brand.heading_font ?? l.textStyle.fontFamily
+                          : brand.body_font ?? l.textStyle.fontFamily,
+                      color: brand.text_color,
+                      bannerColor: brand.primary_color,
+                      bannerFrom: brand.primary_color,
+                      bannerTo: brand.secondary_color,
+                    },
+                  }
+                : l,
+            ),
+          );
+        }
+        toast.success("Plantilla abierta con los colores de tu marca");
+      } catch {
+        toast.error("No se pudo abrir la plantilla");
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [searchParams, brand]);
+
+
+
   const deletePreset = useCallback(async (id: string) => {
     const { error } = await supabase.from("content").delete().eq("id", id);
     if (error) {
