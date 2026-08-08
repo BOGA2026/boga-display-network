@@ -105,6 +105,7 @@ export default function EditorPage() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
+  const [elementsPanelOpen, setElementsPanelOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
