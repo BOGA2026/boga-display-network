@@ -428,7 +428,7 @@ export default function BrandSection() {
                   {c}
                 </span>
               ))}
-              <div className="ml-auto flex gap-2">
+              <div className="ml-auto flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   onClick={() => {
@@ -446,7 +446,11 @@ export default function BrandSection() {
                 <Button size="sm" variant="ghost" onClick={() => setSugeridos([])}>
                   Ahora no
                 </Button>
+                <Button size="sm" variant="ghost" onClick={cancelarSubida}>
+                  Cancelar
+                </Button>
               </div>
+
             </div>
           </div>
         )}
