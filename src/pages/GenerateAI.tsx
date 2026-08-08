@@ -60,7 +60,7 @@ function useMenuData() {
           .limit(MENU_LIMIT),
         supabase
           .from("brand_kits")
-          .select("primary_color, secondary_color, accent_color, font_family, logo_url")
+          .select("primary_color, secondary_color, accent_color, background_color, text_color, extra_color, heading_font, body_font, font_family, logo_url, logo_dark_url, logo_light_url, logo_symbol_url")
           .eq("business_id", businessId)
           .maybeSingle(),
         supabase.from("businesses").select("name").eq("id", businessId).maybeSingle(),
