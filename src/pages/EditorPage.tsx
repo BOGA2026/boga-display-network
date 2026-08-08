@@ -164,6 +164,43 @@ export default function EditorPage() {
   const dragSnapshotSaved = useRef(false);
   const MAX_HISTORY = 80;
 
+  /**
+   * La marca del negocio (Contenido → Tu marca). El editor arranca con esa
+   * paleta y esas tipografías: nadie vuelve a elegir el mismo rojo dos veces.
+   */
+  const [brand, setBrand] = useState<BrandKit | null>(null);
+  useEffect(() => {
+    let vivo = true;
+    fetchBrandKit()
+      .then((k) => {
+        if (!vivo || !k) return;
+        setBrand(k);
+        ensureFont(k.heading_font ?? DEFAULT_HEADING_FONT);
+        ensureFont(k.body_font ?? DEFAULT_BODY_FONT);
+        if (!searchParams.get("contentId")) setBackground(k.background_color);
+      })
+      .catch(() => undefined);
+    return () => {
+      vivo = false;
+    };
+    // Solo al montar: cambiar de pieza no debe pisar el lienzo abierto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Estilo de texto por defecto, ya vestido con la marca. */
+  const brandTextStyle = useCallback(
+    (): TextStyle => ({
+      ...defaultTextStyle,
+      fontFamily: brand?.heading_font ?? defaultTextStyle.fontFamily,
+      color: brand?.text_color ?? defaultTextStyle.color,
+      bannerColor: brand?.primary_color ?? defaultTextStyle.bannerColor,
+      bannerFrom: brand?.primary_color ?? defaultTextStyle.bannerFrom,
+      bannerTo: brand?.secondary_color ?? defaultTextStyle.bannerTo,
+    }),
+    [brand],
+  );
+
+
   // Load existing layout when contentId param is present
   useEffect(() => {
     const cid = searchParams.get("contentId");
