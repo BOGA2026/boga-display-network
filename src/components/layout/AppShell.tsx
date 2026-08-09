@@ -73,6 +73,30 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
   const { businessName } = useTenant();
 
 
+  // Barra única de estado activo: se desliza entre ítems en vez de aparecer.
+  const navRef = React.useRef<HTMLDivElement | null>(null);
+  const [rail, setRail] = React.useState<{ top: number; height: number } | null>(null);
+  const [moving, setMoving] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    const track = navRef.current;
+    if (!track) return;
+    const active = track.querySelector<HTMLElement>(".v-nav-item-active");
+    if (!active) {
+      setRail(null);
+      return;
+    }
+    const h = active.offsetHeight * 0.6;
+    const next = { top: active.offsetTop + (active.offsetHeight - h) / 2, height: h };
+    setRail((prev) => {
+      if (prev && (prev.top !== next.top || prev.height !== next.height)) {
+        setMoving(true);
+        window.setTimeout(() => setMoving(false), 220);
+      }
+      return next;
+    });
+  }, [location.pathname, collapsed]);
+
   // El panel móvil se cierra solo al navegar.
   React.useEffect(() => {
     setOpenMobile(false);
