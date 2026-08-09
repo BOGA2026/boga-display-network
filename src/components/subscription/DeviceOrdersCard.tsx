@@ -18,8 +18,8 @@ import {
 } from "@/config/devices";
 import { useDeviceOrders } from "@/features/devices";
 import {
-  ANNUAL_FREE_MONTHS,
   ANNUAL_LIST_PRICE_PER_SCREEN,
+  IVA_LEGEND,
   annualVariant,
 } from "@/config/pricing";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
