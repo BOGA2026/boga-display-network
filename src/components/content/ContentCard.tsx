@@ -188,7 +188,7 @@ export function ContentCard({
           className={cn(
             "absolute left-2 top-2 z-[3] flex h-5 w-5 items-center justify-center rounded border border-white/40 bg-black/50 transition-opacity",
             selected
-              ? "opacity-100 border-primary bg-primary text-primary-foreground"
+              ? "v-check-on opacity-100"
               : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 md:opacity-0",
           )}
         >
