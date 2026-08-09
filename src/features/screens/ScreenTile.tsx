@@ -48,9 +48,7 @@ function ScreenTileBase({
       }}
       className={cn(
         "group relative cursor-pointer overflow-hidden rounded-xl border bg-card/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        selected
-          ? "border-primary shadow-[0_0_0_1px_hsl(var(--primary))]"
-          : "border-border/30 hover:border-primary/40",
+        selected ? "v-selected" : "border-border/30 hover:border-primary/40",
       )}
     >
       {/* Lo que se ve AHORA, en 16:9 */}

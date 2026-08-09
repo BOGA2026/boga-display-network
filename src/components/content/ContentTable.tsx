@@ -121,7 +121,7 @@ export function ContentTable({
                 title={dimmed ? "Orientación distinta a la de esta pantalla" : undefined}
                 className={cn(
                   "cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-secondary/40",
-                  selected && "bg-primary/5",
+                  selected && "v-selected",
                   dimmed && "opacity-40",
                 )}
                 onClick={(e) => {
@@ -137,7 +137,7 @@ export function ContentTable({
                     onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded border border-border",
-                      selected && "border-primary bg-primary text-primary-foreground",
+                      selected && "v-check-on",
                     )}
                   >
                     {selected && <Check className="h-3 w-3" />}

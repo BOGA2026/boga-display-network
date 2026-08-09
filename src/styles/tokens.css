@@ -278,6 +278,102 @@
   filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
 }
 
+/* Variantes automáticas: aria-pressed, Radix Tabs y Toggle usan el mismo neón. */
+.v-seg-item[aria-pressed="true"],
+.v-seg-tab[data-state="active"],
+.v-seg-toggle[data-state="on"] {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    hsl(var(--accent-glow) / 0.12) 0%,
+    hsl(var(--accent-glow) / 0.05) 45%,
+    transparent 100%
+  );
+  color: hsl(var(--accent-glow) / 0.95);
+  font-weight: 500;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.v-seg-item[aria-pressed="true"]::before,
+.v-seg-tab[data-state="active"]::before,
+.v-seg-toggle[data-state="on"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 60%;
+  width: 3px;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: hsl(var(--accent-glow));
+  box-shadow: 0 0 8px hsl(var(--accent-glow) / 0.6);
+}
+
+.v-seg-item[aria-pressed="true"] svg,
+.v-seg-tab[data-state="active"] svg,
+.v-seg-toggle[data-state="on"] svg {
+  filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
+}
+
+.v-seg-tab,
+.v-seg-toggle {
+  color: hsl(var(--muted-foreground));
+  transition:
+    background-color 200ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+
+.v-seg-tab:hover:not([data-state="active"]),
+.v-seg-toggle:hover:not([data-state="on"]) {
+  background: hsl(var(--admin-surface-2, var(--muted)));
+  color: hsl(var(--foreground));
+}
+
+/* ---- Selección de objetos: tarjetas, filas, miniaturas ---- */
+.v-selected {
+  border-color: hsl(var(--accent-glow) / 0.7) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--accent-glow) / 0.5),
+    0 0 12px hsl(var(--accent-glow) / 0.35);
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--accent-glow) / 0.1) 0%,
+    transparent 60%
+  );
+}
+
+/* Fila de tabla seleccionada: sin sombra (no renderiza en <tr>), solo tinte. */
+tr.v-selected {
+  border-color: hsl(var(--accent-glow) / 0.5) !important;
+  box-shadow: none;
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--accent-glow) / 0.14) 0%,
+    hsl(var(--accent-glow) / 0.04) 60%,
+    transparent 100%
+  );
+}
+
+/* Casilla de selección marcada */
+.v-check-on {
+  border-color: hsl(var(--accent-glow)) !important;
+  background: hsl(var(--accent-glow)) !important;
+  color: hsl(0 0% 100%);
+  box-shadow: 0 0 8px hsl(var(--accent-glow) / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-seg-item,
+  .v-seg-tab,
+  .v-seg-toggle {
+    transition: none;
+  }
+}
+
+
+
 /* Mapa Leaflet oscuro: tiles desaturados, marcadores nítidos, bordes del sistema */
 .v-map {
   border-radius: var(--radius);
