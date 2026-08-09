@@ -637,10 +637,7 @@ const ContentLibrary = () => {
               onClick={() => setViewMode("grid")}
               aria-label="Ver en cuadrícula"
               aria-pressed={viewMode === "grid"}
-              className={cn(
-                "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors",
-                viewMode === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
+              className="v-seg-item flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs"
             >
               <Grid2X2 className="h-3.5 w-3.5" />
               Cuadrícula
@@ -649,10 +646,7 @@ const ContentLibrary = () => {
               onClick={() => setViewMode("list")}
               aria-label="Ver en lista"
               aria-pressed={viewMode === "list"}
-              className={cn(
-                "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors",
-                viewMode === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
+              className="v-seg-item flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs"
             >
               <Rows3 className="h-3.5 w-3.5" />
               Lista
