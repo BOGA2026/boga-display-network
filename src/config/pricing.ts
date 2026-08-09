@@ -38,21 +38,47 @@ export const MAX_PRICE_PER_SCREEN = PRICING_TIERS[0].pricePerScreen;
 /** Precio de lista del año: el mensual por doce meses. Se muestra tachado. */
 export const ANNUAL_LIST_PRICE_PER_SCREEN = MAX_PRICE_PER_SCREEN * 12;
 
-/** Precio real del pago anual adelantado, por pantalla. */
-export const ANNUAL_PRICE_PER_SCREEN = 500000;
+/**
+ * El plan anual tiene DOS formas y sólo se muestra la que aplica:
+ * - Con dispositivo: cuesta lo mismo que el mensual y el aparato va incluido.
+ * - Sin dispositivo: si el televisor ya sirve, se regalan tres meses.
+ */
+export const ANNUAL_WITH_DEVICE_PER_SCREEN = 600000;
+export const ANNUAL_WITHOUT_DEVICE_PER_SCREEN = 450000;
 
-/** Meses regalados frente al mensual (redondeado hacia abajo). */
+/** Meses regalados en la variante sin dispositivo. */
 export const ANNUAL_FREE_MONTHS = Math.round(
-  (ANNUAL_LIST_PRICE_PER_SCREEN - ANNUAL_PRICE_PER_SCREEN) / MAX_PRICE_PER_SCREEN,
+  (ANNUAL_LIST_PRICE_PER_SCREEN - ANNUAL_WITHOUT_DEVICE_PER_SCREEN) / MAX_PRICE_PER_SCREEN,
 );
 
-/** Costo real del primer año con dispositivo, en cada modalidad. */
-export function firstYearTotals(devicePriceCop: number) {
+/** Copia y monto de la variante anual que corresponde al visitante. */
+export function annualVariant(needsDevice: boolean) {
+  return needsDevice
+    ? {
+        needsDevice: true,
+        price: ANNUAL_WITH_DEVICE_PER_SCREEN,
+        chip: "Dispositivo incluido",
+        blurb: "Pagas lo mismo que el plan mensual y el dispositivo va incluido.",
+      }
+    : {
+        needsDevice: false,
+        price: ANNUAL_WITHOUT_DEVICE_PER_SCREEN,
+        chip: `${ANNUAL_FREE_MONTHS} meses gratis`,
+        blurb: "Si tu televisor ya sirve, te ahorras tres meses.",
+      };
+}
+
+/**
+ * Costo del primer año en cada modalidad, según si hace falta el aparato.
+ * Con dispositivo: mensual = 12 meses + dispositivo. Sin dispositivo: 12 meses.
+ */
+export function firstYearTotals(needsDevice: boolean, devicePriceCop: number) {
   return {
-    mensual: ANNUAL_LIST_PRICE_PER_SCREEN + devicePriceCop,
-    anual: ANNUAL_PRICE_PER_SCREEN,
+    mensual: ANNUAL_LIST_PRICE_PER_SCREEN + (needsDevice ? devicePriceCop : 0),
+    anual: annualVariant(needsDevice).price,
   };
 }
+
 
 /* ── IVA ──────────────────────────────────────────────────────────────────
  * Todos los precios publicados YA incluyen el IVA del 19%. La leyenda vive
