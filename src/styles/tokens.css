@@ -178,17 +178,18 @@
 .v-nav-item-active {
   background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.4) 0%,
-    hsl(var(--accent-glow) / 0.16) 55%,
-    hsl(var(--accent-glow) / 0.03) 100%
+    hsl(var(--accent-glow) / 0.68) 0%,
+    hsl(var(--accent-glow) / 0.42) 58%,
+    hsl(var(--accent-glow) / 0.22) 100%
   ) !important;
   background-color: transparent !important;
-  color: hsl(258 100% 92%) !important;
-  font-weight: 600;
-  border: 0;
+  color: hsl(0 0% 100%) !important;
+  font-weight: 700;
+  border: 1px solid hsl(var(--accent-glow) / 0.9) !important;
   box-shadow:
-    inset 0 0 0 1px hsl(var(--accent-glow) / 0.45),
-    0 0 16px hsl(var(--accent-glow) / 0.35) !important;
+    inset 0 0 18px hsl(var(--accent-glow) / 0.3),
+    0 0 10px hsl(var(--accent-glow) / 0.72),
+    0 0 24px hsl(var(--accent-glow) / 0.46) !important;
 }
 
 .v-nav-item-active svg {
@@ -263,16 +264,17 @@
   position: relative;
   background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.28) 0%,
-    hsl(var(--accent-glow) / 0.12) 55%,
-    hsl(var(--accent-glow) / 0.02) 100%
+    hsl(var(--accent-glow) / 0.64) 0%,
+    hsl(var(--accent-glow) / 0.4) 58%,
+    hsl(var(--accent-glow) / 0.2) 100%
   ) !important;
-  color: hsl(258 100% 90%) !important;
-  font-weight: 600;
-  border-color: hsl(var(--accent-glow) / 0.45) !important;
+  color: hsl(0 0% 100%) !important;
+  font-weight: 700;
+  border-color: hsl(var(--accent-glow) / 0.9) !important;
   box-shadow:
-    0 0 0 1px hsl(var(--accent-glow) / 0.35),
-    0 0 14px hsl(var(--accent-glow) / 0.35);
+    inset 0 0 14px hsl(var(--accent-glow) / 0.24),
+    0 0 0 1px hsl(var(--accent-glow) / 0.72),
+    0 0 18px hsl(var(--accent-glow) / 0.58);
 }
 
 .v-seg-item-active::before,
@@ -318,13 +320,13 @@
 .v-selected {
   border-color: hsl(var(--accent-glow)) !important;
   box-shadow:
-    0 0 0 2px hsl(var(--accent-glow) / 0.65),
-    0 0 22px hsl(var(--accent-glow) / 0.45) !important;
+    0 0 0 3px hsl(var(--accent-glow) / 0.85),
+    0 0 28px hsl(var(--accent-glow) / 0.62) !important;
   background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.18) 0%,
-    hsl(var(--accent-glow) / 0.04) 70%,
-    transparent 100%
+    hsl(var(--accent-glow) / 0.38) 0%,
+    hsl(var(--accent-glow) / 0.16) 70%,
+    hsl(var(--accent-glow) / 0.06) 100%
   );
 }
 
