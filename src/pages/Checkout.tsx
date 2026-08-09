@@ -43,12 +43,13 @@ export default function Checkout() {
 
   return (
     <div className="relative min-h-screen">
-      <PremiumBackground />
       <Seo
         title="Confirmar plan | Visualia"
         description="Revisa tu plan y confirma para empezar."
+        path="/checkout"
         noindex
       />
+      <PremiumBackground>
       <main className="relative z-10 mx-auto max-w-lg px-4 py-14">
         <h1 className="font-display text-3xl font-bold text-foreground">
           Confirma tu plan
@@ -132,6 +133,7 @@ export default function Checkout() {
 
         <p className="mt-4 text-center text-xs text-muted-foreground">{PRICING_FOOTNOTE}</p>
       </main>
+      </PremiumBackground>
     </div>
   );
 }
