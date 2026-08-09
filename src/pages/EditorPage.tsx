@@ -1555,17 +1555,15 @@ export default function EditorPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setOrientation("landscape")}
-                        className={`rounded border border-border px-2 py-1.5 ${
-                          orientation === "landscape" ? "bg-primary text-primary-foreground" : ""
-                        }`}
+                        aria-pressed={orientation === "landscape"}
+                        className="v-seg-item rounded border border-border px-2 py-1.5"
                       >
                         Horizontal
                       </button>
                       <button
                         onClick={() => setOrientation("portrait")}
-                        className={`rounded border border-border px-2 py-1.5 ${
-                          orientation === "portrait" ? "bg-primary text-primary-foreground" : ""
-                        }`}
+                        aria-pressed={orientation === "portrait"}
+                        className="v-seg-item rounded border border-border px-2 py-1.5"
                       >
                         Vertical
                       </button>
