@@ -344,6 +344,18 @@
   );
 }
 
+/* Fila de tabla seleccionada: sin sombra (no renderiza en <tr>), solo tinte. */
+tr.v-selected {
+  border-color: hsl(var(--accent-glow) / 0.5) !important;
+  box-shadow: none;
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--accent-glow) / 0.14) 0%,
+    hsl(var(--accent-glow) / 0.04) 60%,
+    transparent 100%
+  );
+}
+
 /* Casilla de selección marcada */
 .v-check-on {
   border-color: hsl(var(--accent-glow)) !important;
