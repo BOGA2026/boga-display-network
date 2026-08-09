@@ -152,3 +152,70 @@ export const FREE_TRIAL_DAYS = 0;
 export const PRIMARY_CTA_LABEL = FREE_TRIAL_AVAILABLE
   ? `Prueba gratis ${FREE_TRIAL_DAYS} días`
   : "Crea tu cuenta";
+
+
+/* ── Oferta de salida ─────────────────────────────────────────────────────
+ * Descuento adicional sobre el plan anual que se ofrece UNA vez por
+ * visitante cuando muestra intención de irse. El porcentaje y el código
+ * viven acá: el checkout valida el código, la pantalla no pinta precios
+ * inventados. Sin cronómetro: la urgencia es "solo si contratas ahora".
+ */
+export const EXIT_OFFER = {
+  /** Descuento adicional sobre el precio anual, en porcentaje. */
+  percent: 20,
+  /** Código real que viaja al checkout y aplica el descuento. */
+  code: "ANUAL20",
+  title: "Llévate un 20% adicional en el plan anual",
+  body: "Es nuestro mejor precio. Se aplica solo si contratas ahora.",
+  cta: "Tomar el 20% adicional",
+  dismiss: "Seguir mirando",
+  /** Clave de localStorage: una sola vez por visitante. */
+  storageKey: "visualia_exit_offer_seen",
+  /** Segundos de inactividad en precios que disparan el modal en móvil. */
+  mobileIdleSeconds: 40,
+} as const;
+
+/** Precio con el descuento de la oferta de salida aplicado. */
+export function exitOfferPrice(annualPrice: number) {
+  return Math.round((annualPrice * (100 - EXIT_OFFER.percent)) / 100 / 1000) * 1000;
+}
+
+/** Descuento en pesos que representa la oferta de salida. */
+export function exitOfferSavings(annualPrice: number) {
+  return annualPrice - exitOfferPrice(annualPrice);
+}
+
+/** Valida un código de descuento y devuelve el porcentaje que aplica. */
+export function discountPercentFor(code: string | null | undefined) {
+  if (!code) return 0;
+  return code.trim().toUpperCase() === EXIT_OFFER.code ? EXIT_OFFER.percent : 0;
+}
+
+
+/* ── Qué trae cada tramo ──────────────────────────────────────────────────
+ * Misma lista en los tres, marcando lo que NO incluye el tramo de entrada:
+ * ver lo que falta es lo que empuja al siguiente.
+ */
+export const PLAN_FEATURES = [
+  "Actualizaciones ilimitadas",
+  "Editor y plantillas listas",
+  "Programación por horario",
+  "Multi-sede en un solo panel",
+  "Soporte prioritario",
+  "Gerente de cuenta",
+] as const;
+
+export type PlanFeature = (typeof PLAN_FEATURES)[number];
+
+/** Índice del tramo (0,1,2) → características incluidas. */
+export const PLAN_FEATURE_MATRIX: Record<number, readonly PlanFeature[]> = {
+  0: ["Actualizaciones ilimitadas", "Editor y plantillas listas"],
+  1: [
+    "Actualizaciones ilimitadas",
+    "Editor y plantillas listas",
+    "Programación por horario",
+    "Multi-sede en un solo panel",
+    "Soporte prioritario",
+  ],
+  2: PLAN_FEATURES,
+};
