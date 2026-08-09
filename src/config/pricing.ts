@@ -190,3 +190,32 @@ export function discountPercentFor(code: string | null | undefined) {
   if (!code) return 0;
   return code.trim().toUpperCase() === EXIT_OFFER.code ? EXIT_OFFER.percent : 0;
 }
+
+
+/* ── Qué trae cada tramo ──────────────────────────────────────────────────
+ * Misma lista en los tres, marcando lo que NO incluye el tramo de entrada:
+ * ver lo que falta es lo que empuja al siguiente.
+ */
+export const PLAN_FEATURES = [
+  "Actualizaciones ilimitadas",
+  "Editor y plantillas listas",
+  "Programación por horario",
+  "Multi-sede en un solo panel",
+  "Soporte prioritario",
+  "Gerente de cuenta",
+] as const;
+
+export type PlanFeature = (typeof PLAN_FEATURES)[number];
+
+/** Índice del tramo (0,1,2) → características incluidas. */
+export const PLAN_FEATURE_MATRIX: Record<number, readonly PlanFeature[]> = {
+  0: ["Actualizaciones ilimitadas", "Editor y plantillas listas"],
+  1: [
+    "Actualizaciones ilimitadas",
+    "Editor y plantillas listas",
+    "Programación por horario",
+    "Multi-sede en un solo panel",
+    "Soporte prioritario",
+  ],
+  2: PLAN_FEATURES,
+};
