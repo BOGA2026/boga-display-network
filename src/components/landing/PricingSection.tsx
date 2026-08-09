@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ChevronRight, Check, X } from "lucide-react";
 import {
   PRICING_TIERS,
   MIN_PRICE_PER_SCREEN,
-  MAX_PRICE_PER_SCREEN,
   IVA_LEGEND,
   PRICING_FOOTNOTE,
   ANNUAL_FOOTNOTE,
   ANNUAL_FREE_MONTHS,
   PRIMARY_CTA_LABEL,
+  PLAN_FEATURES,
+  PLAN_FEATURE_MATRIX,
   annualVariantFor,
 } from "@/config/pricing";
-import { getAttribution } from "@/lib/attribution";
+import { getAttribution, setPlanChoice, trackConversion } from "@/lib/attribution";
+import { checkoutHref } from "@/lib/checkout";
+import { ExitOfferModal } from "@/components/pricing/ExitOfferModal";
 
 const _fmt = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -23,51 +26,25 @@ const formatCOP = (n: number) => _fmt.format(n);
 
 type Cycle = "mensual" | "anual";
 
-type PricingCard = {
-  name: string;
-  /** Precio mensual por pantalla. null = a medida. */
-  price: number | null;
-  features: string[];
-  cta: string;
-  ctaHref?: string;
-  highlight: boolean;
-};
-
-const tiers: PricingCard[] = [
+const tiers = [
   {
     name: `${PRICING_TIERS[0].min} a ${PRICING_TIERS[0].max} pantallas`,
-    price: PRICING_TIERS[0].pricePerScreen,
-    features: [
-      "Actualizaciones ilimitadas",
-      "Editor y plantillas listas",
-      "Soporte por chat",
-    ],
-    cta: "Empezar",
+    monthly: PRICING_TIERS[0].pricePerScreen,
     highlight: false,
+    cta: "Empezar",
   },
   {
     name: `${PRICING_TIERS[1].min} a ${PRICING_TIERS[1].max} pantallas`,
-    price: PRICING_TIERS[1].pricePerScreen,
-    features: [
-      "Todo lo anterior",
-      "Multi-sede en un solo panel",
-      "Programación por horario",
-      "Soporte prioritario",
-    ],
-    cta: PRIMARY_CTA_LABEL,
+    monthly: PRICING_TIERS[1].pricePerScreen,
     highlight: true,
+    cta: PRIMARY_CTA_LABEL,
   },
   {
     name: `${PRICING_TIERS[2].min} o más`,
-    price: null,
-    features: [
-      "Descuentos por volumen",
-      "Onboarding personalizado",
-      "Gerente de cuenta",
-    ],
-    cta: "Ver calculadora",
-    ctaHref: "/precios",
+    monthly: MIN_PRICE_PER_SCREEN,
     highlight: false,
+    cta: "Empezar",
+    from: true,
   },
 ];
 
@@ -75,8 +52,12 @@ const tiers: PricingCard[] = [
  * Precios públicos. Los montos y la leyenda de IVA salen de
  * src/config/pricing.ts para que no diverjan con la landing de campaña,
  * la suscripción, el resumen de pago y los correos.
+ *
+ * Cada tarjeta entera es un enlace al checkout con el plan ya elegido:
+ * un clic, sin pasos intermedios.
  */
 export default function PricingSection() {
+  const navigate = useNavigate();
   const [cycle, setCycle] = useState<Cycle>("mensual");
   const anual = cycle === "anual";
 
@@ -87,8 +68,20 @@ export default function PricingSection() {
 
   const variantOf = (monthly: number) => annualVariantFor(monthly, needsDevice);
   const priceOf = (monthly: number) => (anual ? variantOf(monthly).price : monthly);
+  const listOf = (monthly: number) =>
+    anual ? monthly * 12 : PRICING_TIERS[0].pricePerScreen;
+  const savingsOf = (monthly: number) =>
+    anual
+      ? monthly * 12 - variantOf(monthly).price
+      : (PRICING_TIERS[0].pricePerScreen - monthly) * 12;
 
   const unitLabel = anual ? "por pantalla / año" : "por pantalla / mes";
+
+  const go = (monthly: number) => {
+    setPlanChoice(cycle);
+    trackConversion("plan_select", { plan: cycle, monthly });
+    navigate(checkoutHref({ plan: cycle, monthly }));
+  };
 
   return (
     <section id="precios" className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24">
@@ -107,11 +100,11 @@ export default function PricingSection() {
         </div>
 
         {/* Conmutador mensual / anual */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-10 flex justify-center">
           <div
             role="tablist"
             aria-label="Forma de pago"
-            className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1"
+            className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-card/60 p-1"
           >
             {(["mensual", "anual"] as Cycle[]).map((c) => (
               <button
@@ -119,15 +112,19 @@ export default function PricingSection() {
                 role="tab"
                 aria-selected={cycle === c}
                 onClick={() => setCycle(c)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] ${
+                className={`v-focus-ring rounded-full px-4 py-2 text-sm font-medium transition ${
                   cycle === c
-                    ? "bg-[#5227FF] text-white"
-                    : "text-white/70 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {c === "mensual" ? "Mensual" : "Anual"}
                 {c === "anual" && (
-                  <span className="ml-2 text-xs font-semibold text-[#B19EEF]">
+                  <span
+                    className={`ml-2 text-xs font-semibold ${
+                      cycle === c ? "text-primary-foreground/80" : "text-primary"
+                    }`}
+                  >
                     −{ANNUAL_FREE_MONTHS} meses
                   </span>
                 )}
@@ -136,87 +133,128 @@ export default function PricingSection() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {tiers.map((t, i) => (
-            <div
-              key={t.name}
-              className={`relative flex flex-col p-7 ${
-                t.highlight
-                  ? "gradient-border-shine reveal-on-scroll"
-                  : "bento-card reveal-on-scroll"
-              }`}
-              style={{ transitionDelay: `${i * 120}ms` }}
-            >
-              {t.highlight && (
-                <span className="absolute -top-3 left-7 rounded-full bg-[#5227FF] px-3 py-1 text-xs font-semibold text-white">
-                  Más popular
-                </span>
-              )}
-              <h3 className="font-display text-lg font-semibold text-white">{t.name}</h3>
-              <div className="mt-4">
-                {t.price !== null ? (
-                  <>
-                    {anual && !needsDevice && (
-                      <p className="text-sm text-white/40 line-through">
-                        {formatCOP(t.price * 12)}
-                      </p>
+        <div className="grid items-stretch gap-6 md:grid-cols-3">
+          {tiers.map((t, i) => {
+            const price = priceOf(t.monthly);
+            const list = listOf(t.monthly);
+            const savings = savingsOf(t.monthly);
+            const percent = list > price ? Math.round(((list - price) / list) * 100) : 0;
+            const included = PLAN_FEATURE_MATRIX[i] ?? [];
+
+            return (
+              <div
+                key={t.name}
+                role="link"
+                tabIndex={0}
+                onClick={() => go(t.monthly)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    go(t.monthly);
+                  }
+                }}
+                className={`v-focus-ring group relative flex cursor-pointer flex-col rounded-2xl border p-7 transition-all duration-300 ${
+                  t.highlight
+                    ? "border-primary/70 bg-card/80 shadow-[0_0_40px_hsl(var(--accent-glow)/0.25)] hover:-translate-y-1 hover:shadow-[0_0_64px_hsl(var(--accent-glow)/0.45)]"
+                    : "border-border/70 bg-card/50 hover:-translate-y-1 hover:border-border hover:shadow-[0_16px_40px_-20px_hsl(var(--foreground)/0.35)]"
+                }`}
+              >
+                {t.highlight && (
+                  <span className="absolute -top-3 left-7 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
+                    Más elegido
+                  </span>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-display text-lg font-semibold text-foreground">
+                    {t.name}
+                  </h3>
+                  {percent > 0 && (
+                    <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                      {percent}% menos
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-4">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    {t.from && (
+                      <span className="text-sm text-muted-foreground">desde</span>
                     )}
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-display text-4xl font-bold text-white">
-                        {formatCOP(priceOf(t.price))}
+                    <span className="v-numeric font-display text-4xl font-bold text-foreground">
+                      {formatCOP(price)}
+                    </span>
+                    {percent > 0 && (
+                      <span className="v-numeric text-sm text-muted-foreground line-through">
+                        {formatCOP(list)}
                       </span>
-                    </div>
-                  </>
-                ) : (
-                  <span className="font-display text-2xl font-semibold text-white">
-                    desde {formatCOP(priceOf(MIN_PRICE_PER_SCREEN))}
-                  </span>
-                )}
-                <p className="mt-1 text-sm text-white/60">
-                  {unitLabel}
-                  {t.price === null && ", según volumen"}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{IVA_LEGEND}</p>
-                {anual && (
-                  <span className="mt-3 inline-flex rounded-full bg-[#5227FF]/20 px-3 py-1 text-xs font-semibold text-[#B19EEF]">
-                    {variantOf(t.price ?? MIN_PRICE_PER_SCREEN).chip}
-                  </span>
-                )}
-              </div>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {unitLabel}
+                    {t.from && ", según volumen"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{IVA_LEGEND}</p>
+                  {anual && (
+                    <span className="mt-3 inline-flex rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+                      {variantOf(t.monthly).chip}
+                    </span>
+                  )}
+                </div>
 
-              <ul className="mt-6 space-y-2.5 text-sm text-white/90">
-                {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#B19EEF]" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
+                <ul className="mt-6 space-y-2.5 text-sm">
+                  {PLAN_FEATURES.map((f) => {
+                    const on = included.includes(f);
+                    return (
+                      <li key={f} className="flex items-start gap-2">
+                        {on ? (
+                          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500" />
+                        ) : (
+                          <X className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground/60" />
+                        )}
+                        <span
+                          className={on ? "text-foreground" : "text-muted-foreground/70"}
+                        >
+                          {f}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
 
-              <div className="mt-auto pt-7">
-                <Link
-                  to={t.ctaHref ?? `/registro?plan=${cycle}`}
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] ${
-                    t.highlight
-                      ? "bg-[#5227FF] text-white hover:shadow-[0_0_40px_rgba(82,39,255,0.55)]"
-                      : "border border-white/15 bg-transparent text-white hover:bg-white/5"
-                  }`}
-                >
-                  {t.cta}
-                  {t.highlight && <ArrowRight className="h-4 w-4" />}
-                </Link>
+                <div className="mt-auto pt-7">
+                  <span
+                    className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-all duration-300 ${
+                      t.highlight
+                        ? "bg-primary text-primary-foreground group-hover:shadow-[0_0_40px_hsl(var(--accent-glow)/0.55)]"
+                        : "border border-border bg-transparent text-foreground group-hover:bg-muted/40"
+                    }`}
+                  >
+                    {t.cta}
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                  {savings > 0 && (
+                    <p className="mt-3 text-center text-xs text-muted-foreground">
+                      Ahorras{" "}
+                      <span className="v-numeric font-semibold text-foreground">
+                        {formatCOP(savings)}
+                      </span>{" "}
+                      frente al {anual ? "mensual" : "plan de entrada, al año"}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {anual && (
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {variantOf(MAX_PRICE_PER_SCREEN).blurb}{" "}
+            {variantOf(PRICING_TIERS[0].pricePerScreen).blurb}{" "}
             <button
               type="button"
               onClick={() => setNeedsDevice((v) => !v)}
-              className="font-medium text-[#B19EEF] underline underline-offset-4"
+              className="font-medium text-primary underline underline-offset-4"
             >
               {needsDevice ? "Mi televisor ya sirve" : "Necesito el dispositivo"}
             </button>
@@ -227,6 +265,8 @@ export default function PricingSection() {
           {anual ? ANNUAL_FOOTNOTE : PRICING_FOOTNOTE}
         </p>
       </div>
+
+      <ExitOfferModal sectionId="precios" />
     </section>
   );
 }
