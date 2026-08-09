@@ -114,3 +114,41 @@ export function annualPricePerScreen(monthlyPerScreen: number) {
   return monthlyPerScreen * ANNUAL_BILLED_MONTHS;
 }
 
+
+/**
+ * Variante anual para CUALQUIER tramo por volumen, con la misma regla que la
+ * landing de campaña: con dispositivo se pagan los doce meses y el aparato va
+ * incluido; sin dispositivo se regalan los meses de `ANNUAL_FREE_MONTHS`.
+ */
+export function annualVariantFor(monthlyPerScreen: number, needsDevice: boolean) {
+  return needsDevice
+    ? {
+        needsDevice: true,
+        price: monthlyPerScreen * 12,
+        chip: "Dispositivo incluido",
+        blurb: "Pagas lo mismo que el plan mensual y el dispositivo va incluido.",
+      }
+    : {
+        needsDevice: false,
+        price: monthlyPerScreen * ANNUAL_BILLED_MONTHS,
+        chip: `${ANNUAL_FREE_MONTHS} meses gratis`,
+        blurb: "Si tu televisor ya sirve, te ahorras tres meses.",
+      };
+}
+
+/** Nota al pie de la vista anual. */
+export const ANNUAL_FOOTNOTE =
+  "Precios en pesos colombianos (COP), IVA del 19% incluido. Pago anual por adelantado.";
+
+/* ── Prueba gratuita ──────────────────────────────────────────────────────
+ * HOY NO EXISTE: el alta no crea ninguna suscripción en estado `trialing`
+ * ni hay temporizador que la venza. Mientras siga en false, ninguna
+ * superficie puede prometer días gratis.
+ */
+export const FREE_TRIAL_AVAILABLE = false;
+export const FREE_TRIAL_DAYS = 0;
+
+/** Texto del botón principal de alta, único para todas las superficies. */
+export const PRIMARY_CTA_LABEL = FREE_TRIAL_AVAILABLE
+  ? `Prueba gratis ${FREE_TRIAL_DAYS} días`
+  : "Crea tu cuenta";
