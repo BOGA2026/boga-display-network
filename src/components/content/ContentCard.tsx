@@ -95,7 +95,7 @@ export function ContentCard({
       className={cn(
         "v-card group relative overflow-hidden rounded-xl border border-border/30 surface-elevated transition-all",
         "hover:border-primary/30 hover:glow-primary-sm cursor-pointer",
-        selected && "border-primary/60 glow-primary-sm",
+        selected && "v-selected",
         dimmed && "opacity-40",
       )}
       onClick={(e) => {
