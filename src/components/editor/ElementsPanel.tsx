@@ -92,10 +92,8 @@ export default function ElementsPanel({ colors, businessCategory, onInsert }: Pr
               key={c}
               onClick={() => setCategory(c)}
               className={cn(
-                "shrink-0 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-                category === c
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                "v-seg-item shrink-0 overflow-hidden rounded-md px-2.5 py-1.5 text-xs font-medium",
+                category === c && "v-seg-item-active",
               )}
             >
               {CATEGORY_LABELS[c]}

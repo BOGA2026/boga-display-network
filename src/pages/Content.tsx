@@ -1055,10 +1055,8 @@ const Content = () => {
               onClick={() => setTab(t.id)}
               aria-pressed={tab === t.id}
               className={cn(
-                "h-9 rounded-md px-4 text-sm transition-colors",
-                tab === t.id
-                  ? "bg-secondary font-medium text-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                "v-seg-item h-9 overflow-hidden rounded-md px-4 text-sm",
+                tab === t.id && "v-seg-item-active",
               )}
             >
               {t.label}

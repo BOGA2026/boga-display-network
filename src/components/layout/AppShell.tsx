@@ -73,6 +73,30 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
   const { businessName } = useTenant();
 
 
+  // Barra única de estado activo: se desliza entre ítems en vez de aparecer.
+  const navRef = React.useRef<HTMLDivElement | null>(null);
+  const [rail, setRail] = React.useState<{ top: number; height: number } | null>(null);
+  const [moving, setMoving] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    const track = navRef.current;
+    if (!track) return;
+    const active = track.querySelector<HTMLElement>(".v-nav-item-active");
+    if (!active) {
+      setRail(null);
+      return;
+    }
+    const h = active.offsetHeight * 0.6;
+    const next = { top: active.offsetTop + (active.offsetHeight - h) / 2, height: h };
+    setRail((prev) => {
+      if (prev && (prev.top !== next.top || prev.height !== next.height)) {
+        setMoving(true);
+        window.setTimeout(() => setMoving(false), 220);
+      }
+      return next;
+    });
+  }, [location.pathname, collapsed]);
+
   // El panel móvil se cierra solo al navegar.
   React.useEffect(() => {
     setOpenMobile(false);
@@ -119,45 +143,55 @@ function DashboardSidebar({ onLogout }: { onLogout: () => void }) {
 
 
       <SidebarContent className="p-2">
-        {NAV_GROUPS.map((group) => (
-          <SidebarGroup key={group.id} className="p-0">
-            {!collapsed && (
-              <SidebarGroupLabel className="v-nav-group-label h-auto px-3 py-2">
-                {group.label}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((key) => {
-                  const item = NAV[key];
-                  return (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild tooltip={item.label}>
-                        <NavLink
-                          to={item.path}
-                          end={item.end}
-                          onMouseEnter={() => prefetch(item.path)}
-                          onFocus={() => prefetch(item.path)}
-                          onTouchStart={() => prefetch(item.path)}
-                          className={({ isActive }) =>
-                            cn(
-                              "v-nav-item v-focus-ring group relative flex min-h-[44px] items-center gap-3 overflow-hidden rounded-xl px-3 text-sm font-medium shadow-none ring-0 transition-colors duration-200 ease-ios focus-visible:ring-0",
-                              isActive && "v-nav-item-active",
-                            )
-                          }
-                        >
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          {!collapsed && <span className="truncate">{item.label}</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <div ref={navRef} className="v-nav-rail-track">
+          {rail && (
+            <span
+              aria-hidden
+              className={cn("v-nav-rail", moving && "v-nav-rail-moving")}
+              style={{ top: rail.top, height: rail.height }}
+            />
+          )}
+          {NAV_GROUPS.map((group) => (
+            <SidebarGroup key={group.id} className="p-0">
+              {!collapsed && (
+                <SidebarGroupLabel className="v-nav-group-label h-auto px-3 py-2">
+                  {group.label}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((key) => {
+                    const item = NAV[key];
+                    return (
+                      <SidebarMenuItem key={item.path}>
+                        <SidebarMenuButton asChild tooltip={item.label}>
+                          <NavLink
+                            to={item.path}
+                            end={item.end}
+                            onMouseEnter={() => prefetch(item.path)}
+                            onFocus={() => prefetch(item.path)}
+                            onTouchStart={() => prefetch(item.path)}
+                            className={({ isActive }) =>
+                              cn(
+                                "v-nav-item v-focus-ring group relative flex min-h-[44px] items-center gap-3 overflow-hidden rounded-xl px-3 text-sm font-medium shadow-none ring-0 transition-colors duration-200 ease-ios focus-visible:ring-0",
+                                isActive && "v-nav-item-active",
+                              )
+                            }
+                          >
+                            <item.icon className="h-4 w-4 shrink-0" />
+                            {!collapsed && <span className="truncate">{item.label}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </div>
       </SidebarContent>
+
 
       <SidebarFooter className="border-t border-border p-2">
         <SidebarMenu>
