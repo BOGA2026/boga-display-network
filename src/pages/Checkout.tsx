@@ -121,15 +121,30 @@ export default function Checkout() {
           )}
 
           {percent > 0 && (
-            <p className="mt-4 rounded-lg border border-primary/50 bg-primary/10 px-3 py-2 text-sm text-foreground">
-              Código <span className="font-semibold">{code?.toUpperCase()}</span> aplicado:{" "}
-              {percent}% adicional ({formatCop(base - total)} menos).
-            </p>
+            <div className="mt-4 rounded-lg border border-primary/50 bg-primary/10 px-3 py-2 text-sm text-foreground">
+              <p>
+                Código <span className="font-semibold">{code?.toUpperCase()}</span> aplicado:{" "}
+                {percent}% adicional ({formatCop(base - total)} menos).
+              </p>
+              {left > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Válido por{" "}
+                  <span className="v-numeric font-semibold tabular-nums text-foreground">
+                    {formatCountdown(left)}
+                  </span>{" "}
+                  más.
+                </p>
+              )}
+            </div>
           )}
-          {code && percent === 0 && (
+          {code && checking && (
+            <p className="mt-4 text-sm text-muted-foreground">Verificando el código…</p>
+          )}
+          {code && !checking && percent === 0 && (
             <p className="mt-4 text-sm text-destructive">
               El código {code} no es válido o ya venció.
             </p>
+
           )}
 
           <div className="mt-5 border-t border-border/60 pt-4 text-sm text-muted-foreground">
