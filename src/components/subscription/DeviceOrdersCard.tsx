@@ -85,9 +85,7 @@ export function DeviceOrdersCard({ billingCycle, businessId, screens = [] }: Pro
         </span>
         <div>
           <h3 className="font-display text-base font-semibold text-foreground">{C.pedidosTitulo}</h3>
-          <p className="text-sm text-muted-foreground">
-            Pagando el año por adelantado, {ANNUAL_FREE_MONTHS} meses van por nuestra cuenta.
-          </p>
+          <p className="text-sm text-muted-foreground">{annual.blurb}</p>
         </div>
       </div>
 
@@ -97,13 +95,19 @@ export function DeviceOrdersCard({ billingCycle, businessId, screens = [] }: Pro
           Pago anual: {annual.chip}
         </p>
         <p className="mt-1 text-sm text-foreground">
-          <span className="v-numeric text-muted-foreground line-through">
-            {formatCop(ANNUAL_LIST_PRICE_PER_SCREEN)}
-          </span>{" "}
+          {!annual.needsDevice && (
+            <>
+              <span className="v-numeric text-muted-foreground line-through">
+                {formatCop(ANNUAL_LIST_PRICE_PER_SCREEN)}
+              </span>{" "}
+            </>
+          )}
           <span className="v-numeric text-lg font-semibold">{formatCop(annual.price)}</span>{" "}
           <span className="text-muted-foreground">al año por pantalla</span>
         </p>
+        <p className="text-xs text-muted-foreground">{IVA_LEGEND}</p>
       </div>
+
 
       {/* Beneficio 2 — solo si le sirve */}
       {showDevice && (
