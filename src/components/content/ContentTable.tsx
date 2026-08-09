@@ -137,7 +137,7 @@ export function ContentTable({
                     onClick={(e) => { e.stopPropagation(); onToggleSelect(item.id); }}
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded border border-border",
-                      selected && "border-primary bg-primary text-primary-foreground",
+                      selected && "v-check-on",
                     )}
                   >
                     {selected && <Check className="h-3 w-3" />}
