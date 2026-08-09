@@ -121,7 +121,7 @@ export function ContentTable({
                 title={dimmed ? "Orientación distinta a la de esta pantalla" : undefined}
                 className={cn(
                   "cursor-pointer border-b border-border/20 transition-colors last:border-0 hover:bg-secondary/40",
-                  selected && "bg-primary/5",
+                  selected && "v-selected",
                   dimmed && "opacity-40",
                 )}
                 onClick={(e) => {
