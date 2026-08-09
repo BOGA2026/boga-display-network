@@ -48,6 +48,7 @@ const VisualiaLunchTemplate = lazy(() => import("@/templates/lunch-dual/Visualia
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const ScreensList = lazy(() => import("@/pages/digital-signage/ScreensList"));
 const SignageScreenDetail = lazy(() => import("@/pages/digital-signage/ScreenDetail"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
 const CampaignLanding = lazy(() => import("@/pages/lp/CampaignLanding"));
 const CampaignThanks = lazy(() => import("@/pages/lp/CampaignThanks"));
 
@@ -113,6 +114,7 @@ export default function AppRoutes() {
       <Route path="/studio" element={page(Studio, pathname)} />
       <Route path="/login" element={page(Login, pathname)} />
       <Route path="/registro" element={page(Register, pathname)} />
+      <Route path="/checkout" element={page(Checkout, pathname)} />
       <Route path="/recuperar" element={page(ForgotPassword, pathname)} />
       <Route path="/player" element={page(Player, pathname)} />
       <Route path="/player/:deviceId" element={page(Player, pathname)} />
