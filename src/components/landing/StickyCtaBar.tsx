@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { PRIMARY_CTA_LABEL } from "@/config/pricing";
 import { ArrowRight } from "lucide-react";
 
 /**
@@ -35,7 +36,7 @@ export default function StickyCtaBar() {
               data-analytics="cta_sticky_registro"
               className="group inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5227FF] px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:shadow-[0_0_32px_rgba(82,39,255,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF] sm:flex-none"
             >
-              Prueba gratis 14 días
+              {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <a

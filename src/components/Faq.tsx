@@ -15,8 +15,8 @@ export const FAQ_ITEMS = [
     a: "No. La pantalla sigue mostrando el último contenido que descargó. Cuando el internet vuelve, se sincroniza automáticamente con los cambios que hiciste desde el panel.",
   },
   {
-    q: "¿Qué pasa cuando terminan los 14 días gratis?",
-    a: "Eliges si quieres seguir con un plan pago o no. No te cobramos automáticamente ni te pedimos tarjeta de crédito para probar. Si decides continuar, activas tu suscripción en un par de clics.",
+    q: "¿Hay permanencia o cláusula de salida?",
+    a: "No. El plan mensual se cancela cuando quieras. Si eliges el plan anual, lo pagas por adelantado y te sale más barato.",
   },
   {
     q: "¿Cómo pago? ¿Dan factura electrónica?",

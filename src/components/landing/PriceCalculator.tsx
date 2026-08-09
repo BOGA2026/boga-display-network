@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CreditCard, Building2, Smartphone, ArrowRight, Info } from "lucide-react";
-import { PRICING_TIERS, findTier, MAX_PRICE_PER_SCREEN } from "@/config/pricing";
+import { PRICING_TIERS, findTier, MAX_PRICE_PER_SCREEN, PRIMARY_CTA_LABEL } from "@/config/pricing";
 import { PlanPriceCards } from "@/components/pricing/PlanPriceCards";
 import { formatCop } from "@/config/devices";
 
@@ -169,10 +169,10 @@ export function PriceCalculator() {
             <div className="space-y-4">
               <div className="rounded-xl border border-border/30 bg-secondary/20 p-6">
                 <h3 className="font-display text-lg font-semibold text-foreground">
-                  ¿Qué pasa al terminar los 14 días de prueba?
+                  ¿Hay permanencia?
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Eliges el plan que quieras. No cobramos automáticamente porque no te pedimos tarjeta de crédito.
+                  No. Pagas mes a mes y cancelas cuando quieras; si eliges el plan anual, lo pagas por adelantado y te sale más barato.
                 </p>
               </div>
 
@@ -260,7 +260,7 @@ export function PriceCalculator() {
                 asChild
               >
                 <Link to="/registro">
-                  Prueba gratis 14 días <ArrowRight className="ml-2 h-5 w-5" />
+                  {PRIMARY_CTA_LABEL} <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             </div>

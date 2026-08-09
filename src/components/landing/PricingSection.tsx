@@ -156,7 +156,7 @@ export default function PricingSection() {
               <div className="mt-4">
                 {t.price !== null ? (
                   <>
-                    {anual && (
+                    {anual && !needsDevice && (
                       <p className="text-sm text-white/40 line-through">
                         {formatCOP(t.price * 12)}
                       </p>
