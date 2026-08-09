@@ -178,18 +178,21 @@
 .v-nav-item-active {
   background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.26) 0%,
-    hsl(var(--accent-glow) / 0.1) 55%,
-    transparent 100%
+    hsl(var(--accent-glow) / 0.4) 0%,
+    hsl(var(--accent-glow) / 0.16) 55%,
+    hsl(var(--accent-glow) / 0.03) 100%
   ) !important;
+  background-color: transparent !important;
   color: hsl(258 100% 92%) !important;
   font-weight: 600;
   border: 0;
-  box-shadow: none;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--accent-glow) / 0.45),
+    0 0 16px hsl(var(--accent-glow) / 0.35) !important;
 }
 
 .v-nav-item-active svg {
-  filter: drop-shadow(0 0 6px hsl(var(--accent-glow) / 0.8));
+  filter: drop-shadow(0 0 6px hsl(var(--accent-glow) / 0.9));
 }
 
 /* Barra única que se desliza entre ítems. */
@@ -200,10 +203,13 @@
 .v-nav-rail {
   position: absolute;
   left: 0;
+  z-index: 3;
   width: 3px;
   border-radius: 9999px;
   background: hsl(var(--accent-glow));
-  box-shadow: 0 0 8px hsl(var(--accent-glow) / 0.6);
+  box-shadow:
+    0 0 10px hsl(var(--accent-glow) / 0.95),
+    0 0 22px hsl(var(--accent-glow) / 0.55);
   pointer-events: none;
   transform-origin: center;
   transition:
