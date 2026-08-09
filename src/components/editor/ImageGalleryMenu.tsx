@@ -77,10 +77,8 @@ export default function ImageGalleryMenu({ onInsertImage }: Props) {
           <button
             key={id}
             className={cn(
-              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-              source === id
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              "v-seg-item flex items-center gap-1.5 overflow-hidden rounded-md px-2.5 py-1.5 text-xs font-medium",
+              source === id && "v-seg-item-active",
             )}
             onClick={() => {
               setSource(id);
