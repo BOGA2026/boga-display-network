@@ -747,6 +747,39 @@ export type Database = {
           },
         ]
       }
+      exit_offers: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          percent: number
+          resolved_at: string | null
+          status: string
+          visitor_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          percent: number
+          resolved_at?: string | null
+          status?: string
+          visitor_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          percent?: number
+          resolved_at?: string | null
+          status?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           business_id: string
@@ -2605,6 +2638,16 @@ export type Database = {
       }
       complete_onboarding: {
         Args: { p_business_name: string; p_city: string }
+        Returns: Json
+      }
+      exit_offer_claim: { Args: { p_visitor_id: string }; Returns: Json }
+      exit_offer_get: { Args: { p_visitor_id: string }; Returns: Json }
+      exit_offer_mark: {
+        Args: { p_status: string; p_visitor_id: string }
+        Returns: Json
+      }
+      exit_offer_payload: {
+        Args: { _row: Database["public"]["Tables"]["exit_offers"]["Row"] }
         Returns: Json
       }
       get_content_page: { Args: never; Returns: Json }
