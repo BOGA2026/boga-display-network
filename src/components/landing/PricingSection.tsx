@@ -4,11 +4,15 @@ import { ArrowRight, Check } from "lucide-react";
 import {
   PRICING_TIERS,
   MIN_PRICE_PER_SCREEN,
+  MAX_PRICE_PER_SCREEN,
   IVA_LEGEND,
   PRICING_FOOTNOTE,
+  ANNUAL_FOOTNOTE,
   ANNUAL_FREE_MONTHS,
-  annualPricePerScreen,
+  PRIMARY_CTA_LABEL,
+  annualVariantFor,
 } from "@/config/pricing";
+import { getAttribution } from "@/lib/attribution";
 
 const _fmt = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -50,7 +54,7 @@ const tiers: PricingCard[] = [
       "Programación por horario",
       "Soporte prioritario",
     ],
-    cta: "Prueba gratis 14 días",
+    cta: PRIMARY_CTA_LABEL,
     highlight: true,
   },
   {
@@ -76,8 +80,13 @@ export default function PricingSection() {
   const [cycle, setCycle] = useState<Cycle>("mensual");
   const anual = cycle === "anual";
 
-  const priceOf = (monthly: number) =>
-    anual ? annualPricePerScreen(monthly) : monthly;
+  // Misma regla que /lp: la variante anual depende de si el visitante ya dijo
+  // en el verificador que necesita dispositivo. Sin respuesta se asume que sí.
+  const answered = getAttribution().needs_device;
+  const [needsDevice, setNeedsDevice] = useState<boolean>(answered ?? true);
+
+  const variantOf = (monthly: number) => annualVariantFor(monthly, needsDevice);
+  const priceOf = (monthly: number) => (anual ? variantOf(monthly).price : monthly);
 
   const unitLabel = anual ? "por pantalla / año" : "por pantalla / mes";
 
@@ -147,7 +156,7 @@ export default function PricingSection() {
               <div className="mt-4">
                 {t.price !== null ? (
                   <>
-                    {anual && (
+                    {anual && !needsDevice && (
                       <p className="text-sm text-white/40 line-through">
                         {formatCOP(t.price * 12)}
                       </p>
@@ -170,7 +179,7 @@ export default function PricingSection() {
                 <p className="mt-0.5 text-xs text-muted-foreground">{IVA_LEGEND}</p>
                 {anual && (
                   <span className="mt-3 inline-flex rounded-full bg-[#5227FF]/20 px-3 py-1 text-xs font-semibold text-[#B19EEF]">
-                    {ANNUAL_FREE_MONTHS} meses gratis
+                    {variantOf(t.price ?? MIN_PRICE_PER_SCREEN).chip}
                   </span>
                 )}
               </div>
@@ -201,10 +210,21 @@ export default function PricingSection() {
           ))}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          {anual
-            ? "Precios en pesos colombianos (COP), IVA del 19% incluido. Pago anual por adelantado."
-            : PRICING_FOOTNOTE}
+        {anual && (
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {variantOf(MAX_PRICE_PER_SCREEN).blurb}{" "}
+            <button
+              type="button"
+              onClick={() => setNeedsDevice((v) => !v)}
+              className="font-medium text-[#B19EEF] underline underline-offset-4"
+            >
+              {needsDevice ? "Mi televisor ya sirve" : "Necesito el dispositivo"}
+            </button>
+          </p>
+        )}
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          {anual ? ANNUAL_FOOTNOTE : PRICING_FOOTNOTE}
         </p>
       </div>
     </section>

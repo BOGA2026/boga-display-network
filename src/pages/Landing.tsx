@@ -44,6 +44,7 @@ import {
 import { Faq } from "@/components/Faq";
 import muestraPlatos from "@/assets/muestra-platos.mp4";
 import PricingSection from "@/components/landing/PricingSection";
+import { PRIMARY_CTA_LABEL } from "@/config/pricing";
 
 import muestraPlatosWebm from "@/assets/muestra-platos.webm";
 import destacaPromociones from "@/assets/destaca-promociones.mp4";
@@ -289,7 +290,7 @@ const Landing = () => {
     <PremiumBackground className="public-shell">
       <Seo
         title="Visualia | Menús digitales para restaurantes – Pantallas que venden"
-        description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos. Prueba gratis 14 días."
+        description="Menús digitales y cartelería inteligente para restaurantes y negocios físicos en Colombia. Actualiza precios y promociones en segundos desde el celular."
         path="/"
       />
       {showIntro && <IntroSplash onComplete={handleIntroComplete} />}
@@ -325,7 +326,7 @@ const Landing = () => {
               data-analytics="cta_hero_registro"
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#5227FF] px-8 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-[#5227FF] hover:shadow-[0_0_40px_rgba(82,39,255,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B19EEF]"
             >
-              Prueba gratis 14 días
+              {PRIMARY_CTA_LABEL}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <button
@@ -673,12 +674,12 @@ const Landing = () => {
             <span className="text-gradient-primary">sin esfuerzo</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Empieza gratis hoy. Conecta tu primera pantalla en 10 minutos.
+            Crea tu cuenta y conecta tu primera pantalla en 10 minutos.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button size="lg" className="px-8 text-base" asChild>
               <Link to="/registro">
-                Prueba gratis 14 días <ArrowRight className="ml-2 h-4 w-4" />
+                {PRIMARY_CTA_LABEL} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button

@@ -1,3 +1,4 @@
+import { PRIMARY_CTA_LABEL } from "@/config/pricing";
 import Seo from "@/components/Seo";
 import { Faq } from "@/components/Faq";
 
@@ -86,7 +87,7 @@ const Pricing = () => {
     <PremiumBackground>
       <Seo
         title="Precios de Visualia | Menús digitales desde $22.000 por pantalla"
-        description="Planes por volumen para menús digitales y cartelería en restaurantes. Desde $50.000 por pantalla al mes, hasta $22.000 con volumen. Prueba gratis 14 días."
+        description="Planes por volumen para menús digitales y cartelería en restaurantes. Desde $50.000 por pantalla al mes, hasta $22.000 con volumen. IVA incluido."
         path="/precios"
       />
       <LandingHeader />
@@ -214,7 +215,7 @@ const Pricing = () => {
                   asChild
                 >
                   <Link to="/registro">
-                    Probar gratis 14 días
+                    {PRIMARY_CTA_LABEL}
                     <ArrowRight className="h-5 w-5" aria-hidden="true" />
                   </Link>
                 </Button>
