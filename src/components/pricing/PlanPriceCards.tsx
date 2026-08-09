@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { VISUALIA_DEVICE_PRICE_COP, formatCop } from "@/config/devices";
 import {
-  ANNUAL_FREE_MONTHS,
   ANNUAL_LIST_PRICE_PER_SCREEN,
-  ANNUAL_PRICE_PER_SCREEN,
+  IVA_LEGEND,
   MAX_PRICE_PER_SCREEN,
+  annualVariant,
   firstYearTotals,
 } from "@/config/pricing";
 import { getAttribution, setPlanChoice, trackConversion, type PlanChoice } from "@/lib/attribution";
@@ -20,9 +21,17 @@ interface Props {
  * navegación: sin estado intermedio que hiciera parecer que nada pasaba.
  * Los montos vienen de src/config/pricing.ts para no divergir entre la
  * landing de campaña, la página principal y el panel.
+ *
+ * El plan anual tiene dos formas y sólo se muestra una: la que corresponde a
+ * lo que el visitante ya respondió en el verificador de televisor. Sin
+ * respuesta se asume el caso más común (necesita dispositivo) y se deja un
+ * enlace para ver la otra.
  */
 export function PlanPriceCards({ onChange }: Props) {
-  const totals = firstYearTotals(VISUALIA_DEVICE_PRICE_COP);
+  const answered = getAttribution().needs_device;
+  const [needsDevice, setNeedsDevice] = useState<boolean>(answered ?? true);
+  const variant = annualVariant(needsDevice);
+  const totals = firstYearTotals(needsDevice, VISUALIA_DEVICE_PRICE_COP);
 
   const href = (plan: PlanChoice) => {
     const { tv_brand, needs_device } = getAttribution();
@@ -53,10 +62,13 @@ export function PlanPriceCards({ onChange }: Props) {
             <span className="v-numeric text-2xl font-bold text-foreground">
               {formatCop(MAX_PRICE_PER_SCREEN)}
             </span>
+            <span className="text-xs text-muted-foreground">{IVA_LEGEND}</span>
             <span className="text-sm text-muted-foreground">por pantalla, al mes</span>
-            <span className="text-sm text-muted-foreground">
-              Dispositivo: {formatCop(VISUALIA_DEVICE_PRICE_COP)}
-            </span>
+            {needsDevice && (
+              <span className="text-sm text-muted-foreground">
+                Dispositivo: {formatCop(VISUALIA_DEVICE_PRICE_COP)}
+              </span>
+            )}
             <span className="mt-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
               Sin permanencia
             </span>
@@ -67,24 +79,25 @@ export function PlanPriceCards({ onChange }: Props) {
           />
         </Link>
 
-        {/* Anual */}
+        {/* Anual — sólo la variante que aplica */}
         <Link to={href("anual")} onClick={() => go("anual")} className={cardClass}>
           <span className="flex min-h-[44px] flex-col items-start justify-center gap-1">
             <span className="text-base font-semibold text-foreground">Anual</span>
             <span className="flex items-baseline gap-2">
-              <span className="v-numeric text-sm text-muted-foreground line-through">
-                {formatCop(ANNUAL_LIST_PRICE_PER_SCREEN)}
-              </span>
+              {!needsDevice && (
+                <span className="v-numeric text-sm text-muted-foreground line-through">
+                  {formatCop(ANNUAL_LIST_PRICE_PER_SCREEN)}
+                </span>
+              )}
               <span className="v-numeric text-2xl font-bold text-foreground">
-                {formatCop(ANNUAL_PRICE_PER_SCREEN)}
+                {formatCop(variant.price)}
               </span>
             </span>
+            <span className="text-xs text-muted-foreground">{IVA_LEGEND}</span>
             <span className="text-sm text-muted-foreground">por pantalla, al año</span>
-            <span className="text-sm font-medium text-foreground">
-              Te ahorras {formatCop(VISUALIA_DEVICE_PRICE_COP)} del dispositivo
-            </span>
+            <span className="text-sm font-medium text-foreground">{variant.blurb}</span>
             <span className="mt-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">
-              {ANNUAL_FREE_MONTHS} meses gratis
+              {variant.chip}
             </span>
           </span>
           <ChevronRight
@@ -95,11 +108,22 @@ export function PlanPriceCards({ onChange }: Props) {
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
-        Primer año con dispositivo:{" "}
+        Primer año {needsDevice ? "con dispositivo" : "sin dispositivo"}:{" "}
         <span className="v-numeric text-foreground">{formatCop(totals.mensual)}</span> mensual ·{" "}
         <span className="v-numeric font-semibold text-foreground">{formatCop(totals.anual)}</span>{" "}
         anual
       </p>
+      <p className="text-xs text-muted-foreground">{IVA_LEGEND}</p>
+
+      <button
+        type="button"
+        onClick={() => setNeedsDevice((v) => !v)}
+        className="mt-2 text-sm text-primary underline underline-offset-4"
+      >
+        {needsDevice
+          ? "¿Tu televisor ya sirve? Ver precio sin dispositivo"
+          : "¿Necesitas el dispositivo? Ver precio con dispositivo"}
+      </button>
     </div>
   );
 }
