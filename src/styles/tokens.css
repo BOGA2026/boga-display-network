@@ -176,19 +176,20 @@
 }
 
 .v-nav-item-active {
-  background: linear-gradient(
+  background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.12) 0%,
-    hsl(var(--accent-glow) / 0.05) 45%,
+    hsl(var(--accent-glow) / 0.26) 0%,
+    hsl(var(--accent-glow) / 0.1) 55%,
     transparent 100%
-  );
-  color: hsl(var(--accent-glow) / 0.95);
+  ) !important;
+  color: hsl(258 100% 92%) !important;
+  font-weight: 600;
   border: 0;
   box-shadow: none;
 }
 
 .v-nav-item-active svg {
-  filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
+  filter: drop-shadow(0 0 6px hsl(var(--accent-glow) / 0.8));
 }
 
 /* Barra única que se desliza entre ítems. */
@@ -249,53 +250,26 @@
   color: hsl(var(--foreground));
 }
 
-.v-seg-item-active {
-  background: linear-gradient(
-    to right,
-    hsl(var(--accent-glow) / 0.12) 0%,
-    hsl(var(--accent-glow) / 0.05) 45%,
-    transparent 100%
-  );
-  color: hsl(var(--accent-glow) / 0.95);
-  font-weight: 500;
-  border-color: transparent;
-}
-
-.v-seg-item-active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  height: 60%;
-  width: 3px;
-  transform: translateY(-50%);
-  border-radius: 9999px;
-  background: hsl(var(--accent-glow));
-  box-shadow: 0 0 8px hsl(var(--accent-glow) / 0.6);
-}
-
-.v-seg-item-active svg {
-  filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
-}
-
-/* Variantes automáticas: aria-pressed, Radix Tabs y Toggle usan el mismo neón. */
+.v-seg-item-active,
 .v-seg-item[aria-pressed="true"],
 .v-seg-tab[data-state="active"],
 .v-seg-toggle[data-state="on"] {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(
+  background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.12) 0%,
-    hsl(var(--accent-glow) / 0.05) 45%,
-    transparent 100%
-  );
-  color: hsl(var(--accent-glow) / 0.95);
-  font-weight: 500;
-  border-color: transparent;
-  box-shadow: none;
+    hsl(var(--accent-glow) / 0.28) 0%,
+    hsl(var(--accent-glow) / 0.12) 55%,
+    hsl(var(--accent-glow) / 0.02) 100%
+  ) !important;
+  color: hsl(258 100% 90%) !important;
+  font-weight: 600;
+  border-color: hsl(var(--accent-glow) / 0.45) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--accent-glow) / 0.35),
+    0 0 14px hsl(var(--accent-glow) / 0.35);
 }
 
+.v-seg-item-active::before,
 .v-seg-item[aria-pressed="true"]::before,
 .v-seg-tab[data-state="active"]::before,
 .v-seg-toggle[data-state="on"]::before {
@@ -303,18 +277,21 @@
   position: absolute;
   left: 0;
   top: 50%;
-  height: 60%;
+  height: 70%;
   width: 3px;
   transform: translateY(-50%);
   border-radius: 9999px;
   background: hsl(var(--accent-glow));
-  box-shadow: 0 0 8px hsl(var(--accent-glow) / 0.6);
+  box-shadow:
+    0 0 10px hsl(var(--accent-glow) / 0.9),
+    0 0 20px hsl(var(--accent-glow) / 0.5);
 }
 
+.v-seg-item-active svg,
 .v-seg-item[aria-pressed="true"] svg,
 .v-seg-tab[data-state="active"] svg,
 .v-seg-toggle[data-state="on"] svg {
-  filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
+  filter: drop-shadow(0 0 5px hsl(var(--accent-glow) / 0.75));
 }
 
 .v-seg-tab,
@@ -333,14 +310,15 @@
 
 /* ---- Selección de objetos: tarjetas, filas, miniaturas ---- */
 .v-selected {
-  border-color: hsl(var(--accent-glow) / 0.7) !important;
+  border-color: hsl(var(--accent-glow)) !important;
   box-shadow:
-    0 0 0 1px hsl(var(--accent-glow) / 0.5),
-    0 0 12px hsl(var(--accent-glow) / 0.35);
+    0 0 0 2px hsl(var(--accent-glow) / 0.65),
+    0 0 22px hsl(var(--accent-glow) / 0.45) !important;
   background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.1) 0%,
-    transparent 60%
+    hsl(var(--accent-glow) / 0.18) 0%,
+    hsl(var(--accent-glow) / 0.04) 70%,
+    transparent 100%
   );
 }
 
