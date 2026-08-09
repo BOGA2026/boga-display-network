@@ -20,11 +20,11 @@ import { useDeviceOrders } from "@/features/devices";
 import {
   ANNUAL_FREE_MONTHS,
   ANNUAL_LIST_PRICE_PER_SCREEN,
-  ANNUAL_PRICE_PER_SCREEN,
+  annualVariant,
 } from "@/config/pricing";
 import { SUPPORT_WHATSAPP_NUMBER } from "@/config/support";
 
-const SAVING_PER_SCREEN = ANNUAL_LIST_PRICE_PER_SCREEN - ANNUAL_PRICE_PER_SCREEN;
+
 
 const SWITCH_URL = `https://wa.me/${SUPPORT_WHATSAPP_NUMBER}?text=${encodeURIComponent(
   "Hola, quiero cambiarme a pago anual adelantado.",
@@ -74,7 +74,8 @@ export function DeviceOrdersCard({ billingCycle, businessId, screens = [] }: Pro
   const showDevice = !dismissed && (anyNeedsDevice || neverAnswered);
 
   const screenCount = Math.max(screens.length, 1);
-  const annualSaving = SAVING_PER_SCREEN * screenCount;
+  const annual = annualVariant(showDevice);
+  const annualSaving = (ANNUAL_LIST_PRICE_PER_SCREEN - annual.price) * screenCount;
 
   return (
     <div className="v-card space-y-4 p-5">
@@ -93,13 +94,13 @@ export function DeviceOrdersCard({ billingCycle, businessId, screens = [] }: Pro
       {/* Beneficio 1 — para todos */}
       <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
         <p className="text-sm font-semibold text-primary">
-          Pago anual: {ANNUAL_FREE_MONTHS} meses gratis
+          Pago anual: {annual.chip}
         </p>
         <p className="mt-1 text-sm text-foreground">
           <span className="v-numeric text-muted-foreground line-through">
             {formatCop(ANNUAL_LIST_PRICE_PER_SCREEN)}
           </span>{" "}
-          <span className="v-numeric text-lg font-semibold">{formatCop(ANNUAL_PRICE_PER_SCREEN)}</span>{" "}
+          <span className="v-numeric text-lg font-semibold">{formatCop(annual.price)}</span>{" "}
           <span className="text-muted-foreground">al año por pantalla</span>
         </p>
       </div>

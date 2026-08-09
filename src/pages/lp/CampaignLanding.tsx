@@ -19,14 +19,14 @@ import {
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
 import {
-  ANNUAL_PRICE_PER_SCREEN,
+  annualVariant,
   MAX_PRICE_PER_SCREEN,
   PRICING_TIERS,
   IVA_LEGEND,
   PRICING_FOOTNOTE,
 } from "@/config/pricing";
 import { formatCop } from "@/config/devices";
-import { captureAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
+import { captureAttribution, getAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
 import LeadForm from "@/components/lp/LeadForm";
 import VisualiaLockup from "@/components/lp/VisualiaLockup";
@@ -123,7 +123,7 @@ export default function CampaignLanding() {
     setPlanChoice("anual");
   }, [campaign.slug]);
 
-  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan === "anual" ? `anual (${formatCop(ANNUAL_PRICE_PER_SCREEN)} por pantalla al año)` : `mensual (${formatCop(MAX_PRICE_PER_SCREEN)} por pantalla al mes)`}`;
+  const waMessage = `${campaign.whatsappMessage} — me interesa el plan ${plan === "anual" ? `anual (${formatCop(annualVariant(getAttribution().needs_device ?? true).price)} por pantalla al año)` : `mensual (${formatCop(MAX_PRICE_PER_SCREEN)} por pantalla al mes)`}`;
 
 
   // La barra aparece cuando la persona ya pasó el hero y se retira cuando el
