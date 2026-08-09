@@ -168,10 +168,8 @@ export default function ScreensWorkspace({
 
   const chip = (active: boolean) =>
     cn(
-      "rounded-full border px-2.5 py-1 text-xs transition-colors",
-      active
-        ? "border-primary bg-primary/15 text-primary"
-        : "border-border/40 text-muted-foreground hover:text-foreground",
+      "v-seg-item overflow-hidden rounded-full border border-border/40 px-2.5 py-1 text-xs",
+      active && "v-seg-item-active",
     );
 
   return (
