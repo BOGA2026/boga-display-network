@@ -1,3 +1,4 @@
+import { PRIMARY_CTA_LABEL } from "@/config/pricing";
 import Seo from "@/components/Seo";
 import { Faq } from "@/components/Faq";
 
