@@ -176,19 +176,20 @@
 }
 
 .v-nav-item-active {
-  background: linear-gradient(
+  background-image: linear-gradient(
     to right,
-    hsl(var(--accent-glow) / 0.12) 0%,
-    hsl(var(--accent-glow) / 0.05) 45%,
+    hsl(var(--accent-glow) / 0.26) 0%,
+    hsl(var(--accent-glow) / 0.1) 55%,
     transparent 100%
-  );
-  color: hsl(var(--accent-glow) / 0.95);
+  ) !important;
+  color: hsl(258 100% 92%) !important;
+  font-weight: 600;
   border: 0;
   box-shadow: none;
 }
 
 .v-nav-item-active svg {
-  filter: drop-shadow(0 0 4px hsl(var(--accent-glow) / 0.5));
+  filter: drop-shadow(0 0 6px hsl(var(--accent-glow) / 0.8));
 }
 
 /* Barra única que se desliza entre ítems. */
