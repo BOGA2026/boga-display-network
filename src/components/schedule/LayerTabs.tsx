@@ -13,10 +13,8 @@ const LayerTabs = ({ layers, activeLayerId, onSelect }: Props) => (
     <button
       onClick={() => onSelect(null)}
       className={cn(
-        "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
-        activeLayerId === null
-          ? "gradient-primary text-primary-foreground"
-          : "bg-card text-muted-foreground hover:text-foreground border border-border"
+        "v-seg-item overflow-hidden whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium",
+        activeLayerId === null && "v-seg-item-active",
       )}
     >
       Todas
@@ -26,12 +24,9 @@ const LayerTabs = ({ layers, activeLayerId, onSelect }: Props) => (
         key={l.id}
         onClick={() => onSelect(l.id)}
         className={cn(
-          "rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap flex items-center gap-1.5",
-          activeLayerId === l.id
-            ? "text-primary-foreground"
-            : "bg-card text-muted-foreground hover:text-foreground border border-border"
+          "v-seg-item flex items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium",
+          activeLayerId === l.id && "v-seg-item-active",
         )}
-        style={activeLayerId === l.id ? { background: l.color } : undefined}
       >
         <span className="v-dot" style={{ background: l.color }} />
         {l.name}
