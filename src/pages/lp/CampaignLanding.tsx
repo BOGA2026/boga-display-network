@@ -290,7 +290,16 @@ export default function CampaignLanding() {
             </span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Si tienes varias pantallas, el precio por pantalla baja:{" "}
+            Desde 6 pantallas, el precio baja.{" "}
+            <a
+              href="/precios"
+              target="_blank"
+              rel="noopener"
+              className="font-medium text-primary underline underline-offset-4"
+            >
+              Ver escala
+            </a>
+            :{" "}
             {PRICE_SCALE.map((t, i) => (
               <span key={t}>
                 {i > 0 && " · "}
