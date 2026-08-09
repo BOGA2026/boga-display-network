@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
 import Seo from "@/components/Seo";
@@ -10,15 +10,16 @@ import {
   MAX_PRICE_PER_SCREEN,
   PRICING_FOOTNOTE,
   annualVariantFor,
-  discountPercentFor,
   splitIva,
 } from "@/config/pricing";
 import { captureTvChoiceFromUrl, trackConversion } from "@/lib/attribution";
+import { formatCountdown, getExitOffer, msLeft } from "@/lib/exitOffer";
 
 /**
  * Resumen previo al pago. Llega con el plan ya elegido desde las tarjetas:
  * acá sólo se confirma. Los montos salen de src/config/pricing.ts y el
- * descuento se valida contra el código real, nunca contra la URL.
+ * descuento se valida contra el registro del servidor: si el cronómetro de
+ * la oferta venció, no se aplica aunque el código venga en la URL.
  */
 export default function Checkout() {
   const [params] = useSearchParams();
@@ -28,7 +29,39 @@ export default function Checkout() {
   const needsDevice = params.get("dispositivo") !== "no";
   const monthly = Number(params.get("mensual")) || MAX_PRICE_PER_SCREEN;
   const code = params.get("codigo");
-  const percent = discountPercentFor(code);
+
+  // El descuento lo decide el servidor, nunca la URL.
+  const [percent, setPercent] = useState(0);
+  const [checking, setChecking] = useState(Boolean(code));
+  const [left, setLeft] = useState(0);
+
+  useEffect(() => {
+    if (!code) return;
+    let alive = true;
+    let timer: number | undefined;
+    void getExitOffer().then((offer) => {
+      if (!alive) return;
+      setChecking(false);
+      const ok =
+        offer?.active && offer.code.toUpperCase() === code.trim().toUpperCase();
+      if (!ok || !offer) return;
+      setPercent(offer.percent);
+      const tick = () => {
+        const ms = msLeft(offer);
+        setLeft(ms);
+        if (ms <= 0) {
+          setPercent(0);
+          if (timer) window.clearInterval(timer);
+        }
+      };
+      tick();
+      timer = window.setInterval(tick, 500);
+    });
+    return () => {
+      alive = false;
+      if (timer) window.clearInterval(timer);
+    };
+  }, [code]);
 
   const annual = annualVariantFor(monthly, needsDevice);
   const base = plan === "anual" ? annual.price : monthly;
@@ -40,6 +73,7 @@ export default function Checkout() {
     dispositivo: needsDevice ? "si" : "no",
     ...(code && percent ? { codigo: code } : {}),
   }).toString()}`;
+
 
   return (
     <div className="relative min-h-screen">
