@@ -8,7 +8,7 @@ export default function PreviewProbe() {
             id: "probe",
             name: "Promo vertical",
             type: "video",
-            file_url: "/probe.mp4",
+            file_url: "/probe.webm",
             thumbnail_url: null,
             duration_seconds: 20,
             file_size_bytes: 38_000_000,
