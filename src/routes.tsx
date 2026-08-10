@@ -29,7 +29,6 @@ function page(Component: ComponentType<any>, key: string) {
 const lazyRoute = (key: string) => lazy(routeLoaders[key]);
 
 // Públicas
-const PreviewProbe = lazy(() => import("@/pages/__PreviewProbe"));
 const Login = lazyRoute("/login");
 const Register = lazyRoute("/registro");
 const Pricing = lazyRoute("/precios");
@@ -91,7 +90,6 @@ export default function AppRoutes() {
 
   return (
     <Routes key={undefined}>
-      <Route path="/__probe" element={page(PreviewProbe, pathname)} />
       <Route path="/" element={<Landing />} />
       <Route path="/precios" element={page(Pricing, pathname)} />
       <Route path="/terminos" element={page(TerminosPage, pathname)} />
