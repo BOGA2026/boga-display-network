@@ -31,6 +31,8 @@ export interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  width?: number | null;
+  height?: number | null;
   expires_at?: string | null;
   created_at: string;
 }
