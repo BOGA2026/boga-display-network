@@ -28,21 +28,34 @@ type ScreenMutation = "soft_delete_screens" | "restore_screens";
  * inicialización de Auth, aunque el usuario ya estuviera dentro del panel.
  */
 async function invokeScreenMutation(fn: ScreenMutation, ids: string[]) {
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !session?.access_token) {
+  const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !currentSession?.access_token) {
     return { error: new Error("Tu sesión no está disponible. Inicia sesión nuevamente.") };
   }
 
   const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/${fn}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${session.access_token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ p_ids: ids }),
-  });
+  const request = (accessToken: string) =>
+    fetch(url, {
+      method: "POST",
+      headers: {
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ p_ids: ids }),
+    });
+
+  let response = await request(currentSession.access_token);
+
+  // La UI puede conservar una sesión local mientras el JWT ya venció. En ese
+  // caso renovamos la sesión y repetimos exactamente una vez con el token nuevo.
+  if (response.status === 401) {
+    const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError || !refreshed.session?.access_token) {
+      return { error: new Error("Tu sesión venció. Inicia sesión nuevamente.") };
+    }
+    response = await request(refreshed.session.access_token);
+  }
 
   if (response.ok) return { error: null };
 
