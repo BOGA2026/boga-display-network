@@ -211,10 +211,10 @@ const ContentLibrary = () => {
   const isDimmed = useCallback(
     (id: string) => {
       if (orientFilter === "todas") return false;
-      const o = orientationOf(dims[id]);
+      const o = orientationOf(effDims[id]);
       return !!o && o !== orientFilter;
     },
-    [orientFilter, dims],
+    [orientFilter, effDims],
   );
 
   const openInEditor = (id: string) => {
