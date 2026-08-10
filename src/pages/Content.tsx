@@ -552,6 +552,12 @@ const ContentLibrary = () => {
     const businessId = tenant.businessId;
     if (!businessId) { setUploading(false); return; }
 
+    // Metadatos en el navegador, ANTES de subir: es el único momento en que
+    // tenemos el archivo local y no hay que descargar nada de vuelta.
+    // Si falla (HEVC de iPhone, códec raro) la subida sigue igual.
+    let videoMeta = selectedType === "video" ? await extractVideoMetadata(selectedFile) : null;
+    let imageMeta = selectedType === "image" ? await extractImageMetadata(selectedFile) : null;
+
     const ext = selectedFile.name.split(".").pop();
     const filePath = `${businessId}/${crypto.randomUUID()}.${ext}`;
 
@@ -567,31 +573,54 @@ const ContentLibrary = () => {
 
     const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
-    const { error: dbError } = await supabase.from("content").insert({
+    const { data: inserted, error: dbError } = await supabase.from("content").insert({
       name: contentName.trim(),
       type: selectedType,
       file_url: urlData.publicUrl,
       file_size_bytes: selectedFile.size,
+      width: videoMeta?.width ?? imageMeta?.width ?? null,
+      height: videoMeta?.height ?? imageMeta?.height ?? null,
       // Valores por defecto del negocio (Ajustes del negocio).
-      duration_seconds: selectedType === "image" ? tenant.defaultDurationSeconds : null,
+      duration_seconds:
+        selectedType === "image"
+          ? tenant.defaultDurationSeconds
+          : videoMeta?.durationSeconds ?? null,
       expires_at: expiresAtFromDefault(tenant.defaultExpiryDays),
       business_id: businessId,
-    });
-
-
-    setUploading(false);
+    }).select("id").single();
 
     if (dbError) {
+      setUploading(false);
       toast({ title: "Error al guardar registro", description: dbError.message, variant: "destructive" });
       return;
     }
 
+    // La miniatura va después: necesita el id de la pieza para su ruta.
+    if (inserted?.id && videoMeta?.thumbnailBlob) {
+      const thumbUrl = await uploadThumb(inserted.id, videoMeta.thumbnailBlob, videoMeta.thumbnailType);
+      if (thumbUrl) {
+        await supabase
+          .from("content")
+          .update({ thumbnail_url: thumbUrl, thumbnail_status: "listo" })
+          .eq("id", inserted.id);
+      }
+    }
+
+    setUploading(false);
+
     queryClient.invalidateQueries({ queryKey: usageQueryKey(businessId) });
-    toast({ title: "Contenido agregado" });
+    toast({
+      title: "Contenido agregado",
+      description:
+        selectedType === "video" && !videoMeta?.durationSeconds
+          ? "No pudimos leer la duración de este video. Podés definirla al agregarlo a una lista."
+          : undefined,
+    });
     setUploadOpen(false);
     resetUploadForm();
     fetchContent();
   };
+
 
   // Filtro por IDs (llega desde la tarjeta de contenido huérfano en Analíticas).
   const idsParam = searchParams.get("ids");
