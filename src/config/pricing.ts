@@ -1,3 +1,5 @@
+import { VISUALIA_DEVICE_PRICE_COP } from "@/config/devices";
+
 /**
  * Single source of truth for public pricing.
  * All amounts in COP per screen / month. IVA included.
@@ -219,3 +221,63 @@ export const PLAN_FEATURE_MATRIX: Record<number, readonly PlanFeature[]> = {
   ],
   2: PLAN_FEATURES,
 };
+
+/* ── Costo del primer año ─────────────────────────────────────────────────
+ * Única función de cálculo del total del primer año. Ninguna superficie
+ * vuelve a sumar meses y dispositivo a mano.
+ */
+
+/** Precio del dispositivo, re-exportado para no importar dos archivos. */
+export const DEVICE_PRICE_COP = VISUALIA_DEVICE_PRICE_COP;
+
+export type CicloPago = "mensual" | "anual";
+
+export interface CostoPrimerAno {
+  /** Precio por pantalla al mes del tramo que aplica. */
+  mensualPorPantalla: number;
+  /** Lo que se paga el primer año, ya con dispositivo si aplica. */
+  total: number;
+  /** Cuánto del total corresponde al dispositivo. */
+  dispositivo: number;
+  /** Pantallas consideradas. */
+  pantallas: number;
+}
+
+/**
+ * costoPrimerAño(pantallas, ciclo, incluyeDispositivo)
+ * - mensual: doce mensualidades + el dispositivo por pantalla si hace falta.
+ * - anual:   con dispositivo se pagan doce meses y el aparato va incluido;
+ *            sin dispositivo se regalan `ANNUAL_FREE_MONTHS`.
+ */
+export function costoPrimerAno(
+  pantallas: number,
+  ciclo: CicloPago,
+  incluyeDispositivo: boolean,
+): CostoPrimerAno {
+  const n = Math.max(1, Math.round(pantallas));
+  const mensualPorPantalla = findTier(n)?.pricePerScreen ?? MIN_PRICE_PER_SCREEN;
+  const devicePrice = incluyeDispositivo ? DEVICE_PRICE_COP * n : 0;
+
+  if (ciclo === "anual") {
+    const perScreen = annualVariantFor(mensualPorPantalla, incluyeDispositivo).price;
+    return { mensualPorPantalla, total: perScreen * n, dispositivo: 0, pantallas: n };
+  }
+
+  return {
+    mensualPorPantalla,
+    total: mensualPorPantalla * 12 * n + devicePrice,
+    dispositivo: devicePrice,
+    pantallas: n,
+  };
+}
+
+/** Alias con tilde para leerlo igual que en la conversación de producto. */
+export const costoPrimerAño = costoPrimerAno;
+
+/** Ahorro del primer año al elegir anual en vez de mensual. */
+export function ahorroPrimerAno(pantallas: number, incluyeDispositivo: boolean) {
+  return (
+    costoPrimerAno(pantallas, "mensual", incluyeDispositivo).total -
+    costoPrimerAno(pantallas, "anual", incluyeDispositivo).total
+  );
+}
