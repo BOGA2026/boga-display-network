@@ -12,12 +12,15 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ListMusic, CalendarClock, RefreshCw, MapPin, X, Loader2 } from "lucide-react";
+import { ListMusic, CalendarClock, RefreshCw, MapPin, X, Loader2, Trash2 } from "lucide-react";
 import type { LocationRow } from "./types";
 
 interface Props {
   selectedIds: string[];
   locations: LocationRow[];
+  /** Solo dueño o administrador ven "Eliminar". */
+  canDelete: boolean;
+  onDelete: () => void;
   onClear: () => void;
   onDone: () => void;
 }
@@ -26,7 +29,7 @@ interface Props {
  * Acciones en lote. El caso real de una cadena es "cambiar el menú de las doce
  * sedes de Bogotá": seleccionar el grupo, elegir la lista, confirmar.
  */
-export default function BulkActionsBar({ selectedIds, locations, onClear, onDone }: Props) {
+export default function BulkActionsBar({ selectedIds, locations, canDelete, onDelete, onClear, onDone }: Props) {
   const navigate = useNavigate();
   const [playlists, setPlaylists] = useState<Array<{ id: string; name: string }>>([]);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -116,6 +119,19 @@ export default function BulkActionsBar({ selectedIds, locations, onClear, onDone
         <Button size="sm" variant="ghost" className="gap-1.5" onClick={() => setMoveOpen(true)}>
           <MapPin className="h-4 w-4" /> Mover de sede
         </Button>
+        {canDelete && (
+          <>
+            <span className="mx-1 h-5 w-px bg-border/60" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={onDelete}
+            >
+              <Trash2 className="h-4 w-4" /> Eliminar
+            </Button>
+          </>
+        )}
         <Button size="icon" variant="ghost" aria-label="Quitar selección" onClick={onClear}>
           <X className="h-4 w-4" />
         </Button>
