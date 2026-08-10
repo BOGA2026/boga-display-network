@@ -20,12 +20,42 @@ function invalidate() {
   queryClient.invalidateQueries({ queryKey: pageQueryKeys.screensPage });
 }
 
+type ScreenMutation = "soft_delete_screens" | "restore_screens";
+
+/**
+ * Estas mutaciones son sensibles y deben viajar inequívocamente con la sesión.
+ * La llamada genérica del cliente llegó como `anon` en producción durante la
+ * inicialización de Auth, aunque el usuario ya estuviera dentro del panel.
+ */
+async function invokeScreenMutation(fn: ScreenMutation, ids: string[]) {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !session?.access_token) {
+    return { error: new Error("Tu sesión no está disponible. Inicia sesión nuevamente.") };
+  }
+
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/${fn}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_ids: ids }),
+  });
+
+  if (response.ok) return { error: null };
+
+  const payload = await response.json().catch(() => null) as { message?: string } | null;
+  return { error: new Error(payload?.message ?? "No se pudo completar la operación.") };
+}
+
 /**
  * Borrado lógico. El historial de reproducción se conserva; el dispositivo
  * físico se entera en su siguiente sincronización y vuelve al código.
  */
 export async function deleteScreens(ids: string[]): Promise<boolean> {
-  const { error } = await supabase.rpc("soft_delete_screens", { p_ids: ids });
+  const { error } = await invokeScreenMutation("soft_delete_screens", ids);
   if (error) {
     toast({
       title: "No se pudo eliminar",
@@ -52,7 +82,7 @@ export async function deleteScreens(ids: string[]): Promise<boolean> {
 }
 
 export async function restoreScreens(ids: string[]): Promise<boolean> {
-  const { error } = await supabase.rpc("restore_screens", { p_ids: ids });
+  const { error } = await invokeScreenMutation("restore_screens", ids);
   if (error) {
     toast({ title: "No se pudo restaurar", description: error.message, variant: "destructive" });
     return false;
