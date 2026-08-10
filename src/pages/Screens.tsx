@@ -493,14 +493,15 @@ const Screens = () => {
           description={COPY.empty.screens}
           action={
             <Button
-              onClick={handleAddScreenClick}
+              onClick={() => setPairModalOpen(true)}
               className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
               size="lg"
             >
-              <Plus className="h-5 w-5" />
-              {COPY.actions.connectScreen}
+              <MonitorSmartphone className="h-5 w-5" />
+              Vincular pantalla
             </Button>
           }
+
           secondaryAction={
             <Button
               variant="outline"
