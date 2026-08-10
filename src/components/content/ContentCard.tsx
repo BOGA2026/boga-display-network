@@ -91,7 +91,8 @@ export function ContentCard({
   const expText = expiryLabel(item.expires_at);
   const duration = formatDuration(item.duration_seconds);
   const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
-  const thumbPending = !thumbSrc && item.thumbnail_status === "pendiente";
+  const thumbPending = working || (!thumbSrc && item.thumbnail_status === "pendiente");
+  const unknownDuration = item.type === "video" && !item.duration_seconds;
   const heavy = isHeavyFile(item.file_size_bytes);
   const sizeLabel = formatBytes(item.file_size_bytes);
 
