@@ -473,6 +473,12 @@ Deno.serve(async (req) => {
         });
       }
 
+      // La zona horaria vive en la sede: si el usuario la eligió al vincular, se guarda ahí.
+      if (typeof timezone === "string" && /^[A-Za-z_]+\/[A-Za-z_+-]+$/.test(timezone)) {
+        await supabase.from("locations").update({ timezone }).eq("id", locId).eq("business_id", businessId);
+      }
+
+
       // Create the screen this device will drive
       const finalName = (typeof screen_name === "string" && screen_name.trim()) ? screen_name.trim().slice(0, 40) : "Pantalla";
       const { data: screen, error: screenErr } = await supabase
