@@ -265,6 +265,16 @@ export function ContentCard({
                 Reintentar miniatura
               </DropdownMenuItem>
             )}
+            {onGenerateThumb && item.type === "video" && (
+              <DropdownMenuItem
+                disabled={working}
+                onClick={(e) => { e.stopPropagation(); onGenerateThumb(); }}
+              >
+                <ImagePlus className="mr-2 h-4 w-4" />
+                Generar miniatura
+              </DropdownMenuItem>
+            )}
+
 
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(); }}>
               <ListPlus className="mr-2 h-4 w-4" />
