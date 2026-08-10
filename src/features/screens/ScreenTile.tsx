@@ -1,6 +1,13 @@
 import { memo } from "react";
-import { Link2Off, MonitorPlay, Play, Images } from "lucide-react";
+import { Link2Off, MonitorPlay, Play, Images, MoreVertical, Pencil, MapPin, Eye, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { syncSeverity } from "@/hooks/useAnalytics";
 import { cn } from "@/lib/utils";
 import type { NowPlayingInfo } from "./useNowPlaying";
@@ -11,10 +18,16 @@ interface Props {
   nowPlaying?: NowPlayingInfo;
   selected: boolean;
   selectionMode: boolean;
+  /** Solo dueño o administrador ven la opción de eliminar. */
+  canDelete: boolean;
   onToggle: (id: string, shiftKey: boolean) => void;
   onOpen: (id: string) => void;
   onChangeContent: (screen: ScreenRow) => void;
+  onRename: (screen: ScreenRow) => void;
+  onMove: (screen: ScreenRow) => void;
+  onDelete: (screen: ScreenRow) => void;
 }
+
 
 /** Una pantalla es "en vivo" si reportó en los últimos 3 min (3 latidos). */
 function isLive(lastSeenAt: string | null) {
