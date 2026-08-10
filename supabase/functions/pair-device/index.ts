@@ -228,6 +228,113 @@ Deno.serve(async (req) => {
       });
     }
 
+    // POST /pair-device/lookup — el panel valida un código ANTES de vincular.
+    // No reclama nada: solo confirma que el código existe y devuelve qué equipo es
+    // (modelo, resolución, red) para que el usuario sepa a qué televisor le está
+    // poniendo nombre. Requiere JWT y rol admin/manager, igual que /claim.
+    if (req.method === "POST" && path === "lookup") {
+      if (rateLimited(`claim:${ip}`, RL_MAX.claim)) {
+        return new Response(JSON.stringify({ error: "rate_limited" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (await isBruteForced(supabase, ip)) {
+        return new Response(JSON.stringify({ error: "rate_limited" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const jwt = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+      if (!jwt) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: userRes, error: userErr } = await supabase.auth.getUser(jwt);
+      if (userErr || !userRes?.user) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const body = await req.json().catch(() => ({}));
+      const rawCode = typeof body?.device_code === "string" ? body.device_code : "";
+      if (!/^[0-9]{6}$/.test(rawCode)) {
+        return new Response(JSON.stringify({ error: "code_not_found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("business_id")
+        .eq("id", userRes.user.id)
+        .maybeSingle();
+      const businessId = profile?.business_id;
+      if (!businessId) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: membership } = await supabase
+        .from("business_memberships")
+        .select("role")
+        .eq("user_id", userRes.user.id)
+        .eq("business_id", businessId)
+        .maybeSingle();
+      if (!membership || !["admin", "manager"].includes(membership.role)) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: device } = await supabase
+        .from("devices")
+        .select("id, business_id, code_expires_at, device_model, resolution, network_type, app_version, os_version")
+        .eq("device_code", rawCode)
+        .maybeSingle();
+
+      if (!device) {
+        await logAttempt(supabase, { ip, code: rawCode, businessId, success: false, reason: "lookup_not_found", ua });
+        return new Response(JSON.stringify({ error: "code_not_found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (device.business_id) {
+        return new Response(JSON.stringify({ error: "code_already_used" }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (device.code_expires_at && new Date(device.code_expires_at).getTime() < Date.now()) {
+        return new Response(JSON.stringify({ error: "code_expired" }), {
+          status: 410,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        device_model: device.device_model ?? null,
+        resolution: device.resolution ?? null,
+        network_type: device.network_type ?? null,
+        app_version: device.app_version ?? null,
+        os_version: device.os_version ?? null,
+        expires_at: device.code_expires_at ?? null,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+
     // POST /pair-device/claim — dashboard claims a code for its business.
     // Requires the caller's Supabase JWT (Authorization: Bearer <access_token>).
     if (req.method === "POST" && path === "claim") {
