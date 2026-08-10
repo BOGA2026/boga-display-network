@@ -820,7 +820,7 @@ const ContentLibrary = () => {
         viewMode === "list" ? (
           <ContentTable
             items={visibleItems as CardContentItem[]}
-            dims={dims}
+            dims={effDims}
             onDims={handleDims}
             selectedIds={selectedIds}
             onToggleSelect={toggleSelect}
@@ -833,6 +833,8 @@ const ContentLibrary = () => {
             onSend={(item) => setSendTarget(item as ContentItem)}
             onDelete={(item) => setDeleteTarget(item as ContentItem)}
             onEdit={(item) => openInEditor(item.id)}
+            onGenerateThumb={(item) => generateThumbFromStorage(item as ContentItem)}
+            workingIds={workingIds}
           />
         ) : (
           <div className="v-media-grid">
@@ -840,7 +842,7 @@ const ContentLibrary = () => {
               <ContentCard
                 key={item.id}
                 item={item as CardContentItem}
-                dims={dims[item.id]}
+                dims={effDims[item.id]}
                 onDims={handleDims}
                 selected={selectedIds.has(item.id)}
                 onToggleSelect={toggleSelect}
@@ -860,6 +862,9 @@ const ContentLibrary = () => {
                     : undefined
                 }
                 onRetryThumb={() => retryThumbnail(item.id)}
+                onGenerateThumb={() => generateThumbFromStorage(item)}
+                working={workingIds.has(item.id)}
+
 
               />
             ))}
