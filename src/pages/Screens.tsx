@@ -462,21 +462,14 @@ const Screens = () => {
         </div>
         <div className="flex gap-2">
           <Button
-            variant="outline"
             onClick={() => setPairModalOpen(true)}
-            className="border-primary/30 text-primary hover:bg-primary/10 gap-2 px-4 py-2.5 text-sm font-medium"
-          >
-            <MonitorSmartphone className="h-4 w-4" />
-            Ya tengo la app en mi TV
-          </Button>
-          <Button
-            onClick={handleAddScreenClick}
             className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            <Plus className="h-4 w-4" />
-            Agregar pantalla
+            <MonitorSmartphone className="h-4 w-4" />
+            Vincular pantalla
           </Button>
         </div>
+
       </div>
 
       {/* Content */}
