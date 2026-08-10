@@ -250,6 +250,55 @@ export default function EditorPage() {
     load();
   }, [searchParams]);
 
+  /**
+   * "Adaptar en el editor" (`?adaptVideo=<id>&orientation=…`): abre el lienzo en
+   * la orientación pedida con el video ya centrado, listo para ponerle fondo o
+   * elementos a los lados.
+   */
+  useEffect(() => {
+    const vid = searchParams.get("adaptVideo");
+    if (!vid) return;
+    const target: Orientation = searchParams.get("orientation") === "vertical" ? "portrait" : "landscape";
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("content")
+        .select("id, name, file_url, thumbnail_url, width, height")
+        .eq("id", vid)
+        .maybeSingle();
+      if (!alive || !data?.file_url) return;
+      setOrientation(target);
+      const canvas = target === "landscape" ? { w: 1920, h: 1080 } : { w: 1080, h: 1920 };
+      const ar = data.width && data.height ? data.width / data.height : 16 / 9;
+      // Encaja completo (contain), igual que el reproductor real.
+      let w = canvas.w;
+      let h = Math.round(canvas.w / ar);
+      if (h > canvas.h) {
+        h = canvas.h;
+        w = Math.round(canvas.h * ar);
+      }
+      setContentName(`${data.name} (adaptado)`);
+      setBackground("#000000");
+      setLayers([
+        {
+          id: crypto.randomUUID(),
+          name: data.name,
+          type: "video" as LayerType,
+          x: Math.round((canvas.w - w) / 2),
+          y: Math.round((canvas.h - h) / 2),
+          w,
+          h,
+          color: "#000000",
+          videoUrl: data.file_url,
+          imageUrl: data.thumbnail_url ?? undefined,
+        },
+      ]);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [searchParams]);
+
   const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
 
   const saveSnapshot = useCallback(() => {

@@ -69,6 +69,7 @@ import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/
 import { getBusinessId as resolveBusinessId, getUserId } from "@/features/auth/tenant";
 import { ContentCard, ContentItem as CardContentItem } from "@/components/content/ContentCard";
 import { ContentTable } from "@/components/content/ContentTable";
+import ScreenPreviewFrame from "@/components/content/ScreenPreviewFrame";
 import BrandSection from "@/features/brand/BrandSection";
 import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
@@ -1112,19 +1113,15 @@ const ContentLibrary = () => {
                 : null}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-[hsl(var(--admin-surface-2,var(--muted)))]">
-            {previewTarget?.type === "video" && previewTarget.file_url ? (
-              <video src={previewTarget.file_url} className="h-full w-full object-contain" controls autoPlay muted />
-            ) : previewTarget?.thumbnail_url || previewTarget?.file_url ? (
-              <img
-                src={previewTarget.thumbnail_url ?? previewTarget.file_url ?? ""}
-                alt={previewTarget.name}
-                className="h-full w-full object-contain"
-              />
-            ) : (
-              <ImageIcon className="h-10 w-10 text-muted-foreground opacity-30" />
-            )}
-          </div>
+          {previewTarget && (
+            <ScreenPreviewFrame
+              item={{
+                ...previewTarget,
+                width: previewTarget.width ?? dims[previewTarget.id]?.width ?? null,
+                height: previewTarget.height ?? dims[previewTarget.id]?.height ?? null,
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
