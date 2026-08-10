@@ -240,7 +240,17 @@ const Screens = () => {
             <MonitorSmartphone className="h-4 w-4" />
             Vincular pantalla
           </Button>
+          {/* Salida para quien todavía no tiene el equipo. */}
+          <Button
+            variant="outline"
+            onClick={handleAddDemoScreen}
+            disabled={saving}
+            className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 px-4 py-2.5 text-sm font-medium"
+          >
+            Agregar pantalla demo
+          </Button>
         </div>
+
 
       </div>
 
