@@ -55,6 +55,7 @@ interface Props {
   onToggleSelect: (id: string) => void;
   selectionActive: boolean;
   dimmed?: boolean;
+  working?: boolean;
   onOpen: () => void;
   onPreview: () => void;
   onAssign: () => void;
@@ -62,6 +63,7 @@ interface Props {
   onDelete: () => void;
   onEdit?: () => void;
   onRetryThumb?: () => void;
+  onGenerateThumb?: () => void;
 }
 
 export function ContentCard({
@@ -72,6 +74,7 @@ export function ContentCard({
   onToggleSelect,
   selectionActive,
   dimmed,
+  working,
   onOpen,
   onPreview,
   onAssign,
@@ -79,6 +82,7 @@ export function ContentCard({
   onDelete,
   onEdit,
   onRetryThumb,
+  onGenerateThumb,
 }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
   const ratio = ratioLabel(dims);
