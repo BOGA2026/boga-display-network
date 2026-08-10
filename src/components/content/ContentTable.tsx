@@ -79,6 +79,8 @@ export function ContentTable({
   onSend,
   onDelete,
   onEdit,
+  onGenerateThumb,
+  workingIds,
 }: Props) {
   const [sort, setSort] = useState<{ key: SortKey; asc: boolean }>({ key: "date", asc: false });
 
