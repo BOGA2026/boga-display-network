@@ -74,6 +74,12 @@ import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
 import { getTenant } from "@/features/auth/tenant";
 import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
+import {
+  extractVideoMetadata,
+  extractVideoMetadataFromUrl,
+  extractImageMetadata,
+  thumbExtension,
+} from "@/lib/video-metadata";
 
 
 interface ContentItem {
@@ -85,6 +91,8 @@ interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  width?: number | null;
+  height?: number | null;
   expires_at?: string | null;
   created_at: string;
 }
