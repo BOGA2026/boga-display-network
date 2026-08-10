@@ -101,7 +101,11 @@ interface Subscription {
   status: string;
   expires_at: string | null;
   grace_period_ends_at: string | null;
+  price_per_screen?: number | null;
+  billing_cycle?: string | null;
+  next_billing_date?: string | null;
 }
+
 
 // Generate a 6-character pairing code (avoids ambiguous 0/O/1/I)
 const PAIRING_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
