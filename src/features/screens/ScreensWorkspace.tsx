@@ -23,6 +23,19 @@ import { syncSeverity } from "@/hooks/useAnalytics";
 import { ScreenTile } from "./ScreenTile";
 import { TileGrid } from "./TileGrid";
 import BulkActionsBar from "./BulkActionsBar";
+import DeleteScreensDialog from "./DeleteScreensDialog";
+import { Input as TextInput } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useTenant } from "@/features/auth/useTenant";
 import { useNowPlaying } from "./useNowPlaying";
 import type {
   LocationRow,
@@ -39,6 +52,7 @@ interface Props {
   screens: ScreenRow[];
   locations: LocationRow[];
   timezone?: string;
+  subscription?: { screens_count?: number; price_per_screen?: number | null } | null;
   onRefresh: () => void;
   onChangeContent: (screen: ScreenRow) => void;
 }
@@ -69,10 +83,19 @@ export default function ScreensWorkspace({
   screens,
   locations,
   timezone,
+  subscription,
   onRefresh,
   onChangeContent,
 }: Props) {
   const navigate = useNavigate();
+  const { hasRole } = useTenant();
+  const canDelete = hasRole(["owner", "admin"]);
+  const [toDelete, setToDelete] = useState<ScreenRow[]>([]);
+  const [renaming, setRenaming] = useState<ScreenRow | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [moving, setMoving] = useState<ScreenRow | null>(null);
+  const [moveTo, setMoveTo] = useState("");
+  const [rowBusy, setRowBusy] = useState(false);
   const { nowPlaying } = useNowPlaying(timezone);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -161,6 +184,35 @@ export default function ScreensWorkspace({
     const ids = items.map((i) => i.id);
     const allIn = ids.every((id) => selected.includes(id));
     setSelected((prev) => (allIn ? prev.filter((id) => !ids.includes(id)) : [...new Set([...prev, ...ids])]));
+  };
+
+  const submitRename = async () => {
+    if (!renaming || !renameValue.trim()) return;
+    setRowBusy(true);
+    const { error } = await supabase
+      .from("screens")
+      .update({ name: renameValue.trim().slice(0, 40) })
+      .eq("id", renaming.id);
+    setRowBusy(false);
+    if (error) {
+      toast({ title: "No se pudo renombrar", description: error.message, variant: "destructive" });
+      return;
+    }
+    setRenaming(null);
+    onRefresh();
+  };
+
+  const submitMove = async () => {
+    if (!moving || !moveTo) return;
+    setRowBusy(true);
+    const { error } = await supabase.from("screens").update({ location_id: moveTo }).eq("id", moving.id);
+    setRowBusy(false);
+    if (error) {
+      toast({ title: "No se pudo mover", description: error.message, variant: "destructive" });
+      return;
+    }
+    setMoving(null);
+    onRefresh();
   };
 
   const activeFilters =
@@ -326,6 +378,16 @@ export default function ScreensWorkspace({
                       onToggle={toggleSelect}
                       onOpen={(id) => navigate(`/dashboard/pantallas/${id}`)}
                       onChangeContent={onChangeContent}
+                      canDelete={canDelete}
+                      onRename={(sc) => {
+                        setRenameValue(sc.name);
+                        setRenaming(sc);
+                      }}
+                      onMove={(sc) => {
+                        setMoveTo(sc.location_id);
+                        setMoving(sc);
+                      }}
+                      onDelete={(sc) => setToDelete([sc])}
                     />
                   )}
                 />
@@ -339,6 +401,8 @@ export default function ScreensWorkspace({
         <BulkActionsBar
           selectedIds={selected}
           locations={locations}
+          canDelete={canDelete}
+          onDelete={() => setToDelete(screens.filter((s) => selected.includes(s.id)))}
           onClear={() => setSelected([])}
           onDone={() => {
             setSelected([]);
@@ -346,6 +410,60 @@ export default function ScreensWorkspace({
           }}
         />
       )}
+
+      <DeleteScreensDialog
+        screens={toDelete}
+        locationName={locationName}
+        totalScreens={screens.length}
+        subscription={subscription}
+        open={toDelete.length > 0}
+        onOpenChange={(o) => !o && setToDelete([])}
+        onDeleted={() => {
+          setSelected([]);
+          setToDelete([]);
+          onRefresh();
+        }}
+      />
+
+      <Dialog open={!!renaming} onOpenChange={(o) => !o && setRenaming(null)}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Renombrar pantalla</DialogTitle>
+            <DialogDescription>El nombre es lo que ves en el panel, no en el televisor.</DialogDescription>
+          </DialogHeader>
+          <TextInput
+            value={renameValue}
+            maxLength={40}
+            onChange={(e) => setRenameValue(e.target.value)}
+            aria-label="Nombre de la pantalla"
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRenaming(null)}>Cancelar</Button>
+            <Button onClick={submitRename} disabled={!renameValue.trim() || rowBusy}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!moving} onOpenChange={(o) => !o && setMoving(null)}>
+        <DialogContent className="surface-elevated border-border/30 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mover de sede</DialogTitle>
+            <DialogDescription>Elige la sede a la que pertenece esta pantalla.</DialogDescription>
+          </DialogHeader>
+          <Select value={moveTo} onValueChange={setMoveTo}>
+            <SelectTrigger><SelectValue placeholder="Elige una sede" /></SelectTrigger>
+            <SelectContent>
+              {locations.map((l) => (
+                <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setMoving(null)}>Cancelar</Button>
+            <Button onClick={submitMove} disabled={!moveTo || rowBusy}>Mover</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
