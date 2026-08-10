@@ -244,6 +244,15 @@ export function ContentTable({
                           Editar en canvas
                         </DropdownMenuItem>
                       )}
+                      {onGenerateThumb && item.type === "video" && (
+                        <DropdownMenuItem
+                          disabled={working}
+                          onClick={(e) => { e.stopPropagation(); onGenerateThumb(item); }}
+                        >
+                          <ImagePlus className="mr-2 h-4 w-4" />
+                          Generar miniatura
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(item); }}>
                         <ListPlus className="mr-2 h-4 w-4" />
                         Agregar a lista
