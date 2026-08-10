@@ -134,20 +134,6 @@ const Screens = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Form state — new flow: panel generates the code
-  const [screenName, setScreenName] = useState("");
-  const [timezone, setTimezone] = useState("America/Bogota");
-  const [nameError, setNameError] = useState("");
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-  const [codeCopied, setCodeCopied] = useState(false);
-  // Paso previo: comprobar que el televisor sirve antes de dar el código.
-  // Si ya lo respondió en la landing, no se le vuelve a preguntar.
-  const tvChoice = getAttribution();
-  const [compatDone, setCompatDone] = useState(tvChoice.needs_device === false);
-  const [deviceType, setDeviceType] = useState<DeviceType>(
-    tvChoice.needs_device === false ? "tv_google" : "desconocido",
-  );
-
   const [compatDialogOpen, setCompatDialogOpen] = useState(false);
 
   // Edit state
@@ -160,28 +146,6 @@ const Screens = () => {
     fetchData({ fresh: false });
   }, []);
 
-  // Auto-advance: when the TV claims the pairing code, close sheet and celebrate.
-  useEffect(() => {
-    if (!generatedCode) return;
-    const channel = supabase
-      .channel(`pairing-${generatedCode}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "devices", filter: `device_code=eq.${generatedCode}` },
-        (payload) => {
-          const status = (payload.new as { status?: string })?.status;
-          if (status && status !== "pending") {
-            setSuccessScreen(screenName.trim());
-            setDialogOpen(false);
-            resetForm();
-            fetchData();
-          }
-        }
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generatedCode]);
 
   /**
    * Lee la consulta de la sección desde el caché de react-query, así el
