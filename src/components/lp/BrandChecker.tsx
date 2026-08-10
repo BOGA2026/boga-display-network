@@ -52,7 +52,13 @@ export default function BrandChecker() {
   return (
     <div className="rounded-2xl border border-border/60 bg-card/40 p-4 md:p-6">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:gap-3">
-        {TV_BRANDS.filter((b) => b.id !== "no_se").map((b) => {
+        {TV_BRANDS.filter(
+          (b, i, all) =>
+            b.id !== "no_se" &&
+            // Defensa contra duplicados: una marca repetida en la lista se pinta
+            // dos veces y parece un error del producto.
+            all.findIndex((o) => o.name.toLowerCase() === b.name.toLowerCase()) === i,
+        ).map((b) => {
           const active = brand === b.id;
           return (
             <button

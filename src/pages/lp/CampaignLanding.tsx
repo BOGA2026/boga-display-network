@@ -259,6 +259,41 @@ export default function CampaignLanding() {
         </div>
       </section>
 
+      {/* 4b — MIRA EL PANEL ANTES DE ESCRIBIRNOS: los dos diferenciadores
+          reales, cada uno con su demostración. */}
+      <section className="py-10">
+        <div className={SHELL}>
+          <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <Clock className="h-4 w-4" aria-hidden="true" />
+            Cambia sola según la hora
+          </span>
+          <h2 className={`${H2} mt-2`}>Desayuno, almuerzo y noche sin que toques nada</h2>
+          <p className="mt-2 text-muted-foreground">
+            Programas cada franja una vez. Toca un horario y mira cómo cambia la pantalla.
+          </p>
+          <div className="mt-6">
+            <ScheduleDemo />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-10">
+        <div className={SHELL}>
+          <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            Menús hechos con inteligencia artificial
+          </span>
+          <h2 className={`${H2} mt-2`}>Escribes tus platos y te entregamos el menú listo</h2>
+          <p className="mt-2 text-muted-foreground">
+            No necesitas diseñador. Pones la lista de platos con sus precios y la plataforma arma la
+            pieza para tu pantalla.
+          </p>
+          <div className="mt-6">
+            <AiMenusBlock />
+          </div>
+        </div>
+      </section>
+
       {/* 5 — PRECIO: el servicio y el dispositivo son dos cosas distintas y se
           separan para que no se lean como tres planes alternativos. */}
       <section className="py-10">
@@ -328,7 +363,7 @@ export default function CampaignLanding() {
       <section className="py-10">
         <div className={SHELL}>
           <h2 className={H2}>Preguntas frecuentes</h2>
-          <Accordion type="single" collapsible className="mt-4">
+          <Accordion type="single" collapsible defaultValue={FAQ[0].q} className="mt-4">
             {FAQ.map((f) => (
               <AccordionItem key={f.q} value={f.q}>
                 <AccordionTrigger className="text-left text-base">{f.q}</AccordionTrigger>
