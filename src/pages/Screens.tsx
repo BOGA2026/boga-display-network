@@ -15,70 +15,28 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { Badge } from "@/components/ui/badge";
 import {
-  Monitor,
-  Plus,
   MonitorSmartphone,
-  Wifi,
-  WifiOff,
-  Clock,
-  Pencil,
-  Trash2,
   CheckCircle2,
   AlertTriangle,
-  Copy,
-  Check,
-  Download,
-  Smartphone,
-  Link2Off,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
-import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
-import { TvCompatibilityWizard, TvCompatibilityDialog } from "@/features/devices";
-import type { DeviceType } from "@/config/devices";
+import { TvCompatibilityDialog } from "@/features/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import ScreensWorkspace from "@/features/screens/ScreensWorkspace";
 import type { ScreenRow } from "@/features/screens/types";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
-import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { getBusinessId } from "@/features/auth/tenant";
+
 import { deleteScreens } from "@/features/screens/deleteScreens";
-import { getAttribution } from "@/lib/attribution";
 
 
-const TIMEZONES = [
-  { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
-  { value: "America/Lima", label: "America/Lima (GMT-05:00)" },
-  { value: "America/Mexico_City", label: "America/Mexico_City (GMT-06:00)" },
-  { value: "America/Santiago", label: "America/Santiago (GMT-03:00)" },
-  { value: "America/Buenos_Aires", label: "America/Buenos_Aires (GMT-03:00)" },
-  { value: "America/Caracas", label: "America/Caracas (GMT-04:00)" },
-  { value: "America/Guayaquil", label: "America/Guayaquil (GMT-05:00)" },
-  { value: "America/Asuncion", label: "America/Asuncion (GMT-04:00)" },
-  { value: "America/Montevideo", label: "America/Montevideo (GMT-03:00)" },
-  { value: "America/La_Paz", label: "America/La_Paz (GMT-04:00)" },
-  { value: "America/New_York", label: "America/New_York (GMT-05:00)" },
-  { value: "America/Los_Angeles", label: "America/Los_Angeles (GMT-08:00)" },
-  { value: "Europe/Madrid", label: "Europe/Madrid (GMT+01:00)" },
-];
 
 interface Screen {
   id: string;
@@ -123,7 +81,6 @@ const Screens = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successScreen, setSuccessScreen] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -133,20 +90,6 @@ const Screens = () => {
   const [assignTarget, setAssignTarget] = useState<{ id: string; name: string } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Form state — new flow: panel generates the code
-  const [screenName, setScreenName] = useState("");
-  const [timezone, setTimezone] = useState("America/Bogota");
-  const [nameError, setNameError] = useState("");
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-  const [codeCopied, setCodeCopied] = useState(false);
-  // Paso previo: comprobar que el televisor sirve antes de dar el código.
-  // Si ya lo respondió en la landing, no se le vuelve a preguntar.
-  const tvChoice = getAttribution();
-  const [compatDone, setCompatDone] = useState(tvChoice.needs_device === false);
-  const [deviceType, setDeviceType] = useState<DeviceType>(
-    tvChoice.needs_device === false ? "tv_google" : "desconocido",
-  );
 
   const [compatDialogOpen, setCompatDialogOpen] = useState(false);
 
@@ -160,28 +103,6 @@ const Screens = () => {
     fetchData({ fresh: false });
   }, []);
 
-  // Auto-advance: when the TV claims the pairing code, close sheet and celebrate.
-  useEffect(() => {
-    if (!generatedCode) return;
-    const channel = supabase
-      .channel(`pairing-${generatedCode}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "devices", filter: `device_code=eq.${generatedCode}` },
-        (payload) => {
-          const status = (payload.new as { status?: string })?.status;
-          if (status && status !== "pending") {
-            setSuccessScreen(screenName.trim());
-            setDialogOpen(false);
-            resetForm();
-            fetchData();
-          }
-        }
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generatedCode]);
 
   /**
    * Lee la consulta de la sección desde el caché de react-query, así el
@@ -219,160 +140,12 @@ const Screens = () => {
     return screens.length >= subscription.screens_count;
   };
 
-  const handleAddScreenClick = () => {
-    // Always allow opening the dialog — demo screens don't require subscription
-    resetForm();
-    setDialogOpen(true);
-  };
-
   const isOnline = (lastSeen: string | null) => {
     if (!lastSeen) return false;
     return Date.now() - new Date(lastSeen).getTime() < 2 * 60 * 1000;
   };
 
-  const resetForm = () => {
-    setScreenName("");
-    setTimezone("America/Bogota");
-    setNameError("");
-    setGeneratedCode(null);
-    setCodeCopied(false);
-    // Se vuelve al estado que dejó el verificador, no a cero.
-    setDeviceType(tvChoice.needs_device === false ? "tv_google" : "desconocido");
-    // El verificador es para el primer montaje: si el negocio ya tiene una
-    // pantalla vinculada, se va directo al código.
-    setCompatDone(tvChoice.needs_device === false || screens.length > 0);
 
-  };
-
-  const validateForm = () => {
-    let valid = true;
-    if (!screenName.trim()) {
-      setNameError("El nombre es requerido");
-      valid = false;
-    } else if (screenName.trim().length > 40) {
-      setNameError("Máximo 40 caracteres");
-      valid = false;
-    } else {
-      setNameError("");
-    }
-    return valid;
-  };
-
-  const isFormValid = () => {
-    return screenName.trim().length > 0 && screenName.trim().length <= 40;
-  };
-
-  // Generate a unique pairing code (retries on rare collision)
-  const generateUniqueCode = async (): Promise<string | null> => {
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const candidate = generatePairingCode();
-      const { data: existing } = await supabase
-        .from("devices")
-        .select("id")
-        .eq("device_code", candidate)
-        .maybeSingle();
-      if (!existing) return candidate;
-    }
-    return null;
-  };
-
-  const handleGenerateCode = async () => {
-    if (!validateForm()) return;
-    setSaving(true);
-
-    const businessId = await getBusinessId();
-
-    if (!businessId) {
-      toast({ title: "No se encontró tu negocio", variant: "destructive" });
-      setSaving(false);
-      return;
-    }
-
-    let locationId = locations[0]?.id;
-    if (!locationId) {
-      const { data: newLoc } = await supabase
-        .from("locations")
-        .insert({ name: "Principal", business_id: businessId })
-        .select("id")
-        .single();
-      locationId = newLoc?.id;
-    }
-
-    if (!locationId) {
-      toast({ title: "Error al crear ubicación", variant: "destructive" });
-      setSaving(false);
-      return;
-    }
-
-    const code = await generateUniqueCode();
-    if (!code) {
-      toast({ title: "No fue posible generar un código único, intenta de nuevo", variant: "destructive" });
-      setSaving(false);
-      return;
-    }
-
-    // Create screen
-    const { data: screen, error: screenError } = await supabase
-      .from("screens")
-      .insert({ name: screenName.trim(), location_id: locationId, device_type: deviceType })
-      .select("id")
-      .single();
-
-    if (screenError || !screen) {
-      console.error("[Screens] Error creating screen:", screenError);
-      toast({
-        title: "Error al crear pantalla",
-        description: screenError?.message ?? "No se pudo crear la pantalla. Verifica tus permisos.",
-        variant: "destructive",
-      });
-      setSaving(false);
-      return;
-    }
-
-    // Create device in 'pending' state, waiting for the TV to claim this code
-    const { error: deviceError } = await supabase.from("devices").insert({
-      device_code: code,
-      status: "pending",
-      business_id: businessId,
-      location_id: locationId,
-      screen_id: screen.id,
-      screen_name: screenName.trim(),
-    });
-
-    setSaving(false);
-
-    if (deviceError) {
-      console.error("[Screens] Error creating device:", deviceError);
-      await supabase.from("screens").delete().eq("id", screen.id);
-      toast({
-        title: "Error al vincular dispositivo",
-        description: deviceError.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log("[Screens] Pairing code generated:", code);
-    setGeneratedCode(code);
-    fetchData();
-  };
-
-  const handleCopyCode = async () => {
-    if (!generatedCode) return;
-    try {
-      await navigator.clipboard.writeText(generatedCode);
-      setCodeCopied(true);
-      setTimeout(() => setCodeCopied(false), 2000);
-    } catch {
-      toast({ title: "No se pudo copiar", variant: "destructive" });
-    }
-  };
-
-  const handleFinishPairing = () => {
-    setSuccessScreen(screenName.trim());
-    setDialogOpen(false);
-    resetForm();
-  };
 
   const handleAddDemoScreen = async () => {
     setSaving(true);
@@ -404,9 +177,8 @@ const Screens = () => {
     }
 
     setSuccessScreen("Pantalla Demo");
-    setDialogOpen(false);
-    resetForm();
     fetchData();
+
   };
 
   /** Borrado lógico: conserva la analítica y permite deshacer. */
@@ -462,21 +234,24 @@ const Screens = () => {
         </div>
         <div className="flex gap-2">
           <Button
-            variant="outline"
             onClick={() => setPairModalOpen(true)}
-            className="border-primary/30 text-primary hover:bg-primary/10 gap-2 px-4 py-2.5 text-sm font-medium"
-          >
-            <MonitorSmartphone className="h-4 w-4" />
-            Ya tengo la app en mi TV
-          </Button>
-          <Button
-            onClick={handleAddScreenClick}
             className="gradient-primary text-primary-foreground border-0 gap-2 px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            <Plus className="h-4 w-4" />
-            Agregar pantalla
+            <MonitorSmartphone className="h-4 w-4" />
+            Vincular pantalla
+          </Button>
+          {/* Salida para quien todavía no tiene el equipo. */}
+          <Button
+            variant="outline"
+            onClick={handleAddDemoScreen}
+            disabled={saving}
+            className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 px-4 py-2.5 text-sm font-medium"
+          >
+            Agregar pantalla demo
           </Button>
         </div>
+
+
       </div>
 
       {/* Content */}
@@ -500,14 +275,15 @@ const Screens = () => {
           description={COPY.empty.screens}
           action={
             <Button
-              onClick={handleAddScreenClick}
+              onClick={() => setPairModalOpen(true)}
               className="gradient-primary text-primary-foreground border-0 gap-2 px-8 py-3 text-base font-semibold hover:opacity-90 transition-opacity"
               size="lg"
             >
-              <Plus className="h-5 w-5" />
-              {COPY.actions.connectScreen}
+              <MonitorSmartphone className="h-5 w-5" />
+              Vincular pantalla
             </Button>
           }
+
           secondaryAction={
             <Button
               variant="outline"
@@ -524,241 +300,8 @@ const Screens = () => {
 
       )}
 
-      {/* ─── ADD SCREEN SHEET ─── */}
-      <Sheet open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto surface-elevated border-border/30">
-          {!compatDone ? (
-            <>
-              <SheetHeader className="pb-1">
-                <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
-                <SheetDescription className="text-sm text-muted-foreground">
-                  Primero veamos si tu televisor sirve. Toma menos de un minuto.
-                </SheetDescription>
-              </SheetHeader>
-              <div className="py-4">
-                <TvCompatibilityWizard
-                  initialBrandId={tvChoice.needs_device ? tvChoice.tv_brand ?? null : null}
 
-                  onCompatible={(type) => {
-                    setDeviceType(type);
-                    setCompatDone(true);
-                  }}
-                  onClose={() => { setDialogOpen(false); resetForm(); }}
-                />
-              </div>
-            </>
-          ) : !generatedCode ? (
-            <>
-              <SheetHeader className="pb-1">
-                <SheetTitle className="font-display text-lg">Agregar pantalla</SheetTitle>
-                <SheetDescription className="text-sm text-muted-foreground">
-                  Dale un nombre a tu pantalla y te generaremos un código para conectarla desde el dispositivo.
-                </SheetDescription>
-              </SheetHeader>
 
-              <button
-                type="button"
-                onClick={() => setCompatDone(false)}
-                className="mt-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                ¿Es un televisor distinto? Verificar compatibilidad
-              </button>
-
-              <div className="space-y-5 py-4">
-                {/* Field — Name */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="screen-name" className="text-sm font-medium">
-                    Nombre de la pantalla <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="screen-name"
-                    placeholder="Ejemplo: Pantalla Caja Principal"
-                    value={screenName}
-                    onChange={(e) => {
-                      setScreenName(e.target.value);
-                      if (nameError && e.target.value.trim()) setNameError("");
-                    }}
-                    maxLength={40}
-                    className={nameError ? "border-destructive focus-visible:ring-destructive" : ""}
-                  />
-                  <div className="flex items-center justify-between">
-                    {nameError ? (
-                      <p className="text-xs text-destructive">{nameError}</p>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">Este nombre te ayudará a identificar la pantalla</p>
-                    )}
-                    <span className="text-xs text-muted-foreground ml-auto">{screenName.length}/40</span>
-                  </div>
-                </div>
-
-                {/* Field — Timezone */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium">Zona horaria</Label>
-                  <Select value={timezone} onValueChange={setTimezone}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TIMEZONES.map((tz) => (
-                        <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">Asegura la programación correcta de contenido</p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col gap-3 pt-2">
-                <div className="flex gap-3">
-                  <Button
-                    variant="ghost"
-                    onClick={() => { setDialogOpen(false); resetForm(); }}
-                    className="flex-1"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    onClick={handleGenerateCode}
-                    disabled={saving || !isFormValid()}
-                    className="flex-1 gradient-primary text-primary-foreground border-0 font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
-                  >
-                    {saving ? (
-                      <span className="flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Generando...</span>
-                    ) : "Generar código"}
-                  </Button>
-                </div>
-
-                {/* Demo divider */}
-                <div className="relative flex items-center gap-3">
-                  <div className="flex-1 border-t border-border/30" />
-                  <span className="text-xs text-muted-foreground">O prueba Visualia en tu navegador</span>
-                  <div className="flex-1 border-t border-border/30" />
-                </div>
-
-                <Button
-                  variant="outline"
-                  onClick={handleAddDemoScreen}
-                  disabled={saving}
-                  className="border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 font-medium"
-                >
-                  <MonitorSmartphone className="h-4 w-4" />
-                  Agregar pantalla demo
-                </Button>
-              </div>
-            </>
-          ) : (
-          <>
-            <SheetHeader className="pb-1">
-              <SheetTitle className="font-display text-lg">Tu código de vinculación</SheetTitle>
-              <SheetDescription className="text-sm text-muted-foreground">
-                Ingresa este código en la app de Visualia instalada en tu pantalla o TV. Detectaremos la conexión automáticamente.
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="space-y-6 py-4">
-              {/* Code display — 6 individual digit tiles */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex gap-2 sm:gap-3">
-                  {generatedCode.split("").map((ch, i) => (
-                    <div
-                      key={i}
-                      className="flex h-14 w-11 sm:h-16 sm:w-14 items-center justify-center rounded-xl font-mono text-3xl sm:text-4xl font-bold select-all"
-                      style={{
-                        background: "rgba(138,0,255,0.08)",
-                        border: "1px solid rgba(138,0,255,0.28)",
-                        color: "hsl(var(--primary))",
-                        textShadow: "0 0 20px rgba(192,0,255,0.5)",
-                      }}
-                    >
-                      {ch}
-                    </div>
-                  ))}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopyCode}
-                  className="gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {codeCopied ? (
-                    <><Check className="h-4 w-4" /> Copiado</>
-                  ) : (
-                    <><Copy className="h-4 w-4" /> Copiar código</>
-                  )}
-                </Button>
-              </div>
-
-              {/* Waiting indicator */}
-              <div className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
-                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <span className="text-muted-foreground">Esperando conexión de tu pantalla…</span>
-              </div>
-
-              {/* Instructions */}
-              <div className="rounded-xl border border-border/30 bg-secondary/20 p-5 space-y-3">
-                <p className="font-semibold text-sm text-foreground">Cómo conectar tu pantalla:</p>
-                <ol className="space-y-3">
-                  <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">1</span>
-                    <span className="text-muted-foreground">
-                      Abre la app Visualia en tu TV.{" "}
-                      (¿No la tienes?{" "}
-                      <Link
-                        to="/descargar-apk"
-                        className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
-                        onClick={() => setDialogOpen(false)}
-                      >
-                        <Download className="h-3 w-3" />
-                        Descárgala aquí
-                      </Link>
-                      )
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">2</span>
-                    <span className="text-muted-foreground">
-                      Ingresa este código de <span className="font-semibold text-foreground">6 caracteres</span> con el control remoto.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3 text-sm">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">3</span>
-                    <span className="text-muted-foreground">
-                      Cuando la pantalla se conecte, esta ventana se cerrará sola.
-                    </span>
-                  </li>
-                </ol>
-              </div>
-
-              {/* QR code */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="bg-white p-4 rounded-xl">
-                  <QRCodeSVG value={`${window.location.origin}/descargar-apk`} size={140} level="H" />
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Smartphone className="h-3.5 w-3.5" />
-                  <span>Escanea con tu celular para descargar la app</span>
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground text-center">
-                Esta pantalla aparecerá como <span className="font-medium text-foreground">"{screenName}"</span> en tu lista.
-              </p>
-            </div>
-
-            <div className="flex gap-3 pt-1">
-              <Button
-                variant="ghost"
-                onClick={handleFinishPairing}
-                className="flex-1"
-              >
-                Cerrar
-              </Button>
-            </div>
-          </>
-          )}
-        </SheetContent>
-      </Sheet>
 
 
       {/* ─── EDIT DIALOG ─── */}
@@ -873,8 +416,10 @@ const Screens = () => {
       <PairDeviceModal
         open={pairModalOpen}
         onOpenChange={setPairModalOpen}
+        locations={locations}
         onPaired={() => { setSuccessScreen("Pantalla"); fetchData(); }}
       />
+
 
       {/* ─── CONSULTA PERMANENTE: ¿MI TELEVISOR SIRVE? ─── */}
       <div className="mt-10 border-t border-border/30 pt-4 text-center">

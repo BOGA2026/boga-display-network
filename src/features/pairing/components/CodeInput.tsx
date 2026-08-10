@@ -1,16 +1,22 @@
 import { forwardRef, useRef } from "react";
 
 interface CodeInputProps {
-  value: string; // 6 chars
+  value: string; // hasta 6 caracteres ya normalizados (A-Z0-9)
   onChange: (next: string) => void;
   disabled?: boolean;
   error?: boolean;
   autoFocus?: boolean;
 }
 
+/** Deja solo A-Z y 0-9: descarta guiones, espacios y pasa a mayúsculas. */
+export function normalizePairingCode(raw: string): string {
+  return raw.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+}
+
 /**
- * 6-cell numeric OTP input with iOS-style auto-advance, backspace-back,
- * paste-of-full-code support, and a neon-violet caret ring.
+ * Casillas para el código de 6 caracteres que muestra el televisor.
+ * Acepta letras y números, con o sin guion, en mayúsculas o minúsculas:
+ * "k7m-p42" y "K7MP42" entran igual. Pegar el código completo también funciona.
  */
 export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
   ({ value, onChange, disabled, error, autoFocus }, _ref) => {
@@ -20,7 +26,7 @@ export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
 
     const setChar = (idx: number, ch: string) => {
       const arr = value.padEnd(6, " ").split("");
-      arr[idx] = ch;
+      arr[idx] = ch || " ";
       onChange(arr.join("").replace(/\s+$/g, ""));
     };
 
@@ -28,6 +34,15 @@ export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
       const el = inputs.current[Math.max(0, Math.min(5, i))];
       el?.focus();
       el?.select();
+    };
+
+    const fillFrom = (start: number, text: string) => {
+      const clean = normalizePairingCode(text).slice(0, 6 - start);
+      if (!clean) return;
+      const arr = value.padEnd(6, " ").split("");
+      for (let k = 0; k < clean.length; k++) arr[start + k] = clean[k];
+      onChange(arr.join("").replace(/\s+$/g, ""));
+      focusAt(Math.min(5, start + clean.length));
     };
 
     return (
@@ -40,23 +55,20 @@ export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
               ref={(el) => (inputs.current[i] = el)}
               autoFocus={autoFocus && i === 0}
               disabled={disabled}
-              inputMode="numeric"
-              pattern="[0-9]*"
+              inputMode="text"
+              autoCapitalize="characters"
+              autoComplete="one-time-code"
+              spellCheck={false}
               maxLength={1}
               value={ch.trim()}
               onChange={(e) => {
-                const raw = e.target.value.replace(/\D/g, "");
+                const raw = normalizePairingCode(e.target.value);
                 if (!raw) {
                   setChar(i, "");
                   return;
                 }
-                // Support paste-of-many via onChange (browsers sometimes fire this)
                 if (raw.length > 1) {
-                  const clean = raw.slice(0, 6 - i);
-                  const arr = value.padEnd(6, " ").split("");
-                  for (let k = 0; k < clean.length; k++) arr[i + k] = clean[k];
-                  onChange(arr.join("").replace(/\s+$/g, ""));
-                  focusAt(Math.min(5, i + clean.length));
+                  fillFrom(i, raw);
                   return;
                 }
                 setChar(i, raw);
@@ -78,16 +90,13 @@ export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
                 }
               }}
               onPaste={(e) => {
-                const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-                if (!text) return;
+                const text = e.clipboardData.getData("text");
+                if (!normalizePairingCode(text)) return;
                 e.preventDefault();
-                const arr = "      ".split("");
-                for (let k = 0; k < text.length; k++) arr[k] = text[k];
-                onChange(arr.join("").replace(/\s+$/g, ""));
-                focusAt(Math.min(5, text.length));
+                fillFrom(0, text);
               }}
               className={[
-                "h-14 w-11 sm:h-16 sm:w-14 rounded-xl text-center font-mono text-3xl sm:text-4xl font-bold",
+                "h-14 w-11 sm:h-16 sm:w-14 rounded-xl text-center font-mono text-3xl sm:text-4xl font-bold uppercase",
                 "bg-secondary/30 border transition-all outline-none caret-primary",
                 error
                   ? "border-destructive/60 text-destructive"
@@ -97,7 +106,7 @@ export const CodeInput = forwardRef<HTMLInputElement, CodeInputProps>(
                 "focus:border-primary focus:shadow-[0_0_28px_-6px_hsl(var(--primary)/0.8)]",
                 disabled ? "opacity-50 cursor-not-allowed" : "",
               ].join(" ")}
-              aria-label={`Dígito ${i + 1} de 6`}
+              aria-label={`Carácter ${i + 1} de 6 del código`}
             />
           );
         })}
