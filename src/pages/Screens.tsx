@@ -35,24 +35,8 @@ import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDia
 import { getBusinessId } from "@/features/auth/tenant";
 
 import { deleteScreens } from "@/features/screens/deleteScreens";
-import { getAttribution } from "@/lib/attribution";
 
 
-const TIMEZONES = [
-  { value: "America/Bogota", label: "America/Bogota (GMT-05:00)" },
-  { value: "America/Lima", label: "America/Lima (GMT-05:00)" },
-  { value: "America/Mexico_City", label: "America/Mexico_City (GMT-06:00)" },
-  { value: "America/Santiago", label: "America/Santiago (GMT-03:00)" },
-  { value: "America/Buenos_Aires", label: "America/Buenos_Aires (GMT-03:00)" },
-  { value: "America/Caracas", label: "America/Caracas (GMT-04:00)" },
-  { value: "America/Guayaquil", label: "America/Guayaquil (GMT-05:00)" },
-  { value: "America/Asuncion", label: "America/Asuncion (GMT-04:00)" },
-  { value: "America/Montevideo", label: "America/Montevideo (GMT-03:00)" },
-  { value: "America/La_Paz", label: "America/La_Paz (GMT-04:00)" },
-  { value: "America/New_York", label: "America/New_York (GMT-05:00)" },
-  { value: "America/Los_Angeles", label: "America/Los_Angeles (GMT-08:00)" },
-  { value: "Europe/Madrid", label: "Europe/Madrid (GMT+01:00)" },
-];
 
 interface Screen {
   id: string;
@@ -97,7 +81,6 @@ const Screens = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successScreen, setSuccessScreen] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
