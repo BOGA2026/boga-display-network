@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from("screens")
       .update({ status: "offline" })
+      .is("deleted_at", null)
       .lt("last_seen_at", cutoff)
       .neq("status", "offline")
       .select("id");
@@ -48,6 +49,7 @@ Deno.serve(async (req) => {
     await supabase
       .from("screens")
       .update({ status: "offline" })
+      .is("deleted_at", null)
       .is("last_seen_at", null)
       .lt("created_at", createdCutoff)
       .neq("status", "offline");
@@ -56,6 +58,7 @@ Deno.serve(async (req) => {
     const { data: staleDevices, error: devicesError } = await supabase
       .from("devices")
       .update({ status: "offline", updated_at: new Date().toISOString() })
+      .is("deleted_at", null)
       .lt("last_seen_at", cutoff)
       .neq("status", "offline")
       .not("paired_at", "is", null)
@@ -68,6 +71,7 @@ Deno.serve(async (req) => {
     const { data: neverSeenDevices } = await supabase
       .from("devices")
       .update({ status: "offline", updated_at: new Date().toISOString() })
+      .is("deleted_at", null)
       .is("last_seen_at", null)
       .lt("paired_at", createdCutoff)
       .neq("status", "offline")

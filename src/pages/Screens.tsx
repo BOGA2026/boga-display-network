@@ -60,6 +60,7 @@ import ScreensWorkspace from "@/features/screens/ScreensWorkspace";
 import type { ScreenRow } from "@/features/screens/types";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
 import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { deleteScreens } from "@/features/screens/deleteScreens";
 import { getAttribution } from "@/lib/attribution";
 
 
@@ -100,7 +101,11 @@ interface Subscription {
   status: string;
   expires_at: string | null;
   grace_period_ends_at: string | null;
+  price_per_screen?: number | null;
+  billing_cycle?: string | null;
+  next_billing_date?: string | null;
 }
+
 
 // Generate a 6-character pairing code (avoids ambiguous 0/O/1/I)
 const PAIRING_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -404,11 +409,10 @@ const Screens = () => {
     fetchData();
   };
 
+  /** Borrado lógico: conserva la analítica y permite deshacer. */
   const handleDeleteScreen = async (id: string) => {
-    const { error } = await supabase.from("screens").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Error al eliminar pantalla", variant: "destructive" });
-    } else {
+    const ok = await deleteScreens([id]);
+    if (ok) {
       setDeleteConfirmId(null);
       fetchData();
     }
@@ -484,6 +488,7 @@ const Screens = () => {
         <ScreensWorkspace
           screens={screens as ScreenRow[]}
           locations={locations}
+          subscription={subscription}
           onRefresh={fetchData}
           onChangeContent={(s) => setAssignTarget({ id: s.id, name: s.name })}
         />
@@ -796,7 +801,7 @@ const Screens = () => {
               Eliminar pantalla
             </DialogTitle>
             <DialogDescription>
-              Esta acción no se puede deshacer. Se eliminará la pantalla y su configuración.
+              El dispositivo volverá a la pantalla de vinculación. El historial de reproducción se conserva y puedes restaurarla desde Ajustes durante 30 días.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-3 pt-2">

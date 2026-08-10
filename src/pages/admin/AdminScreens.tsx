@@ -36,6 +36,7 @@ async function fetchScreens(): Promise<Screen[]> {
       const { data, error, status } = await supabase
         .from("screens")
         .select(SCREENS_SELECT)
+        .is("deleted_at", null)
         .order("last_seen_at", { ascending: false, nullsFirst: false });
       if (error) throw Object.assign(new Error(error.message), { status: status ?? 500 });
       return (data as any) ?? [];

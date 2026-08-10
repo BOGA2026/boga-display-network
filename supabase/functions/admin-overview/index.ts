@@ -47,8 +47,8 @@ Deno.serve(async (req) => {
       businessesListRes,
     ] = await Promise.all([
       admin.from("businesses").select("*", { count: "exact", head: true }),
-      admin.from("screens").select("*", { count: "exact", head: true }),
-      admin.from("screens").select("*", { count: "exact", head: true }).eq("status", "online"),
+      admin.from("screens").select("*", { count: "exact", head: true }).is("deleted_at", null),
+      admin.from("screens").select("*", { count: "exact", head: true }).is("deleted_at", null).eq("status", "online"),
       admin.from("locations").select("*", { count: "exact", head: true }),
       admin.from("content").select("*", { count: "exact", head: true }),
       admin.from("leads").select("*", { count: "exact", head: true }),
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
     let screensByBiz: Record<string, number> = {};
     let membersByBiz: Record<string, number> = {};
     if (businessIds.length) {
-      const { data: sc } = await admin.from("screens").select("business_id").in("business_id", businessIds);
+      const { data: sc } = await admin.from("screens").select("business_id").is("deleted_at", null).in("business_id", businessIds);
       (sc ?? []).forEach((r: any) => {
         screensByBiz[r.business_id] = (screensByBiz[r.business_id] ?? 0) + 1;
       });

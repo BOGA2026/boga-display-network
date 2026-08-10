@@ -1,6 +1,13 @@
 import { memo } from "react";
-import { Link2Off, MonitorPlay, Play, Images } from "lucide-react";
+import { Link2Off, MonitorPlay, Play, Images, MoreVertical, Pencil, MapPin, Eye, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { syncSeverity } from "@/hooks/useAnalytics";
 import { cn } from "@/lib/utils";
 import type { NowPlayingInfo } from "./useNowPlaying";
@@ -11,10 +18,16 @@ interface Props {
   nowPlaying?: NowPlayingInfo;
   selected: boolean;
   selectionMode: boolean;
+  /** Solo dueño o administrador ven la opción de eliminar. */
+  canDelete: boolean;
   onToggle: (id: string, shiftKey: boolean) => void;
   onOpen: (id: string) => void;
   onChangeContent: (screen: ScreenRow) => void;
+  onRename: (screen: ScreenRow) => void;
+  onMove: (screen: ScreenRow) => void;
+  onDelete: (screen: ScreenRow) => void;
 }
+
 
 /** Una pantalla es "en vivo" si reportó en los últimos 3 min (3 latidos). */
 function isLive(lastSeenAt: string | null) {
@@ -27,10 +40,15 @@ function ScreenTileBase({
   nowPlaying,
   selected,
   selectionMode,
+  canDelete,
   onToggle,
   onOpen,
   onChangeContent,
+  onRename,
+  onMove,
+  onDelete,
 }: Props) {
+
   const live = isLive(screen.last_seen_at);
   const neverPaired = !screen.last_seen_at && !screen.device_token;
   const sync = syncSeverity(screen.last_seen_at);
@@ -88,6 +106,48 @@ function ScreenTileBase({
             className="border-white/50 bg-background/70 backdrop-blur-md"
           />
         </div>
+
+        {/* Menú contextual: en hover en escritorio, siempre visible en táctil */}
+        <div
+          data-stop
+          className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 [@media(pointer:coarse)]:opacity-100"
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label={`Acciones de ${screen.name}`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-md bg-background/80 p-1 text-foreground backdrop-blur-md hover:bg-background"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => onRename(screen)}>
+                <Pencil className="mr-2 h-4 w-4" /> Renombrar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onMove(screen)}>
+                <MapPin className="mr-2 h-4 w-4" /> Mover de sede
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onOpen(screen.id)}>
+                <Eye className="mr-2 h-4 w-4" /> Ver detalle
+              </DropdownMenuItem>
+              {canDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(screen)}
+                    className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+
 
         {/* Acciones rápidas en hover */}
         <div

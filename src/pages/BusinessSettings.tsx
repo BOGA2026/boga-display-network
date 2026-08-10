@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Building2, Check, Clock3, HardDrive, Image as ImageIcon, Loader2, Monitor, ArrowRight, AlertTriangle } from "lucide-react";
+import DeletedScreensCard from "@/features/screens/DeletedScreensCard";
 import { useTenant } from "@/features/auth/useTenant";
 import {
   useBusinessUsage,
@@ -372,7 +373,10 @@ export default function BusinessSettings() {
             Las pantallas no reproducen contenido vencido.
           </p>
         </Section>
+
+        <DeletedScreensCard />
       </div>
+
     </div>
   );
 }
