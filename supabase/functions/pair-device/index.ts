@@ -371,7 +371,7 @@ Deno.serve(async (req) => {
       const userId = userRes.user.id;
 
       const body = await req.json().catch(() => ({}));
-      const { device_code, screen_name, location_id } = body ?? {};
+      const { device_code, screen_name, location_id, timezone } = body ?? {};
       if (!device_code || !/^[0-9]{6}$/.test(device_code)) {
         await logAttempt(supabase, { ip, code: device_code ?? null, businessId: null, success: false, reason: "bad_code_format", ua });
         return new Response(JSON.stringify({ error: "Invalid code" }), {
