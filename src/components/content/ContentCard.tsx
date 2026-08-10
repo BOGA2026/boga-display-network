@@ -114,7 +114,10 @@ export function ContentCard({
     >
       {/* Miniatura: marco 16:9 fijo, pieza dentro con su proporción real */}
       <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[hsl(var(--admin-surface-2,var(--muted)))]">
-        {thumbSrc ? (
+        {thumbPending ? (
+          // Se está procesando: barrido, nunca un hueco vacío.
+          <div className="v-shimmer h-full w-full" />
+        ) : thumbSrc ? (
           <img
             src={storageThumb(thumbSrc, { width: 480, resize: "contain" })}
             alt={item.name}
@@ -122,6 +125,7 @@ export function ContentCard({
             height={270}
             loading="lazy"
             decoding="async"
+            style={{ aspectRatio: "16 / 9" }}
             onLoad={(e) => {
               const el = e.currentTarget;
               if (el.naturalWidth) onDims(item.id, { width: el.naturalWidth, height: el.naturalHeight });
@@ -139,10 +143,6 @@ export function ContentCard({
               if (el.videoWidth) onDims(item.id, { width: el.videoWidth, height: el.videoHeight });
             }}
           />
-        ) : thumbPending ? (
-          // La miniatura se está generando en el servidor: comunicamos
-          // "viene en camino" en vez de mostrar un vacío.
-          <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         ) : (
           <Icon className="h-10 w-10 text-muted-foreground opacity-30" />
         )}
@@ -165,10 +165,19 @@ export function ContentCard({
         {/* Chip de orientación */}
         {ratio && <span className="v-thumb-chip bottom-2 left-2 bg-black/60">{ratio}</span>}
 
-        {/* Duración de video */}
-        {item.type === "video" && duration && (
-          <span className="v-thumb-chip bottom-2 right-2 bg-black/60">{duration}</span>
+        {/* Duración sobreimpresa, el patrón que todos reconocen */}
+        {item.type === "video" && (duration || unknownDuration) && (
+          <span
+            title={unknownDuration ? "No pudimos leer la duración: definila a mano en la lista." : undefined}
+            className={cn(
+              "v-thumb-chip bottom-2 right-2 font-medium tabular-nums",
+              unknownDuration ? "bg-amber-500/90 text-black" : "bg-black/75",
+            )}
+          >
+            {duration ?? "Duración desconocida"}
+          </span>
         )}
+
 
         {/* Archivo pesado */}
         {heavy && (
