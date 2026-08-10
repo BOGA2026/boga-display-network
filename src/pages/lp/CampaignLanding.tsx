@@ -10,6 +10,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import InlineVideo from "@/components/media/InlineVideo";
+import HeroProduct from "@/components/lp/HeroProduct";
+import ScheduleDemo from "@/components/lp/ScheduleDemo";
+import AiMenusBlock from "@/components/lp/AiMenusBlock";
+import FirstYearCost from "@/components/lp/FirstYearCost";
 import {
   Accordion,
   AccordionContent,
@@ -18,13 +22,7 @@ import {
 } from "@/components/ui/accordion";
 import { getCampaign, campaignOgImage, SITE_URL } from "@/config/campaigns";
 import { COMPAT_CLIPS } from "@/config/compatibilityMedia";
-import {
-  annualVariant,
-  MAX_PRICE_PER_SCREEN,
-  PRICING_TIERS,
-  IVA_LEGEND,
-  PRICING_FOOTNOTE,
-} from "@/config/pricing";
+import { annualVariant, MAX_PRICE_PER_SCREEN } from "@/config/pricing";
 import { formatCop } from "@/config/devices";
 import { captureAttribution, getAttribution, setPlanChoice, type PlanChoice } from "@/lib/attribution";
 import BrandChecker from "@/components/lp/BrandChecker";
@@ -63,14 +61,7 @@ const STEPS = [
   },
 ];
 
-/** Escala real de precios por volumen, tomada de la fuente única. */
-const PRICE_SCALE = PRICING_TIERS.slice(1).map(
-  (t) => `desde ${t.min} pantallas, ${formatCop(t.pricePerScreen)}`,
-);
-
 const BENEFITS = [
-  { icon: Clock, text: "Pantalla de menú que cambia sola según la hora" },
-  { icon: Sparkles, text: "Menús generados con inteligencia artificial a partir de tus platos y precios" },
   { icon: QrCode, text: "Código QR para que tus clientes vean la carta en el celular" },
   { icon: Smartphone, text: "Panel para cambiar todo desde tu teléfono, en segundos" },
   { icon: Headphones, text: "Soporte en Colombia, en español" },
@@ -184,13 +175,8 @@ export default function CampaignLanding() {
           </h1>
           <p className="mt-2 text-base text-muted-foreground md:text-lg">{campaign.subheadline}</p>
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-border/60">
-            <InlineVideo
-              sources={campaign.hero.sources}
-              poster={campaign.hero.poster}
-              label="Menú digital funcionando en un restaurante"
-              rootMargin="0px"
-            />
+          <div className="mt-5">
+            <HeroProduct />
           </div>
 
           <div className="mt-4">
@@ -279,37 +265,12 @@ export default function CampaignLanding() {
         <div className={SHELL}>
           <h2 className={H2}>Cuánto cuesta</h2>
 
-          <h3 className="mt-6 text-sm font-semibold uppercase tracking-widest text-primary">El servicio</h3>
-          <div className="mt-3 flex items-center justify-between rounded-xl border border-primary/50 bg-primary/10 px-4 py-4">
-            <span className="text-sm font-medium text-foreground">Por pantalla, al mes</span>
-            <span className="text-right">
-              <span className="block font-display text-xl font-bold text-foreground">
-                {formatCop(MAX_PRICE_PER_SCREEN)}
-              </span>
-              <span className="block text-xs text-muted-foreground">{IVA_LEGEND}</span>
-            </span>
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Desde 6 pantallas, el precio baja.{" "}
-            <a
-              href="/precios"
-              target="_blank"
-              rel="noopener"
-              className="font-medium text-primary underline underline-offset-4"
-            >
-              Ver escala
-            </a>
-            :{" "}
-            {PRICE_SCALE.map((t, i) => (
-              <span key={t}>
-                {i > 0 && " · "}
-                {t}
-              </span>
-            ))}
-            .
+          <p className="mt-2 text-base text-muted-foreground">
+            El ejemplo es para una pantalla. Todos los precios llevan IVA incluido.
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">{PRICING_FOOTNOTE}</p>
-
+          <div className="mt-5">
+            <FirstYearCost />
+          </div>
 
           <hr className="my-7 border-border/60" />
 
