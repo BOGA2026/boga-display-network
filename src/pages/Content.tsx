@@ -449,6 +449,65 @@ const ContentLibrary = () => {
     toast({ title: "Contenido de prueba agregado", description: `${SAMPLE_CONTENT.length} archivos añadidos.` });
     fetchContent();
   };
+
+  /** Sube el blob de miniatura y devuelve su URL pública. */
+  const uploadThumb = async (
+    contentId: string,
+    blob: Blob,
+    type: string | null,
+  ): Promise<string | null> => {
+    const path = `thumbnails/${contentId}.${thumbExtension(type)}`;
+    const { error } = await supabase.storage
+      .from("media")
+      .upload(path, blob, { contentType: type ?? "image/webp", upsert: true });
+    if (error) return null;
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    // Cache-buster: al regenerar, el navegador debe ver la nueva imagen.
+    return `${data.publicUrl}?v=${Date.now()}`;
+  };
+
+  /**
+   * Backfill: mide un video que ya está en Storage y le arma la miniatura.
+   * Requiere CORS abierto en el bucket; si el canvas queda contaminado,
+   * al menos quedan duración y dimensiones.
+   */
+  const generateThumbFromStorage = async (item: ContentItem) => {
+    if (!item.file_url) return;
+    markWorking(item.id, true);
+    const meta = await extractVideoMetadataFromUrl(item.file_url);
+
+    if (!meta.width && !meta.durationSeconds && !meta.thumbnailBlob) {
+      markWorking(item.id, false);
+      toast({
+        title: "No pudimos leer este video",
+        description: "El navegador no puede abrir este formato (suele pasar con videos de iPhone). Convertilo a MP4 y volvé a subirlo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const thumbUrl = meta.thumbnailBlob
+      ? await uploadThumb(item.id, meta.thumbnailBlob, meta.thumbnailType)
+      : null;
+
+    const patch: Record<string, unknown> = {};
+    if (meta.durationSeconds) patch.duration_seconds = meta.durationSeconds;
+    if (meta.width) patch.width = meta.width;
+    if (meta.height) patch.height = meta.height;
+    if (thumbUrl) { patch.thumbnail_url = thumbUrl; patch.thumbnail_status = "listo"; }
+
+    if (Object.keys(patch).length > 0) {
+      await supabase.from("content").update(patch).eq("id", item.id);
+      setItems((prev) => prev.map((x) => (x.id === item.id ? { ...x, ...patch } as ContentItem : x)));
+    }
+
+    markWorking(item.id, false);
+    toast({
+      title: thumbUrl ? "Miniatura lista" : "Datos actualizados",
+      description: thumbUrl ? undefined : "Guardamos duración y tamaño, pero no pudimos capturar la imagen.",
+    });
+  };
+
   /** Reintenta la generación de la miniatura de un diseño en el servidor. */
   const retryThumbnail = async (id: string) => {
     setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "pendiente" } : x)));
