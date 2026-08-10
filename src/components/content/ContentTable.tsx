@@ -136,6 +136,9 @@ export function ContentTable({
             const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
             const selected = selectedIds.has(item.id);
             const dimmed = isDimmed(item.id);
+            const working = workingIds?.has(item.id) || (!thumbSrc && item.thumbnail_status === "pendiente");
+            const unknownDuration = item.type === "video" && !item.duration_seconds;
+
             return (
               <tr
                 key={item.id}
