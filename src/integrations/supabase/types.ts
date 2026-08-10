@@ -667,6 +667,8 @@ export type Database = {
           code_expires_at: string | null
           code_source: string | null
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           device_code: string
           heartbeat_token: string | null
           id: string
@@ -690,6 +692,8 @@ export type Database = {
           code_expires_at?: string | null
           code_source?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           device_code: string
           heartbeat_token?: string | null
           id?: string
@@ -713,6 +717,8 @@ export type Database = {
           code_expires_at?: string | null
           code_source?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           device_code?: string
           heartbeat_token?: string | null
           id?: string
@@ -2148,6 +2154,8 @@ export type Database = {
           activated_at: string | null
           app_version: string | null
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           device_model: string | null
           device_token: string | null
           device_type: string
@@ -2181,6 +2189,8 @@ export type Database = {
           activated_at?: string | null
           app_version?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           device_model?: string | null
           device_token?: string | null
           device_type?: string
@@ -2214,6 +2224,8 @@ export type Database = {
           activated_at?: string | null
           app_version?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           device_model?: string | null
           device_token?: string | null
           device_type?: string
@@ -2677,6 +2689,17 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      list_deleted_screens: {
+        Args: never
+        Returns: {
+          deleted_at: string
+          id: string
+          last_seen_at: string
+          location_name: string
+          name: string
+          purges_at: string
+        }[]
+      }
       list_platform_admin_access: {
         Args: never
         Returns: {
@@ -2711,11 +2734,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      purge_deleted_screens: { Args: never; Returns: number }
       purge_demo_analytics: {
         Args: { p_business_id: string }
         Returns: undefined
       }
       recalc_subscription_statuses: { Args: never; Returns: number }
+      restore_screens: { Args: { p_ids: string[] }; Returns: Json }
       revoke_platform_admin: {
         Args: { _email: string; _ip?: string; _user_agent?: string }
         Returns: Json
@@ -2725,6 +2750,7 @@ export type Database = {
         Args: { p_business_id: string }
         Returns: undefined
       }
+      soft_delete_screens: { Args: { p_ids: string[] }; Returns: Json }
       subscription_status_derived: {
         Args: {
           _grace_period_ends_at: string
@@ -2735,6 +2761,10 @@ export type Database = {
       }
       sweep_offline_devices: {
         Args: { _threshold_seconds?: number }
+        Returns: number
+      }
+      sync_subscription_screens_count: {
+        Args: { _business_id: string }
         Returns: number
       }
     }
