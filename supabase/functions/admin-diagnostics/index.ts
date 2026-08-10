@@ -83,6 +83,7 @@ Deno.serve(async (req) => {
     const { data: owned } = await admin
       .from("screens")
       .select("id, locations!inner(business_id)")
+      .is("deleted_at", null)
       .in("id", ids);
     const valid = (owned ?? [])
       .filter((s: Record<string, any>) => s.locations?.business_id === businessId)
