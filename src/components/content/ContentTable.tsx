@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check, AlertTriangle } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check, AlertTriangle, RectangleHorizontal, RectangleVertical, Square, ImagePlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,8 @@ import {
   formatDuration,
   isHeavyFile,
   HEAVY_FILE_TOOLTIP,
+  orientationLabel,
+  orientationOf,
   ratioLabel,
   relativeDate,
   typeLabel,
@@ -35,7 +37,24 @@ interface Props {
   onSend: (item: ContentItem) => void;
   onDelete: (item: ContentItem) => void;
   onEdit: (item: ContentItem) => void;
+  onGenerateThumb?: (item: ContentItem) => void;
+  workingIds?: Set<string>;
 }
+
+/** Ícono acorde a la orientación: se lee de un vistazo en una lista larga. */
+function OrientationCell({ dims }: { dims?: MediaDims | null }) {
+  const o = orientationOf(dims);
+  const label = orientationLabel(dims);
+  if (!o || !label) return <>—</>;
+  const Icon = o === "vertical" ? RectangleVertical : o === "cuadrada" ? Square : RectangleHorizontal;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Icon className="h-3.5 w-3.5 opacity-60" />
+      {label}
+    </span>
+  );
+}
+
 
 const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
   { key: "name", label: "Nombre" },
