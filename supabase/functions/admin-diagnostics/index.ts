@@ -151,6 +151,7 @@ Deno.serve(async (req) => {
           "id, name, status, last_seen_at, app_version, license_status, device_type, device_model, os_version, schedule_version, rotation, location_id, locations!inner(id, name, business_id)",
         )
         .eq("locations.business_id", businessId)
+        .is("deleted_at", null)
         .order("name"),
       admin
         .from("content")
