@@ -168,7 +168,7 @@ export function ContentTable({
                   </button>
                 </td>
                 <td className="p-3">
-                  <div className="flex h-9 w-16 items-center justify-center overflow-hidden rounded bg-[hsl(var(--admin-surface-2,var(--muted)))]">
+                  <div className="flex h-9 w-16 items-center justify-center overflow-hidden rounded bg-[hsl(var(--admin-surface-2,var(--muted)))]" style={{ aspectRatio: "16 / 9" }}>
                     {thumbSrc ? (
                       <img
                         src={storageThumb(thumbSrc, { width: 480, resize: "contain" })}
@@ -183,6 +183,8 @@ export function ContentTable({
                         }}
                         className="h-full w-full object-contain"
                       />
+                    ) : working ? (
+                      <div className="v-shimmer h-full w-full" />
                     ) : (
                       <Icon className="h-4 w-4 text-muted-foreground opacity-30" />
                     )}
@@ -192,9 +194,21 @@ export function ContentTable({
                   <span className="block truncate font-medium">{item.name}</span>
                 </td>
                 <td className="p-3 text-muted-foreground">{typeLabel(item.type)}</td>
-                <td className="p-3 text-muted-foreground">{ratioLabel(d) ?? "—"}</td>
-                <td className="p-3 text-muted-foreground">{formatDuration(item.duration_seconds) ?? "—"}</td>
+                <td className="p-3 text-muted-foreground"><OrientationCell dims={d} /></td>
+                <td className="p-3 text-muted-foreground">
+                  {formatDuration(item.duration_seconds) ?? (
+                    unknownDuration ? (
+                      <span
+                        title="No pudimos leer la duración. Definila a mano al agregarlo a una lista."
+                        className="text-[11px] text-amber-400/80"
+                      >
+                        Duración desconocida
+                      </span>
+                    ) : "—"
+                  )}
+                </td>
                 <td className="p-3 text-muted-foreground">{formatDims(d) ?? "—"}</td>
+
                 <td className="p-3 text-muted-foreground">
                   {formatBytes(item.file_size_bytes) ? (
                     <span
