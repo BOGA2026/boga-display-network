@@ -22,6 +22,7 @@ import LocationEditorDialog from "@/components/digital-signage/LocationEditorDia
 import RemoteActionsPanel from "@/components/digital-signage/RemoteActionsPanel";
 import { getScreenHealth } from "@/lib/screen-health";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
+import { deleteScreens } from "@/features/screens/deleteScreens";
 
 interface DeviceInfo {
   appVersion: string | null;
@@ -252,9 +253,9 @@ export default function ScreenDetail() {
     }
   };
 
-  const handleDelete = () => {
-    toast({ title: "Pantalla eliminada", description: `${screen.name} ha sido removida.` });
-    navigate(backPath);
+  const handleDelete = async () => {
+    const deleted = await deleteScreens([screen.id]);
+    if (deleted) navigate(backPath);
   };
 
   return (
