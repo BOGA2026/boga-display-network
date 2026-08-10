@@ -177,6 +177,25 @@ const ContentLibrary = () => {
     setDims((prev) => (prev[id]?.width === d.width && prev[id]?.height === d.height ? prev : { ...prev, [id]: d }));
   }, []);
 
+  // Fuente de verdad: lo guardado en la ficha; lo medido al vuelo solo rellena.
+  const effDims = useMemo(() => {
+    const out: Record<string, MediaDims> = { ...dims };
+    for (const it of items) {
+      if (it.width && it.height) out[it.id] = { width: it.width, height: it.height };
+    }
+    return out;
+  }, [items, dims]);
+
+  // Piezas con miniatura/metadatos en proceso en este momento.
+  const [workingIds, setWorkingIds] = useState<Set<string>>(new Set());
+  const markWorking = useCallback((id: string, on: boolean) => {
+    setWorkingIds((prev) => {
+      const next = new Set(prev);
+      on ? next.add(id) : next.delete(id);
+      return next;
+    });
+  }, []);
+
   // Selección múltiple
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const toggleSelect = useCallback((id: string) => {
