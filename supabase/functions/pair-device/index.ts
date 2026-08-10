@@ -435,9 +435,20 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Resolve or create location
-      let locId = location_id as string | undefined;
+      // Resolve or create location. Una sede recibida del cliente solo vale si
+      // pertenece al negocio del usuario: si no, se ignora y se usa la primera.
+      let locId: string | undefined;
+      if (typeof location_id === "string" && location_id) {
+        const { data: ownLoc } = await supabase
+          .from("locations")
+          .select("id")
+          .eq("id", location_id)
+          .eq("business_id", businessId)
+          .maybeSingle();
+        locId = ownLoc?.id;
+      }
       if (!locId) {
+
         const { data: loc } = await supabase
           .from("locations")
           .select("id")
