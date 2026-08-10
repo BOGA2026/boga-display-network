@@ -40,10 +40,15 @@ function ScreenTileBase({
   nowPlaying,
   selected,
   selectionMode,
+  canDelete,
   onToggle,
   onOpen,
   onChangeContent,
+  onRename,
+  onMove,
+  onDelete,
 }: Props) {
+
   const live = isLive(screen.last_seen_at);
   const neverPaired = !screen.last_seen_at && !screen.device_token;
   const sync = syncSeverity(screen.last_seen_at);
