@@ -90,6 +90,7 @@ export default function AppRoutes() {
 
   return (
     <Routes key={undefined}>
+      <Route path="/__probe" element={page(lazyRoute("/__probe"), pathname)} />
       <Route path="/" element={<Landing />} />
       <Route path="/precios" element={page(Pricing, pathname)} />
       <Route path="/terminos" element={page(TerminosPage, pathname)} />
