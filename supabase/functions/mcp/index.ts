@@ -39,7 +39,7 @@ var list_screens_default = defineTool({
   handler: async ({ status, limit }, ctx) => {
     if (!ctx.isAuthenticated()) return notAuthenticated();
     const supabase = supabaseForUser(ctx);
-    let q = supabase.from("screens").select("id, name, status, last_seen_at, location_id, locations(name)").order("created_at", { ascending: false }).limit(limit ?? 50);
+    let q = supabase.from("screens").select("id, name, status, last_seen_at, location_id, locations(name)").is("deleted_at", null).order("created_at", { ascending: false }).limit(limit ?? 50);
     if (status && status !== "all") q = q.eq("status", status);
     const { data, error } = await q;
     if (error) {

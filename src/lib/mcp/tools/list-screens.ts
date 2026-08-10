@@ -21,6 +21,7 @@ export default defineTool({
     let q = supabase
       .from("screens")
       .select("id, name, status, last_seen_at, location_id, locations(name)")
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
       .limit(limit ?? 50);
     if (status && status !== "all") q = q.eq("status", status);
