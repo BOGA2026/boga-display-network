@@ -38,3 +38,7 @@ verify_jwt = false
 
 [functions.tv]
 verify_jwt = false
+
+[functions.exit-offer]
+verify_jwt = false
+
