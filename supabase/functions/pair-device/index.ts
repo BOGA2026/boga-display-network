@@ -182,12 +182,19 @@ Deno.serve(async (req) => {
       }
       const { data: device } = await supabase
         .from("devices")
-        .select("id, status, business_id, screen_id, heartbeat_token, code_expires_at")
+        .select("id, status, business_id, screen_id, heartbeat_token, code_expires_at, deleted_at")
         .eq("device_code", code)
         .maybeSingle();
       if (!device) {
         return new Response(JSON.stringify({ error: "not_found" }), {
           status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // La pantalla fue eliminada desde el panel: el equipo debe desvincularse.
+      if (device.deleted_at) {
+        return new Response(JSON.stringify({ status: "unpaired", reason: "screen_deleted" }), {
+          status: 410,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -420,7 +427,7 @@ Deno.serve(async (req) => {
         .from("devices")
         .update({ last_seen_at: nowIso, app_version: app_version || null })
         .eq("device_code", device_code.toUpperCase())
-        .select("id, status, screen_id")
+        .select("id, status, screen_id, deleted_at")
         .maybeSingle();
 
       if (error || !device) {
@@ -428,6 +435,14 @@ Deno.serve(async (req) => {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      }
+
+      // Pantalla eliminada: el reproductor borra token y caché y vuelve al código.
+      if (device.deleted_at) {
+        return new Response(
+          JSON.stringify({ status: "unpaired", reason: "screen_deleted", unpair: true }),
+          { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
 
       // Auto-pair: if device was pending and has a screen assigned, mark as paired
