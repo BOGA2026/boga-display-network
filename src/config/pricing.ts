@@ -1,3 +1,5 @@
+import { VISUALIA_DEVICE_PRICE_COP } from "@/config/devices";
+
 /**
  * Single source of truth for public pricing.
  * All amounts in COP per screen / month. IVA included.
@@ -226,7 +228,7 @@ export const PLAN_FEATURE_MATRIX: Record<number, readonly PlanFeature[]> = {
  */
 
 /** Precio del dispositivo, re-exportado para no importar dos archivos. */
-export { VISUALIA_DEVICE_PRICE_COP as DEVICE_PRICE_COP } from "@/config/devices";
+export const DEVICE_PRICE_COP = VISUALIA_DEVICE_PRICE_COP;
 
 export type CicloPago = "mensual" | "anual";
 
