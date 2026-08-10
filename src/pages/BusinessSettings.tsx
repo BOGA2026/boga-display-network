@@ -372,7 +372,10 @@ export default function BusinessSettings() {
             Las pantallas no reproducen contenido vencido.
           </p>
         </Section>
+
+        <DeletedScreensCard />
       </div>
+
     </div>
   );
 }
