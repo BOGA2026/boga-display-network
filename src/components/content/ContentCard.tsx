@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle, ImagePlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
