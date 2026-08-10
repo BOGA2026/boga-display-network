@@ -867,8 +867,10 @@ const Screens = () => {
       <PairDeviceModal
         open={pairModalOpen}
         onOpenChange={setPairModalOpen}
+        locations={locations}
         onPaired={() => { setSuccessScreen("Pantalla"); fetchData(); }}
       />
+
 
       {/* ─── CONSULTA PERMANENTE: ¿MI TELEVISOR SIRVE? ─── */}
       <div className="mt-10 border-t border-border/30 pt-4 text-center">
