@@ -68,30 +68,28 @@ export function msLeft(offer: ExitOffer): number {
   return Math.max(0, offer.expiresAt - (Date.now() - offer.skewMs));
 }
 
-/** Crea la oferta (o devuelve la que ya existía, con su vencimiento real). */
-export async function claimExitOffer(): Promise<ExitOffer | null> {
-  const { data, error } = await supabase.rpc("exit_offer_claim", {
-    p_visitor_id: visitorId(),
+/** Único canal hacia la oferta: la base ya no atiende visitantes anónimos. */
+async function call(body: Record<string, unknown>): Promise<ExitOffer | null> {
+  const { data, error } = await supabase.functions.invoke("exit-offer", {
+    body: { ...body, visitor_id: visitorId() },
   });
   if (error) return null;
-  return shape(data as Payload);
+  return shape((data as { offer: Payload } | null)?.offer ?? null);
+}
+
+/** Crea la oferta (o devuelve la que ya existía, con su vencimiento real). */
+export async function claimExitOffer(): Promise<ExitOffer | null> {
+  return call({ action: "claim" });
 }
 
 /** Estado actual de la oferta del visitante, si tiene una. */
 export async function getExitOffer(): Promise<ExitOffer | null> {
-  const { data, error } = await supabase.rpc("exit_offer_get", {
-    p_visitor_id: visitorId(),
-  });
-  if (error) return null;
-  return shape(data as Payload);
+  return call({ action: "get" });
 }
 
 /** Marca la oferta como tomada o descartada. No se puede volver atrás. */
 export async function markExitOffer(status: "accepted" | "dismissed") {
-  await supabase.rpc("exit_offer_mark", {
-    p_visitor_id: visitorId(),
-    p_status: status,
-  });
+  await call({ action: "mark", status });
 }
 
 /**
