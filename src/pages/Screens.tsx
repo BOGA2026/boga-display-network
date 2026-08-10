@@ -15,51 +15,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { LastSyncLabel } from "@/components/system/LastSyncLabel";
 import { Badge } from "@/components/ui/badge";
 import {
-  Monitor,
-  Plus,
   MonitorSmartphone,
-  Wifi,
-  WifiOff,
-  Clock,
-  Pencil,
-  Trash2,
   CheckCircle2,
   AlertTriangle,
-  Copy,
-  Check,
-  Download,
-  Smartphone,
-  Link2Off,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SubscriptionAlerts } from "@/components/dashboard/SubscriptionAlerts";
-import { QRCodeSVG } from "qrcode.react";
 import { PairDeviceModal } from "@/features/pairing";
-import { TvCompatibilityWizard, TvCompatibilityDialog } from "@/features/devices";
-import type { DeviceType } from "@/config/devices";
+import { TvCompatibilityDialog } from "@/features/devices";
 import { NAV, COPY } from "@/config/lexicon";
 import { CardGridSkeleton, EmptyState, ErrorState } from "@/components/feedback/states";
 import ScreensWorkspace from "@/features/screens/ScreensWorkspace";
 import type { ScreenRow } from "@/features/screens/types";
 import AssignPlaylistDialog from "@/components/digital-signage/AssignPlaylistDialog";
-import { getBusinessId, getUserId } from "@/features/auth/tenant";
+import { getBusinessId } from "@/features/auth/tenant";
+
 import { deleteScreens } from "@/features/screens/deleteScreens";
 import { getAttribution } from "@/lib/attribution";
 
