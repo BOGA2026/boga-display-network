@@ -220,9 +220,8 @@ const Screens = () => {
     }
 
     setSuccessScreen("Pantalla Demo");
-    setDialogOpen(false);
-    resetForm();
     fetchData();
+
   };
 
   /** Borrado lógico: conserva la analítica y permite deshacer. */
