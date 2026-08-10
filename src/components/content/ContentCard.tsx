@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Image as ImageIcon, Film, Code2, Music, LayoutGrid, MoreVertical, Trash2, ListPlus, MonitorPlay, Eye, Check, RefreshCw, AlertTriangle, ImagePlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,8 @@ export interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  width?: number | null;
+  height?: number | null;
   expires_at?: string | null;
   created_at: string;
 }
@@ -53,6 +55,7 @@ interface Props {
   onToggleSelect: (id: string) => void;
   selectionActive: boolean;
   dimmed?: boolean;
+  working?: boolean;
   onOpen: () => void;
   onPreview: () => void;
   onAssign: () => void;
@@ -60,6 +63,7 @@ interface Props {
   onDelete: () => void;
   onEdit?: () => void;
   onRetryThumb?: () => void;
+  onGenerateThumb?: () => void;
 }
 
 export function ContentCard({
@@ -70,6 +74,7 @@ export function ContentCard({
   onToggleSelect,
   selectionActive,
   dimmed,
+  working,
   onOpen,
   onPreview,
   onAssign,
@@ -77,6 +82,7 @@ export function ContentCard({
   onDelete,
   onEdit,
   onRetryThumb,
+  onGenerateThumb,
 }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? ImageIcon;
   const ratio = ratioLabel(dims);
@@ -85,7 +91,8 @@ export function ContentCard({
   const expText = expiryLabel(item.expires_at);
   const duration = formatDuration(item.duration_seconds);
   const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
-  const thumbPending = !thumbSrc && item.thumbnail_status === "pendiente";
+  const thumbPending = working || (!thumbSrc && item.thumbnail_status === "pendiente");
+  const unknownDuration = item.type === "video" && !item.duration_seconds;
   const heavy = isHeavyFile(item.file_size_bytes);
   const sizeLabel = formatBytes(item.file_size_bytes);
 
@@ -107,7 +114,10 @@ export function ContentCard({
     >
       {/* Miniatura: marco 16:9 fijo, pieza dentro con su proporción real */}
       <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[hsl(var(--admin-surface-2,var(--muted)))]">
-        {thumbSrc ? (
+        {thumbPending ? (
+          // Se está procesando: barrido, nunca un hueco vacío.
+          <div className="v-shimmer h-full w-full" />
+        ) : thumbSrc ? (
           <img
             src={storageThumb(thumbSrc, { width: 480, resize: "contain" })}
             alt={item.name}
@@ -115,6 +125,7 @@ export function ContentCard({
             height={270}
             loading="lazy"
             decoding="async"
+            style={{ aspectRatio: "16 / 9" }}
             onLoad={(e) => {
               const el = e.currentTarget;
               if (el.naturalWidth) onDims(item.id, { width: el.naturalWidth, height: el.naturalHeight });
@@ -132,10 +143,6 @@ export function ContentCard({
               if (el.videoWidth) onDims(item.id, { width: el.videoWidth, height: el.videoHeight });
             }}
           />
-        ) : thumbPending ? (
-          // La miniatura se está generando en el servidor: comunicamos
-          // "viene en camino" en vez de mostrar un vacío.
-          <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         ) : (
           <Icon className="h-10 w-10 text-muted-foreground opacity-30" />
         )}
@@ -158,10 +165,19 @@ export function ContentCard({
         {/* Chip de orientación */}
         {ratio && <span className="v-thumb-chip bottom-2 left-2 bg-black/60">{ratio}</span>}
 
-        {/* Duración de video */}
-        {item.type === "video" && duration && (
-          <span className="v-thumb-chip bottom-2 right-2 bg-black/60">{duration}</span>
+        {/* Duración sobreimpresa, el patrón que todos reconocen */}
+        {item.type === "video" && (duration || unknownDuration) && (
+          <span
+            title={unknownDuration ? "No pudimos leer la duración: definila a mano en la lista." : undefined}
+            className={cn(
+              "v-thumb-chip bottom-2 right-2 font-medium tabular-nums",
+              unknownDuration ? "bg-amber-500/90 text-black" : "bg-black/75",
+            )}
+          >
+            {duration ?? "Duración desconocida"}
+          </span>
         )}
+
 
         {/* Archivo pesado */}
         {heavy && (
@@ -249,6 +265,16 @@ export function ContentCard({
                 Reintentar miniatura
               </DropdownMenuItem>
             )}
+            {onGenerateThumb && item.type === "video" && (
+              <DropdownMenuItem
+                disabled={working}
+                onClick={(e) => { e.stopPropagation(); onGenerateThumb(); }}
+              >
+                <ImagePlus className="mr-2 h-4 w-4" />
+                Generar miniatura
+              </DropdownMenuItem>
+            )}
+
 
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(); }}>
               <ListPlus className="mr-2 h-4 w-4" />

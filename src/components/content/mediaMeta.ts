@@ -39,17 +39,31 @@ export function ratioLabel(dims?: MediaDims | null): string | null {
   return o === "horizontal" ? "16:9" : "9:16";
 }
 
+/** Palabra completa para la columna Orientación. */
+export function orientationLabel(dims?: MediaDims | null): string | null {
+  const o = orientationOf(dims);
+  if (!o) return null;
+  if (o === "cuadrada") return "Cuadrada";
+  return o === "horizontal" ? "Horizontal" : "Vertical";
+}
+
+/** Duración en reloj: "1:24", "0:08", "12:05". */
 export function formatDuration(seconds?: number | null): string | null {
   if (!seconds || seconds <= 0) return null;
-  if (seconds < 60) return `${Math.round(seconds)} s`;
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
-  return s ? `${m}:${String(s).padStart(2, "0")} min` : `${m} min`;
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 export function formatDims(dims?: MediaDims | null): string | null {
-  if (!dims) return null;
-  return `${dims.width}×${dims.height}`;
+  if (!dims || !dims.width || !dims.height) return null;
+  return `${dims.width} × ${dims.height}`;
+}
+
+/** Dimensiones guardadas en la base, si el archivo las tiene. */
+export function dimsOf(item: { width?: number | null; height?: number | null }): MediaDims | null {
+  return item.width && item.height ? { width: item.width, height: item.height } : null;
 }
 
 /** Fecha relativa en español colombiano: "hace 11 días". */

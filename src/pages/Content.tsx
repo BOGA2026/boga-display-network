@@ -74,6 +74,12 @@ import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
 import { getTenant } from "@/features/auth/tenant";
 import { MediaDims, orientationOf, typeLabel, formatDims, formatDuration, relativeDate, formatBytes, MAX_UPLOAD_BYTES } from "@/components/content/mediaMeta";
+import {
+  extractVideoMetadata,
+  extractVideoMetadataFromUrl,
+  extractImageMetadata,
+  thumbExtension,
+} from "@/lib/video-metadata";
 
 
 interface ContentItem {
@@ -85,6 +91,8 @@ interface ContentItem {
   duration_seconds: number | null;
   file_size_bytes?: number | null;
   thumbnail_status?: string | null;
+  width?: number | null;
+  height?: number | null;
   expires_at?: string | null;
   created_at: string;
 }
@@ -169,6 +177,25 @@ const ContentLibrary = () => {
     setDims((prev) => (prev[id]?.width === d.width && prev[id]?.height === d.height ? prev : { ...prev, [id]: d }));
   }, []);
 
+  // Fuente de verdad: lo guardado en la ficha; lo medido al vuelo solo rellena.
+  const effDims = useMemo(() => {
+    const out: Record<string, MediaDims> = { ...dims };
+    for (const it of items) {
+      if (it.width && it.height) out[it.id] = { width: it.width, height: it.height };
+    }
+    return out;
+  }, [items, dims]);
+
+  // Piezas con miniatura/metadatos en proceso en este momento.
+  const [workingIds, setWorkingIds] = useState<Set<string>>(new Set());
+  const markWorking = useCallback((id: string, on: boolean) => {
+    setWorkingIds((prev) => {
+      const next = new Set(prev);
+      on ? next.add(id) : next.delete(id);
+      return next;
+    });
+  }, []);
+
   // Selección múltiple
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const toggleSelect = useCallback((id: string) => {
@@ -184,10 +211,10 @@ const ContentLibrary = () => {
   const isDimmed = useCallback(
     (id: string) => {
       if (orientFilter === "todas") return false;
-      const o = orientationOf(dims[id]);
+      const o = orientationOf(effDims[id]);
       return !!o && o !== orientFilter;
     },
-    [orientFilter, dims],
+    [orientFilter, effDims],
   );
 
   const openInEditor = (id: string) => {
@@ -422,6 +449,65 @@ const ContentLibrary = () => {
     toast({ title: "Contenido de prueba agregado", description: `${SAMPLE_CONTENT.length} archivos añadidos.` });
     fetchContent();
   };
+
+  /** Sube el blob de miniatura y devuelve su URL pública. */
+  const uploadThumb = async (
+    contentId: string,
+    blob: Blob,
+    type: string | null,
+  ): Promise<string | null> => {
+    const path = `thumbnails/${contentId}.${thumbExtension(type)}`;
+    const { error } = await supabase.storage
+      .from("media")
+      .upload(path, blob, { contentType: type ?? "image/webp", upsert: true });
+    if (error) return null;
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    // Cache-buster: al regenerar, el navegador debe ver la nueva imagen.
+    return `${data.publicUrl}?v=${Date.now()}`;
+  };
+
+  /**
+   * Backfill: mide un video que ya está en Storage y le arma la miniatura.
+   * Requiere CORS abierto en el bucket; si el canvas queda contaminado,
+   * al menos quedan duración y dimensiones.
+   */
+  const generateThumbFromStorage = async (item: ContentItem) => {
+    if (!item.file_url) return;
+    markWorking(item.id, true);
+    const meta = await extractVideoMetadataFromUrl(item.file_url);
+
+    if (!meta.width && !meta.durationSeconds && !meta.thumbnailBlob) {
+      markWorking(item.id, false);
+      toast({
+        title: "No pudimos leer este video",
+        description: "El navegador no puede abrir este formato (suele pasar con videos de iPhone). Convertilo a MP4 y volvé a subirlo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const thumbUrl = meta.thumbnailBlob
+      ? await uploadThumb(item.id, meta.thumbnailBlob, meta.thumbnailType)
+      : null;
+
+    const patch: Record<string, unknown> = {};
+    if (meta.durationSeconds) patch.duration_seconds = meta.durationSeconds;
+    if (meta.width) patch.width = meta.width;
+    if (meta.height) patch.height = meta.height;
+    if (thumbUrl) { patch.thumbnail_url = thumbUrl; patch.thumbnail_status = "listo"; }
+
+    if (Object.keys(patch).length > 0) {
+      await supabase.from("content").update(patch).eq("id", item.id);
+      setItems((prev) => prev.map((x) => (x.id === item.id ? { ...x, ...patch } as ContentItem : x)));
+    }
+
+    markWorking(item.id, false);
+    toast({
+      title: thumbUrl ? "Miniatura lista" : "Datos actualizados",
+      description: thumbUrl ? undefined : "Guardamos duración y tamaño, pero no pudimos capturar la imagen.",
+    });
+  };
+
   /** Reintenta la generación de la miniatura de un diseño en el servidor. */
   const retryThumbnail = async (id: string) => {
     setItems((prev) => prev.map((x) => (x.id === id ? { ...x, thumbnail_status: "pendiente" } : x)));
@@ -466,6 +552,12 @@ const ContentLibrary = () => {
     const businessId = tenant.businessId;
     if (!businessId) { setUploading(false); return; }
 
+    // Metadatos en el navegador, ANTES de subir: es el único momento en que
+    // tenemos el archivo local y no hay que descargar nada de vuelta.
+    // Si falla (HEVC de iPhone, códec raro) la subida sigue igual.
+    let videoMeta = selectedType === "video" ? await extractVideoMetadata(selectedFile) : null;
+    let imageMeta = selectedType === "image" ? await extractImageMetadata(selectedFile) : null;
+
     const ext = selectedFile.name.split(".").pop();
     const filePath = `${businessId}/${crypto.randomUUID()}.${ext}`;
 
@@ -481,31 +573,54 @@ const ContentLibrary = () => {
 
     const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
 
-    const { error: dbError } = await supabase.from("content").insert({
+    const { data: inserted, error: dbError } = await supabase.from("content").insert({
       name: contentName.trim(),
       type: selectedType,
       file_url: urlData.publicUrl,
       file_size_bytes: selectedFile.size,
+      width: videoMeta?.width ?? imageMeta?.width ?? null,
+      height: videoMeta?.height ?? imageMeta?.height ?? null,
       // Valores por defecto del negocio (Ajustes del negocio).
-      duration_seconds: selectedType === "image" ? tenant.defaultDurationSeconds : null,
+      duration_seconds:
+        selectedType === "image"
+          ? tenant.defaultDurationSeconds
+          : videoMeta?.durationSeconds ?? null,
       expires_at: expiresAtFromDefault(tenant.defaultExpiryDays),
       business_id: businessId,
-    });
-
-
-    setUploading(false);
+    }).select("id").single();
 
     if (dbError) {
+      setUploading(false);
       toast({ title: "Error al guardar registro", description: dbError.message, variant: "destructive" });
       return;
     }
 
+    // La miniatura va después: necesita el id de la pieza para su ruta.
+    if (inserted?.id && videoMeta?.thumbnailBlob) {
+      const thumbUrl = await uploadThumb(inserted.id, videoMeta.thumbnailBlob, videoMeta.thumbnailType);
+      if (thumbUrl) {
+        await supabase
+          .from("content")
+          .update({ thumbnail_url: thumbUrl, thumbnail_status: "listo" })
+          .eq("id", inserted.id);
+      }
+    }
+
+    setUploading(false);
+
     queryClient.invalidateQueries({ queryKey: usageQueryKey(businessId) });
-    toast({ title: "Contenido agregado" });
+    toast({
+      title: "Contenido agregado",
+      description:
+        selectedType === "video" && !videoMeta?.durationSeconds
+          ? "No pudimos leer la duración de este video. Podés definirla al agregarlo a una lista."
+          : undefined,
+    });
     setUploadOpen(false);
     resetUploadForm();
     fetchContent();
   };
+
 
   // Filtro por IDs (llega desde la tarjeta de contenido huérfano en Analíticas).
   const idsParam = searchParams.get("ids");
@@ -705,7 +820,7 @@ const ContentLibrary = () => {
         viewMode === "list" ? (
           <ContentTable
             items={visibleItems as CardContentItem[]}
-            dims={dims}
+            dims={effDims}
             onDims={handleDims}
             selectedIds={selectedIds}
             onToggleSelect={toggleSelect}
@@ -718,6 +833,8 @@ const ContentLibrary = () => {
             onSend={(item) => setSendTarget(item as ContentItem)}
             onDelete={(item) => setDeleteTarget(item as ContentItem)}
             onEdit={(item) => openInEditor(item.id)}
+            onGenerateThumb={(item) => generateThumbFromStorage(item as ContentItem)}
+            workingIds={workingIds}
           />
         ) : (
           <div className="v-media-grid">
@@ -725,7 +842,7 @@ const ContentLibrary = () => {
               <ContentCard
                 key={item.id}
                 item={item as CardContentItem}
-                dims={dims[item.id]}
+                dims={effDims[item.id]}
                 onDims={handleDims}
                 selected={selectedIds.has(item.id)}
                 onToggleSelect={toggleSelect}
@@ -745,6 +862,9 @@ const ContentLibrary = () => {
                     : undefined
                 }
                 onRetryThumb={() => retryThumbnail(item.id)}
+                onGenerateThumb={() => generateThumbFromStorage(item)}
+                working={workingIds.has(item.id)}
+
 
               />
             ))}

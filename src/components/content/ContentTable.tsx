@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check, AlertTriangle } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Trash2, ListPlus, MonitorPlay, LayoutGrid, Check, AlertTriangle, RectangleHorizontal, RectangleVertical, Square, ImagePlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,8 @@ import {
   formatDuration,
   isHeavyFile,
   HEAVY_FILE_TOOLTIP,
+  orientationLabel,
+  orientationOf,
   ratioLabel,
   relativeDate,
   typeLabel,
@@ -35,7 +37,24 @@ interface Props {
   onSend: (item: ContentItem) => void;
   onDelete: (item: ContentItem) => void;
   onEdit: (item: ContentItem) => void;
+  onGenerateThumb?: (item: ContentItem) => void;
+  workingIds?: Set<string>;
 }
+
+/** Ícono acorde a la orientación: se lee de un vistazo en una lista larga. */
+function OrientationCell({ dims }: { dims?: MediaDims | null }) {
+  const o = orientationOf(dims);
+  const label = orientationLabel(dims);
+  if (!o || !label) return <>—</>;
+  const Icon = o === "vertical" ? RectangleVertical : o === "cuadrada" ? Square : RectangleHorizontal;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Icon className="h-3.5 w-3.5 opacity-60" />
+      {label}
+    </span>
+  );
+}
+
 
 const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
   { key: "name", label: "Nombre" },
@@ -60,6 +79,8 @@ export function ContentTable({
   onSend,
   onDelete,
   onEdit,
+  onGenerateThumb,
+  workingIds,
 }: Props) {
   const [sort, setSort] = useState<{ key: SortKey; asc: boolean }>({ key: "date", asc: false });
 
@@ -115,6 +136,9 @@ export function ContentTable({
             const thumbSrc = item.thumbnail_url ?? (item.type === "image" ? item.file_url : null);
             const selected = selectedIds.has(item.id);
             const dimmed = isDimmed(item.id);
+            const working = workingIds?.has(item.id) || (!thumbSrc && item.thumbnail_status === "pendiente");
+            const unknownDuration = item.type === "video" && !item.duration_seconds;
+
             return (
               <tr
                 key={item.id}
@@ -144,7 +168,7 @@ export function ContentTable({
                   </button>
                 </td>
                 <td className="p-3">
-                  <div className="flex h-9 w-16 items-center justify-center overflow-hidden rounded bg-[hsl(var(--admin-surface-2,var(--muted)))]">
+                  <div className="flex h-9 w-16 items-center justify-center overflow-hidden rounded bg-[hsl(var(--admin-surface-2,var(--muted)))]" style={{ aspectRatio: "16 / 9" }}>
                     {thumbSrc ? (
                       <img
                         src={storageThumb(thumbSrc, { width: 480, resize: "contain" })}
@@ -159,6 +183,8 @@ export function ContentTable({
                         }}
                         className="h-full w-full object-contain"
                       />
+                    ) : working ? (
+                      <div className="v-shimmer h-full w-full" />
                     ) : (
                       <Icon className="h-4 w-4 text-muted-foreground opacity-30" />
                     )}
@@ -168,9 +194,21 @@ export function ContentTable({
                   <span className="block truncate font-medium">{item.name}</span>
                 </td>
                 <td className="p-3 text-muted-foreground">{typeLabel(item.type)}</td>
-                <td className="p-3 text-muted-foreground">{ratioLabel(d) ?? "—"}</td>
-                <td className="p-3 text-muted-foreground">{formatDuration(item.duration_seconds) ?? "—"}</td>
+                <td className="p-3 text-muted-foreground"><OrientationCell dims={d} /></td>
+                <td className="p-3 text-muted-foreground">
+                  {formatDuration(item.duration_seconds) ?? (
+                    unknownDuration ? (
+                      <span
+                        title="No pudimos leer la duración. Definila a mano al agregarlo a una lista."
+                        className="text-[11px] text-amber-400/80"
+                      >
+                        Duración desconocida
+                      </span>
+                    ) : "—"
+                  )}
+                </td>
                 <td className="p-3 text-muted-foreground">{formatDims(d) ?? "—"}</td>
+
                 <td className="p-3 text-muted-foreground">
                   {formatBytes(item.file_size_bytes) ? (
                     <span
@@ -204,6 +242,15 @@ export function ContentTable({
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(item); }}>
                           <LayoutGrid className="mr-2 h-4 w-4" />
                           Editar en canvas
+                        </DropdownMenuItem>
+                      )}
+                      {onGenerateThumb && item.type === "video" && (
+                        <DropdownMenuItem
+                          disabled={working}
+                          onClick={(e) => { e.stopPropagation(); onGenerateThumb(item); }}
+                        >
+                          <ImagePlus className="mr-2 h-4 w-4" />
+                          Generar miniatura
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAssign(item); }}>

@@ -362,12 +362,14 @@ export type Database = {
           expires_at: string | null
           file_size_bytes: number | null
           file_url: string | null
+          height: number | null
           id: string
           name: string
           thumbnail_status: string | null
           thumbnail_url: string | null
           type: string
           updated_at: string
+          width: number | null
         }
         Insert: {
           business_id: string
@@ -377,12 +379,14 @@ export type Database = {
           expires_at?: string | null
           file_size_bytes?: number | null
           file_url?: string | null
+          height?: number | null
           id?: string
           name: string
           thumbnail_status?: string | null
           thumbnail_url?: string | null
           type?: string
           updated_at?: string
+          width?: number | null
         }
         Update: {
           business_id?: string
@@ -392,12 +396,14 @@ export type Database = {
           expires_at?: string | null
           file_size_bytes?: number | null
           file_url?: string | null
+          height?: number | null
           id?: string
           name?: string
           thumbnail_status?: string | null
           thumbnail_url?: string | null
           type?: string
           updated_at?: string
+          width?: number | null
         }
         Relationships: [
           {
