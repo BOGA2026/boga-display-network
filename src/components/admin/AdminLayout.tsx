@@ -9,6 +9,7 @@ import logoVisualia from "@/assets/logo-visualia.webp";
 import {
   ShieldCheck,
   LayoutDashboard,
+  LayoutTemplate,
   Building2,
   Users,
   Inbox,
