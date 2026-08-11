@@ -1680,6 +1680,72 @@ export default function EditorPage() {
 
           {tab === "settings" && (
             <div className="space-y-4 p-4 text-sm">
+              {enPlantilla && (
+                <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <div>
+                    <p className="text-sm font-semibold text-primary">Contenido de la plantilla</p>
+                    <p className="text-xs text-muted-foreground">
+                      Cambiá los textos y las fotos. El diseño de fondo queda fijo.
+                    </p>
+                  </div>
+                  {capasPlantilla.map((l) => (
+                    <div key={l.id} className="space-y-1">
+                      <label className="text-xs font-medium text-foreground">{l.templateLabel}</label>
+                      {l.type === "text" && l.textStyle ? (
+                        <>
+                          <textarea
+                            value={l.textStyle.content}
+                            onChange={(e) => editarTextoPlantilla(l.id, e.target.value)}
+                            rows={l.templateKind === "precio" ? 1 : 2}
+                            className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          />
+                          {l.maxChars && l.textStyle.content.length > l.maxChars && (
+                            <p className="text-[11px] text-amber-400">
+                              Va largo para este espacio: probá con {l.maxChars} caracteres o menos.
+                            </p>
+                          )}
+                          {l.baseFontSize && l.textStyle.fontSize <= Math.round(l.baseFontSize * 0.7) && (
+                            <p className="text-[11px] text-amber-400">
+                              Achicamos la letra al mínimo legible. Si acortás el texto, se ve mejor.
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <div className="space-y-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              if (f) cambiarFotoPlantilla(l.id, f);
+                            }}
+                            className="w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-primary/15 file:px-2 file:py-1 file:text-xs file:text-primary"
+                          />
+                          <p className="text-[11px] text-muted-foreground">
+                            {l.expects === "recorte"
+                              ? "Subí el producto sin fondo (PNG): se muestra completo."
+                              : "Subí una foto: se recorta para llenar el espacio."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {esAdminPlataforma && layers.some((l) => l.templateLabel === "Fondo (no editable)") && (
+                <button
+                  {...preloadCapture()}
+                  onClick={() => {
+                    setTplForm((f) => ({ ...f, name: f.name || contentName }));
+                    setTplDialogOpen(true);
+                  }}
+                  className="w-full rounded border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20"
+                >
+                  Publicar como plantilla de Visualia
+                </button>
+              )}
+
               {selectedLayer ? (
                 <>
                   <div className="rounded border border-primary/30 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
