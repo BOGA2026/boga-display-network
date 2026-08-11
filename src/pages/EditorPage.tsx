@@ -701,7 +701,7 @@ export default function EditorPage() {
   const SNAP = 10;
   const moveLayerSingle = (id: string, rawX: number, rawY: number) => {
     const layer = layers.find((l) => l.id === id);
-    if (!layer) return;
+    if (!layer || layer.locked) return;
     let x = rawX;
     let y = rawY;
     const cx = x + layer.w / 2;
@@ -728,7 +728,7 @@ export default function EditorPage() {
       // Single layer: use absolute positioning with snap
       setLayers((prev) => {
         const layer = prev.find((l) => l.id === id);
-        if (!layer) return prev;
+        if (!layer || layer.locked) return prev;
         let x = layer.x + dx;
         let y = layer.y + dy;
         const cx = x + layer.w / 2;
@@ -746,7 +746,7 @@ export default function EditorPage() {
     // Multi-select: move all selected layers by the same delta
     setLayers((prev) =>
       prev.map((l) =>
-        selectedSet.has(l.id) ? { ...l, x: l.x + dx, y: l.y + dy } : l
+        selectedSet.has(l.id) && !l.locked ? { ...l, x: l.x + dx, y: l.y + dy } : l
       )
     );
   }, [selectedIds, selectedSet, baseResolution, SNAP]);
@@ -1392,6 +1392,7 @@ export default function EditorPage() {
                     w={l.w}
                     h={l.h}
                     zoom={zoom}
+                    locked={l.locked}
                     selected={selectedSet.has(l.id)}
                     editing={isEditing}
                     onSelect={handleLayerSelect}
@@ -1446,7 +1447,10 @@ export default function EditorPage() {
                         alt={l.name}
                         loading="lazy"
                         decoding="async"
-                        className="h-full w-full object-cover rounded"
+                        className={cn(
+                          "h-full w-full rounded",
+                          l.expects === "recorte" ? "object-contain" : "object-cover",
+                        )}
                         draggable={false}
                       />
                     ) : l.type === "video" && l.videoUrl ? (
