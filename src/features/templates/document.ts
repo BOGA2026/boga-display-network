@@ -25,6 +25,8 @@ export interface EditorLayerLike {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  videoUrl?: string;
+
   /** Plantillas: la capa no se mueve, no se borra, no se redimensiona. */
   locked?: boolean;
   /** Nombre en cristiano para el panel "Contenido" del editor. */
@@ -56,17 +58,19 @@ export function documentToLayers(
   brand: BrandKit | null,
 ): EditorLayerLike[] {
   const base = canvasFor(orientation);
+  const esVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(backgroundUrl ?? "");
 
   const fondo: EditorLayerLike = {
     id: crypto.randomUUID(),
     name: "Fondo de la plantilla",
-    type: "image",
+    type: esVideo ? "video" : "image",
     x: 0,
     y: 0,
     w: base.w,
     h: base.h,
     color: "#000000",
-    imageUrl: backgroundUrl,
+    imageUrl: esVideo ? undefined : backgroundUrl,
+    videoUrl: esVideo ? backgroundUrl : undefined,
     locked: true,
     templateLabel: "Fondo (no editable)",
   };

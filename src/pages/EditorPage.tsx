@@ -445,7 +445,7 @@ export default function EditorPage() {
       setCapturing(true);
       const dataUrl = await captureElement(canvasRef.current, { scale: 0.25, backgroundColor: "#000000", type: "image/jpeg" });
       setCapturing(false);
-      let thumb = fondo.imageUrl;
+      let thumb = fondo.videoUrl ?? fondo.imageUrl;
       if (dataUrl) {
         const blob = await (await fetch(dataUrl)).blob();
         thumb = await uploadTemplateAsset(blob, "miniatura.jpg");
@@ -456,7 +456,7 @@ export default function EditorPage() {
         business_type: tplForm.business_type,
         piece_type: tplForm.piece_type,
         orientation: orient,
-        background_url: fondo.imageUrl,
+        background_url: fondo.videoUrl ?? fondo.imageUrl,
         thumbnail_url: thumb,
         document: doc,
       });
@@ -1620,8 +1620,13 @@ export default function EditorPage() {
                         muted
                         loop
                         autoPlay
+                        playsInline
+                        preload="metadata"
+                        crossOrigin="anonymous"
+                        onLoadedData={(e) => { void e.currentTarget.play().catch(() => {}); }}
                         draggable={false}
                       />
+
                     ) : l.type === "widget" && l.widgetType && l.widgetData ? (
                       <WidgetRenderer
                         layer={{
