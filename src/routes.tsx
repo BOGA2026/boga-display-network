@@ -83,6 +83,7 @@ const AdminBusinessDiagnostics = lazyRoute("/master/negocios/:id/diagnostico");
 const AdminPQRS = lazyRoute("/master/pqrs");
 const AdminSupport = lazyRoute("/master/soporte");
 const AdminAdmins = lazyRoute("/master/admins");
+const AdminTemplates = lazyRoute("/master/plantillas");
 
 export default function AppRoutes() {
   // Fuerza re-mount del boundary por ruta (limpia errores al navegar).
@@ -158,6 +159,7 @@ export default function AppRoutes() {
 
         <Route path="leads" element={page(LeadsPage, pathname)} />
         <Route path="admins" element={page(AdminAdmins, pathname)} />
+        <Route path="plantillas" element={page(AdminTemplates, pathname)} />
       </Route>
 
 

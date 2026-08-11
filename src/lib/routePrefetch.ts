@@ -48,6 +48,7 @@ export const routeLoaders: Record<string, () => Promise<any>> = {
   "/master/soporte": () => import("@/pages/admin/AdminSupport"),
   "/master/leads": () => import("@/pages/AdminLeadsPage"),
   "/master/admins": () => import("@/pages/admin/AdminAdmins"),
+  "/master/plantillas": () => import("@/pages/admin/AdminTemplates"),
 };
 
 const cache = new Map<string, Promise<unknown>>();
