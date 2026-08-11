@@ -25,6 +25,8 @@ export interface EditorLayerLike {
   color: string;
   textStyle?: TextStyle;
   imageUrl?: string;
+  videoUrl?: string;
+
   /** Plantillas: la capa no se mueve, no se borra, no se redimensiona. */
   locked?: boolean;
   /** Nombre en cristiano para el panel "Contenido" del editor. */
