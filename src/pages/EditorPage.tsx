@@ -2145,6 +2145,71 @@ export default function EditorPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Publicar plantilla (equipo Visualia) */}
+      <Dialog open={tplDialogOpen} onOpenChange={setTplDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Publicar como plantilla</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Nombre</label>
+              <input
+                autoFocus
+                value={tplForm.name}
+                onChange={(e) => setTplForm({ ...tplForm, name: e.target.value })}
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Tipo de negocio</label>
+              <select
+                value={tplForm.business_type}
+                onChange={(e) => setTplForm({ ...tplForm, business_type: e.target.value })}
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm"
+              >
+                {BUSINESS_TYPES.map((b) => (
+                  <option key={b.value} value={b.value}>{b.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Tipo de pieza</label>
+              <select
+                value={tplForm.piece_type}
+                onChange={(e) => setTplForm({ ...tplForm, piece_type: e.target.value })}
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm"
+              >
+                {PIECE_TYPES.map((b) => (
+                  <option key={b.value} value={b.value}>{b.label}</option>
+                ))}
+              </select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Las posiciones se guardan en proporciones, así la plantilla sirve en cualquier televisor.
+            </p>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setTplDialogOpen(false)}
+              className="rounded border border-border px-4 py-2 text-sm hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={guardarComoPlantilla}
+              disabled={saving || !tplForm.name.trim()}
+              className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              <span className="inline-flex items-center gap-2">
+                {(saving || capturing) && <Loader2 className="h-4 w-4 animate-spin" />}
+                {capturing ? "Generando miniatura…" : saving ? "Publicando…" : "Publicar"}
+              </span>
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
