@@ -456,7 +456,7 @@ export default function EditorPage() {
         business_type: tplForm.business_type,
         piece_type: tplForm.piece_type,
         orientation: orient,
-        background_url: fondo.imageUrl,
+        background_url: fondo.videoUrl ?? fondo.imageUrl,
         thumbnail_url: thumb,
         document: doc,
       });
