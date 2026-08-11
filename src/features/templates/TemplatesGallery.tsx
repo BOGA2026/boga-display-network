@@ -112,13 +112,13 @@ export default function TemplatesGallery() {
         </div>
       ) : error ? (
         <EmptyState
-          icon={LayoutTemplate}
+          icon={<LayoutTemplate />}
           title="No pudimos cargar las plantillas"
           description="Recargá la página en un momento."
         />
       ) : !data?.length ? (
         <EmptyState
-          icon={LayoutTemplate}
+          icon={<LayoutTemplate />}
           title="Todavía no hay plantillas para este filtro"
           description="Probá con otro tipo de negocio, otra pieza u otra orientación."
         />
