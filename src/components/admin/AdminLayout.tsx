@@ -9,6 +9,7 @@ import logoVisualia from "@/assets/logo-visualia.webp";
 import {
   ShieldCheck,
   LayoutDashboard,
+  LayoutTemplate,
   Building2,
   Users,
   Inbox,
@@ -60,6 +61,7 @@ const groups: NavGroup[] = [
       { to: "/master/pantallas", label: "Pantallas", icon: Monitor },
       { to: "/master/mapa", label: "Mapa", icon: MapIcon },
       { to: "/master/negocios", label: "Negocios", icon: Building2 },
+      { to: "/master/plantillas", label: "Plantillas", icon: LayoutTemplate },
     ],
   },
   {

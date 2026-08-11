@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/query-client";
@@ -71,6 +71,7 @@ import { ContentCard, ContentItem as CardContentItem } from "@/components/conten
 import { ContentTable } from "@/components/content/ContentTable";
 import ScreenPreviewFrame from "@/components/content/ScreenPreviewFrame";
 import BrandSection from "@/features/brand/BrandSection";
+const TemplatesGallery = lazy(() => import("@/features/templates/TemplatesGallery"));
 import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
 import { getTenant } from "@/features/auth/tenant";
@@ -1139,17 +1140,21 @@ const ContentLibrary = () => {
 };
 
 /**
- * Contenido tiene dos pestañas: la biblioteca de archivos y "Tu marca",
- * que es de donde el generador con IA y el editor toman colores y logo.
+ * Contenido tiene tres pestañas: la biblioteca de archivos, las plantillas que
+ * diseña el equipo de Visualia y "Tu marca", que es de donde el generador con
+ * IA y el editor toman colores y logo.
  */
+type ContentTab = "biblioteca" | "plantillas" | "marca";
+
 const Content = () => {
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "marca" ? "marca" : "biblioteca";
+  const raw = params.get("tab");
+  const tab: ContentTab = raw === "marca" ? "marca" : raw === "plantillas" ? "plantillas" : "biblioteca";
 
-  const setTab = (next: "biblioteca" | "marca") => {
+  const setTab = (next: ContentTab) => {
     const p = new URLSearchParams(params);
-    if (next === "marca") p.set("tab", "marca");
-    else p.delete("tab");
+    if (next === "biblioteca") p.delete("tab");
+    else p.set("tab", next);
     setParams(p, { replace: true });
   };
 
@@ -1159,6 +1164,7 @@ const Content = () => {
         <div className="flex items-center gap-1 rounded-lg border border-border/40 p-0.5 w-fit">
           {([
             { id: "biblioteca" as const, label: "Biblioteca" },
+            { id: "plantillas" as const, label: "Plantillas" },
             { id: "marca" as const, label: "Tu marca" },
           ]).map((t) => (
             <button
@@ -1186,11 +1192,24 @@ const Content = () => {
           </div>
           <BrandSection />
         </div>
+      ) : tab === "plantillas" ? (
+        <div className="v-page">
+          <div className="mb-6">
+            <h1 className="font-display text-2xl font-bold">Plantillas</h1>
+            <p className="text-sm text-muted-foreground">
+              Diseños listos de Visualia: elegí uno, cambiá los textos y las fotos de tus productos.
+            </p>
+          </div>
+          <Suspense fallback={<CardGridSkeleton count={6} columns={3} className="gap-4" />}>
+            <TemplatesGallery />
+          </Suspense>
+        </div>
       ) : (
         <ContentLibrary />
       )}
     </>
   );
 };
+
 
 export default Content;

@@ -15,11 +15,13 @@ type Props = {
   onMoveEnd?: () => void;
   onResize: (id: string, w: number, h: number) => void;
   onDragEnd?: () => void;
+  /** Capa fija de una plantilla: no se mueve ni se redimensiona. */
+  locked?: boolean;
   children: React.ReactNode;
 };
 
 export function DraggableLayer({
-  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onMoveEnd, onResize, onDragEnd, children,
+  id, x, y, w, h, selected, zoom, editing, onSelect, onDoubleClick, onMove, onMoveEnd, onResize, onDragEnd, locked, children,
 }: Props) {
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -29,12 +31,13 @@ export function DraggableLayer({
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     if (editing) return;
     e.stopPropagation();
+    if (locked) { onSelect(id, false); return; }
     e.currentTarget.setPointerCapture(e.pointerId);
     const additive = e.ctrlKey || e.metaKey || e.shiftKey;
     onSelect(id, additive);
     setDragging(true);
     startRef.current = { mx: e.clientX, my: e.clientY, x, y, w, h };
-  }, [id, x, y, w, h, onSelect, editing]);
+  }, [id, x, y, w, h, onSelect, editing, locked]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!startRef.current) return;
@@ -91,13 +94,13 @@ export function DraggableLayer({
         top: y,
         width: w,
         height: h,
-        cursor: editing ? "text" : dragging ? "grabbing" : "grab",
+        cursor: locked ? "default" : editing ? "text" : dragging ? "grabbing" : "grab",
         border: selected ? "2px solid #22d3ee" : "1px dashed transparent",
         boxShadow: selected ? "0 0 0 3px rgba(34, 211, 238, 0.35)" : "none",
       }}
     >
       {children}
-      {selected && !editing && (
+      {selected && !editing && !locked && (
         <div
           onPointerDown={onResizeDown}
           onPointerMove={onPointerMove}

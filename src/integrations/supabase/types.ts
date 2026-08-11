@@ -2465,6 +2465,51 @@ export type Database = {
           },
         ]
       }
+      templates: {
+        Row: {
+          background_url: string
+          business_type: string
+          created_at: string
+          document: Json
+          id: string
+          is_active: boolean
+          name: string
+          orientation: string
+          piece_type: string
+          sort_order: number
+          thumbnail_url: string
+          updated_at: string
+        }
+        Insert: {
+          background_url: string
+          business_type: string
+          created_at?: string
+          document: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          orientation: string
+          piece_type: string
+          sort_order?: number
+          thumbnail_url: string
+          updated_at?: string
+        }
+        Update: {
+          background_url?: string
+          business_type?: string
+          created_at?: string
+          document?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          orientation?: string
+          piece_type?: string
+          sort_order?: number
+          thumbnail_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           created_at: string
