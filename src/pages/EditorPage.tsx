@@ -1620,8 +1620,13 @@ export default function EditorPage() {
                         muted
                         loop
                         autoPlay
+                        playsInline
+                        preload="metadata"
+                        crossOrigin="anonymous"
+                        onLoadedData={(e) => { void e.currentTarget.play().catch(() => {}); }}
                         draggable={false}
                       />
+
                     ) : l.type === "widget" && l.widgetType && l.widgetData ? (
                       <WidgetRenderer
                         layer={{
