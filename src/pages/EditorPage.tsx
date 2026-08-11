@@ -451,7 +451,7 @@ export default function EditorPage() {
         thumb = await uploadTemplateAsset(blob, "miniatura.jpg");
       }
       const id = await saveTemplate({
-        id: plantillaOrigen && esAdminPlataforma ? undefined : undefined,
+        id: esAdminPlataforma && searchParams.get("edit") === "1" ? plantillaOrigen ?? undefined : undefined,
         name: tplForm.name.trim() || contentName,
         business_type: tplForm.business_type,
         piece_type: tplForm.piece_type,
@@ -470,7 +470,7 @@ export default function EditorPage() {
       setCapturing(false);
       setSaving(false);
     }
-  }, [layers, orientation, tplForm, contentName, plantillaOrigen, esAdminPlataforma]);
+  }, [layers, orientation, tplForm, contentName, plantillaOrigen, esAdminPlataforma, searchParams]);
 
   const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
 
