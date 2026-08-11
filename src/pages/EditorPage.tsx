@@ -57,6 +57,9 @@ import { fetchBrandKit, type BrandKit } from "@/features/brand/api";
 import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, ensureFont } from "@/features/brand/fonts";
 import { useTenant } from "@/features/auth/useTenant";
 import { DEFAULT_ELEMENT_COLORS, toDataUri } from "@/features/editor/elements/svg";
+import { fetchTemplate, isPlatformAdmin, saveTemplate, uploadTemplateAsset } from "@/features/templates/api";
+import { documentToLayers, layersToDocument, validateTemplateDocument, fitFontSize } from "@/features/templates/document";
+import { BUSINESS_TYPES, DEFAULT_SAFE_AREA, PIECE_TYPES, canvasFor } from "@/features/templates/types";
 
 type Orientation = "landscape" | "portrait";
 type LayerType = "zone" | "text" | "image" | "widget" | "video";
@@ -78,6 +81,16 @@ type LayerItem = {
   videoUrl?: string;
   widgetType?: "product_card" | "menu_board" | "promo";
   widgetData?: ProductCardData | MenuBoardData | PromoData;
+  /** Plantillas: el fondo y las capas fijas no se mueven ni se borran. */
+  locked?: boolean;
+  /** Nombre en cristiano de la capa dentro de la plantilla. */
+  templateLabel?: string;
+  templateKind?: "texto" | "precio" | "foto" | "logo";
+  /** "foto" se recorta al marco; "recorte" (PNG sin fondo) se muestra entero. */
+  expects?: "foto" | "recorte";
+  maxChars?: number;
+  /** Tamaño original de la plantilla: el auto-ajuste no baja del 70 %. */
+  baseFontSize?: number;
 };
 
 export default function EditorPage() {
@@ -672,6 +685,7 @@ export default function EditorPage() {
   };
 
   const removeLayer = (id: string) => {
+    if (layers.find((l) => l.id === id)?.locked) return;
     saveSnapshot();
     setLayers((prev) => prev.filter((l) => l.id !== id));
     setSelectedIds((prev) => prev.filter((sid) => sid !== id));
@@ -749,7 +763,7 @@ export default function EditorPage() {
       futureRef.current = [];
       dragSnapshotSaved.current = true;
     }
-    setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, w, h } : l)));
+    setLayers((prev) => prev.map((l) => (l.id === id && !l.locked ? { ...l, w, h } : l)));
   };
 
   const handleResizeEnd = useCallback(() => {
@@ -835,7 +849,7 @@ export default function EditorPage() {
 
   const deleteSelected = useCallback(() => {
     saveSnapshot();
-    setLayers((prev) => prev.filter((l) => !selectedSet.has(l.id)));
+    setLayers((prev) => prev.filter((l) => !(selectedSet.has(l.id) && !l.locked)));
     setSelectedIds([]);
   }, [selectedSet, saveSnapshot]);
 
