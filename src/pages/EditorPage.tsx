@@ -445,7 +445,7 @@ export default function EditorPage() {
       setCapturing(true);
       const dataUrl = await captureElement(canvasRef.current, { scale: 0.25, backgroundColor: "#000000", type: "image/jpeg" });
       setCapturing(false);
-      let thumb = fondo.imageUrl;
+      let thumb = fondo.videoUrl ?? fondo.imageUrl;
       if (dataUrl) {
         const blob = await (await fetch(dataUrl)).blob();
         thumb = await uploadTemplateAsset(blob, "miniatura.jpg");
