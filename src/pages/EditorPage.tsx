@@ -96,6 +96,15 @@ type LayerItem = {
 export default function EditorPage() {
   const [searchParams] = useSearchParams();
   const [contentId, setContentId] = useState<string | null>(null);
+  /** Plantillas: fondo bloqueado + capas editables marcadas por Visualia. */
+  const [plantillaOrigen, setPlantillaOrigen] = useState<string | null>(null);
+  const [esAdminPlataforma, setEsAdminPlataforma] = useState(false);
+  const [tplDialogOpen, setTplDialogOpen] = useState(false);
+  const [tplForm, setTplForm] = useState({
+    name: "",
+    business_type: "restaurante",
+    piece_type: "menu",
+  });
   const [contentName, setContentName] = useState("Nuevo layout");
   const [orientation, setOrientation] = useState<Orientation>("landscape");
   const [customResolution, setCustomResolution] = useState(false);
@@ -311,6 +320,157 @@ export default function EditorPage() {
       alive = false;
     };
   }, [searchParams]);
+
+  /** ¿Es del equipo de Visualia? Solo ellos crean o editan plantillas. */
+  useEffect(() => {
+    isPlatformAdmin().then(setEsAdminPlataforma).catch(() => setEsAdminPlataforma(false));
+  }, []);
+
+  /**
+   * Abrir una plantilla (`?template=<id>`): se copia al lienzo. El fondo queda
+   * bloqueado y solo se pueden tocar las capas que Visualia marcó como
+   * editables. La plantilla original nunca se modifica.
+   */
+  useEffect(() => {
+    const tid = searchParams.get("template");
+    if (!tid) return;
+    let vivo = true;
+    (async () => {
+      try {
+        const [tpl, kit] = await Promise.all([fetchTemplate(tid), fetchBrandKit().catch(() => null)]);
+        if (!vivo || !tpl) return;
+        const horizontal = tpl.orientation !== "vertical";
+        setPlantillaOrigen(tpl.id);
+        setOrientation(horizontal ? "landscape" : "portrait");
+        setCustomResolution(false);
+        setContentName(tpl.name);
+        setBackground("#000000");
+        setLayers(documentToLayers(tpl.document, tpl.orientation, tpl.background_url, kit) as LayerItem[]);
+        (tpl.document?.layers ?? []).forEach((l) => ensureFont(l.text?.fontFamily));
+        setTab("settings");
+      } catch (e) {
+        console.error("plantilla:", e);
+        toast.error("No pudimos abrir la plantilla");
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [searchParams]);
+
+  /**
+   * Panel de Visualia: crear una plantilla nueva sobre un fondo ya diseñado
+   * (`?templateBg=<url>&orientation=…`).
+   */
+  useEffect(() => {
+    const bg = searchParams.get("templateBg");
+    if (!bg) return;
+    const vertical = searchParams.get("orientation") === "vertical";
+    const base = canvasFor(vertical ? "vertical" : "horizontal");
+    setOrientation(vertical ? "portrait" : "landscape");
+    setCustomResolution(false);
+    setContentName(searchParams.get("templateName") || "Plantilla nueva");
+    setTplForm((f) => ({
+      ...f,
+      name: searchParams.get("templateName") || "Plantilla nueva",
+      business_type: searchParams.get("templateBusiness") || f.business_type,
+      piece_type: searchParams.get("templatePiece") || f.piece_type,
+    }));
+    setLayers([
+      {
+        id: crypto.randomUUID(),
+        name: "Fondo de la plantilla",
+        type: "image",
+        x: 0,
+        y: 0,
+        w: base.w,
+        h: base.h,
+        color: "#000000",
+        imageUrl: bg,
+        locked: true,
+        templateLabel: "Fondo (no editable)",
+      },
+    ]);
+  }, [searchParams]);
+
+  const capasPlantilla = useMemo(
+    () => layers.filter((l) => l.templateLabel && l.templateLabel !== "Fondo (no editable)" && !l.locked),
+    [layers],
+  );
+  const enPlantilla = Boolean(plantillaOrigen) && capasPlantilla.length > 0;
+
+  /**
+   * El texto del cliente casi nunca mide lo mismo que el de la plantilla.
+   * Se achica la letra hasta el 70 % del tamaño original; por debajo de eso
+   * dejaría de leerse en el televisor y preferimos avisar.
+   */
+  const editarTextoPlantilla = useCallback((id: string, valor: string) => {
+    setLayers((prev) =>
+      prev.map((l) => {
+        if (l.id !== id || !l.textStyle) return l;
+        const base = l.baseFontSize ?? l.textStyle.fontSize;
+        const { fontSize } = fitFontSize(valor, base, l.w, l.h, l.textStyle.fontFamily, l.textStyle.fontWeight);
+        return { ...l, textStyle: { ...l.textStyle, content: valor, fontSize } };
+      }),
+    );
+  }, []);
+
+  const cambiarFotoPlantilla = useCallback(async (id: string, file: File) => {
+    try {
+      const url = await uploadTemplateAsset(file, file.name.replace(/[^\w.-]/g, "_"));
+      setLayers((prev) => prev.map((l) => (l.id === id ? { ...l, imageUrl: url } : l)));
+    } catch (e: any) {
+      toast.error("No pudimos subir la imagen: " + (e?.message ?? ""));
+    }
+  }, []);
+
+  /** Guardar el lienzo actual como plantilla del catálogo (solo Visualia). */
+  const guardarComoPlantilla = useCallback(async () => {
+    const fondo = layers.find((l) => l.templateLabel === "Fondo (no editable)");
+    if (!fondo?.imageUrl) {
+      toast.error("La plantilla necesita un fondo. Creala desde Plantillas en el panel de Visualia.");
+      return;
+    }
+    const orient = orientation === "portrait" ? "vertical" : "horizontal";
+    const doc = layersToDocument(layers as any, orient, DEFAULT_SAFE_AREA);
+    const { errores, avisos } = validateTemplateDocument(doc);
+    if (errores.length) {
+      toast.error(errores[0]);
+      return;
+    }
+    avisos.forEach((a) => toast.warning(a));
+
+    setSaving(true);
+    try {
+      setCapturing(true);
+      const dataUrl = await captureElement(canvasRef.current, { scale: 0.25, backgroundColor: "#000000", type: "image/jpeg" });
+      setCapturing(false);
+      let thumb = fondo.imageUrl;
+      if (dataUrl) {
+        const blob = await (await fetch(dataUrl)).blob();
+        thumb = await uploadTemplateAsset(blob, "miniatura.jpg");
+      }
+      const id = await saveTemplate({
+        id: plantillaOrigen && esAdminPlataforma ? undefined : undefined,
+        name: tplForm.name.trim() || contentName,
+        business_type: tplForm.business_type,
+        piece_type: tplForm.piece_type,
+        orientation: orient,
+        background_url: fondo.imageUrl,
+        thumbnail_url: thumb,
+        document: doc,
+      });
+      toast.success("Plantilla publicada en el catálogo");
+      setTplDialogOpen(false);
+      return id;
+    } catch (e: any) {
+      console.error(e);
+      toast.error("No pudimos guardar la plantilla: " + (e?.message ?? ""));
+    } finally {
+      setCapturing(false);
+      setSaving(false);
+    }
+  }, [layers, orientation, tplForm, contentName, plantillaOrigen, esAdminPlataforma]);
 
   const cloneLayers = (ls: LayerItem[]) => ls.map((l) => ({ ...l }));
 
