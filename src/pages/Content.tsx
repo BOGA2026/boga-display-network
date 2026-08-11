@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { queryClient } from "@/lib/query-client";
@@ -71,6 +71,7 @@ import { ContentCard, ContentItem as CardContentItem } from "@/components/conten
 import { ContentTable } from "@/components/content/ContentTable";
 import ScreenPreviewFrame from "@/components/content/ScreenPreviewFrame";
 import BrandSection from "@/features/brand/BrandSection";
+const TemplatesGallery = lazy(() => import("@/features/templates/TemplatesGallery"));
 import { hasStorageRoom, usageQueryKey } from "@/features/settings/api";
 import { expiresAtFromDefault, formatGB } from "@/config/businessSettings";
 import { getTenant } from "@/features/auth/tenant";
@@ -1199,7 +1200,7 @@ const Content = () => {
               Diseños listos de Visualia: elegí uno, cambiá los textos y las fotos de tus productos.
             </p>
           </div>
-          <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
+          <Suspense fallback={<CardGridSkeleton count={6} columns={3} className="gap-4" />}>
             <TemplatesGallery />
           </Suspense>
         </div>
