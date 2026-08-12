@@ -95,7 +95,6 @@ export const BUSINESS_TYPES: { value: string; label: string }[] = [
   { value: "bar", label: "Bar" },
   { value: "panaderia", label: "Panadería" },
   { value: "comida_rapida", label: "Comida rápida" },
-  { value: "belleza", label: "Belleza y estética" },
   { value: "retail", label: "Tienda" },
   { value: "general", label: "Cualquier negocio" },
 ];
